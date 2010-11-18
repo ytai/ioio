@@ -243,13 +243,6 @@ void ManageDemoState(void) {
   DWORD bytesRead;
   BlinkStatus();
 
-  // Watch for device detaching
-  if (DeviceAttached && !USBHostAndroidIsDeviceAttached()) {
-    UART2PrintString("Generic demo device detached - polled\r\n");
-    DemoState = DEMO_INITIALIZE;
-    DeviceAttached = FALSE;
-  }
-
   switch (DemoState) {
    case DEMO_INITIALIZE:
     DemoState = DEMO_STATE_IDLE;
@@ -384,8 +377,12 @@ BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWOR
     UART2PrintString("\r\n***** USB Error - unspecified *****\r\n");
     return TRUE;
 
-   case EVENT_SUSPEND:
    case EVENT_DETACH:
+    DemoState = DEMO_INITIALIZE;
+    DeviceAttached = FALSE;
+    return TRUE;
+
+   case EVENT_SUSPEND:
    case EVENT_RESUME:
    case EVENT_BUS_ERROR:
     return TRUE;

@@ -10,6 +10,13 @@
 // USBHostAndroidEventHandler() should be specified as the EventHandler()
 // function in the usbClientDrvTable[] array declared in usb_config.c.
 //
+// The driver passes on the following events to the application event handler
+// (defined by the USB_HOST_APP_EVENT_HANDLER macro):
+// - EVENT_DETACH
+// - EVENT_SUSPEND
+// - EVENT_RESUME
+// - EVENT_BUS_ERROR
+//
 // This driver can be configured to either use transfer events from usb_host.c
 // or use a polling mechanism.  If USB_ENABLE_TRANSFER_EVENT is defined, this
 // driver will utilize transfer events.  Otherwise, this driver will utilize

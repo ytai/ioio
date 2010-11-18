@@ -70,12 +70,13 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
    case EVENT_DETACH:
     gc_DevData.flags.val        = 0;
     gc_DevData.ID.deviceAddress = 0;
+
 #ifdef DEBUG_MODE
     UART2PrintString("ANDR: Android Client Device Detached: address=");
     UART2PutDec(address);
     UART2PrintString("\r\n");
 #endif
-    return TRUE;
+    break;
 
 #ifdef USB_ENABLE_TRANSFER_EVENT
    case EVENT_TRANSFER:
@@ -103,7 +104,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
     break;
   }
 
-  return FALSE;
+  return USB_HOST_APP_EVENT_HANDLER(address, event, data, size);
 }  // USBHostAndroidEventHandler
 
 
