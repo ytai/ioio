@@ -8,12 +8,6 @@
 #define ADB_MAX_PAYLOAD 2048
 
 
-void ADBTasks();
-BOOL ADBConnect();
-
-
-
-
 /**
  * Waits for an Android device to attach, and connects to it.
  * This is a blocking method, which will unblock only after a device got
@@ -22,7 +16,7 @@ BOOL ADBConnect();
  *   The attached device is not an Android device.
  *   The attached device did not respond according to ADB protocol.
  */
-BOOL connect();
+BOOL ADBConnect();
 /**
  * Returns true if there is an attached and connected device.
  * NOTE: This method will not actively check for attached and connected device,

@@ -110,10 +110,6 @@ static BOOL ADBSendMessageData(const ADB_MESSAGE_HEADER* msg, const BYTE* data, 
   return TRUE;
 }
 
-static ADB_PROCESS_STATUS ADBGetLastSendStatus() {
-  return last_send_status;
-}
-
 static BOOL ADBRecvMessageData(ADB_MESSAGE_HEADER* msg, BYTE* buf, DWORD* len) {
   if (adb_recv_state != ADB_SEND_RECV_STATE_IDLE) {
     return FALSE;
@@ -126,12 +122,8 @@ static BOOL ADBRecvMessageData(ADB_MESSAGE_HEADER* msg, BYTE* buf, DWORD* len) {
   return TRUE;
 }
 
-ADB_PROCESS_STATUS ADBLastRecvStatus() {
-  return last_recv_status;
-}
 
-
-void ADBSendTasks() {
+static void ADBSendTasks() {
   BYTE ret_val;
   switch (adb_send_state) {
     case ADB_SEND_RECV_STATE_IDLE:
@@ -194,7 +186,7 @@ void ADBSendTasks() {
   }
 }
 
-void ADBRecvTasks() {
+static void ADBRecvTasks() {
   BYTE ret_val;
   switch (adb_recv_state) {
     case ADB_SEND_RECV_STATE_IDLE:
@@ -267,7 +259,7 @@ void ADBRecvTasks() {
    }
 }
 
-BOOL ADBCheckForNewAttach() {
+static BOOL ADBCheckForNewAttach() {
   if (!adb_device_attached && USBHostAndroidIsDeviceAttached()) {
     adb_device_attached = TRUE;
     // ANDROID_DEVICE_ID DevID;
@@ -281,7 +273,7 @@ BOOL ADBCheckForNewAttach() {
   return FALSE;
 }
 
-void ADBFillMessageHeader(UINT32 cmd, UINT32 arg0, UINT32 arg1, const BYTE* data, UINT32 data_length) {
+static void ADBFillMessageHeader(UINT32 cmd, UINT32 arg0, UINT32 arg1, const BYTE* data, UINT32 data_length) {
   adb_internal_amessage.command = cmd;
   adb_internal_amessage.arg0 = arg0;
   adb_internal_amessage.arg1 = arg1;
@@ -290,7 +282,7 @@ void ADBFillMessageHeader(UINT32 cmd, UINT32 arg0, UINT32 arg1, const BYTE* data
   adb_internal_amessage.magic = ~cmd;
 }
 
-void ADBConnectTasks() {
+static void ADBConnectTasks() {
   switch (adb_cnct_state) {
    case ADB_CNCT_IDLE:
     break;
@@ -305,7 +297,7 @@ void ADBConnectTasks() {
     break;
 
    case ADB_CNCT_SEND_CONNECT:
-     switch (ADBGetLastSendStatus()) {
+     switch (last_send_status) {
       case ADB_PROCESS_SUCCESS:
         UART2PrintString("ADB: Recieving connect message\r\n");
         ADBRecvMessageData(&adb_internal_amessage, adb_internal_buffer, &adb_internal_size);
@@ -322,7 +314,7 @@ void ADBConnectTasks() {
      break;
   
     case ADB_CNCT_RECV_CONNECT:
-      switch (ADBLastRecvStatus()) {
+      switch (last_recv_status) {
         case ADB_PROCESS_SUCCESS:
           // TODO: If we didn't get CNXN as reply, do we want to wait or die?
           if ((adb_internal_amessage.command != ADB_CNXN) ||
@@ -348,7 +340,7 @@ void ADBConnectTasks() {
       break;
 
     case ADB_CNCT_SEND_OPEN:
-     switch (ADBGetLastSendStatus()) {
+     switch (last_send_status) {
       case ADB_PROCESS_SUCCESS:
         UART2PrintString("ADB: Recieving ready message\r\n");
         ADBRecvMessageData(&adb_internal_amessage, adb_internal_buffer, &adb_internal_size);
@@ -365,7 +357,7 @@ void ADBConnectTasks() {
      break;
 
     case ADB_CNCT_RECV_READY:
-      switch (ADBLastRecvStatus()) {
+      switch (last_recv_status) {
         case ADB_PROCESS_SUCCESS:
           if ((adb_internal_amessage.command != ADB_OKAY) ||
               (adb_internal_amessage.data_length != 0) ||
@@ -402,10 +394,6 @@ BOOL ADBConnect() {
   }
   adb_cnct_state = ADB_CNCT_WAIT_ATTACH;
   return TRUE;
-}
-
-ADB_PROCESS_STATUS GetLastConnectStatus() {
-  return last_connect_status;
 }
 
 void ADBTasks() {
