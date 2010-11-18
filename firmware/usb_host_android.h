@@ -12,10 +12,9 @@
 //
 // The driver passes on the following events to the application event handler
 // (defined by the USB_HOST_APP_EVENT_HANDLER macro):
-// - EVENT_DETACH
-// - EVENT_SUSPEND
-// - EVENT_RESUME
-// - EVENT_BUS_ERROR
+// - EVENT_DETACH - when device is detached.
+// - EVENT_SUSPEND - when device is suspended.
+// - EVENT_RESUME - when device is resumed.
 //
 // This driver can be configured to either use transfer events from usb_host.c
 // or use a polling mechanism.  If USB_ENABLE_TRANSFER_EVENT is defined, this

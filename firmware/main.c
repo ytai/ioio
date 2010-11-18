@@ -384,7 +384,6 @@ BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWOR
 
    case EVENT_SUSPEND:
    case EVENT_RESUME:
-   case EVENT_BUS_ERROR:
     return TRUE;
 
    default:

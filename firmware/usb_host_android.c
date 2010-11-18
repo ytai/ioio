@@ -79,6 +79,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
     break;
 
 #ifdef USB_ENABLE_TRANSFER_EVENT
+   case EVENT_BUS_ERROR:
    case EVENT_TRANSFER:
     if ((data != NULL) && (size == sizeof(HOST_TRANSFER_DATA))) {
       DWORD dataCount = ((HOST_TRANSFER_DATA *)data)->dataCount;
@@ -86,8 +87,10 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_DevData.inEndpoint) {
         gc_DevData.flags.rxBusy = 0;
         gc_DevData.rxLength = dataCount;
+        gc_DevData.rxErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
       } else if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_DevData.outEndpoint) {
         gc_DevData.flags.txBusy = 0;
+        gc_DevData.txErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
       } else {
         return FALSE;
       }
@@ -99,7 +102,6 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
 
   case EVENT_SUSPEND:
   case EVENT_RESUME:
-  case EVENT_BUS_ERROR:
   default:
     break;
   }
