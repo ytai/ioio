@@ -27,6 +27,7 @@
 #ifndef __USBHOSTANDROID_H__
 #define __USBHOSTANDROID_H__
 
+#include "usb_config.h"
 #include "USB/usb_common.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +111,7 @@ void USBHostAndroidTasks( void );
 // USBHostAndroidTxIsComplete() to check for completion and get status code.
 // Returns USB_SUCCESS if succeeded.
 // Device must be attached.
-BYTE USBHostAndroidWrite(void *buffer, DWORD length);
+BYTE USBHostAndroidWrite(const void *buffer, DWORD length);
 
 // Check whether the last call to USBHostAndroidWrite has completed.
 // In case it is complete, returns TRUE, and the error code is returned.

@@ -1,12 +1,12 @@
 #include "adb.h"
-#include "HardwareProfile.h"  // For UART2PrintString()
-#include "usb_config.h"
-#include "USB/usb_common.h"
-#include "USB/usb_host.h"
-#include "usb_host_android.h"  // For USBHostAndroid.*()
-//#include "timer.h"  // For DelayMs()
-#include <string.h>  // For strncmp()
+#include "adb_packet.h"
+#include "uart2.h"
+#include <string.h>
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Types
+////////////////////////////////////////////////////////////////////////////////
 
 // ADB protocol defines
 #define ADB_SYNC 0x434e5953
@@ -18,60 +18,80 @@
 
 #define ADB_VERSION 0x01000000        // ADB protocol version
 
-typedef struct {
-  UINT32 command;       /* command identifier constant      */
-  UINT32 arg0;          /* first argument                   */
-  UINT32 arg1;          /* second argument                  */
-  UINT32 data_length;   /* length of payload (0 is allowed) */
-  UINT32 data_check;    /* checksum of data payload         */
-  UINT32 magic;         /* command ^ 0xffffffff             */
-} ADB_MESSAGE_HEADER;
-
-const char* ADB_ANDROID_DEVICE = "device::";
-const unsigned int ADB_LOCAL_ID = 387;
-unsigned int adb_remote_id = 0;
+//const char* ADB_ANDROID_DEVICE = "device::";
+//const unsigned int ADB_LOCAL_ID = 387;
+//unsigned int adb_remote_id = 0;
 const char ADB_HOSTNAME_STRING[] = "host::";
-const char ADB_DEST_ADDR_STRING[] = "tcp:7149";
+//const char ADB_DEST_ADDR_STRING[] = "tcp:7149";
 
 typedef enum {
-  ADB_CNCT_WAIT_ATTACH,
-  ADB_CNCT_SEND_CONNECT,
-  ADB_CNCT_RECV_CONNECT,
-  ADB_CNCT_SEND_OPEN,
-  ADB_CNCT_RECV_READY,
-  ADB_CNCT_IDLE,
-  ADB_CNCT_ERROR
-} ADB_CNCT_STATES;
-
-#define ADB_CNCT_BUSY(state) ((state) < ADB_CNCT_IDLE)
+  ADB_CONN_STATE_WAIT_ATTACH,
+  ADB_CONN_STATE_WAIT_SEND_CONNECT,
+  ADB_CONN_STATE_WAIT_RECV_CONNECT,
+  ADB_CONN_STATE_RESYNC,
+  ADB_CONN_STATE_WAIT_SEND_SYNC,
+  ADB_CONN_STATE_WAIT_RECV_SYNC,
+  ADB_CONN_STATE_IDLE
+} ADB_CONN_STATE;
 
 typedef enum {
-  ADB_TXRX_START,
-  ADB_TXRX_WAIT_HEADER,
-  ADB_TXRX_WAIT_DATA,
-  ADB_TXRX_IDLE,
-  ADB_TXRX_ERROR
-} ADB_TXRX_STATE;
+  ADB_CHAN_STATE_CLOSED,
+  ADB_CHAN_STATE_START,
+  ADB_CHAN_STATE_WAIT_SEND_OPEN,
+  ADB_CHAN_STATE_WAIT_RECV_READY,
+  ADB_CHAN_STATE_IDLE,
+  ADB_CHAN_STATE_ERROR
+} ADB_CHAN_STATE;
 
-#define ADB_TXRX_BUSY(state) ((state) < ADB_TXRX_IDLE)
+////////////////////////////////////////////////////////////////////////////////
+// Globals
+////////////////////////////////////////////////////////////////////////////////
+//static char internal_print_char_buf[256];
+//#define print1(x,a) do { sprintf(internal_print_char_buf, x, a); UART2PrintString(internal_print_char_buf); } while(0)
 
-static char internal_print_char_buf[256];
-#define print1(x,a) do { sprintf(internal_print_char_buf, x, a); UART2PrintString(internal_print_char_buf); } while(0)
+//static BOOL adb_device_attached = FALSE;
+static ADB_CONN_STATE adb_conn_state;
+static ADB_CHAN_STATE adb_chan_state[ADB_MAX_CHANNELS];
 
-static BOOL adb_device_attached = FALSE;
-static ADB_TXRX_STATE adb_send_state = ADB_TXRX_IDLE;
-static ADB_TXRX_STATE adb_recv_state = ADB_TXRX_IDLE;
-static ADB_CNCT_STATES adb_cnct_state = ADB_CNCT_IDLE;
-static const ADB_MESSAGE_HEADER* send_amessage_pointer;
-static const BYTE* send_data_pointer;
-static DWORD send_data_length;
-static ADB_MESSAGE_HEADER* recv_amessage_pointer;
-static BYTE* recv_data_pointer;
-static DWORD* recv_data_length_pointer;
+////////////////////////////////////////////////////////////////////////////////
+// Functions & Macros
+////////////////////////////////////////////////////////////////////////////////
 
-static ADB_MESSAGE_HEADER adb_internal_amessage;
-static BYTE adb_internal_buffer[512];
-static DWORD adb_internal_size;
+static void ADBResync() {
+  ADBPacketReset();
+  adb_conn_state = ADB_CONN_STATE_RESYNC;
+}
+
+void ADBReset() {
+  int i;
+  adb_conn_state = ADB_CONN_STATE_WAIT_ATTACH;
+  for (i = 0; i < ADB_MAX_CHANNELS; i++) {
+    adb_chan_state = ADB_CHAN_STATE_CLOSED;
+  }
+  ADBPacketReset();
+}
+
+
+ADB_RESULT ADBResetStatus();
+void ADBOpen(const char* name);
+ADB_RESULT ADBOpenStatus(ADB_CHANNEL_HANDLE* handle);
+void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len);
+ADB_RESULT ADBWriteStatus();
+void ADBRead(ADB_CHANNEL_HANDLE handle);
+ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_len);
+void ADBTasks();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 static void ADBPrintMessage(const BYTE* buf, size_t size) {
@@ -81,159 +101,6 @@ static void ADBPrintMessage(const BYTE* buf, size_t size) {
   }
   UART2PutChar('\r');
   UART2PutChar('\n');
-}
-
-
-static unsigned ADBChecksum(const BYTE* data, size_t len) {
-  unsigned sum = 0;
-  size_t i = 0;
-  for (i = 0; i < len; ++i) {
-    sum += data[i];
-  }
-  return sum;
-}
-
-
-static BOOL ADBSendMessageData(const ADB_MESSAGE_HEADER* msg, const BYTE* data, DWORD len) {
-  if (ADB_TXRX_BUSY(adb_send_state)) return FALSE;
-
-  send_amessage_pointer = msg;
-  send_data_pointer = data;
-  send_data_length = len;
-  adb_send_state = ADB_TXRX_START;
-  return TRUE;
-}
-
-static BOOL ADBRecvMessageData(ADB_MESSAGE_HEADER* msg, BYTE* buf, DWORD* len) {
-  if (ADB_TXRX_BUSY(adb_recv_state)) return FALSE;
-
-  recv_amessage_pointer = msg;
-  recv_data_pointer = buf;
-  recv_data_length_pointer = len;
-  adb_recv_state = ADB_TXRX_START;
-  return TRUE;
-}
-
-
-static void ADBSendTasks() {
-  BYTE ret_val;
-  switch (adb_send_state) {
-   case ADB_TXRX_START:
-    UART2PrintString("ADB: Sending message...");
-    ADBPrintMessage((BYTE*)send_amessage_pointer, sizeof(ADB_MESSAGE_HEADER));
-    if ((ret_val = USBHostAndroidWrite((BYTE*)send_amessage_pointer, sizeof(ADB_MESSAGE_HEADER))) != USB_SUCCESS) {
-      print1("ADB: USBHostAndroidWrite failed: %x\r\n", ret_val);
-      adb_send_state = ADB_TXRX_ERROR;
-      break;
-    }
-    adb_send_state = ADB_TXRX_WAIT_HEADER;
-    break;
-
-   case ADB_TXRX_WAIT_HEADER:
-    if (USBHostAndroidTxIsComplete(&ret_val)) {
-      if (ret_val != USB_SUCCESS) {
-        print1("ADB: Message sending Tx got: %x\r\n", ret_val);
-        adb_send_state = ADB_TXRX_ERROR;
-        break;
-      }
-
-      if (send_data_length == 0) {
-        UART2PrintString("ADB: No data to send...\r\n");
-        adb_send_state = ADB_TXRX_IDLE;
-        break;
-      }
-      UART2PrintString("ADB: Sending data...");
-      ADBPrintMessage(send_data_pointer, send_data_length);
-      if ((ret_val = USBHostAndroidWrite((BYTE*)send_data_pointer, send_data_length)) != USB_SUCCESS) {
-        print1("ADB: USBHostAndroidWrite failed: %x\r\n", ret_val);
-        adb_send_state = ADB_TXRX_ERROR;
-        break;
-      }
-
-      adb_send_state = ADB_TXRX_WAIT_DATA;
-    }
-    break;
-
-   case ADB_TXRX_WAIT_DATA:
-    if (USBHostAndroidTxIsComplete(&ret_val)) {
-      if (ret_val != USB_SUCCESS) {
-        print1("Data sending Tx got: %x\r\n", ret_val);
-        adb_send_state = ADB_TXRX_ERROR;
-        break;
-      }
-
-      UART2PrintString("ADB: Sending data complete...\r\n");
-      adb_send_state = ADB_TXRX_IDLE;
-    }
-    break;
-
-   case ADB_TXRX_IDLE:
-   case ADB_TXRX_ERROR:
-    break;
-  }
-}
-
-static void ADBRecvTasks() {
-  BYTE ret_val;
-  switch (adb_recv_state) {
-   case ADB_TXRX_START:
-    if ((ret_val = USBHostAndroidRead((BYTE*)recv_amessage_pointer, sizeof(ADB_MESSAGE_HEADER))) != USB_SUCCESS) {
-      print1("ADB: USBHostAndroidRead failed: %x\r\n", ret_val);
-      adb_recv_state = ADB_TXRX_ERROR;
-      break;
-    }
-    adb_recv_state = ADB_TXRX_WAIT_HEADER;
-    break;
-
-   case ADB_TXRX_WAIT_HEADER:
-    if (USBHostAndroidRxIsComplete(&ret_val, recv_data_length_pointer)) {
-      if (ret_val != USB_SUCCESS) {
-        print1("ADB: Message reciving Rx got: %x\r\n", ret_val);
-        adb_recv_state = ADB_TXRX_ERROR;
-        break;
-      }
-
-      print1("ADB: Got response of %lu bytes:\r\n", *recv_data_length_pointer);
-      ADBPrintMessage((BYTE*)recv_amessage_pointer, *recv_data_length_pointer);
-      if (recv_amessage_pointer->command != (~recv_amessage_pointer->magic)) {
-        UART2PrintString("ADB: Recieved bad magic\r\n");
-        adb_recv_state = ADB_TXRX_ERROR;
-        break;
-      }
-      if (recv_amessage_pointer->data_length == 0) {
-        *recv_data_length_pointer = 0;
-        adb_recv_state = ADB_TXRX_IDLE;
-        break;
-      }
-      if ((ret_val = USBHostAndroidRead(recv_data_pointer, ADB_MAX_PAYLOAD)) != USB_SUCCESS) {
-        print1("ADB: USBHostAndroidRead failed: %x\r\n", ret_val);
-        adb_recv_state = ADB_TXRX_ERROR;
-      }
-      adb_recv_state = ADB_TXRX_WAIT_DATA;
-    }
-    break;
-
-   case ADB_TXRX_WAIT_DATA:
-    if (USBHostAndroidRxIsComplete(&ret_val, recv_data_length_pointer)) {
-      if (ret_val != USB_SUCCESS) {
-        print1("ADB: Data reciving Rx got: %x\r\n", ret_val);
-        adb_recv_state = ADB_TXRX_ERROR;
-      }
-
-      print1("ADB: Got response of %lu bytes:\r\n", *recv_data_length_pointer);
-      ADBPrintMessage(recv_data_pointer, *recv_data_length_pointer);
-      if (ADBChecksum(recv_data_pointer, *recv_data_length_pointer) != recv_amessage_pointer->data_check) {
-        UART2PrintString("ADB: Recieved wrong data checksum\r\n");
-        adb_recv_state = ADB_TXRX_ERROR;
-        break;
-      }
-	    adb_recv_state = ADB_TXRX_IDLE;
-    }
-    break;
-   case ADB_TXRX_IDLE:
-   case ADB_TXRX_ERROR:
-    break;
-  }
 }
 
 static BOOL ADBCheckForNewAttach() {
@@ -248,15 +115,6 @@ static BOOL ADBCheckForNewAttach() {
     return TRUE;
   }
   return FALSE;
-}
-
-static void ADBFillMessageHeader(UINT32 cmd, UINT32 arg0, UINT32 arg1, const BYTE* data, UINT32 data_length) {
-  adb_internal_amessage.command = cmd;
-  adb_internal_amessage.arg0 = arg0;
-  adb_internal_amessage.arg1 = arg1;
-  adb_internal_amessage.data_length = data_length;
-  adb_internal_amessage.data_check = ADBChecksum(data, data_length);
-  adb_internal_amessage.magic = ~cmd;
 }
 
 static void ADBConnectTasks() {
@@ -355,7 +213,7 @@ static void ADBConnectTasks() {
      default:
       break;
     }
-      break;
+    break;
 
    case ADB_CNCT_ERROR:
     adb_cnct_state = ADB_CNCT_IDLE;
@@ -365,6 +223,7 @@ static void ADBConnectTasks() {
 
 BOOL ADBConnect() {
   if (ADB_CNCT_BUSY(adb_cnct_state)) return FALSE;
+
   adb_cnct_state = ADB_CNCT_WAIT_ATTACH;
   return TRUE;
 }

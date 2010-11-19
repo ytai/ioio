@@ -44,15 +44,12 @@ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 #include <stdio.h>
 #include "timer.h"
 #include "GenericTypeDefs.h"
+#include "adb_packet.h"
 #include "USB/usb.h"
 #include "HardwareProfile.h"
 #include "usb_config.h"
 #include "usb_host_android.h"
-
-char char_buf[256];
-#define print0(x) UART2PrintString(x)
-#define print1(x,a) do { sprintf(char_buf, x, a); UART2PrintString(char_buf); } while(0)
-#define print2(x,a, b) do { sprintf(char_buf, x, a, b); UART2PrintString(char_buf); } while(0)
+#include "logging.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -98,9 +95,7 @@ typedef enum {
     DEMO_INITIALIZE = 0,                // Initialize the app when a device is attached
     DEMO_STATE_IDLE,                    // Inactive State
     DEMO_STATE_WAIT_SEND_CNXN,
-    DEMO_STATE_WAIT_SEND_CNXN_DATA,
     DEMO_STATE_WAIT_RECV_CNXN,
-    DEMO_STATE_WAIT_RECV_CNXN_DATA,
     DEMO_STATE_CONNECTED,
     DEMO_STATE_ERROR                    // An error has occured
 } DEMO_STATE;
@@ -134,6 +129,7 @@ BOOL InitializeSystem(void) {
 
     DemoState = DEMO_INITIALIZE;
     DeviceAttached = FALSE;
+    ADBPacketReset();
 
     return TRUE;
 }  // InitializeSystem
@@ -202,45 +198,12 @@ typedef struct amessage {
 #define A_CLSE 0x45534c43
 #define A_WRTE 0x45545257
 #define A_VERSION 0x01000000        // ADB protocol version
-BYTE buf[64];
 const char desc[] = "host::";
 
-UINT32 crc(const char * in) {
-  UINT32 result = 0;
-  if (!in) return 0;
-  while (*in) {
-    result += *in++;
-  }
-  return result;
-}
-
-#define AMESSAGE(size, buf, cmd, a0, a1, data)              \
-  do {                                                      \
-    amessage* msg = (amessage*) buf;                        \
-    msg->command = cmd;                                     \
-    msg->arg0 = a0;                                         \
-    msg->arg1 = a1;                                         \
-    msg->data_length = strlen(data) + 1;                    \
-    msg->data_check = crc(data);                            \
-    msg->magic = ~msg->command;                             \
-    memcpy(buf + sizeof(amessage), data, msg->data_length); \
-    size = sizeof(amessage) + msg->data_length;             \
-  } while (0)
-    
-
-void print_message(BYTE* buf, size_t size) {
-  while (size-- > 0) {
-    UART2PutHex(*buf++);
-    UART2PutChar(' ');
-  }
-  UART2PutChar('\r');
-  UART2PutChar('\n');
-}
-
-
 void ManageDemoState(void) {
-  BYTE RetVal;
-  DWORD bytesRead;
+  ADB_RESULT adb_res;
+  UINT32 cmd, arg0, arg1, data_len;
+  void* recv_data;
   BlinkStatus();
 
   switch (DemoState) {
@@ -250,31 +213,19 @@ void ManageDemoState(void) {
 
    case DEMO_STATE_IDLE:
     if (CheckForNewAttach()) {
-      int size;
-      AMESSAGE(size, buf, A_CNXN, A_VERSION, MAX_PAYLOAD, desc);
       UART2PrintString("Sending message... ");
-      print_message(buf, 24);
-      if ((RetVal = USBHostAndroidWrite(buf, 24)) == USB_SUCCESS) {
-        DemoState = DEMO_STATE_WAIT_SEND_CNXN;
-      } else {
-        print1("Fail: %x\r\n", RetVal);
-      }
+      ADBPacketSend(A_CNXN, A_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, desc, sizeof desc);
+      DemoState = DEMO_STATE_WAIT_SEND_CNXN;
     }
     break;
 
    case DEMO_STATE_WAIT_SEND_CNXN:
-    if (USBHostAndroidTxIsComplete(&RetVal)) {
-      if (RetVal == USB_SUCCESS) {
-        UART2PrintString("Sending message... ");
-        print_message(buf + 24, 7);
-        if ((RetVal = USBHostAndroidWrite(buf + 24, 7)) == USB_SUCCESS) {
-          DemoState = DEMO_STATE_WAIT_SEND_CNXN_DATA;
-        } else {
-          print1("Fail: %x\r\n", RetVal);
-          DemoState = DEMO_STATE_ERROR;
-        }
+    if ((adb_res = ADBPacketSendStatus()) != ADB_RESULT_BUSY) {
+      if (adb_res == ADB_RESULT_OK) {
+        ADBPacketRecv();
+        DemoState = DEMO_STATE_WAIT_RECV_CNXN;
       } else {
-          print1("Tx got %x\r\n", RetVal);
+          print0("Tx error");
           DemoState = DEMO_STATE_ERROR;
       }
     } else {
@@ -282,51 +233,17 @@ void ManageDemoState(void) {
     }
     break;
 
-   case DEMO_STATE_WAIT_SEND_CNXN_DATA:
-    if (USBHostAndroidTxIsComplete(&RetVal)) {
-      if (RetVal == USB_SUCCESS) {
-        if ((RetVal = USBHostAndroidRead(buf, sizeof(buf))) == USB_SUCCESS) {
-          DemoState = DEMO_STATE_WAIT_RECV_CNXN;
-        } else {
-          print1("Read got %x\r\n", RetVal);
-          DemoState = DEMO_STATE_ERROR;
-        }
-      } else {
-        print1("Tx got %x\r\n", RetVal);
-        DemoState = DEMO_STATE_ERROR;
-      }
-    }
-    break;
-
    case DEMO_STATE_WAIT_RECV_CNXN:
-    if (USBHostAndroidRxIsComplete(&RetVal, &bytesRead)) {
-      if (RetVal == USB_SUCCESS) {
-        print1("Got response of %lu bytes:\r\n", bytesRead);
-        print_message(buf, bytesRead);
-        if ((RetVal = USBHostAndroidRead(buf, sizeof(buf))) == USB_SUCCESS) {
-          DemoState = DEMO_STATE_WAIT_RECV_CNXN_DATA;
-        } else {
-          print1("Read got %x\r\n", RetVal);
-          DemoState = DEMO_STATE_ERROR;
-        }
-      } else {
-          print1("Rx got %x\r\n", RetVal);
-      }
-    }
-    break;
-
-   case DEMO_STATE_WAIT_RECV_CNXN_DATA:
-    if (USBHostAndroidRxIsComplete(&RetVal, &bytesRead)) {
-      if (RetVal == USB_SUCCESS) {
-        print1("Got response of %lu bytes:\r\n", bytesRead);
-        print_message(buf, bytesRead);
+    if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
+      if (adb_res == ADB_RESULT_OK && cmd == A_CNXN) {
+        print1("Got response from %s\r\n", (const char*) recv_data);
         DemoState = DEMO_STATE_CONNECTED;
       } else {
-          print1("Rx got %x\r\n", RetVal);
+          print0("Rx failed\r\n");
       }
     }
     break;
-  
+
    case DEMO_STATE_ERROR:
     break;
 
@@ -413,6 +330,7 @@ int main(void) {
 
     // Maintain USB Host State
     USBHostTasks();
+    ADBPacketTasks();
 
 #ifndef USB_ENABLE_TRANSFER_EVENT
     USBHostAndroidTasks();
