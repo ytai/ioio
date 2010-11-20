@@ -155,7 +155,7 @@ void USBHostAndroidTasks(void) {
           gc_DevData.flags.rxBusy = 0;
           gc_DevData.rxLength     = byteCount;
           gc_DevData.rxErrorCode  = errorCode;
-          print0("Received message with %d bytes\r\n", byteCount);
+          print0("Received message with %d bytes", byteCount);
       }
     }
 

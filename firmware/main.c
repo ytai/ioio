@@ -199,6 +199,7 @@ typedef struct amessage {
 #define A_WRTE 0x45545257
 #define A_VERSION 0x01000000        // ADB protocol version
 const char desc[] = "host::";
+char buf[64];
 
 void ManageDemoState(void) {
   ADB_RESULT adb_res;
@@ -214,7 +215,8 @@ void ManageDemoState(void) {
    case DEMO_STATE_IDLE:
     if (CheckForNewAttach()) {
       UART2PrintString("Sending message... ");
-      ADBPacketSend(A_CNXN, A_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, desc, sizeof desc);
+      strcpy(buf, desc);
+      ADBPacketSend(A_CNXN, A_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, buf, strlen(buf) + 1);
       DemoState = DEMO_STATE_WAIT_SEND_CNXN;
     }
     break;
@@ -236,10 +238,10 @@ void ManageDemoState(void) {
    case DEMO_STATE_WAIT_RECV_CNXN:
     if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
       if (adb_res == ADB_RESULT_OK && cmd == A_CNXN) {
-        print1("Got response from %s\r\n", (const char*) recv_data);
+        print1("Got response from %s", (const char*) recv_data);
         DemoState = DEMO_STATE_CONNECTED;
       } else {
-          print0("Rx failed\r\n");
+          print0("Rx failed");
       }
     }
     break;

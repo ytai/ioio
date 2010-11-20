@@ -57,10 +57,7 @@ static void ADBPacketSendTasks() {
   BYTE ret_val;
   switch (adb_packet_send_state) {
    case ADB_PACKET_STATE_START:
-//    UART2PrintString("ADB: Sending message...");
-//    ADBPrintMessage((BYTE*)send_amessage_pointer, sizeof(ADB_MESSAGE_HEADER));
     if (USBHostAndroidWrite((BYTE*) &adb_packet_send_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
-//      print1("ADB: USBHostAndroidWrite failed: %x\r\n", ret_val);
       ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
       break;
     }
@@ -70,24 +67,17 @@ static void ADBPacketSendTasks() {
    case ADB_PACKET_STATE_WAIT_HEADER:
     if (USBHostAndroidTxIsComplete(&ret_val)) {
       if (ret_val != USB_SUCCESS) {
-//        print1("ADB: Message sending Tx got: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-
       if (adb_packet_send_header.data_length == 0) {
-//        UART2PrintString("ADB: No data to send...\r\n");
         ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
         break;
       }
-//      UART2PrintString("ADB: Sending data...");
-//      ADBPrintMessage(send_data_pointer, send_data_length);
       if (USBHostAndroidWrite(adb_packet_send_data, adb_packet_send_header.data_length) != USB_SUCCESS) {
-//        print1("ADB: USBHostAndroidWrite failed: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-
       ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_WAIT_DATA);
     }
     break;
@@ -95,12 +85,9 @@ static void ADBPacketSendTasks() {
    case ADB_PACKET_STATE_WAIT_DATA:
     if (USBHostAndroidTxIsComplete(&ret_val)) {
       if (ret_val != USB_SUCCESS) {
-//        print1("Data sending Tx got: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-
-//      UART2PrintString("ADB: Sending data complete...\r\n");
       ADB_PACKET_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
     }
     break;
@@ -117,7 +104,6 @@ static void ADBPacketRecvTasks() {
   switch (adb_packet_recv_state) {
    case ADB_PACKET_STATE_START:
     if (USBHostAndroidRead((BYTE*) &adb_packet_recv_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
-//      print1("ADB: USBHostAndroidRead failed: %x\r\n", ret_val);
       ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
       break;
     }
@@ -127,15 +113,11 @@ static void ADBPacketRecvTasks() {
    case ADB_PACKET_STATE_WAIT_HEADER:
     if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
       if (ret_val != USB_SUCCESS || bytes_received != sizeof(ADB_PACKET_HEADER)) {
-//        print1("ADB: Message reciving Rx got: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-//      print1("ADB: Got response of %lu bytes:\r\n", *recv_data_length_pointer);
-//      ADBPrintMessage((BYTE*)recv_amessage_pointer, *recv_data_length_pointer);
       if (adb_packet_recv_header.command != (~adb_packet_recv_header.magic)
           || adb_packet_recv_header.data_length >= ADB_PACKET_MAX_RECV_DATA_BYTES) {
-//        UART2PrintString("ADB: Recieved bad magic\r\n");
         ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
@@ -144,7 +126,6 @@ static void ADBPacketRecvTasks() {
         break;
       }
       if (USBHostAndroidRead(adb_packet_recv_data, adb_packet_recv_header.data_length) != USB_SUCCESS) {
-//        print1("ADB: USBHostAndroidRead failed: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
@@ -155,15 +136,11 @@ static void ADBPacketRecvTasks() {
    case ADB_PACKET_STATE_WAIT_DATA:
     if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
       if (ret_val != USB_SUCCESS || bytes_received != adb_packet_recv_header.data_length) {
- //       print1("ADB: Data reciving Rx got: %x\r\n", ret_val);
         ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
 
-//      print1("ADB: Got response of %lu bytes:\r\n", *recv_data_length_pointer);
-//      ADBPrintMessage(recv_data_pointer, *recv_data_length_pointer);
       if (ADBChecksum(adb_packet_recv_data, adb_packet_recv_header.data_length) != adb_packet_recv_header.data_check) {
-//        UART2PrintString("ADB: Recieved wrong data checksum\r\n");
         ADB_PACKET_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }

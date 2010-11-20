@@ -9,9 +9,9 @@
   extern char char_buf[];
   
   void print_message(const void* buf, int size);
-  #define print0(x) UART2PrintString(x)
-  #define print1(x,a) do { sprintf(char_buf, x, a); UART2PrintString(char_buf); } while(0)
-  #define print2(x,a, b) do { sprintf(char_buf, x, a, b); UART2PrintString(char_buf); } while(0)
+  #define print0(x) do { UART2PrintString(x); UART2PrintString("\r\n"); } while (0)
+  #define print1(x,a) do { sprintf(char_buf, x, a); print0(char_buf); } while(0)
+  #define print2(x,a, b) do { sprintf(char_buf, x, a, b); print0(char_buf); } while(0)
 #else
   #define print_message(buf, size)
   #define print0(x)
