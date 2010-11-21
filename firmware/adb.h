@@ -9,17 +9,18 @@ typedef int ADB_CHANNEL_HANDLE;
 #define ADB_MAX_CHANNELS 8
 #define ADB_CHANNEL_NAME_MAX_LENGTH 16
 
-// call after every new attach
-//void ADBReset();
-//ADB_RESULT ADBResetStatus();
+void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+#define ADBChannelRecv(h, data, len) ChannelRecv(h, data, len)
+
+#ifndef ADBChannelRecv
+#define ADBChannelRecv(h, data, len)
+#endif
+
 void ADBInit();
 BOOL ADBConnected();
 ADB_CHANNEL_HANDLE ADBOpen(const char* name);
 BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle);
 void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len);
-//ADB_RESULT ADBWriteStatus();
-//void ADBRead(ADB_CHANNEL_HANDLE handle);
-//ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_len);
 void ADBTasks();
 
 

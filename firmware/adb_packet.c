@@ -122,7 +122,7 @@ static void ADBPacketRecvTasks() {
 //      }
       if (bytes_received != sizeof(ADB_PACKET_HEADER)
           || adb_packet_recv_header.command != (~adb_packet_recv_header.magic)
-          || adb_packet_recv_header.data_length >= ADB_PACKET_MAX_RECV_DATA_BYTES) {
+          || adb_packet_recv_header.data_length > ADB_PACKET_MAX_RECV_DATA_BYTES) {
         ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }

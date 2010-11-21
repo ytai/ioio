@@ -44,6 +44,7 @@ typedef struct {
   UINT32 data_len;
   char name[ADB_CHANNEL_NAME_MAX_LENGTH];
   UINT32 remote_id;
+  BOOL pending_ack;
 } ADB_CHANNEL;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,8 +80,13 @@ static void ADBChannelTasks() {
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (++current_channel == ADB_MAX_CHANNELS) current_channel = 0;
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_START) {
-      ADBPacketSend(ADB_OPEN, current_channel, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
+      ADBPacketSend(ADB_OPEN, current_channel + 1, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
       ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
+      return;
+    }
+    if (adb_channels[current_channel].pending_ack) {
+      ADBPacketSend(ADB_OKAY, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
+      adb_channels[current_channel].pending_ack = FALSE;
       return;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
@@ -103,7 +109,8 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
    case ADB_OPEN:
     break;
    case ADB_OKAY:
-    if (arg1 < ADB_MAX_CHANNELS) {
+    --arg1;
+    if (arg1 >= 0 && arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
         print3("Channel %ld is open. Remote ID: 0x%lx. Name: %s", arg1, arg0, adb_channels[arg1].name);
         adb_channels[arg1].remote_id = arg0;
@@ -114,19 +121,21 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
       }
     } else {
+      print1("Remote side sent an OK on an unexpected channel: %ld", arg1);
       ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
    case ADB_CLSE:
+    --arg1;
     if (arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
         print2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
-        // TODO: notify client
+        ADBChannelRecv(arg1, NULL, 0);
         ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
         && adb_channels[arg1].remote_id == arg0) {
-        // TODO: notify client
         print2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
+        ADBChannelRecv(arg1, NULL, 0);
         ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       }
     } else {
@@ -134,6 +143,18 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     }
     break;
    case ADB_WRTE:
+    --arg1;
+    if (arg1 < ADB_MAX_CHANNELS) {
+      if (adb_channels[arg1].remote_id == arg0) {
+        if (data_len > 0) {
+          ADBChannelRecv(arg1, recv_data, data_len);
+        }
+        adb_channels[arg1].pending_ack = TRUE;
+      }
+    } else {
+      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    }
+    
     break;
    default:
     print1("Unknown command 0x%lx. Ignoring.", cmd);
@@ -147,6 +168,8 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
     if (adb_channels[h].state == ADB_CHAN_STATE_FREE) {
       ADB_CHANGE_STATE(adb_channels[h].state, ADB_CHAN_STATE_START);
       strncpy(adb_channels[h].name, name, ADB_CHANNEL_NAME_MAX_LENGTH);
+      adb_channels[h].pending_ack = FALSE;
+      adb_channels[h].data = NULL;
       print2("Trying to open channel %d with name: %s", h, name);
       return h;
     }
@@ -155,7 +178,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
 }
 
 BOOL ADBConnected() {
-  return adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH;
+  return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
 }
 
 BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle) {
@@ -163,7 +186,7 @@ BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle) {
 }
 
 void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len) {
-  assert(handle > 0 && handle < ADB_MAX_CHANNELS);
+  assert(handle >= 0 && handle < ADB_MAX_CHANNELS);
   assert(adb_channels[handle].state == ADB_CHAN_STATE_IDLE);
   adb_channels[handle].data = data;
   adb_channels[handle].data_len = data_len;
