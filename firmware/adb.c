@@ -15,7 +15,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ADB protocol defines
-#define ADB_SYNC 0x434e5953
 #define ADB_CNXN 0x4e584e43
 #define ADB_OPEN 0x4e45504f
 #define ADB_OKAY 0x59414b4f
@@ -24,62 +23,152 @@
 
 #define ADB_VERSION 0x01000000        // ADB protocol version
 
-//const char* ADB_ANDROID_DEVICE = "device::";
-//const unsigned int ADB_LOCAL_ID = 387;
-//unsigned int adb_remote_id = 0;
-//const char ADB_DEST_ADDR_STRING[] = "tcp:7149";
-
 typedef enum {
   ADB_CONN_STATE_ERROR,
   ADB_CONN_STATE_WAIT_ATTACH,
-  ADB_CONN_STATE_WAIT_SEND_CONNECT,
-  ADB_CONN_STATE_WAIT_RECV_CONNECT,
-  ADB_CONN_STATE_IDLE
+  ADB_CONN_STATE_WAIT_CONNECT,
+  ADB_CONN_STATE_CONNECTED
 } ADB_CONN_STATE;
 
 typedef enum {
-  ADB_CHAN_STATE_CLOSED,
+  ADB_CHAN_STATE_FREE,
   ADB_CHAN_STATE_START,
-  ADB_CHAN_STATE_WAIT_SEND_OPEN,
-  ADB_CHAN_STATE_WAIT_RECV_READY,
+  ADB_CHAN_STATE_WAIT_OPEN,
   ADB_CHAN_STATE_IDLE,
-  ADB_CHAN_STATE_ERROR
+  ADB_CHAN_STATE_WAIT_READY,
 } ADB_CHAN_STATE;
+
+typedef struct {
+  ADB_CHAN_STATE state;
+  const void* data;
+  UINT32 data_len;
+  char name[ADB_CHANNEL_NAME_MAX_LENGTH];
+  UINT32 remote_id;
+} ADB_CHANNEL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
 ////////////////////////////////////////////////////////////////////////////////
 static ADB_CONN_STATE adb_conn_state;
-static ADB_CHAN_STATE adb_chan_state[ADB_MAX_CHANNELS];
+static ADB_CHANNEL adb_channels[ADB_MAX_CHANNELS];
 static char ADB_HOSTNAME_STRING[] = "host::";  // Leave non-const. USB stack
                                                // doesn't work from ROM.
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions & Macros
 ////////////////////////////////////////////////////////////////////////////////
-//static void ADBResync() {
-//  ADBPacketReset();
-//  adb_conn_state = ADB_CONN_STATE_RESYNC;
-//}
 
-//void ADBReset() {
-//  int i;
-//  adb_conn_state = ADB_CONN_STATE_WAIT_ATTACH;
-//  for (i = 0; i < ADB_MAX_CHANNELS; i++) {
-//    adb_chan_state = ADB_CHAN_STATE_CLOSED;
-//  }
-//  ADBPacketReset();
-//}
-//
-//
-//ADB_RESULT ADBResetStatus();
 
-static void ADBChannelTasks() {
+static void ADBReset() {
+  ADB_CHANNEL_HANDLE h;
+  for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
+    adb_channels[h].state = ADB_CHAN_STATE_FREE;
+  }
+  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
-void ADBOpen(const char* name);
-ADB_RESULT ADBOpenStatus(ADB_CHANNEL_HANDLE* handle);
-void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len);
+static void ADBChannelTasks() {
+  static ADB_CHANNEL_HANDLE current_channel = 0;
+  ADB_RESULT adb_res;
+  ADB_CHANNEL_HANDLE h;
+  if ((adb_res = ADBPacketSendStatus()) == ADB_RESULT_BUSY) return;
+  if (adb_res == ADB_RESULT_ERROR) {
+    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    return;
+  }
+  for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
+    if (++current_channel == ADB_MAX_CHANNELS) current_channel = 0;
+    if (adb_channels[current_channel].state == ADB_CHAN_STATE_START) {
+      ADBPacketSend(ADB_OPEN, current_channel, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
+      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
+      return;
+    }
+    if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
+        && adb_channels[current_channel].data != NULL) {
+      ADBPacketSend(ADB_WRTE, 0, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
+      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_READY);
+      return;
+    }
+  }
+}
+
+static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* recv_data, UINT32 data_len) {
+  switch(cmd) {
+   case ADB_CNXN:
+    print1("ADB established connection with [%s]", (const char*) recv_data);
+    // TODO: arg1 contains max_data - handle
+    // TODO: send app notification
+    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
+    break;
+   case ADB_OPEN:
+    break;
+   case ADB_OKAY:
+    if (arg1 < ADB_MAX_CHANNELS) {
+      if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
+        print3("Channel %ld is open. Remote ID: 0x%lx. Name: %s", arg1, arg0, adb_channels[arg1].name);
+        adb_channels[arg1].remote_id = arg0;
+        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
+      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
+        && adb_channels[arg1].remote_id == arg0) {
+        adb_channels[arg1].data = NULL;
+        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
+      }
+    } else {
+      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    }
+    break;
+   case ADB_CLSE:
+    if (arg1 < ADB_MAX_CHANNELS) {
+      if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
+        print2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
+        // TODO: notify client
+        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
+        && adb_channels[arg1].remote_id == arg0) {
+        // TODO: notify client
+        print2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
+        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+      }
+    } else {
+      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    }
+    break;
+   case ADB_WRTE:
+    break;
+   default:
+    print1("Unknown command 0x%lx. Ignoring.", cmd);
+  }
+}
+
+ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
+  // find a free channel
+  ADB_CHANNEL_HANDLE h;
+  for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
+    if (adb_channels[h].state == ADB_CHAN_STATE_FREE) {
+      ADB_CHANGE_STATE(adb_channels[h].state, ADB_CHAN_STATE_START);
+      strncpy(adb_channels[h].name, name, ADB_CHANNEL_NAME_MAX_LENGTH);
+      print2("Trying to open channel %d with name: %s", h, name);
+      return h;
+    }
+  }
+  return ADB_INVALID_CHANNEL_HANDLE;
+}
+
+BOOL ADBConnected() {
+  return adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH;
+}
+
+BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle) {
+  return adb_channels[handle].state == ADB_CHAN_STATE_IDLE;
+}
+
+void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len) {
+  assert(handle > 0 && handle < ADB_MAX_CHANNELS);
+  assert(adb_channels[handle].state == ADB_CHAN_STATE_IDLE);
+  adb_channels[handle].data = data;
+  adb_channels[handle].data_len = data_len;
+}
+
 ADB_RESULT ADBWriteStatus();
 void ADBRead(ADB_CHANNEL_HANDLE handle);
 ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_len);
@@ -87,7 +176,7 @@ ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_le
 void ADBInit() {
   BOOL res = USBHostInit(0);
   assert(res);
-  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+  ADBReset();
 }
 
 void ADBTasks() {
@@ -100,57 +189,48 @@ void ADBTasks() {
   USBHostAndroidTasks();
 #endif
   if (adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH) {
-    ADBPacketTasks();
+    if (!USBHostAndroidIsDeviceAttached()) {
+      // detached
+      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+    } else {
+      ADBPacketTasks();
+      if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
+        if (adb_res == ADB_RESULT_ERROR) {
+          ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+        } else {
+          ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
+        }
+        ADBPacketRecv();
+      }
+    }
   }
 
   switch (adb_conn_state) {
    case ADB_CONN_STATE_WAIT_ATTACH:
     if (USBHostAndroidIsDeviceAttached()) {
       ADBPacketReset();
+      ADBPacketRecv();  // start receiving
       ADBPacketSend(ADB_CNXN, ADB_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, ADB_HOSTNAME_STRING, strlen(ADB_HOSTNAME_STRING) + 1);
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_SEND_CONNECT);
+      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_CONNECT);
     }
     break;
 
-   case ADB_CONN_STATE_WAIT_SEND_CONNECT:
-    if ((adb_res = ADBPacketSendStatus()) != ADB_RESULT_BUSY) {
-      if (adb_res == ADB_RESULT_OK) {
-        ADBPacketRecv();
-        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_RECV_CONNECT);
-      } else {
-        print0("Error sending connection message.");
-        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
-      }
-    }
+   case ADB_CONN_STATE_WAIT_CONNECT:
     break;
 
-   case ADB_CONN_STATE_WAIT_RECV_CONNECT:
-    if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
-      if (adb_res == ADB_RESULT_OK && cmd == ADB_CNXN) {
-        print1("ADB established connection with [%s]", (const char*) recv_data);
-        // TODO: send app notification
-        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_IDLE);
-      } else {
-        print0("Error receiving connection message.");
-        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
-      }
-    }
-    break;
-
-   case ADB_CONN_STATE_IDLE:
+   case ADB_CONN_STATE_CONNECTED:
     ADBChannelTasks();
     break;
 
    case ADB_CONN_STATE_ERROR:
-    // USBHostAndroidReset();
+    USBHostAndroidReset();
+    ADBReset();
     // TODO: send app notification
-    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
     break;
   }
 }
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
-  // TODO: detach message should have a separate callback.
   // Handle specific events.
   switch (event) {
    case EVENT_VBUS_REQUEST_POWER:
@@ -185,178 +265,7 @@ BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWOR
     print0("***** USB Error - unspecified *****");
     return TRUE;
 
-   case EVENT_DETACH:
-    print0("***** Device detached *****");
-    // TODO: send app notification
-    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
-    return TRUE;
-
-   case EVENT_SUSPEND:
-   case EVENT_RESUME:
-    return TRUE;
-
    default:
     return FALSE;
   }
 }  // USB_ApplicationEventHandler
-
-
-
-#if 0
-static void ADBPrintMessage(const BYTE* buf, size_t size) {
-  while (size-- > 0) {
-    UART2PutHex(*buf++);
-    UART2PutChar(' ');
-  }
-  UART2PutChar('\r');
-  UART2PutChar('\n');
-}
-
-static BOOL ADBCheckForNewAttach() {
-  if (!adb_device_attached && USBHostAndroidIsDeviceAttached()) {
-    adb_device_attached = TRUE;
-    // ANDROID_DEVICE_ID DevID;
-    // USBHostAndroidGetDeviceId(&DevID);
-    // print0("ADB: device is attached - polled, deviceAddress=");
-    // UART2PutDec(DevID.deviceAddress);
-    // print0("");
-    // TODO: need to check that the device is actually android?
-    return TRUE;
-  }
-  return FALSE;
-}
-
-static void ADBConnectTasks() {
-  switch (adb_cnct_state) {
-   case ADB_CNCT_IDLE:
-    break;
-
-   case ADB_CNCT_WAIT_ATTACH:
-    if (ADBCheckForNewAttach()) {
-      ADBFillMessageHeader(ADB_CNXN, ADB_VERSION, ADB_MAX_PAYLOAD, (const BYTE*)ADB_HOSTNAME_STRING, sizeof(ADB_HOSTNAME_STRING));
-      print0("ADB: Sending connect message");
-      ADBSendMessageData(&adb_internal_amessage, (BYTE*)ADB_HOSTNAME_STRING, sizeof(ADB_HOSTNAME_STRING));
-      adb_cnct_state = ADB_CNCT_SEND_CONNECT;
-    }
-    break;
-
-   case ADB_CNCT_SEND_CONNECT:
-    switch (adb_send_state) {
-     case ADB_TXRX_IDLE:
-       print0("ADB: Recieving connect message");
-       ADBRecvMessageData(&adb_internal_amessage, adb_internal_buffer, &adb_internal_size);
-       adb_cnct_state = ADB_CNCT_RECV_CONNECT;
-       break;
-
-     case ADB_TXRX_ERROR:
-      adb_cnct_state = ADB_CNCT_ERROR;
-      break;
-
-     default:
-      break;
-    }
-    break;
-  
-   case ADB_CNCT_RECV_CONNECT:
-    switch (adb_recv_state) {
-     case ADB_TXRX_IDLE:
-      // TODO: If we didn't get CNXN as reply, do we want to wait or die?
-      if ((adb_internal_amessage.command != ADB_CNXN)
-          || (adb_internal_amessage.arg1 <= 0)
-          || (0 != strncmp((char*)&adb_internal_buffer, ADB_ANDROID_DEVICE, sizeof(ADB_ANDROID_DEVICE)))) {
-        adb_cnct_state = ADB_CNCT_ERROR;
-        break;
-      }
-      // TODO: Need to register the new MAX_PAYLOAD (arg1).
-      ADBFillMessageHeader(ADB_OPEN, ADB_LOCAL_ID, 0, (const BYTE*)ADB_DEST_ADDR_STRING, sizeof(ADB_DEST_ADDR_STRING));
-      print0("ADB: Sending open message");
-      ADBSendMessageData(&adb_internal_amessage, (BYTE*)ADB_DEST_ADDR_STRING, sizeof(ADB_DEST_ADDR_STRING));
-      adb_cnct_state = ADB_CNCT_SEND_OPEN;
-      break;
-
-     case ADB_TXRX_ERROR:
-      adb_cnct_state = ADB_CNCT_ERROR;
-      break;
-
-     default:
-      break;
-    }
-    break;
-
-   case ADB_CNCT_SEND_OPEN:
-    switch (adb_send_state) {
-     case ADB_TXRX_IDLE:
-      print0("ADB: Recieving ready message");
-      ADBRecvMessageData(&adb_internal_amessage, adb_internal_buffer, &adb_internal_size);
-      adb_cnct_state = ADB_CNCT_RECV_READY;
-      break;
-
-     case ADB_TXRX_ERROR:
-      adb_cnct_state = ADB_CNCT_ERROR;
-      break;
-
-     default:
-      break;
-    }
-    break;
-
-   case ADB_CNCT_RECV_READY:
-    switch (adb_recv_state) {
-     case ADB_TXRX_IDLE:
-      if ((adb_internal_amessage.command != ADB_OKAY)
-          || (adb_internal_amessage.data_length != 0)
-          || (adb_internal_amessage.arg0 == 0)
-          || (adb_internal_amessage.arg1 != ADB_LOCAL_ID)) {
-        adb_cnct_state = ADB_CNCT_ERROR;
-        break;
-      }
-      adb_remote_id = adb_internal_amessage.arg0;
-      adb_cnct_state = ADB_CNCT_IDLE;
-      print0("ADB: Connect complete.");
-      break;
-
-     case ADB_TXRX_ERROR:
-      adb_cnct_state = ADB_CNCT_ERROR;
-      break;
-
-     default:
-      break;
-    }
-    break;
-
-   case ADB_CNCT_ERROR:
-    adb_cnct_state = ADB_CNCT_IDLE;
-    break;
-  }
-}
-
-BOOL ADBConnect() {
-  if (ADB_CNCT_BUSY(adb_cnct_state)) return FALSE;
-
-  adb_cnct_state = ADB_CNCT_WAIT_ATTACH;
-  return TRUE;
-}
-
-void ADBTasks() {
-  // Maintain USB Host State
-  USBHostTasks();
-#ifndef USB_ENABLE_TRANSFER_EVENT
-  USBHostAndroidTasks();
-#endif
-
-  // Watch for device detaching
-  if (adb_device_attached && !USBHostAndroidIsDeviceAttached()) {
-    print0("ADB: Device got detached.");
-    adb_device_attached = FALSE;
-    adb_cnct_state = ADB_CNCT_ERROR;
-    adb_send_state = ADB_TXRX_IDLE;
-    adb_recv_state = ADB_TXRX_IDLE;
-  }
-
-  // TODO: Add USBTasks
-
-  ADBConnectTasks();
-  ADBSendTasks();
-  ADBRecvTasks();
-}
-#endif

@@ -11,12 +11,14 @@
   void print_message(const void* buf, int size);
   #define print0(x) do { UART2PrintString(x); UART2PrintString("\r\n"); } while (0)
   #define print1(x,a) do { sprintf(char_buf, x, a); print0(char_buf); } while(0)
-  #define print2(x,a, b) do { sprintf(char_buf, x, a, b); print0(char_buf); } while(0)
+  #define print2(x,a,b) do { sprintf(char_buf, x, a, b); print0(char_buf); } while(0)
+  #define print3(x,a,b,c) do { sprintf(char_buf, x, a, b, c); print0(char_buf); } while(0)
 #else
   #define print_message(buf, size)
   #define print0(x)
   #define print1(x,a)
-  #define print2(x,a, b)
+  #define print2(x,a,b)
+  #define print3(x,a,b,c) 
 #endif
 
 #define ADB_CHANGE_STATE(var, state) \

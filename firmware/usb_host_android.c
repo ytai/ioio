@@ -57,9 +57,7 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
 
 BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
   // Make sure it was for our device
-  if (address != gc_DevData.ID.deviceAddress) {
-    return FALSE;
-  }
+  if (address != gc_DevData.ID.deviceAddress) return FALSE;
 
   // Handle specific events.
   switch (event) {
@@ -98,13 +96,12 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
     }
 #endif
 
-  case EVENT_SUSPEND:
-  case EVENT_RESUME:
-  default:
-    break;
+   case EVENT_SUSPEND:
+   case EVENT_RESUME:
+   default:
+    return TRUE;
   }
-
-  return USB_HOST_APP_EVENT_HANDLER(address, event, data, size);
+  return FALSE;
 }  // USBHostAndroidEventHandler
 
 

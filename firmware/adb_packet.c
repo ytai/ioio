@@ -110,11 +110,18 @@ static void ADBPacketRecvTasks() {
 
    case ADB_PACKET_STATE_WAIT_HEADER:
     if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
-      if (ret_val != USB_SUCCESS || bytes_received != sizeof(ADB_PACKET_HEADER)) {
+      if (ret_val != USB_SUCCESS) {
         ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-      if (adb_packet_recv_header.command != (~adb_packet_recv_header.magic)
+// TODO: probably not needed
+//      if (bytes_received == 0) {
+//        adb_packet_recv_header.command = 0;
+//        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
+//        break;
+//      }
+      if (bytes_received != sizeof(ADB_PACKET_HEADER)
+          || adb_packet_recv_header.command != (~adb_packet_recv_header.magic)
           || adb_packet_recv_header.data_length >= ADB_PACKET_MAX_RECV_DATA_BYTES) {
         ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;

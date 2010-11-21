@@ -80,6 +80,10 @@ BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWO
 // client.
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef USBHostAndroidAttachCallback
+#define USBHostAndroidAttachCallback(attach)
+#endif
+
 // Check whether a device is currently attached.
 #define USBHostAndroidIsDeviceAttached() ( (gc_DevData.flags.initialized == 1) ? TRUE : FALSE )
 

@@ -144,8 +144,18 @@ void BlinkStatus(void) {
 //  }
 }  // BlinkStatus
 
+typedef enum {
+  MAIN_STATE_WAIT_CONNECT,
+  MAIN_STATE_WAIT_OPEN,
+  MAIN_STATE_WAIT_READY
+} MAIN_STATE;
+
+char chan_name[] = "tcp:1234";
+BYTE data[] = "ls\n";
 
 int main(void) {
+  ADB_CHANNEL_HANDLE h;
+  MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
   // Initialize the processor and peripherals.
   if (!InitializeSystem()) {
     UART2PrintString("\r\n\r\nCould not initialize USB Custom Demo App - system.  Halting.\r\n\r\n");
@@ -155,7 +165,29 @@ int main(void) {
 
   while (1) {
     ADBTasks();
-    //DelayMs(100);
+    
+    switch(state) {
+     case MAIN_STATE_WAIT_CONNECT:
+      if (ADBConnected()) {
+        print0("ADB connected!");
+        h = ADBOpen(chan_name);
+        state = MAIN_STATE_WAIT_OPEN;
+      }
+      break;
+     case MAIN_STATE_WAIT_OPEN:
+      if (ADBChannelReady(h)) {
+        print0("Channel is ready. Sending data");
+        ADBWrite(h, data, sizeof data);
+        state = MAIN_STATE_WAIT_READY;
+      }
+      break;
+     case MAIN_STATE_WAIT_READY:
+      if (ADBChannelReady(h)) {
+        print0("Data sent!");
+      }
+      break;
+    }
+    DelayMs(100);
   }
 
   return 0;
