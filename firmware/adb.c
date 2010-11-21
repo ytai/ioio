@@ -30,11 +30,11 @@
 //const char ADB_DEST_ADDR_STRING[] = "tcp:7149";
 
 typedef enum {
+  ADB_CONN_STATE_ERROR,
   ADB_CONN_STATE_WAIT_ATTACH,
   ADB_CONN_STATE_WAIT_SEND_CONNECT,
   ADB_CONN_STATE_WAIT_RECV_CONNECT,
-  ADB_CONN_STATE_IDLE,
-  ADB_CONN_STATE_ERROR
+  ADB_CONN_STATE_IDLE
 } ADB_CONN_STATE;
 
 typedef enum {
@@ -87,6 +87,7 @@ ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_le
 void ADBInit() {
   BOOL res = USBHostInit(0);
   assert(res);
+  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
 void ADBTasks() {
@@ -98,7 +99,9 @@ void ADBTasks() {
 #ifndef USB_ENABLE_TRANSFER_EVENT
   USBHostAndroidTasks();
 #endif
-  ADBPacketTasks();
+  if (adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH) {
+    ADBPacketTasks();
+  }
 
   switch (adb_conn_state) {
    case ADB_CONN_STATE_WAIT_ATTACH:

@@ -155,6 +155,7 @@ int main(void) {
 
   while (1) {
     ADBTasks();
+    //DelayMs(100);
   }
 
   return 0;
