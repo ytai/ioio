@@ -83,6 +83,10 @@ BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWO
 // Check whether a device is currently attached.
 #define USBHostAndroidIsDeviceAttached() ( (gc_DevData.flags.initialized == 1) ? TRUE : FALSE )
 
+// Resets the device and restarts all the attachment process.
+// Device must be attached.
+void USBHostAndroidReset();
+
 // Returns the ID of the currently attached device.
 // Device must be attached at the time of call, and argument must not be NULL.
 void USBHostAndroidGetDeviceId(ANDROID_DEVICE_ID *pDevID);
@@ -99,13 +103,6 @@ BYTE USBHostAndroidRead(void *buffer, DWORD length);
 // read are returned.
 BOOL USBHostAndroidRxIsComplete(BYTE *errorCode, DWORD *byteCount);
 
-// This function must be called periodically by the client to provide context to
-// the driver IF NOT working with transfer events (USB_ENABLE_TRANSFER_EVENT)
-// It will poll for the status of transfers.
-#ifndef USB_ENABLE_TRANSFER_EVENT
-void USBHostAndroidTasks( void );
-#endif  // USB_ENABLE_TRANSFER_EVENT
-
 // Issue a read request to the device.
 // Actual write will be done asynchronously. Client should call
 // USBHostAndroidTxIsComplete() to check for completion and get status code.
@@ -116,6 +113,13 @@ BYTE USBHostAndroidWrite(const void *buffer, DWORD length);
 // Check whether the last call to USBHostAndroidWrite has completed.
 // In case it is complete, returns TRUE, and the error code is returned.
 BOOL USBHostAndroidTxIsComplete(BYTE *errorCode );
+
+// This function must be called periodically by the client to provide context to
+// the driver IF NOT working with transfer events (USB_ENABLE_TRANSFER_EVENT)
+// It will poll for the status of transfers.
+#ifndef USB_ENABLE_TRANSFER_EVENT
+void USBHostAndroidTasks( void );
+#endif  // USB_ENABLE_TRANSFER_EVENT
 
 
 #endif  // __USBHOSTANDROID_H__

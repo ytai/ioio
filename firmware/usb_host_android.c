@@ -115,6 +115,13 @@ void USBHostAndroidGetDeviceId(ANDROID_DEVICE_ID *pDevID) {
 }  // USBHostAndroidGetDeviceAddress
 
 
+void USBHostAndroidReset() {
+  assert(USBHostAndroidIsDeviceAttached());
+  USBHostResetDevice(gc_DevData.ID.deviceAddress);
+  gc_DevData.flags.val        = 0;
+  gc_DevData.ID.deviceAddress = 0;
+}
+
 BYTE USBHostAndroidRead(void *buffer, DWORD length) {
   BYTE RetVal;
 

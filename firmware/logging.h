@@ -19,6 +19,8 @@
   #define print2(x,a, b)
 #endif
 
+#define ADB_CHANGE_STATE(var, state) \
+  do { var = state; print2("ADBP: %s changed to %s", #var, #state); } while(0)
 
 
 #endif  // __LOGGING_H__
