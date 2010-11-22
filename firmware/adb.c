@@ -11,7 +11,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Types
+// Constants
 ////////////////////////////////////////////////////////////////////////////////
 
 // ADB protocol defines
@@ -23,6 +23,10 @@
 
 #define ADB_VERSION 0x01000000        // ADB protocol version
 
+////////////////////////////////////////////////////////////////////////////////
+// Types
+////////////////////////////////////////////////////////////////////////////////
+
 typedef enum {
   ADB_CONN_STATE_ERROR,
   ADB_CONN_STATE_WAIT_ATTACH,
@@ -31,11 +35,12 @@ typedef enum {
 } ADB_CONN_STATE;
 
 typedef enum {
-  ADB_CHAN_STATE_FREE,
+  ADB_CHAN_STATE_FREE = 0,
   ADB_CHAN_STATE_START,
   ADB_CHAN_STATE_WAIT_OPEN,
   ADB_CHAN_STATE_IDLE,
   ADB_CHAN_STATE_WAIT_READY,
+  ADB_CHAN_STATE_CLOSE_REQUESTED,
 } ADB_CHAN_STATE;
 
 typedef struct {
@@ -45,6 +50,7 @@ typedef struct {
   char name[ADB_CHANNEL_NAME_MAX_LENGTH];
   UINT32 remote_id;
   BOOL pending_ack;
+  ADBChannelRecvFunc recv_func;
 } ADB_CHANNEL;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,10 +67,14 @@ static char ADB_HOSTNAME_STRING[] = "host::";  // Leave non-const. USB stack
 
 
 static void ADBReset() {
+  // close all open channels
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
-    adb_channels[h].state = ADB_CHAN_STATE_FREE;
+    if (adb_channels[h].state != ADB_CHAN_STATE_FREE) {
+      adb_channels[h].recv_func(h, NULL, 0);
+    }
   }
+  memset(adb_channels, 0, sizeof adb_channels);
   ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
@@ -79,9 +89,17 @@ static void ADBChannelTasks() {
   }
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (++current_channel == ADB_MAX_CHANNELS) current_channel = 0;
+    if (adb_channels[current_channel].state == ADB_CHAN_STATE_FREE) {
+      continue;
+    }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_START) {
       ADBPacketSend(ADB_OPEN, current_channel + 1, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
       ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
+      return;
+    }
+    if (adb_channels[current_channel].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
+      ADBPacketSend(ADB_CLSE, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
+      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_FREE);
       return;
     }
     if (adb_channels[current_channel].pending_ack) {
@@ -107,7 +125,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     break;
 
    case ADB_OPEN:
-    // TODO: reject by sending CLSE
+    // should not happen. ignored.
     break;
 
    case ADB_OKAY:
@@ -133,12 +151,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     if (arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
         print2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
-        ADBChannelRecv(arg1, NULL, 0);
+        adb_channels[arg1].recv_func(arg1, NULL, 0);
         ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
         && adb_channels[arg1].remote_id == arg0) {
         print2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
-        ADBChannelRecv(arg1, NULL, 0);
+        adb_channels[arg1].recv_func(arg1, NULL, 0);
         ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       }
     } else {
@@ -151,7 +169,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     if (arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].remote_id == arg0) {
         if (data_len > 0) {
-          ADBChannelRecv(arg1, recv_data, data_len);
+          adb_channels[arg1].recv_func(arg1, recv_data, data_len);
         }
         adb_channels[arg1].pending_ack = TRUE;
       }
@@ -165,7 +183,9 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
   }
 }
 
-ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
+ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
+  assert(name != NULL);
+  assert(recv_func != NULL);
   // find a free channel
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
@@ -174,6 +194,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
       strncpy(adb_channels[h].name, name, ADB_CHANNEL_NAME_MAX_LENGTH);
       adb_channels[h].pending_ack = FALSE;
       adb_channels[h].data = NULL;
+      adb_channels[h].recv_func = recv_func;
       print2("Trying to open channel %d with name: %s", h, name);
       return h;
     }
@@ -181,8 +202,11 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name) {
   return ADB_INVALID_CHANNEL_HANDLE;
 }
 
-BOOL ADBConnected() {
-  return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
+void ADBClose(ADB_CHANNEL_HANDLE handle) {
+  assert(handle >= 0 && handle < ADB_MAX_CHANNELS);
+  if (adb_channels[handle].state > ADB_CHAN_STATE_FREE) {
+    adb_channels[handle].state = ADB_CHAN_STATE_CLOSE_REQUESTED;
+  }
 }
 
 BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle) {
@@ -203,10 +227,11 @@ ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_le
 void ADBInit() {
   BOOL res = USBHostInit(0);
   assert(res);
-  ADBReset();
+  memset(adb_channels, 0, sizeof adb_channels);
+  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
-void ADBTasks() {
+BOOL ADBTasks() {
   ADB_RESULT adb_res;
   UINT32 cmd, arg0, arg1, data_len;
   void* recv_data;
@@ -218,17 +243,17 @@ void ADBTasks() {
   if (adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH) {
     if (!USBHostAndroidIsDeviceAttached()) {
       // detached
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
-    } else {
-      ADBPacketTasks();
-      if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
-        if (adb_res == ADB_RESULT_ERROR) {
-          ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
-        } else {
-          ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
-        }
-        ADBPacketRecv();
+      ADBReset();
+      return FALSE;
+    }
+    ADBPacketTasks();
+    if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
+      if (adb_res == ADB_RESULT_ERROR) {
+        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      } else {
+        ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
       }
+      ADBPacketRecv();
     }
   }
 
@@ -255,6 +280,8 @@ void ADBTasks() {
     // TODO: send app notification
     break;
   }
+
+  return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
 }
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {

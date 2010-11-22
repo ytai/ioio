@@ -1,43 +1,6 @@
-/******************************************************************************
-            USB Custom Demo, Host
-
-This file provides the main entry point to the Microchip USB Custom
-Host demo.  This demo shows how a PIC24F system could be used to
-act as the host, controlling a USB device running the Microchip Custom
-Device demo.
-
-******************************************************************************/
-
-/******************************************************************************
-* Filename:        main.c
-* Dependancies:    USB Host Driver with Generic Client Driver
-* Processor:       PIC24F256GB1xx
-* Hardware:        Explorer 16 with USB PICtail Plus
-* Compiler:        C30 v2.01/C32 v0.00.18
-* Company:         Microchip Technology, Inc.
-
-Software License Agreement
-
-The software supplied herewith by Microchip Technology Incorporated
-(the “Company”) for its PICmicro® Microcontroller is intended and
-supplied to you, the Company’s customer, for use solely and
-exclusively on Microchip PICmicro Microcontroller products. The
-software is owned by the Company and/or its supplier, and is
-protected under applicable copyright laws. All rights are reserved.
-Any use in violation of the foregoing restrictions may subject the
-user to criminal sanctions under applicable laws, as well as to
-civil liability for the breach of the terms and conditions of this
-license.
-
-THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
-WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
-TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
-IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
-CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
-
-
-*******************************************************************************/
+//
+// Sample usage and test of the ADB layer.
+//
 
 #include <stdlib.h>
 #include <string.h>
@@ -152,7 +115,6 @@ typedef enum {
   MAIN_STATE_RECV
 } MAIN_STATE;
 
-static char chan_name[] = "shell:";
 static char data[] = "ls\n";
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
 
@@ -179,17 +141,16 @@ int main(void) {
   ADBInit();
 
   while (1) {
-    ADBTasks();
-
-    if (!ADBConnected()) {
+    BOOL connected = ADBTasks();
+    if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }
     
     switch(state) {
      case MAIN_STATE_WAIT_CONNECT:
-      if (ADBConnected()) {
+      if (connected) {
         print0("ADB connected!");
-        h = ADBOpen(chan_name);
+        h = ADBOpen("shell:", &ChannelRecv);
         state = MAIN_STATE_WAIT_OPEN;
       }
       break;
@@ -212,7 +173,7 @@ int main(void) {
      case MAIN_STATE_RECV:
       break;
     }
-    DelayMs(100);
+    //DelayMs(100);
   }
 
   return 0;

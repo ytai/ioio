@@ -51,7 +51,6 @@ file_023=ADB
 file_024=ADB
 file_025=ADB
 file_026=.
-file_027=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -80,7 +79,6 @@ file_023=no
 file_024=no
 file_025=no
 file_026=no
-file_027=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -109,7 +107,6 @@ file_023=no
 file_024=no
 file_025=no
 file_026=no
-file_027=no
 [FILE_INFO]
 file_000=main.c
 file_001=C:\Microchip Solutions v2010-08-04\Microchip\Common\uart2.c
@@ -138,7 +135,6 @@ file_023=adb.h
 file_024=adb_packet.h
 file_025=adb_types.h
 file_026=logging.h
-file_027=adb_channel.h
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
