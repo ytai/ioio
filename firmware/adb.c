@@ -91,7 +91,7 @@ static void ADBChannelTasks() {
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
         && adb_channels[current_channel].data != NULL) {
-      ADBPacketSend(ADB_WRTE, 0, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
+      ADBPacketSend(ADB_WRTE, current_channel + 1, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
       ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_READY);
       return;
     }
@@ -103,11 +103,13 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
    case ADB_CNXN:
     print1("ADB established connection with [%s]", (const char*) recv_data);
     // TODO: arg1 contains max_data - handle
-    // TODO: send app notification
     ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
     break;
+
    case ADB_OPEN:
+    // TODO: reject by sending CLSE
     break;
+
    case ADB_OKAY:
     --arg1;
     if (arg1 >= 0 && arg1 < ADB_MAX_CHANNELS) {
@@ -125,6 +127,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
+
    case ADB_CLSE:
     --arg1;
     if (arg1 < ADB_MAX_CHANNELS) {
@@ -142,6 +145,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
+
    case ADB_WRTE:
     --arg1;
     if (arg1 < ADB_MAX_CHANNELS) {
@@ -154,8 +158,8 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     } else {
       ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
-    
     break;
+
    default:
     print1("Unknown command 0x%lx. Ignoring.", cmd);
   }
