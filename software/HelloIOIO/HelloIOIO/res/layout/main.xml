@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/Main">
+<TextView  
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" android:text="@string/title" android:textSize="12pt" android:paddingBottom="10px"/>
+<ToggleButton android:id="@+id/ToggleButton01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="toggleButtonClicked"></ToggleButton>
+
+<ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" android:layout_height="wrap_content"></ImageView>
+</LinearLayout>
