@@ -10,6 +10,7 @@
 #include "adb.h"
 #include "HardwareProfile.h"
 #include "logging.h"
+#include "ports.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -72,6 +73,8 @@ BOOL InitializeSystem(void) {
 #endif
 
     mInitAllLEDs();
+    TRISDbits.TRISD10 = 0;
+    EnablePullUpCN59;
 
     return TRUE;
 }  // InitializeSystem
@@ -109,30 +112,30 @@ void BlinkStatus(void) {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
-  MAIN_STATE_WAIT_OPEN,
-  MAIN_STATE_WAIT_PROMPT,
-  MAIN_STATE_GOT_PROMPT,
-  MAIN_STATE_RECV
+  MAIN_STATE_WAIT_READY,
+  MAIN_STATE_RUN
 } MAIN_STATE;
 
-static char data[] = "ls\n";
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
-
 
 void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   UINT32 i;
   UART2PrintString("******** ");
   for (i = 0; i < data_len; ++i) {
-    UART2PutChar(((const BYTE*) data)[i]);
+    BYTE b = ((const BYTE*) data)[i];
+    UART2PutChar(b);
+    if (b == 'n') {
+      PORTDbits.RD10 = 1;
+    } else if (b == 'f') {
+      PORTDbits.RD10 = 0;
+    }
   }
   UART2PrintString("\r\n");
-  if (state == MAIN_STATE_WAIT_PROMPT) {
-    state = MAIN_STATE_GOT_PROMPT;
-  }
 }
 
 int main(void) {
   ADB_CHANNEL_HANDLE h;
+  BOOL prev_button = 1;
   // Initialize the processor and peripherals.
   if (!InitializeSystem()) {
     UART2PrintString("\r\n\r\nCould not initialize USB Custom Demo App - system.  Halting.\r\n\r\n");
@@ -141,6 +144,8 @@ int main(void) {
   ADBInit();
 
   while (1) {
+    BOOL button;
+    BYTE c;
     BOOL connected = ADBTasks();
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
@@ -150,27 +155,25 @@ int main(void) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         print0("ADB connected!");
-        h = ADBOpen("shell:", &ChannelRecv);
-        state = MAIN_STATE_WAIT_OPEN;
+        h = ADBOpen("tcp:4356", &ChannelRecv);
+        state = MAIN_STATE_WAIT_READY;
       }
       break;
 
-     case MAIN_STATE_WAIT_OPEN:
+     case MAIN_STATE_WAIT_READY:
       if (ADBChannelReady(h)) {
-        state = MAIN_STATE_WAIT_PROMPT;
+        state = MAIN_STATE_RUN;
       }
       break;
 
-     case MAIN_STATE_WAIT_PROMPT:
-      break;
-
-     case MAIN_STATE_GOT_PROMPT:
-        print0("Sending data");
-        ADBWrite(h, data, sizeof data - 1);
-        state = MAIN_STATE_RECV;
-      break;
-
-     case MAIN_STATE_RECV:
+     case MAIN_STATE_RUN:
+      button = PORTEbits.RE1;
+      if (button != prev_button) {
+        c = button ? 'f' : 'n';
+        ADBWrite(h, &c, 1);
+        prev_button = button;
+        state = MAIN_STATE_WAIT_READY;
+      }
       break;
     }
     //DelayMs(100);
