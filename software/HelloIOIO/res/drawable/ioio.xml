@@ -1,0 +1,5 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/ioio_up" android:duration="2000" />
+    <item android:drawable="@drawable/ioio_down" android:duration="2000" />
+</animation-list>

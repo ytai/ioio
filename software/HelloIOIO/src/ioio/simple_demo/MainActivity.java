@@ -8,12 +8,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 public class MainActivity extends Activity {
 	private NetThread thread_ = new NetThread();
 	private ToggleButton button_;
 	private View main_view_;
+	private ImageView image_view_;
 
 	private class NetThread extends Thread {
 		private Socket socket_;
@@ -67,9 +69,9 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 				if (b == 'n') {
-					main_view_.setBackgroundColor(Color.WHITE);
+					image_view_.setImageResource(R.drawable.ioio_down);
 				} else if (b == 'f') {
-					main_view_.setBackgroundColor(Color.BLACK);
+					image_view_.setImageResource(R.drawable.ioio_up);
 				}
 
 			}
@@ -87,6 +89,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		button_ = (ToggleButton) findViewById(R.id.ToggleButton01);
+		image_view_ = (ImageView) findViewById(R.id.ImageView01);
 		thread_.start();
 	}
 
