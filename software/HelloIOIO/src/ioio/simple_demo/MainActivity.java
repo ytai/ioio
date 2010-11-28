@@ -14,7 +14,6 @@ import android.widget.ToggleButton;
 public class MainActivity extends Activity {
 	private NetThread thread_ = new NetThread();
 	private ToggleButton button_;
-	private View main_view_;
 	private ImageView image_view_;
 
 	private class NetThread extends Thread {
@@ -76,11 +75,6 @@ public class MainActivity extends Activity {
 
 			}
 		});
-	}
-
-	@Override
-	public void onAttachedToWindow() {
-		main_view_ = findViewById(R.id.Main);
 	}
 
 	/** Called when the activity is first created. */
