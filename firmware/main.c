@@ -81,7 +81,8 @@ BOOL InitializeSystem(void) {
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
   MAIN_STATE_WAIT_OPEN,
-  MAIN_STATE_RUN
+  MAIN_STATE_RUN,
+  MAIN_STATE_DONE
 } MAIN_STATE;
 
 static char filepath[] = "/data/data/ioio.filegen/files/test_file";
@@ -181,7 +182,7 @@ void BlockingSend(ADB_CHANNEL_HANDLE h, const void* data, UINT32 len) {
   while (!ADBChannelReady(h) && ADBTasks());
 }
 
-static BYTE data[128];
+static BYTE data[8192] __attribute__((far));
 
 int main(void) {
   ADB_CHANNEL_HANDLE h;
@@ -225,6 +226,10 @@ int main(void) {
         BlockingRecv(data, msg.data.size);
         print_message(data, msg.data.size);
       } while (msg.id != ID_DONE);
+      state = MAIN_STATE_DONE;
+      break;
+
+     case MAIN_STATE_DONE:
       break;
     }
   }
