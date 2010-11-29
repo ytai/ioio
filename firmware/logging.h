@@ -3,6 +3,7 @@
 
 
 #ifdef DEBUG_MODE
+  #include <stdio.h>
   #include "uart2.h"
   #include "GenericTypeDefs.h"
 
