@@ -2,6 +2,7 @@
 // Sample usage and test of the ADB layer.
 //
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -19,7 +20,7 @@
 
 #ifdef __C30__
   #if defined(__PIC24FJ256DA206__)
-      _CONFIG1(FWDTEN_OFF & ICS_PGx2 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
+      _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
       _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_OFF & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
       _CONFIG3(0xFFFF)
   #else
@@ -77,59 +78,110 @@ BOOL InitializeSystem(void) {
 }  // InitializeSystem
 
 
-void BlinkStatus(void) {
-//  static unsigned int led_count = 0;
-//
-//  if(led_count-- == 0) led_count = 300;
-//
-//  if(DemoState <= DEMO_STATE_IDLE) {
-//      mLED_0_Off();
-//      mLED_1_Off();
-//  } else if (DemoState < DEMO_STATE_CONNECTED) {
-//      mLED_0_On();
-//      mLED_1_On();
-//  } else if(DemoState < DEMO_STATE_ERROR) {
-//    if (led_count == 0) {
-//          mLED_0_Toggle();
-//#ifdef mLED_1
-//          mLED_1 = !mLED_0;       // Alternate blink
-//#endif
-//    }
-//  } else {
-//    if (led_count == 0) {
-//      mLED_0_Toggle();
-//#ifdef mLED_1
-//      mLED_1 = mLED_0;        // Both blink at the same time
-//#endif
-//      led_count = 50;
-//    }
-//      DelayMs(1); // 1ms delay
-//  }
-}  // BlinkStatus
-
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
   MAIN_STATE_WAIT_OPEN,
-  MAIN_STATE_WAIT_PROMPT,
-  MAIN_STATE_GOT_PROMPT,
-  MAIN_STATE_RECV
+  MAIN_STATE_RUN
 } MAIN_STATE;
 
-static char data[] = "ls\n";
+static char filepath[] = "/data/data/ioio.filegen/files/test_file";
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
 
+#define MKID(a,b,c,d) (((UINT32) (a)) | (((UINT32) (b)) << 8) | (((UINT32) (c)) << 16) | (((UINT32) (d)) << 24))
+
+#define ID_STAT MKID('S','T','A','T')
+#define ID_LIST MKID('L','I','S','T')
+#define ID_ULNK MKID('U','L','N','K')
+#define ID_SEND MKID('S','E','N','D')
+#define ID_RECV MKID('R','E','C','V')
+#define ID_DENT MKID('D','E','N','T')
+#define ID_DONE MKID('D','O','N','E')
+#define ID_DATA MKID('D','A','T','A')
+#define ID_OKAY MKID('O','K','A','Y')
+#define ID_FAIL MKID('F','A','I','L')
+#define ID_QUIT MKID('Q','U','I','T')
+
+typedef union {
+    UINT32 id;
+    struct {
+        UINT32 id;
+        UINT32 namelen;
+    } req;
+    struct {
+        UINT32 id;
+        UINT32 mode;
+        UINT32 size;
+        UINT32 time;
+    } stat;
+    struct {
+        UINT32 id;
+        UINT32 mode;
+        UINT32 size;
+        UINT32 time;
+        UINT32 namelen;
+    } dent;
+    struct {
+        UINT32 id;
+        UINT32 size;
+    } data;
+    struct {
+        UINT32 id;
+        UINT32 msglen;
+    } status;    
+} syncmsg;
+
+static syncmsg msg;
+
+
+#define BUFFER_LEN 128
+static BYTE buffer[BUFFER_LEN];
+static UINT16 buffer_read = 0;
+static UINT16 buffer_write = 0;
+static UINT16 buffer_used = 0;
+
+void BufferEnqueue(const void* data, UINT16 len) {
+  assert(BUFFER_LEN - buffer_used >= len);
+  if (buffer_write + len > BUFFER_LEN) {
+    memcpy(buffer + buffer_write, data, BUFFER_LEN - buffer_write);
+    buffer_write += len - BUFFER_LEN;
+    memcpy(buffer, ((const BYTE*) data) + len - buffer_write, buffer_write);
+  } else {
+    memcpy(buffer + buffer_write, data, len);
+    buffer_write += len;
+    if (buffer_write == BUFFER_LEN) buffer_write = 0;
+  }
+  buffer_used += len;
+}
+
+void BufferDequeue(void* data, UINT16 len) {
+  assert(len <= buffer_used);
+  if (buffer_read + len > BUFFER_LEN) {
+    memcpy(data, buffer + buffer_read, BUFFER_LEN - buffer_read);
+    buffer_read += len - BUFFER_LEN;
+    memcpy(((BYTE*) data) + len - buffer_read, buffer, buffer_read);
+  } else {
+    memcpy(data, buffer + buffer_read, len);
+    buffer_read += len;
+    if (buffer_read == BUFFER_LEN) buffer_read = 0;
+  }
+  buffer_used -= len;
+}
 
 void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
-  UINT32 i;
-  UART2PrintString("******** ");
-  for (i = 0; i < data_len; ++i) {
-    UART2PutChar(((const BYTE*) data)[i]);
-  }
-  UART2PrintString("\r\n");
-  if (state == MAIN_STATE_WAIT_PROMPT) {
-    state = MAIN_STATE_GOT_PROMPT;
-  }
+  BufferEnqueue(data, (UINT16) data_len);
 }
+
+void BlockingRecv(void* data, UINT32 len) {
+  while(buffer_used < len && ADBTasks()); 
+  BufferDequeue(data, len);
+}
+
+void BlockingSend(ADB_CHANNEL_HANDLE h, const void* data, UINT32 len) {
+  ADBWrite(h, data, len);
+  while (!ADBChannelReady(h) && ADBTasks());
+}
+
+static BYTE data[128];
 
 int main(void) {
   ADB_CHANNEL_HANDLE h;
@@ -150,31 +202,31 @@ int main(void) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         print0("ADB connected!");
-        h = ADBOpen("shell:", &ChannelRecv);
+        h = ADBOpen("sync:", &ChannelRecv);
         state = MAIN_STATE_WAIT_OPEN;
       }
       break;
 
      case MAIN_STATE_WAIT_OPEN:
       if (ADBChannelReady(h)) {
-        state = MAIN_STATE_WAIT_PROMPT;
+        state = MAIN_STATE_RUN;
       }
       break;
 
-     case MAIN_STATE_WAIT_PROMPT:
-      break;
-
-     case MAIN_STATE_GOT_PROMPT:
-        print0("Sending data");
-        ADBWrite(h, data, sizeof data - 1);
-        state = MAIN_STATE_RECV;
-      break;
-
-     case MAIN_STATE_RECV:
+     case MAIN_STATE_RUN:
+      msg.req.id = ID_RECV;
+      msg.req.namelen = strlen(filepath);
+      BlockingSend(h, &msg, sizeof msg.req);
+      BlockingSend(h, filepath, msg.req.namelen);
+      do {
+        BlockingRecv(&msg.data, sizeof msg.data);
+        assert(msg.data.id == ID_DATA || msg.data.id == ID_DONE);
+        assert(msg.data.size <= 4096);
+        BlockingRecv(data, msg.data.size);
+        print_message(data, msg.data.size);
+      } while (msg.id != ID_DONE);
       break;
     }
-    //DelayMs(100);
   }
-
   return 0;
 }  // main
