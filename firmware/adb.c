@@ -210,7 +210,7 @@ void ADBClose(ADB_CHANNEL_HANDLE handle) {
 }
 
 BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle) {
-  return adb_channels[handle].state == ADB_CHAN_STATE_IDLE;
+  return adb_channels[handle].state == ADB_CHAN_STATE_IDLE && adb_channels[handle].data == NULL;
 }
 
 void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len) {
