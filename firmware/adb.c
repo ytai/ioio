@@ -185,6 +185,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
 
 ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
   assert(name != NULL);
+  assert(strlen(name) < ADB_CHANNEL_NAME_MAX_LENGTH);
   assert(recv_func != NULL);
   // find a free channel
   ADB_CHANNEL_HANDLE h;
