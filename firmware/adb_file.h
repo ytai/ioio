@@ -16,7 +16,17 @@ typedef int ADB_FILE_HANDLE;
 
 #define ADB_FILE_MAX_PATH_LENGTH 64
 
-ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func);
+// The signature of a channel incoming data callback.
+// The h argument is useful in case the same function is used for several
+// channels, but can be safely ignored otherwise.
+// The data buffer is only valid for the duration of this call, so it should be
+// copied if needed later.
+// When the data argument is NULL, check data_len:
+// - When 0, the EOF has been reached.
+// - When 1, an error has occured.
+typedef void (*ADBFileRecvFunc)(ADB_FILE_HANDLE h, const void* data, UINT32 data_len);
+
+ADB_FILE_HANDLE ADBFileRead(const char* path, ADBFileRecvFunc recv_func);
 void ADBFileInit();
 void ADBFileTasks();
 
