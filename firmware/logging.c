@@ -1,10 +1,10 @@
 #include "logging.h"
 
-#ifdef DEBUG_MODE
+#ifdef ENABLE_LOGGING
 
 char char_buf[256];
 
-void print_message(const void* buf, int size) {
+void log_print_buf(const void* buf, int size) {
   const BYTE* byte_buf = (const BYTE*) buf;
   int s = size;
   while (size-- > 0) {

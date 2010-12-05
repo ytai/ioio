@@ -30,23 +30,8 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   gc_DevData.inEndpoint = 0x84;
   gc_DevData.outEndpoint = 0x03;
   
-#ifdef DEBUG_MODE
-  UART2PrintString("ANDR: Android Client Initalized: flags=0x");
-  UART2PutHex(flags);
-  UART2PrintString(" address=");
-  UART2PutDec(address);
-  UART2PrintString(" VID=0x");
-  UART2PutHex(gc_DevData.ID.vid >> 8);
-  UART2PutHex(gc_DevData.ID.vid & 0xFF);
-  UART2PrintString(" PID=0x");
-  UART2PutHex(gc_DevData.ID.pid >> 8);
-  UART2PutHex(gc_DevData.ID.pid & 0xFF);
-  UART2PrintString(" IN_EP=0x");
-  UART2PutHex(gc_DevData.inEndpoint);
-  UART2PrintString(" OUT_EP=0x");
-  UART2PutHex(gc_DevData.outEndpoint);
-  UART2PrintString("\r\n");
-#endif
+  log_print_6("Android Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x IN_EP=0x%x OUT_EP=0x%x",
+              flags, address, gc_DevData.ID.vid, gc_DevData.ID.pid, gc_DevData.inEndpoint, gc_DevData.outEndpoint);
   
   // Android Driver Init Complete.
   gc_DevData.flags.initialized = 1;
@@ -65,11 +50,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
     gc_DevData.flags.val        = 0;
     gc_DevData.ID.deviceAddress = 0;
 
-#ifdef DEBUG_MODE
-    UART2PrintString("ANDR: Android Client Device Detached: address=");
-    UART2PutDec(address);
-    UART2PrintString("\r\n");
-#endif
+    log_print_1("Android Client Device Detached: address=0x%x", address);
     break;
 
 #ifdef USB_ENABLE_TRANSFER_EVENT
@@ -82,8 +63,8 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
         gc_DevData.flags.rxBusy = 0;
         gc_DevData.rxLength = dataCount;
         gc_DevData.rxErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
-        print0("Received message: ");
-        print_message(((HOST_TRANSFER_DATA *)data)->pUserData, ((HOST_TRANSFER_DATA *)data)->dataCount);
+        log_print_0("Received message: ");
+        log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, ((HOST_TRANSFER_DATA *)data)->dataCount);
       } else if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_DevData.outEndpoint) {
         gc_DevData.flags.txBusy = 0;
         gc_DevData.txErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
@@ -126,7 +107,7 @@ BYTE USBHostAndroidRead(void *buffer, DWORD length) {
   assert(USBHostAndroidIsDeviceAttached());
   if (gc_DevData.flags.rxBusy) return USB_BUSY;
 
-  print1("Requested read of %u bytes", (unsigned) length);
+  log_print_1("Requested read of %u bytes", (unsigned) length);
 
   // Set the busy flag, clear the count and start a new IN transfer.
   gc_DevData.flags.rxBusy = 1;
@@ -190,8 +171,8 @@ BYTE USBHostAndroidWrite(const void *buffer, DWORD length) {
   assert(USBHostAndroidIsDeviceAttached());
   if (gc_DevData.flags.txBusy) return USB_BUSY;
 
-  print1("Sending message with %u bytes: ", (unsigned) length);
-  print_message(buffer, length);
+  log_print_1("Sending message with %u bytes: ", (unsigned) length);
+  log_print_buf(buffer, length);
 
   // Set the busy flag and start a new OUT transfer.
   gc_DevData.flags.txBusy = 1;

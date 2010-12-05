@@ -9,7 +9,6 @@
 #include "usb_host_android.h"
 #include "logging.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ static void ADBReset() {
     }
   }
   memset(adb_channels, 0, sizeof adb_channels);
-  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+  LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
 static void ADBChannelTasks() {
@@ -84,7 +83,7 @@ static void ADBChannelTasks() {
   ADB_CHANNEL_HANDLE h;
   if ((adb_res = ADBPacketSendStatus()) == ADB_RESULT_BUSY) return;
   if (adb_res == ADB_RESULT_ERROR) {
-    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     return;
   }
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
@@ -94,12 +93,12 @@ static void ADBChannelTasks() {
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_START) {
       ADBPacketSend(ADB_OPEN, current_channel + 1, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
-      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
+      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
       return;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
       ADBPacketSend(ADB_CLSE, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
-      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_FREE);
+      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_FREE);
       return;
     }
     if (adb_channels[current_channel].pending_ack) {
@@ -110,7 +109,7 @@ static void ADBChannelTasks() {
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
         && adb_channels[current_channel].data != NULL) {
       ADBPacketSend(ADB_WRTE, current_channel + 1, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
-      ADB_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_READY);
+      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_READY);
       return;
     }
   }
@@ -119,9 +118,9 @@ static void ADBChannelTasks() {
 static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* recv_data, UINT32 data_len) {
   switch(cmd) {
    case ADB_CNXN:
-    print1("ADB established connection with [%s]", (const char*) recv_data);
+    log_print_1("ADB established connection with [%s]", (const char*) recv_data);
     // TODO: arg1 contains max_data - handle
-    ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
+    LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
     break;
 
    case ADB_OPEN:
@@ -132,17 +131,17 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     --arg1;
     if (arg1 >= 0 && arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        print3("Channel %ld is open. Remote ID: 0x%lx. Name: %s", arg1, arg0, adb_channels[arg1].name);
+        log_print_3("Channel %ld is open. Remote ID: 0x%lx. Name: %s", arg1, arg0, adb_channels[arg1].name);
         adb_channels[arg1].remote_id = arg0;
-        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
+        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
         && adb_channels[arg1].remote_id == arg0) {
         adb_channels[arg1].data = NULL;
-        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
+        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
       }
     } else {
-      print1("Remote side sent an OK on an unexpected channel: %ld", arg1);
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      log_print_1("Remote side sent an OK on an unexpected channel: %ld", arg1);
+      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
 
@@ -150,17 +149,17 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     --arg1;
     if (arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        print2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
+        log_print_2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
         adb_channels[arg1].recv_func(arg1, NULL, 0);
-        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
         && adb_channels[arg1].remote_id == arg0) {
-        print2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
+        log_print_2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
         adb_channels[arg1].recv_func(arg1, NULL, 0);
-        ADB_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       }
     } else {
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
 
@@ -174,12 +173,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         adb_channels[arg1].pending_ack = TRUE;
       }
     } else {
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     }
     break;
 
    default:
-    print1("Unknown command 0x%lx. Ignoring.", cmd);
+    log_print_1("Unknown command 0x%lx. Ignoring.", cmd);
   }
 }
 
@@ -191,12 +190,12 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (adb_channels[h].state == ADB_CHAN_STATE_FREE) {
-      ADB_CHANGE_STATE(adb_channels[h].state, ADB_CHAN_STATE_START);
+      LOG_CHANGE_STATE(adb_channels[h].state, ADB_CHAN_STATE_START);
       strncpy(adb_channels[h].name, name, ADB_CHANNEL_NAME_MAX_LENGTH);
       adb_channels[h].pending_ack = FALSE;
       adb_channels[h].data = NULL;
       adb_channels[h].recv_func = recv_func;
-      print2("Trying to open channel %d with name: %s", h, name);
+      log_print_2("Trying to open channel %d with name: %s", h, name);
       return h;
     }
   }
@@ -229,7 +228,7 @@ void ADBInit() {
   BOOL res = USBHostInit(0);
   assert(res);
   memset(adb_channels, 0, sizeof adb_channels);
-  ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+  LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
 BOOL ADBTasks() {
@@ -250,7 +249,7 @@ BOOL ADBTasks() {
     ADBPacketTasks();
     if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
       if (adb_res == ADB_RESULT_ERROR) {
-        ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
       } else {
         ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
       }
@@ -264,7 +263,7 @@ BOOL ADBTasks() {
       ADBPacketReset();
       ADBPacketRecv();  // start receiving
       ADBPacketSend(ADB_CNXN, ADB_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, ADB_HOSTNAME_STRING, strlen(ADB_HOSTNAME_STRING) + 1);
-      ADB_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_CONNECT);
+      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_CONNECT);
     }
     break;
 
@@ -297,27 +296,27 @@ BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWOR
     return TRUE;
 
    case EVENT_HUB_ATTACH:
-    print0("***** USB Error - hubs are not supported *****");
+    log_print_0("***** USB Error - hubs are not supported *****");
     return TRUE;
 
    case EVENT_UNSUPPORTED_DEVICE:
-    print0("***** USB Error - device is not supported *****");
+    log_print_0("***** USB Error - device is not supported *****");
     return TRUE;
 
    case EVENT_CANNOT_ENUMERATE:
-    print0("***** USB Error - cannot enumerate device *****");
+    log_print_0("***** USB Error - cannot enumerate device *****");
     return TRUE;
 
    case EVENT_CLIENT_INIT_ERROR:
-    print0("***** USB Error - client driver initialization error *****");
+    log_print_0("***** USB Error - client driver initialization error *****");
     return TRUE;
 
    case EVENT_OUT_OF_MEMORY:
-    print0("***** USB Error - out of heap memory *****");
+    log_print_0("***** USB Error - out of heap memory *****");
     return TRUE;
 
    case EVENT_UNSPECIFIED_ERROR:   // This should never be generated.
-    print0("***** USB Error - unspecified *****");
+    log_print_0("***** USB Error - unspecified *****");
     return TRUE;
 
    default:

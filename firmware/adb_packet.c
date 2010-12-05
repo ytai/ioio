@@ -56,37 +56,37 @@ static void ADBPacketSendTasks() {
   switch (adb_packet_send_state) {
    case ADB_PACKET_STATE_START:
     if (USBHostAndroidWrite((BYTE*) &adb_packet_send_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
-      ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
+      LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
       break;
     }
-    ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_WAIT_HEADER);
+    LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_WAIT_HEADER);
     break;
 
    case ADB_PACKET_STATE_WAIT_HEADER:
     if (USBHostAndroidTxIsComplete(&ret_val)) {
       if (ret_val != USB_SUCCESS) {
-        ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
       if (adb_packet_send_header.data_length == 0) {
-        ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
+        LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
         break;
       }
       if (USBHostAndroidWrite(adb_packet_send_data, adb_packet_send_header.data_length) != USB_SUCCESS) {
-        ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-      ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_WAIT_DATA);
+      LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_WAIT_DATA);
     }
     break;
 
    case ADB_PACKET_STATE_WAIT_DATA:
     if (USBHostAndroidTxIsComplete(&ret_val)) {
       if (ret_val != USB_SUCCESS) {
-        ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-      ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
+      LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
     }
     break;
 
@@ -102,54 +102,54 @@ static void ADBPacketRecvTasks() {
   switch (adb_packet_recv_state) {
    case ADB_PACKET_STATE_START:
     if (USBHostAndroidRead((BYTE*) &adb_packet_recv_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
-      ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+      LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
       break;
     }
-    ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_WAIT_HEADER);
+    LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_WAIT_HEADER);
     break;
 
    case ADB_PACKET_STATE_WAIT_HEADER:
     if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
       if (ret_val != USB_SUCCESS) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
 // TODO: probably not needed
 //      if (bytes_received == 0) {
 //        adb_packet_recv_header.command = 0;
-//        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
+//        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
 //        break;
 //      }
       if (bytes_received != sizeof(ADB_PACKET_HEADER)
           || adb_packet_recv_header.command != (~adb_packet_recv_header.magic)
           || adb_packet_recv_header.data_length > ADB_PACKET_MAX_RECV_DATA_BYTES) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
       if (adb_packet_recv_header.data_length == 0) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
         break;
       }
       if (USBHostAndroidRead(adb_packet_recv_data, adb_packet_recv_header.data_length) != USB_SUCCESS) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-      ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_WAIT_DATA);
+      LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_WAIT_DATA);
     }
     break;
 
    case ADB_PACKET_STATE_WAIT_DATA:
     if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
       if (ret_val != USB_SUCCESS || bytes_received != adb_packet_recv_header.data_length) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
 
       if (ADBChecksum(adb_packet_recv_data, adb_packet_recv_header.data_length) != adb_packet_recv_header.data_check) {
-        ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
+        LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
-	    ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
+	    LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
     }
     break;
    case ADB_PACKET_STATE_IDLE:
@@ -167,7 +167,7 @@ void ADBPacketSend(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* data, UINT3
   adb_packet_send_header.data_check = ADBChecksum(data, data_len);
   adb_packet_send_header.magic = ~cmd;
   adb_packet_send_data = (const BYTE*) data;
-  ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_START);
+  LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_START);
 }
 
 ADB_RESULT ADBPacketSendStatus() {
@@ -177,7 +177,7 @@ ADB_RESULT ADBPacketSendStatus() {
 
 void ADBPacketRecv() {
   assert(!ADB_PACKET_STATE_BUSY(adb_packet_recv_state));
-  ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_START);
+  LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_START);
 }
 
 ADB_RESULT ADBPacketRecvStatus(UINT32* cmd, UINT32* arg0, UINT32* arg1, void** data, UINT32* data_len) {
@@ -192,8 +192,8 @@ ADB_RESULT ADBPacketRecvStatus(UINT32* cmd, UINT32* arg0, UINT32* arg1, void** d
 }
 
 void ADBPacketReset() {
-  ADB_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
-  ADB_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
+  LOG_CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
+  LOG_CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
 }
 
 void ADBPacketTasks() {

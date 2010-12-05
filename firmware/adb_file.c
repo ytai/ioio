@@ -95,9 +95,9 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
         data_len -= f->read_remain;
         f->read_remain = f->msg.data.size;
         if (f->msg.data.id == ID_DATA || f->msg.data.id == ID_DONE) {
-          ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_DATA);
+          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_DATA);
         } else if (f->msg.data.id == ID_FAIL) {
-          ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_FAIL_DATA);
+          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_FAIL_DATA);
         } else {
           goto close_and_error;
         }
@@ -124,7 +124,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
           data = ((const BYTE*) data) + f->read_remain;
           data_len -= f->read_remain;
           f->read_remain = sizeof f->msg.data;
-          ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
+          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
         }
       } else {
         if (data_len > 0) {
@@ -150,7 +150,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
 close_and_error:
   ADBClose(f->handle);
 error:
-  print1("Failed to open or read file %s", f->path);
+  log_print_1("Failed to open or read file %s", f->path);
   f->func(i, NULL, 1);
   memset(f, 0, sizeof(ADB_FILE));
 }
@@ -161,16 +161,16 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
   assert(strlen(path) < ADB_FILE_MAX_PATH_LENGTH);
   for (i = 0; i < ADB_FILE_MAX_FILES && adb_files[i].state != ADB_FILE_STATE_FREE; ++i);
   if (i == ADB_FILE_MAX_FILES) {
-    print1("Exceeded maximum number of open files: %d", ADB_FILE_MAX_FILES);
+    log_print_1("Exceeded maximum number of open files: %d", ADB_FILE_MAX_FILES);
     return ADB_FILE_INVALID_HANDLE;
   }
   if ((adb_files[i].handle = ADBOpen("sync:", &ADBFileCallback)) == ADB_INVALID_CHANNEL_HANDLE) {
-    print0("Failed to open ADB channel to sync:");
+    log_print_0("Failed to open ADB channel to sync:");
     return ADB_FILE_INVALID_HANDLE;
   }
   adb_files[i].func = recv_func;
   strncpy(adb_files[i].path, path, ADB_FILE_MAX_PATH_LENGTH);
-  ADB_CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
+  LOG_CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
   return i;
 }
 
@@ -187,7 +187,7 @@ void ADBFileTasks() {
       f->req.namelen = strlen(f->path);
       ADBWrite(f->handle, &f->req, sizeof f->req + f->req.namelen);
       f->read_remain = sizeof f->msg.data;
-      ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
+      LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
     }
   }
 }

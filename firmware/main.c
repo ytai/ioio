@@ -54,11 +54,9 @@
 
 BOOL InitializeSystem(void) {
 #if defined(__PIC24FJ256DA206__)
-  #ifdef DEBUG_MODE
     iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
     iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
     UART2Init();
-  #endif
 #elif defined(__PIC32MX__)
   {
     int  value = SYSTEMConfigWaitStatesAndPB(GetSystemClock());
@@ -154,7 +152,7 @@ int main(void) {
     switch(state) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
-        print0("ADB connected!");
+        log_print_0("ADB connected!");
         h = ADBFileRead("/data/data/ioio.filegen/files/test_file", &FileRecv);
         state = MAIN_STATE_RECV;
       }
