@@ -82,7 +82,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
   if (!data) goto error;
 
   // consume data
-  do {
+  while (1) {
     switch (f->state) {
      case ADB_FILE_STATE_FREE:
      case ADB_FILE_STATE_WAIT_OPEN:
@@ -96,37 +96,42 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
         f->read_remain = f->msg.data.size;
         if (f->msg.data.id == ID_DATA || f->msg.data.id == ID_DONE) {
           ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_DATA);
-          continue;
         } else if (f->msg.data.id == ID_FAIL) {
           ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_FAIL_DATA);
-          continue;
+        } else {
+          goto close_and_error;
         }
-        goto close_and_error;
       } else {
         memcpy(((BYTE*) &f->msg.data) + sizeof f->msg.data - f->read_remain, data, data_len);
         f->read_remain -= data_len; 
+        return;
       }
       break;
   
      case ADB_FILE_STATE_WAIT_DATA:
       if (data_len >= f->read_remain) {
-        f->func(i, data, f->read_remain);
+        if (data_len > 0) {
+          f->func(i, data, f->read_remain);
+        }
         if (f->msg.id == ID_DONE) {
           if (data_len != f->read_remain) goto close_and_error;
           // success - EOF
           f->func(i, NULL, 0);
           ADBClose(f->handle);
           memset(f, 0, sizeof(ADB_FILE));
+          return;
         } else {
           data = ((const BYTE*) data) + f->read_remain;
           data_len -= f->read_remain;
           f->read_remain = sizeof f->msg.data;
           ADB_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
-          continue;
         }
       } else {
-        f->func(i, data, data_len);
+        if (data_len > 0) {
+          f->func(i, data, data_len);
+        }
         f->read_remain -= data_len;
+        return;
       }
       break;
 
@@ -135,11 +140,11 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
         goto close_and_error;
       } else {
         f->read_remain -= data_len;
+        return;
       }
       break;
-
     }
-  } while (0);
+  }
   return;
 
 close_and_error:
