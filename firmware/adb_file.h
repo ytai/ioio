@@ -19,8 +19,10 @@ typedef int ADB_FILE_HANDLE;
 // The signature of a channel incoming data callback.
 // The h argument is useful in case the same function is used for several
 // channels, but can be safely ignored otherwise.
-// The data buffer is only valid for the duration of this call, so it should be
-// copied if needed later.
+// The data buffer is valid until the client calls ADBReleaseBuffer().
+// This function MUST be called from within the callback or shortly after
+// whenever the 'data' argument is non-NULL. Until this happens, no new data
+// can be received on any channel.
 // When the data argument is NULL, check data_len:
 // - When 0, the EOF has been reached.
 // - When 1, an error has occured.

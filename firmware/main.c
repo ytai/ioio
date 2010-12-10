@@ -106,6 +106,7 @@ void BlinkStatus(void) {
 //  }
 }  // BlinkStatus
 
+
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
   MAIN_STATE_RECV
@@ -129,6 +130,7 @@ void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     UART2PutChar(((const BYTE*) data)[i]);
   }
   UART2PrintString("\r\n");
+  ADBReleaseBuffer();
 }
 
 int main(void) {

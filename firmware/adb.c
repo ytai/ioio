@@ -59,6 +59,7 @@ static ADB_CONN_STATE adb_conn_state;
 static ADB_CHANNEL adb_channels[ADB_MAX_CHANNELS];
 static char ADB_HOSTNAME_STRING[] = "host::";  // Leave non-const. USB stack
                                                // doesn't work from ROM.
+static BOOL adb_client_owns_buffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions & Macros
@@ -74,6 +75,7 @@ static void ADBReset() {
     }
   }
   memset(adb_channels, 0, sizeof adb_channels);
+  adb_client_owns_buffer = FALSE;
   LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
@@ -116,6 +118,8 @@ static void ADBChannelTasks() {
 }
 
 static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* recv_data, UINT32 data_len) {
+  assert(!adb_client_owns_buffer);
+  BOOL call_recv = TRUE;
   switch(cmd) {
    case ADB_CNXN:
     log_print_1("ADB established connection with [%s]", (const char*) recv_data);
@@ -168,7 +172,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     if (arg1 < ADB_MAX_CHANNELS) {
       if (adb_channels[arg1].remote_id == arg0) {
         if (data_len > 0) {
+          adb_client_owns_buffer = TRUE;
           adb_channels[arg1].recv_func(arg1, recv_data, data_len);
+          // in this case, ADBPacketRecv() will be called (or already have been
+          // called from within the callback) when the client releases the
+          // buffer using ADBReleaseBuffer();
+          call_recv = FALSE;
         }
         adb_channels[arg1].pending_ack = TRUE;
       }
@@ -179,6 +188,9 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
 
    default:
     log_print_1("Unknown command 0x%lx. Ignoring.", cmd);
+  }
+  if (call_recv) {
+    ADBPacketRecv();
   }
 }
 
@@ -200,6 +212,11 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
     }
   }
   return ADB_INVALID_CHANNEL_HANDLE;
+}
+
+void ADBReleaseBuffer() {
+  adb_client_owns_buffer = FALSE;
+  ADBPacketRecv();
 }
 
 void ADBClose(ADB_CHANNEL_HANDLE handle) {
@@ -247,13 +264,14 @@ BOOL ADBTasks() {
       return FALSE;
     }
     ADBPacketTasks();
-    if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
-      if (adb_res == ADB_RESULT_ERROR) {
-        LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
-      } else {
-        ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
+    if (!adb_client_owns_buffer) {
+      if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
+        if (adb_res == ADB_RESULT_ERROR) {
+          LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+        } else {
+          ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
+        }
       }
-      ADBPacketRecv();
     }
   }
 

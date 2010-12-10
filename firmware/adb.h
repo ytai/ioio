@@ -79,8 +79,10 @@ typedef int ADB_CHANNEL_HANDLE;
 // The signature of a channel incoming data callback.
 // The h argument is useful in case the same function is used for several
 // channels, but can be safely ignored otherwise.
-// The data buffer is only valid for the duration of this call, so it should be
-// copied if needed later.
+// The data buffer is valid until the client calls ADBReleaseBuffer().
+// This function MUST be called from within the callback or shortly after
+// whenever the 'data' argument is non-NULL. Until this happens, no new data
+// can be received on any channel.
 // When a channel is closed by the remote end (or its open is rejected), this
 // function will be called with NULL data and 0 length.
 typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
@@ -103,6 +105,16 @@ BOOL ADBConnected();
 // An ADB_INVALID_CHANNEL_HANDLE value will be returned if the maximum number of
 // concurrent channels is exceeded.
 ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func);
+
+// Must be called by the client after every invocation of a ADBChannelRecvFunc
+// callback with a non-NULL data argument.
+// This notifies the ADB layer that the client no longers needs to read data
+// from the buffer.
+// It is expected that this function is called from within the callback or
+// shortly after, since until it is called, no new data can be recieved.
+// If the client needs to hold the received data for an extended period of
+// time, a copy is recommended. 
+void ADBReleaseBuffer();
 
 // Close a channel previously opened with ADBOpen().
 // The actual close will happen shortly after calling this function, so a new
