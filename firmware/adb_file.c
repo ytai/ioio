@@ -70,6 +70,7 @@ typedef struct {
 } ADB_FILE;
 
 static ADB_FILE adb_files[ADB_FILE_MAX_FILES];
+static int adb_file_buffer_refcount;
 
 static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   int i;
@@ -176,6 +177,7 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
 
 void ADBFileInit() {
   memset(adb_files, 0, sizeof adb_files);
+  adb_file_buffer_refcount = 0;
 }
 
 void ADBFileTasks() {

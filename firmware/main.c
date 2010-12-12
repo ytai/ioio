@@ -130,7 +130,6 @@ void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     UART2PutChar(((const BYTE*) data)[i]);
   }
   UART2PrintString("\r\n");
-  ADBReleaseBuffer();
 }
 
 int main(void) {

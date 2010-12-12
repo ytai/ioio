@@ -23,7 +23,7 @@
 // connection will be dropped, and re-established when possible.
 // The client should check the return code on every call to ADBTasks(). When the
 // connection drops, all state is lost and any open channels are closed. They
-// will be notified for the closure as mentioned in the above section.
+// will be notified of the closure as mentioned in the above section.
 // Upon detection of any sort of error or data corruption during connection,
 // this module will reset the USB device and start over. Under normal operation
 // this should never happen, so the client may want to reset everything and
@@ -79,10 +79,9 @@ typedef int ADB_CHANNEL_HANDLE;
 // The signature of a channel incoming data callback.
 // The h argument is useful in case the same function is used for several
 // channels, but can be safely ignored otherwise.
-// The data buffer is valid until the client calls ADBReleaseBuffer().
-// This function MUST be called from within the callback or shortly after
-// whenever the 'data' argument is non-NULL. Until this happens, no new data
-// can be received on any channel.
+// The data buffer is normally valid only until the callback exist.
+// If the client needs to hang on to the buffer for a longer period, please see
+// the ADBBufferRef() function documentation.
 // When a channel is closed by the remote end (or its open is rejected), this
 // function will be called with NULL data and 0 length.
 typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
@@ -106,15 +105,19 @@ BOOL ADBConnected();
 // concurrent channels is exceeded.
 ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func);
 
-// Must be called by the client after every invocation of a ADBChannelRecvFunc
-// callback with a non-NULL data argument.
-// This notifies the ADB layer that the client no longers needs to read data
-// from the buffer.
-// It is expected that this function is called from within the callback or
-// shortly after, since until it is called, no new data can be recieved.
+// Client may call this function from within the recieve callback in order to
+// keep the data buffer alive after the return of the callback.
+// Every call to this function must be paired with a single call to
+// ADBBufferUnref() unless the connection has been lost.
+// It is expected that ADBBufferUnref() will be called shortly after, since
+// until it is called, no new data can be recieved on any channel.
 // If the client needs to hold the received data for an extended period of
 // time, a copy is recommended. 
-void ADBReleaseBuffer();
+void ADBBufferRef();
+
+// Must be called once per every call to ADBBufferRef(). This lets the ADB
+// layer no that the client no longer needs the data from the recieved buffer.
+void ADBBufferUnref();
 
 // Close a channel previously opened with ADBOpen().
 // The actual close will happen shortly after calling this function, so a new
