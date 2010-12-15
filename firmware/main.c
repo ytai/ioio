@@ -19,7 +19,7 @@
 // *****************************************************************************
 
 #ifdef __C30__
-  #if defined(__PIC24FJ256DA206__)
+  #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
       _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
       _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_OFF & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
       _CONFIG3(0xFFFF)
@@ -53,7 +53,7 @@
 
 
 BOOL InitializeSystem(void) {
-#if defined(__PIC24FJ256DA206__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
     iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
     iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
     UART2Init();

@@ -34,7 +34,7 @@
 
 
 #if defined (__C30__)
-  #if defined(__PIC24FJ256DA206__)
+  #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
     #define mInitAllLEDs()  {TRISFbits.TRISF3 = 0; LATFbits.LATF3 = 1;}
     #define mInitAllSwitches()
     
