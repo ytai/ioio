@@ -144,6 +144,7 @@ int main(void) {
 
   while (1) {
     BOOL connected = ADBTasks();
+    mLED_0 = !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     } else {
