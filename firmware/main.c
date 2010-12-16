@@ -76,37 +76,6 @@ BOOL InitializeSystem(void) {
 }  // InitializeSystem
 
 
-void BlinkStatus(void) {
-//  static unsigned int led_count = 0;
-//
-//  if(led_count-- == 0) led_count = 300;
-//
-//  if(DemoState <= DEMO_STATE_IDLE) {
-//      mLED_0_Off();
-//      mLED_1_Off();
-//  } else if (DemoState < DEMO_STATE_CONNECTED) {
-//      mLED_0_On();
-//      mLED_1_On();
-//  } else if(DemoState < DEMO_STATE_ERROR) {
-//    if (led_count == 0) {
-//          mLED_0_Toggle();
-//#ifdef mLED_1
-//          mLED_1 = !mLED_0;       // Alternate blink
-//#endif
-//    }
-//  } else {
-//    if (led_count == 0) {
-//      mLED_0_Toggle();
-//#ifdef mLED_1
-//      mLED_1 = mLED_0;        // Both blink at the same time
-//#endif
-//      led_count = 50;
-//    }
-//      DelayMs(1); // 1ms delay
-//  }
-}  // BlinkStatus
-
-
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
   MAIN_STATE_RECV
