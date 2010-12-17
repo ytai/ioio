@@ -101,8 +101,8 @@ int main(int argc, const char* argv[]) {
       case 0:  // data
         {
           uint32_t address = static_cast<uint32_t>(address_hi) << 16 | address_lo;
-          block_t &block = memory_map[address >> 8];
 		  for (int i = 0; i < count; ++i) {
+            block_t &block = memory_map[address & 0xFFFFFFF0];
             uint8_t byte = read8(p);
             block[address & 0xFF] = byte;
 		    if ((address & 0x03) == 3 && byte != 0) error("high byte of each dword must be 0");
