@@ -48,7 +48,7 @@ static BOOL IOIOFileSectionDone() {
         FlashErasePage(page_address);
         ioio_file_last_page = page_address;
       }
-      FlashWriteBlock(address, ioio_file_buf + 8);
+      FlashWriteBlock(address, ioio_file_buf + 4);
       ioio_file_buf_pos = 0;
       ioio_file_field_remaining = 196;
       break;
