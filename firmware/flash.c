@@ -34,17 +34,21 @@ void FlashWriteDWORD(DWORD address, DWORD value)	{
 	NVMCONbits.WREN = 0;
 }
 
-void FlashWriteBlock(DWORD address, WORD block[128]) {
+void FlashWriteBlock(DWORD address, BYTE block[192]) {
   assert((address & 0x7F) == 0);
   unsigned int i = 0;
 	DWORD_VAL a = { address };
+  DWORD_VAL v;
 
 	NVMCON = 0x4001;  // Block write
 
 	TBLPAG = a.word.HW;
-  while (i < 128) {
-  	__builtin_tblwtl(a.word.LW, block[i++]);		//Write the low word to the latch
-	  __builtin_tblwth(a.word.LW, block[i++]);  	//Write the high word to the latch (8 bits of data + 8 bits of "phantom data")
+  while (i < 192) {
+    v.byte.LB = block[i++];
+    v.byte.HB = block[i++];
+    v.byte.UB = block[i++];
+  	__builtin_tblwtl(a.word.LW, v.word.LW);		//Write the low word to the latch
+	  __builtin_tblwth(a.word.LW, v.word.HW);  	//Write the high word to the latch (8 bits of data + 8 bits of "phantom data")
     a.word.LW += 2;
   }
 

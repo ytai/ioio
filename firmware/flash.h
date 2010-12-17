@@ -6,7 +6,7 @@
 
 void FlashErasePage(DWORD address);
 void FlashWriteDWORD(DWORD address, DWORD value);
-void FlashWriteBlock(DWORD address, WORD block[128]);
+void FlashWriteBlock(DWORD address, BYTE block[192]);
 DWORD FlashReadDWORD(DWORD address);
 
 
