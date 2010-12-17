@@ -11,6 +11,7 @@
 #include "adb_file.h"
 #include "HardwareProfile.h"
 #include "logging.h"
+#include "ioio_file.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -78,27 +79,27 @@ BOOL InitializeSystem(void) {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
-  MAIN_STATE_RECV
+  MAIN_STATE_RECV,
+  MAIN_STATE_DONE,
+  MAIN_STATE_ERROR
 } MAIN_STATE;
 
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
 
 
 void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
-  UINT32 i;
-  UART2PrintString("******** ");
-  if (!data) {
-    if (data_len == 0) {
-      UART2PrintString("EOF\r\n");
-    } else {
-      UART2PrintString("FAILURE\r\n");
+  if (data) {
+    if (!IOIOFileHandleBuffer(data, data_len)) {
+      state = MAIN_STATE_ERROR;
     }
-    return;
+  } else {
+    if (data_len == 0 && IOIOFileDone()) {
+      UART2PrintString("\r\n\r\nSuccessfully wrote application firmware image!\r\n\r\n");
+    state = MAIN_STATE_DONE;
+    } else {
+      state = MAIN_STATE_ERROR;
+    }
   }
-  for (i = 0; i < data_len; ++i) {
-    UART2PutChar(((const BYTE*) data)[i]);
-  }
-  UART2PrintString("\r\n");
 }
 
 int main(void) {
@@ -124,12 +125,19 @@ int main(void) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         log_print_0("ADB connected!");
-        h = ADBFileRead("/data/data/ioio.filegen/files/test_file", &FileRecv);
+        IOIOFileInit();
+        h = ADBFileRead("/data/data/ioio.filegen/files/sample.ioio", &FileRecv);
         state = MAIN_STATE_RECV;
       }
       break;
 
      case MAIN_STATE_RECV:
+      break;
+
+     case MAIN_STATE_DONE:
+      break;
+
+     case MAIN_STATE_ERROR:
       break;
     }
     //DelayMs(100);
