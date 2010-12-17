@@ -8,7 +8,13 @@
 // The output format is very simple and intended to be:
 //   1. Light-weight
 //   2. Simple to parse by the IOIO
-// The file is a sequnence of blocks, each 196B long, containing:
+//   3. Forward compatible
+//
+// The file starts with 4B "IOIO".
+// Then followed by a 4B (little endian) format version code.
+// Currently version must be 1.
+// 
+// The rest of the file is a sequnence of blocks, each 196B long, containing:
 //   1. 4B address (little endian)
 //   2. 192B contents (equal to one Flash row in a PIC24), which are actually
 //      64 triplets of little-endian, 24-bit instructions.
@@ -122,6 +128,8 @@ int main(int argc, const char* argv[]) {
 
   // write memory map to output file
   ofstream outfile(argv[2], ios::out | ios::binary);
+  outfile.write("IOIO", 4);
+  outfile.write("\1\0\0\0", 4);
   for (memory_map_t::const_iterator iter = memory_map.begin(); iter != memory_map.end(); ++iter) {
     outfile.write(reinterpret_cast<const char*>(&iter->first), 4);
     iter->second.serialize(outfile);
