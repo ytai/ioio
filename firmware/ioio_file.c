@@ -20,7 +20,7 @@ static DWORD ioio_file_last_page;
 static IOIO_FILE_STATE ioio_file_state;
 static const BYTE IOIO_FILE_HEADER[8] = { 'I', 'O', 'I', 'O', '\1', '\0', '\0', '\0' };
 
-static BOOL IOIOFileSectionDone() {
+static BOOL IOIOFileBlockDone() {
   DWORD address, page_address;
   switch (ioio_file_state) {
     case IOIO_FILE_STATE_WAIT_HEADER:
@@ -43,12 +43,16 @@ static BOOL IOIOFileSectionDone() {
         log_print_1("Adderess outside of permitted range: 0x%lx", address);
         return FALSE;
       }
+      if (ioio_file_last_page != BOOTLOADER_INVALID_ADDRESS && address < ioio_file_last_page) {
+        log_print_1("Out-of-order address: 0x%lx", address);
+        return FALSE;
+      }
       page_address = address & 0xFFFFFFC00ull;
       if (page_address != ioio_file_last_page) {
-        FlashErasePage(page_address);
+        if (!FlashErasePage(page_address)) return FALSE;
         ioio_file_last_page = page_address;
       }
-      FlashWriteBlock(address, ioio_file_buf + 4);
+      if (!FlashWriteBlock(address, ioio_file_buf + 4)) return FALSE;
       ioio_file_buf_pos = 0;
       ioio_file_field_remaining = 196;
       break;
@@ -72,7 +76,7 @@ BOOL IOIOFileHandleBuffer(const void * buffer, size_t size) {
     buffer = ((const BYTE *) buffer) + bytes_to_copy;
     size -= bytes_to_copy;
     if (ioio_file_field_remaining == 0) {
-      if (!IOIOFileSectionDone()) {
+      if (!IOIOFileBlockDone()) {
         return FALSE;
       }
     }

@@ -2,7 +2,7 @@
 #include "Compiler.h"
 #include "flash.h"
 
-void FlashErasePage(DWORD address) {
+BOOL FlashErasePage(DWORD address) {
   assert((address & 0x3FF) == 0);
 	DWORD_VAL a = { address };
 
@@ -15,9 +15,10 @@ void FlashErasePage(DWORD address) {
 	__builtin_write_NVM();
   while(NVMCONbits.WR);
 	NVMCONbits.WREN = 0;
+  return NVMCONbits.WRERR == 0;
 }	
 
-void FlashWriteDWORD(DWORD address, DWORD value)	{
+BOOL FlashWriteDWORD(DWORD address, DWORD value)	{
   assert((address & 0x1) == 0);
 	DWORD_VAL a = { address };
   DWORD_VAL v = { value };
@@ -32,9 +33,10 @@ void FlashWriteDWORD(DWORD address, DWORD value)	{
 	__builtin_write_NVM();
   while (NVMCONbits.WR);
 	NVMCONbits.WREN = 0;
+  return NVMCONbits.WRERR == 0;
 }
 
-void FlashWriteBlock(DWORD address, BYTE block[192]) {
+BOOL FlashWriteBlock(DWORD address, BYTE block[192]) {
   assert((address & 0x7F) == 0);
   unsigned int i = 0;
 	DWORD_VAL a = { address };
@@ -56,6 +58,7 @@ void FlashWriteBlock(DWORD address, BYTE block[192]) {
 	__builtin_write_NVM();
   while (NVMCONbits.WR);
 	NVMCONbits.WREN = 0;
+  return NVMCONbits.WRERR == 0;
 }
 
 DWORD FlashReadDWORD(DWORD address) {
