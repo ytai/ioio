@@ -48,9 +48,11 @@ static BOOL IOIOFileBlockDone() {
       }
       page_address = address & 0xFFFFFFC00ull;
       if (page_address != ioio_file_last_page) {
+        log_print_1("Erasing Flash page: 0x%lx", address);
         if (!FlashErasePage(page_address)) return FALSE;
         ioio_file_last_page = page_address;
       }
+      log_print_1("Writing Flash block: 0x%lx", address);
       if (!FlashWriteBlock(address, ioio_file_buf + 4)) return FALSE;
       ioio_file_buf_pos = 0;
       ioio_file_field_remaining = 196;
