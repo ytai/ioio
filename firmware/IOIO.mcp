@@ -58,6 +58,7 @@ file_030=USB
 file_031=Bootloader
 file_032=Bootloader
 file_033=Bootloader
+file_034=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -93,6 +94,7 @@ file_030=no
 file_031=no
 file_032=no
 file_033=no
+file_034=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -128,6 +130,7 @@ file_030=no
 file_031=no
 file_032=no
 file_033=no
+file_034=no
 [FILE_INFO]
 file_000=main.c
 file_001=usb_config.c
@@ -163,12 +166,13 @@ file_030=microchip\usb\usb_host_local.h
 file_031=flash.h
 file_032=ioio_file.h
 file_033=bootloader_defs.h
+file_034=boot_hid_boot_p24FJ256DA206.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
 [TOOL_SETTINGS]
 TS{7D9C6ECE-785D-44CB-BA22-17BF2E119622}=-g
-TS{25AC22BD-2378-4FDB-BFB6-7345A15512D3}=-g -Wall -DENABLE_LOGGING
+TS{25AC22BD-2378-4FDB-BFB6-7345A15512D3}=-g -Wall -DENABLE_LOGGING -mlarge-data -mlarge-scalar
 TS{7DAC9A1D-4C45-45D6-B25A-D117C74E8F5A}=--heap=512 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)"
 TS{509E5861-1E2A-483B-8B6B-CA8DB7F2DD78}=
 [INSTRUMENTED_TRACE]

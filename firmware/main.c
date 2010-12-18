@@ -23,7 +23,7 @@
   #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
       _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
       _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_OFF & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
-      _CONFIG3(0xFFFF)
+      _CONFIG3(WPDIS_WPEN | WPFP_WPFP31 | WPCFG_WPCFGEN | WPEND_WPSTARTMEM)
   #else
       #error Procesor undefined
   #endif
@@ -135,6 +135,7 @@ int main(void) {
       break;
 
      case MAIN_STATE_DONE:
+      __asm__("goto 0x8000");
       break;
 
      case MAIN_STATE_ERROR:
