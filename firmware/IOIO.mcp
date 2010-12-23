@@ -58,7 +58,8 @@ file_030=USB
 file_031=Bootloader
 file_032=Bootloader
 file_033=Bootloader
-file_034=.
+file_034=USB
+file_035=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -95,6 +96,7 @@ file_031=no
 file_032=no
 file_033=no
 file_034=no
+file_035=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -131,6 +133,7 @@ file_031=no
 file_032=no
 file_033=no
 file_034=no
+file_035=no
 [FILE_INFO]
 file_000=main.c
 file_001=usb_config.c
@@ -166,7 +169,8 @@ file_030=microchip\usb\usb_host_local.h
 file_031=flash.h
 file_032=ioio_file.h
 file_033=bootloader_defs.h
-file_034=boot_hid_boot_p24FJ256DA206.gld
+file_034=usb_config.h
+file_035=boot_hid_boot_p24FJ256DA206.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=

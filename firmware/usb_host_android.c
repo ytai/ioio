@@ -63,7 +63,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
         gc_DevData.flags.rxBusy = 0;
         gc_DevData.rxLength = dataCount;
         gc_DevData.rxErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
-        log_print_0("Received message: ");
+        log_print_1("Received message with %ld bytes: ", ((HOST_TRANSFER_DATA *)data)->dataCount);
         log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, ((HOST_TRANSFER_DATA *)data)->dataCount);
       } else if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_DevData.outEndpoint) {
         gc_DevData.flags.txBusy = 0;
@@ -140,7 +140,7 @@ void USBHostAndroidTasks(void) {
           gc_DevData.flags.rxBusy = 0;
           gc_DevData.rxLength     = byteCount;
           gc_DevData.rxErrorCode  = errorCode;
-          print0("Received message with %d bytes", byteCount);
+          log_print_1("Received message with %ld bytes", byteCount);
       }
     }
 

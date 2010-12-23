@@ -5,7 +5,7 @@
 
 // attribute for variables that can be recycled after bootloader terminates,
 // i.e. located in application data space.
-#define BOOTDATA __attribute__((section("bootdata")))
+#define BOOTDATA __attribute__((section("bootdata"),far))
 
 #define BOOTLOADER_MIN_ADDRESS 0x8000
 #define BOOTLOADER_MAX_ADDRESS 0x2A800

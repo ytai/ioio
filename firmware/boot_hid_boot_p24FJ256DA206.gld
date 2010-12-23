@@ -386,7 +386,10 @@ SECTIONS
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E0); /* __U3TXInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E4); /* __SI2C3Interrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E8); /* __MI2C3Interrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); /* __USB1Interrupt */
+    /* USB interrupts are needed for the bootloader.
+    // LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); *//* __USB1Interrupt */
+    LONG( DEFINED(__USB1Interrupt)    ? ABSOLUTE(__USB1Interrupt)    :
+         ABSOLUTE(__DefaultInterrupt));
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F0); /* __U4ErrInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F4); /* __U4RXInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F8); /* __U4TXInterrupt */
