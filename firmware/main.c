@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "timer.h"
 #include "GenericTypeDefs.h"
+#include "bootloader.h"
 #include "adb.h"
 #include "adb_file.h"
 #include "HardwareProfile.h"
@@ -113,12 +114,10 @@ int main(void) {
   ADBFileInit();
 
   while (1) {
-    BOOL connected = ADBTasks();
+    BOOL connected = BootloaderTasks();
     mLED_0 = !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
-    } else {
-      ADBFileTasks();
     }
     
     switch(state) {
@@ -135,7 +134,7 @@ int main(void) {
       break;
 
      case MAIN_STATE_DONE:
-      __asm__("goto 0x8000");
+      __asm__("goto __APP_RESET");
       break;
 
      case MAIN_STATE_ERROR:

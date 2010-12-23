@@ -1,12 +1,18 @@
+#include "../flash.h"
+
 #include "Compiler.h"
 
 int main() {
+  FlashErasePage(0x9000);
+  FlashWriteDWORD(0x9000, 0x123456); 
+
+  // blink LED
   TRISFbits.TRISF3 = 0;
   while (1) {
-    long i = 1000000L;
+    long i = 500000L;
     LATFbits.LATF3 = 0;
     while (i--);
-    i = 1000000L;
+    i = 500000L;
     LATFbits.LATF3 = 1;
     while (i--);
   }
