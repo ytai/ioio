@@ -248,7 +248,6 @@ SECTIONS
     SHORT(DEFINED(__U3TXInterrupt) ? ABSOLUTE(__U3TXInterrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__U3TXInterrupt) ? (ABSOLUTE(__U3TXInterrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__SI2C3Interrupt) ? ABSOLUTE(__SI2C3Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__SI2C3Interrupt) ? (ABSOLUTE(__SI2C3Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__MI2C3Interrupt) ? ABSOLUTE(__MI2C3Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__MI2C3Interrupt) ? (ABSOLUTE(__MI2C3Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
-    SHORT(DEFINED(__USB1Interrupt) ? ABSOLUTE(__USB1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__USB1Interrupt) ? (ABSOLUTE(__USB1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__U4ErrInterrupt) ? ABSOLUTE(__U4ErrInterrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__U4ErrInterrupt) ? (ABSOLUTE(__U4ErrInterrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__U4RXInterrupt) ? ABSOLUTE(__U4RXInterrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__U4RXInterrupt) ? (ABSOLUTE(__U4RXInterrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__U4TXInterrupt) ? ABSOLUTE(__U4TXInterrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__U4TXInterrupt) ? (ABSOLUTE(__U4TXInterrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
@@ -257,8 +256,7 @@ SECTIONS
     SHORT(DEFINED(__OC9Interrupt) ? ABSOLUTE(__OC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__OC9Interrupt) ? (ABSOLUTE(__OC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__IC9Interrupt) ? ABSOLUTE(__IC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__IC9Interrupt) ? (ABSOLUTE(__IC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__GFX1Interrupt) ? ABSOLUTE(__GFX1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__GFX1Interrupt) ? (ABSOLUTE(__GFX1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
-    SHORT(ABSOLUTE(__DefaultInterrupt)); SHORT(0x04); SHORT((ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F); SHORT(0);
-  }
+  } >app_ivt
 
 /*
 ** Interrupt Vector Table
@@ -363,24 +361,21 @@ SECTIONS
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E0); /* __U3TXInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E4); /* __SI2C3Interrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E8); /* __MI2C3Interrupt */
-    /* USB interrupts are needed for the bootloader.
-    // LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); *//* __USB1Interrupt */
-    LONG( DEFINED(__USB1Interrupt)    ? ABSOLUTE(__USB1Interrupt)    :
-         ABSOLUTE(__DefaultInterrupt));
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F0); /* __U4ErrInterrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F4); /* __U4RXInterrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F8); /* __U4TXInterrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0FC); /* __SPI3ErrInterrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x100); /* __SPI3Interrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x104); /* __OC9Interrupt */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x108); /* __IC9Interrupt */
+    LONG(ABSOLUTE(__USB1Interrupt));		/* __USB1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); /* __U4ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F0); /* __U4RXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F4); /* __U4TXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F8); /* __SPI3ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0FC); /* __SPI3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x100); /* __OC9Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x104); /* __IC9Interrupt */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt94 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt95 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt96 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt97 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt98 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt99 */
-    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x10C); /* __GFX1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x108); /* __GFX1Interrupt */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt101 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt102 */
     LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt103 */
