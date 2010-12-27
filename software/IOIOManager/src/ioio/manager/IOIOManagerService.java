@@ -58,12 +58,12 @@ public class IOIOManagerService extends Service {
 						Log.i("IOIOManagerService",
 								"IOIOException: " + e.getMessage());
 					} finally {
-						deleteFile(PORT_FILENAME);
 						mChannel.close();
 						removeNotification();
 					}
 				}
 			} catch (Exception e) {
+				deleteFile(PORT_FILENAME);
 				Log.i("IOIOManagerService", "Exception caught. Dying.");
 			}
 		}
