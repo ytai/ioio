@@ -11,17 +11,30 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 public class IOIOManagerService extends Service {
-	private NotificationManager mNM;
-	private int mHardwareVer;
-	private int mBootloaderVer;
+	public static final String ACTION_IOIO_CONNECT = "ioio.manager.IOIO_CONNECT";
+	public static final String EXTRA_STATE = "state";
+	public static final String EXTRA_HARDWARE_VER = "hardware";
+	public static final String EXTRA_BOOTLOADER_VER = "bootloader";
+	public static final int STATE_DISCONNECTED = 0;
+	public static final int STATE_BOOTLOADER = 1;
+	public static final int STATE_DOWNLOADING = 2;
+	public static final int STATE_RUNNING = 3;
 
-	public class Server extends Thread {
+	private NotificationManager mNM;
+
+	public int mHardwareVer;
+	public int mBootloaderVer;
+
+	private class Server extends Thread {
 		private class IOIOException extends Exception {
 			public IOIOException(String s) {
 				super(s);
@@ -51,7 +64,11 @@ public class IOIOManagerService extends Service {
 					Log.i("IOIOManagerService", "Accpeted");
 					try {
 						handleConnection();
-						showNotification();
+						Intent intent = new Intent(ACTION_IOIO_CONNECT);
+						intent.putExtra(EXTRA_STATE, STATE_BOOTLOADER);
+						intent.putExtra(EXTRA_HARDWARE_VER, mHardwareVer);
+						intent.putExtra(EXTRA_BOOTLOADER_VER, mBootloaderVer);
+						sendStickyBroadcast(intent);
 						waitEOF();
 						Log.i("IOIOManagerService", "EOF");
 					} catch (IOIOException e) {
@@ -59,7 +76,9 @@ public class IOIOManagerService extends Service {
 								"IOIOException: " + e.getMessage());
 					} finally {
 						mChannel.close();
-						removeNotification();
+						Intent intent = new Intent(ACTION_IOIO_CONNECT);
+						intent.putExtra(EXTRA_STATE, STATE_DISCONNECTED);
+						sendStickyBroadcast(intent);
 					}
 				}
 			} catch (Exception e) {
@@ -130,10 +149,25 @@ public class IOIOManagerService extends Service {
 		}
 	}
 
+	BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			switch (intent.getIntExtra(EXTRA_STATE, STATE_DISCONNECTED)) {
+			case STATE_DISCONNECTED:
+				removeNotification();
+				break;
+			case STATE_BOOTLOADER:
+				showNotification(intent.getIntExtra("hardware", 0),
+						intent.getIntExtra("bootloader", 0));
+				break;
+			}
+		}
+	};
+
 	@Override
 	public void onCreate() {
 		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
+		registerReceiver(mReceiver, new IntentFilter(ACTION_IOIO_CONNECT));
 		server.start();
 	}
 
@@ -145,6 +179,7 @@ public class IOIOManagerService extends Service {
 
 	@Override
 	public void onDestroy() {
+		unregisterReceiver(mReceiver);
 		server.interrupt();
 	}
 
@@ -157,7 +192,7 @@ public class IOIOManagerService extends Service {
 	// RemoteService for a more complete example.
 	private final IBinder mBinder = new LocalBinder();
 
-	private void showNotification() {
+	private void showNotification(int hardware, int bootloader) {
 		CharSequence text = getText(R.string.service_connect);
 		Notification notification = new Notification(R.drawable.notif_icon,
 				text, System.currentTimeMillis());
@@ -165,9 +200,10 @@ public class IOIOManagerService extends Service {
 				new Intent(this, IOIOManagerMainActivity.class), 0);
 		String longText = String.format(
 				getResources().getString(R.string.service_connect_long),
-				mHardwareVer, mBootloaderVer);
+				hardware, bootloader);
 		notification.setLatestEventInfo(this, text, longText, contentIntent);
-		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+		notification.flags |= Notification.FLAG_NO_CLEAR
+				| Notification.FLAG_ONGOING_EVENT;
 		mNM.notify(R.string.service_connect, notification);
 	}
 
