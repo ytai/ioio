@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, IOIOManagerMainActivity!</string>
+    <string name="app_name">IOIOManager</string>
+<string name="service_connect">IOIO connected</string>
+<string name="service_disconnect">IOIO disconnected</string>
+<string name="service_connect_long">Hardware: %1$x\nBootloader:%2$x</string>
+</resources>
