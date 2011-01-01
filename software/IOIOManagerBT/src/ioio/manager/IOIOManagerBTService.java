@@ -116,8 +116,5 @@ public class IOIOManagerBTService extends Service {
     private void hideNotification() {
         // Cancel the persistent notification.
         mNM.cancel(R.string.service_start);
-
-        // Tell the user we stopped.
-        Toast.makeText(this, R.string.service_stop, Toast.LENGTH_SHORT).show();
     }
 }
