@@ -43,14 +43,20 @@ public class IOIOManagerService extends Service {
 
 		private static final String PORT_FILENAME = "port";
 		private static final int HEADER = 0x4F494F49;
+		private static final byte DOWNLOAD = 'D';
 
 		private SocketChannel mChannel;
-		private ByteBuffer mBuf = ByteBuffer.allocateDirect(1024);
+		private ByteBuffer mReadBuf = ByteBuffer.allocateDirect(1024);
+		private ByteBuffer mWriteBuf = ByteBuffer.allocateDirect(1024);
+		
+		public void installAndRun() {
+			notify();
+		}
 
 		@Override
 		public void run() {
 			Log.i("IOIOManagerService", "Thread started");
-			mBuf.order(ByteOrder.LITTLE_ENDIAN);
+			mReadBuf.order(ByteOrder.LITTLE_ENDIAN);
 			try {
 				ServerSocketChannel serverSocketChannel = ServerSocketChannel
 						.open();
@@ -69,6 +75,8 @@ public class IOIOManagerService extends Service {
 						intent.putExtra(EXTRA_HARDWARE_VER, mHardwareVer);
 						intent.putExtra(EXTRA_BOOTLOADER_VER, mBootloaderVer);
 						sendStickyBroadcast(intent);
+						wait();
+						write(DOWNLOAD);
 						waitEOF();
 						Log.i("IOIOManagerService", "EOF");
 					} catch (IOIOException e) {
@@ -106,34 +114,41 @@ public class IOIOManagerService extends Service {
 
 		private int readInt() throws IOException, IOIOException {
 			int result;
-			while (mBuf.position() < 4) {
-				if (mChannel.read(mBuf) == -1) {
+			while (mReadBuf.position() < 4) {
+				if (mChannel.read(mReadBuf) == -1) {
 					throw new IOIOException("Unexpected EOF");
 				}
 			}
-			mBuf.flip();
-			result = mBuf.getInt();
-			mBuf.compact();
+			mReadBuf.flip();
+			result = mReadBuf.getInt();
+			mReadBuf.compact();
 			return result;
 		}
 
 		private byte[] read(int size) throws IOException, IOIOException {
 			byte[] result = new byte[size];
-			while (mBuf.position() < size) {
-				if (mChannel.read(mBuf) == -1) {
+			while (mReadBuf.position() < size) {
+				if (mChannel.read(mReadBuf) == -1) {
 					throw new IOIOException("Unexpected EOF");
 				}
 			}
-			mBuf.flip();
-			mBuf.get(result);
-			mBuf.compact();
+			mReadBuf.flip();
+			mReadBuf.get(result);
+			mReadBuf.compact();
 			return result;
 		}
 
+		private void write(byte b) throws IOException {
+			mWriteBuf.put(b);
+			while(mWriteBuf.position() < mWriteBuf.limit()) {
+					mChannel.write(mWriteBuf);
+			}
+		}
+		
 		private void waitEOF() throws IOException {
 			do {
-				mBuf.clear();
-			} while (mChannel.read(mBuf) != -1);
+				mReadBuf.clear();
+			} while (mChannel.read(mReadBuf) != -1);
 		}
 	}
 
