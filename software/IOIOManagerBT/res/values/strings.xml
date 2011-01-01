@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World!</string>
+    <string name="app_name">IOIO Manager BT</string>
+<string name="service_start">IOIO BT programmer online</string>
+<string name="service_stop">IOIO BT programmer offline</string>
+<string name="service_start_detail">Click to stop</string>
+<string name="got_image">IOIO got a new image file</string>
+</resources>
