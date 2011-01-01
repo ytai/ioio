@@ -9,10 +9,10 @@ int main() {
   // blink LED
   TRISFbits.TRISF3 = 0;
   while (1) {
-    long i = 500000L;
+    long i = 1000L;
     LATFbits.LATF3 = 0;
     while (i--);
-    i = 500000L;
+    i = 2000000L;
     LATFbits.LATF3 = 1;
     while (i--);
   }
