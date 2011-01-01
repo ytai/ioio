@@ -125,7 +125,7 @@ int main(void) {
       if (connected) {
         log_print_0("ADB connected!");
         IOIOFileInit();
-        h = ADBFileRead("/data/data/ioio.filegen/files/sample.ioio", &FileRecv);
+        h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecv);
         state = MAIN_STATE_RECV;
       }
       break;
