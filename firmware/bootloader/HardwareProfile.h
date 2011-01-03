@@ -19,8 +19,8 @@
 
 #if defined(__PIC24F__) || defined(__PIC24H__)
   #include <p24fxxxx.h>
-  #include <uart2.h>
-  #include "pps.h"
+//  #include <uart2.h>
+//  #include "pps.h"
 #else
   #include <p32xxxx.h>
   #include <plib.h>

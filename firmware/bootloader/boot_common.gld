@@ -45,6 +45,9 @@ SECTIONS
         *(.handle);
         *(.libc) *(.libm) *(.libdsp);  /* keep together in this order */
         *(.lib*);
+        /* A RESET instruction to handle an otherwise unhandled interrupt. */
+        __DEFAULT_VECTOR = .;
+        LONG(0xFE0000);
   } >program
 
 
@@ -183,8 +186,6 @@ SECTIONS
 /*
 ** ================= End of Section Map ================
 */
-
-__DEFAULT_VECTOR = __reset;
 
 /*
 ** Section Map for Interrupt Vector Tables

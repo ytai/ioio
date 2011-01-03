@@ -40,6 +40,7 @@ typedef enum {
   ADB_CHAN_STATE_IDLE,
   ADB_CHAN_STATE_WAIT_READY,
   ADB_CHAN_STATE_CLOSE_REQUESTED,
+  ADB_CHAN_STATE_WAIT_CLOSE,
 } ADB_CHAN_STATE;
 
 typedef struct {
@@ -112,14 +113,14 @@ static void ADBChannelTasks() {
       LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
       return;
     }
-    if (adb_channels[current_channel].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
-      ADBPacketSend(ADB_CLSE, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
-      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_FREE);
-      return;
-    }
     if (adb_channels[current_channel].pending_ack) {
       ADBPacketSend(ADB_OKAY, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
       adb_channels[current_channel].pending_ack = FALSE;
+      return;
+    }
+    if (adb_channels[current_channel].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
+      ADBPacketSend(ADB_CLSE, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
+      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_CLOSE);
       return;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
@@ -167,6 +168,8 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
         log_print_2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
         adb_channels[arg1].recv_func(arg1, NULL, 0);
+        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_CLOSE) {
         LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
         && adb_channels[arg1].remote_id == arg0) {

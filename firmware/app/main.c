@@ -41,7 +41,6 @@ int main() {
 
   UART2PrintString("***** Hello from app! *******\r\n");
 
-
   f = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileCallback);
   UART2PrintString("***** file handle: ");
   UART2PutHexWord(f);
@@ -52,6 +51,7 @@ int main() {
   while (state == STATE_READ_FILE) {
     BootloaderTasks();
   }
+  
 
   // blink LED
   TRISFbits.TRISF3 = 0;
@@ -62,5 +62,6 @@ int main() {
     i = 1000000L;
     LATFbits.LATF3 = 1;
     while (i--);
+    BootloaderTasks();
   }
 }

@@ -56,9 +56,9 @@
 
 BOOL InitializeSystem(void) {
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
-    iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-    iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
-    UART2Init();
+//    iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
+//    iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
+//    UART2Init();
 #elif defined(__PIC32MX__)
   {
     int  value = SYSTEMConfigWaitStatesAndPB(GetSystemClock());
@@ -95,7 +95,7 @@ void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     }
   } else {
     if (data_len == 0 && IOIOFileDone()) {
-      UART2PrintString("\r\n\r\nSuccessfully wrote application firmware image!\r\n\r\n");
+//      UART2PrintString("\r\n\r\nSuccessfully wrote application firmware image!\r\n\r\n");
       state = MAIN_STATE_DONE;
     } else {
       state = MAIN_STATE_ERROR;
@@ -107,7 +107,7 @@ int main(void) {
   ADB_FILE_HANDLE h;
   // Initialize the processor and peripherals.
   if (!InitializeSystem()) {
-    UART2PrintString("\r\n\r\nCould not initialize USB Custom Demo App - system.  Halting.\r\n\r\n");
+//    UART2PrintString("\r\n\r\nCould not initialize USB Custom Demo App - system.  Halting.\r\n\r\n");
     while (1);
   }
   BootloaderInit();
