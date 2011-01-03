@@ -96,7 +96,7 @@ void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   } else {
     if (data_len == 0 && IOIOFileDone()) {
       UART2PrintString("\r\n\r\nSuccessfully wrote application firmware image!\r\n\r\n");
-    state = MAIN_STATE_DONE;
+      state = MAIN_STATE_DONE;
     } else {
       state = MAIN_STATE_ERROR;
     }
@@ -123,9 +123,11 @@ int main(void) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         log_print_0("ADB connected!");
+        // TEMP
         IOIOFileInit();
         h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecv);
         state = MAIN_STATE_RECV;
+        //state = MAIN_STATE_DONE;
       }
       break;
 

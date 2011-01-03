@@ -8,7 +8,7 @@ dir_src=
 dir_bin=
 dir_tmp=
 dir_sin=
-dir_inc=..;C:\Microchip Solutions v2010-10-19\Microchip\Include
+dir_inc=.;..;C:\Microchip Solutions v2010-10-19\Microchip\Include
 dir_lib=../blapi
 dir_lkr=
 [CAT_FILTERS]
@@ -19,26 +19,54 @@ filter_lib=*.a
 filter_lkr=*.gld
 [CAT_SUBFOLDERS]
 subfolder_src=
-subfolder_inc=
+subfolder_inc=BLAPI
 subfolder_obj=
 subfolder_lib=
 subfolder_lkr=
 [FILE_SUBFOLDERS]
 file_000=.
 file_001=.
-file_002=.
+file_002=BLAPI
+file_003=BLAPI
+file_004=BLAPI
+file_005=BLAPI
+file_006=.
+file_007=.
+file_008=.
+file_009=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
 file_002=no
+file_003=no
+file_004=no
+file_005=no
+file_006=no
+file_007=no
+file_008=no
+file_009=no
 [OTHER_FILES]
 file_000=no
 file_001=no
-file_002=yes
+file_002=no
+file_003=no
+file_004=no
+file_005=no
+file_006=no
+file_007=no
+file_008=no
+file_009=yes
 [FILE_INFO]
 file_000=main.c
-file_001=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_p24FJ256DA206.gld
-file_002=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_common.gld
+file_001=C:\Microchip Solutions v2010-10-19\Microchip\Common\uart2.c
+file_002=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\adb.h
+file_003=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\adb_file.h
+file_004=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\bootloader.h
+file_005=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\flash.h
+file_006=C:\Microchip Solutions v2010-10-19\Microchip\Include\uart2.h
+file_007=HardwareProfile.h
+file_008=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_p24FJ256DA206.gld
+file_009=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_common.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
