@@ -8,7 +8,7 @@ dir_src=
 dir_bin=
 dir_tmp=
 dir_sin=
-dir_inc=.;.\microchip\include;..\blapi
+dir_inc=.;..;.\microchip\include
 dir_lib=
 dir_lkr=
 [CAT_FILTERS]
@@ -63,7 +63,7 @@ file_035=BLAPI
 file_036=BLAPI
 file_037=ADB
 file_038=Bootloader
-file_039=.
+file_039=ADB
 file_040=.
 file_041=.
 [GENERATED_FILES]

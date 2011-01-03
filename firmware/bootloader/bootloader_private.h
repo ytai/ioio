@@ -2,7 +2,7 @@
 #define __BOOTLOADERPRIVATE_H__
 
 
-#include "bootloader.h"
+#include "blapi/bootloader.h"
 
 // Reset the state of all bootloader modules.
 void BootloaderInit();

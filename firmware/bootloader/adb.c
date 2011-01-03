@@ -1,7 +1,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "adb.h"
+#include "adb_private.h"
 #include "adb_packet.h"
 #include "usb_config.h"
 #include "USB/usb.h"

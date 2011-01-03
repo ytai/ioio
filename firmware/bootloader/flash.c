@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "Compiler.h"
-#include "flash.h"
+#include "blapi/flash.h"
 
 BOOL FlashErasePage(DWORD address) {
   assert((address & 0x3FF) == 0);

@@ -61,7 +61,6 @@
 
 
 #include "GenericTypeDefs.h"
-#include "adb_types.h"
 
 // A type designating a communication channel handle.
 typedef int ADB_CHANNEL_HANDLE;

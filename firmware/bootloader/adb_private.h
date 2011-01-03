@@ -2,7 +2,7 @@
 #define __ADBPRIVATE_H__
 
 
-#include "adb.h"
+#include "blapi/adb.h"
 
 // Call this once at the start of the program.
 void ADBInit();

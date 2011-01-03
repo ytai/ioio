@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include "logging.h"
-#include "adb_file.h"
+#include "adb_file_private.h"
 
 #define MKID(a,b,c,d) (((UINT32) (a)) | (((UINT32) (b)) << 8) | (((UINT32) (c)) << 16) | (((UINT32) (d)) << 24))
 

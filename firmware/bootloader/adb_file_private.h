@@ -1,7 +1,7 @@
 #ifndef __ADBFILEPRIVATE_H__
 #define __ADBFILEPRIVATE_H__
 
-#include "adb_file.h"
+#include "blapi/adb_file.h"
 
 
 // Reset the state of this module.
