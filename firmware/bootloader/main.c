@@ -123,11 +123,9 @@ int main(void) {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         log_print_0("ADB connected!");
-        // TEMP
         IOIOFileInit();
         h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecv);
         state = MAIN_STATE_RECV;
-        //state = MAIN_STATE_DONE;
       }
       break;
 
