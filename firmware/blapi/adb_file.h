@@ -14,6 +14,7 @@ typedef int ADB_FILE_HANDLE;
 // Maximum concurrently open files.
 #define ADB_FILE_MAX_FILES 2
 
+// Maximum path length.
 #define ADB_FILE_MAX_PATH_LENGTH 64
 
 // The signature of a channel incoming data callback.
@@ -28,9 +29,10 @@ typedef int ADB_FILE_HANDLE;
 // - When 1, an error has occured.
 typedef void (*ADBFileRecvFunc)(ADB_FILE_HANDLE h, const void* data, UINT32 data_len);
 
+// Opens a file for reading.
+// The contents of the file will be streamed to the callback function.
+// See documentation of the callback function for more information.
 ADB_FILE_HANDLE ADBFileRead(const char* path, ADBFileRecvFunc recv_func);
-void ADBFileInit();
-void ADBFileTasks();
 
 
 #endif  // __ADBFILE_H__

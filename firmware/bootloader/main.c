@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "timer.h"
 #include "GenericTypeDefs.h"
-#include "bootloader.h"
+#include "bootloader_private.h"
 #include "adb.h"
 #include "adb_file.h"
 #include "HardwareProfile.h"
@@ -110,8 +110,7 @@ int main(void) {
     UART2PrintString("\r\n\r\nCould not initialize USB Custom Demo App - system.  Halting.\r\n\r\n");
     while (1);
   }
-  ADBInit();
-  ADBFileInit();
+  BootloaderInit();
 
   while (1) {
     BOOL connected = BootloaderTasks();

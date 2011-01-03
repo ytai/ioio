@@ -86,14 +86,6 @@ typedef int ADB_CHANNEL_HANDLE;
 // function will be called with NULL data and 0 length.
 typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
 
-// Call this once at the start of the program.
-void ADBInit();
-
-// Check whether an ADB connection has been established. Should be checked after
-// every call to ADBTasks() in order to detect connection dropouts, since in
-// such an event all open channels cease to be valid.
-BOOL ADBConnected();
-
 // Open a new channel to the remote end.
 // The name indicates the destination on the remote end. Names such as
 // "tcp:3823" or "shell:" can be used. Read the ADB spec for details.
@@ -134,11 +126,6 @@ BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle);
 // message.
 // Do not pass ROM buffers here, as they will silently fail.
 void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len);
-
-// Call this periodically. Will not block for long.
-// Returns TRUE if an ADB connection is established, FALSE otherwise. Once a
-// connection drops, all open channels will be closed.
-BOOL ADBTasks();
 
 
 #endif  // __ADB_H__

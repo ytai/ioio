@@ -63,18 +63,18 @@ SECTIONS
   {
         LONG(1);
         LONG(0);
-	    SHORT(ABSOLUTE(_BootloaderTasks));  SHORT(0x04);  SHORT((ABSOLUTE(_BootloaderTasks) >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBOpen));          SHORT(0x04);  SHORT((ABSOLUTE(_ADBOpen)         >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBBufferRef));     SHORT(0x04);  SHORT((ABSOLUTE(_ADBBufferRef)    >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBBufferUnref));   SHORT(0x04);  SHORT((ABSOLUTE(_ADBBufferUnref)  >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBClose));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBClose)        >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBChannelReady));  SHORT(0x04);  SHORT((ABSOLUTE(_ADBChannelReady) >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBWrite));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBWrite)        >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_ADBFileRead));      SHORT(0x04);  SHORT((ABSOLUTE(_ADBFileRead)     >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_FlashErasePage));   SHORT(0x04);  SHORT((ABSOLUTE(_FlashErasePage)  >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_FlashWriteDWORD));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteDWORD) >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_FlashWriteBlock));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteBlock) >> 16) & 0x7F);  SHORT(0);
-	    SHORT(ABSOLUTE(_FlashReadDWORD));   SHORT(0x04);  SHORT((ABSOLUTE(_FlashReadDWORD)  >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_BootloaderTasks));  SHORT(0x04);  SHORT((ABSOLUTE(_BootloaderTasks) >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBOpen));          SHORT(0x04);  SHORT((ABSOLUTE(_ADBOpen)         >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBBufferRef));     SHORT(0x04);  SHORT((ABSOLUTE(_ADBBufferRef)    >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBBufferUnref));   SHORT(0x04);  SHORT((ABSOLUTE(_ADBBufferUnref)  >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBClose));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBClose)        >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBChannelReady));  SHORT(0x04);  SHORT((ABSOLUTE(_ADBChannelReady) >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBWrite));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBWrite)        >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBFileRead));      SHORT(0x04);  SHORT((ABSOLUTE(_ADBFileRead)     >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_FlashErasePage));   SHORT(0x04);  SHORT((ABSOLUTE(_FlashErasePage)  >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_FlashWriteDWORD));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteDWORD) >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_FlashWriteBlock));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteBlock) >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_FlashReadDWORD));   SHORT(0x04);  SHORT((ABSOLUTE(_FlashReadDWORD)  >> 16) & 0x7F);  SHORT(0);
   } >blapi
 
 
