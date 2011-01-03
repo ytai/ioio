@@ -1,4 +1,4 @@
-#include "../flash.h"
+#include "blapi/flash.h"
 
 #include "Compiler.h"
 

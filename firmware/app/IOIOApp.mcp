@@ -8,8 +8,8 @@ dir_src=
 dir_bin=
 dir_tmp=
 dir_sin=
-dir_inc=C:\Microchip Solutions v2010-10-19\Microchip\Include
-dir_lib=
+dir_inc=..;C:\Microchip Solutions v2010-10-19\Microchip\Include
+dir_lib=../blapi
 dir_lkr=
 [CAT_FILTERS]
 filter_src=*.s;*.c
@@ -37,8 +37,8 @@ file_001=no
 file_002=yes
 [FILE_INFO]
 file_000=main.c
-file_001=app_p24FJ256DA206.gld
-file_002=app_common.gld
+file_001=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_p24FJ256DA206.gld
+file_002=C:\Documents and Settings\Ytai\My Documents\ioio\firmware\blapi\app_common.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
