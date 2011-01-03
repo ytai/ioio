@@ -1,3 +1,8 @@
+// This module provides a single function that must be called periodically in
+// order to provide context for all bootloader services.
+// In particular, the ADB-related services need context in order to maintain
+// communications.
+
 #ifndef __BOOTLOADER_H__
 #define __BOOTLOADER_H__
 

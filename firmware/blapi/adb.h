@@ -1,7 +1,7 @@
 //
-// This file implements the ADB protocol (host side).
+// This module implements the ADB protocol (host side).
 // It hides the underlying USB layer completely and exposes a simple API that
-// enables the client to open several independant communication channels with
+// enables the client to open several independent communication channels with
 // the remote side. These communication channels can correspond to virtual TCP
 // ports on the remote side, a command shell, etc. Each such communication
 // channel is able to process a single buffer of outgoing data at a given moment
@@ -39,22 +39,20 @@
 //
 // Usage example (error handling omitted):
 // ---------------------------------------
-// void ShellChannelCallback(ADB_CHANNEL_HANDLE h, void* data, UINT32 data_len) {
-//   print(data, data_len);
+// void ShellCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 len) {
+//   print(data, len);
 // }
 //
 // ...
-// ADBInit();  // call only once.
-// while (!ADBTasks());
-// h = ADBOpen("shell:", &ShellChannelCallback);
+// while (!BootloaderTasks());
+// h = ADBOpen("shell:", &ShellCallback);
 // while (!ADBChannelReady(h)) {
-//   ADBTasks();
+//   BootloaderTasks();
 // }
 // ADBWrite(h, data, sizeof data);
 // while (1) {
-//   ADBTasks();
+//   BotloaderTasks();
 // }
-//
 
 #ifndef __ADB_H__
 #define __ADB_H__

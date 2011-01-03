@@ -1,3 +1,27 @@
+// This module allows Adnroid file-system access on top of the ADB protocol.
+// Currently, only reading of files is supported.
+// Basic usage is as follows:
+// - Client opens a file for read using ADBFileRead().
+// - The client's callback gets called with the file's data being passed.
+// - The callback is notified for EOF or error condition.
+// Optionally, client may call ADBFileClose() for premature closing of the file.
+//
+// Example:
+// void FileCallback(ADB_FILE_HANDLE f, const void* data, UINT32 data_len) {
+//   if (data) {
+//     print(data, data_len);
+//   } else {
+//     HandleEOF();
+//   }
+// }
+//
+// ...
+// while (!BootloaderTasks());
+// h = ADBFileOpen("/data/data/ioio.app/files/temp", &FileCallback);
+// while (1) {
+//   BotloaderTasks();
+// }
+
 #ifndef __ADBFILE_H__
 #define __ADBFILE_H__
 
@@ -33,6 +57,10 @@ typedef void (*ADBFileRecvFunc)(ADB_FILE_HANDLE h, const void* data, UINT32 data
 // The contents of the file will be streamed to the callback function.
 // See documentation of the callback function for more information.
 ADB_FILE_HANDLE ADBFileRead(const char* path, ADBFileRecvFunc recv_func);
+
+// Prematurely close a file being read.
+// After calling this function, the callback function will no longer be called.
+void ADBFileClose(ADB_FILE_HANDLE h);
 
 
 #endif  // __ADBFILE_H__

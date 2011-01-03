@@ -71,6 +71,7 @@ SECTIONS
         SHORT(ABSOLUTE(_ADBChannelReady));  SHORT(0x04);  SHORT((ABSOLUTE(_ADBChannelReady) >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_ADBWrite));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBWrite)        >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_ADBFileRead));      SHORT(0x04);  SHORT((ABSOLUTE(_ADBFileRead)     >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBFileClose));     SHORT(0x04);  SHORT((ABSOLUTE(_ADBFileClose)    >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_FlashErasePage));   SHORT(0x04);  SHORT((ABSOLUTE(_FlashErasePage)  >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_FlashWriteDWORD));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteDWORD) >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_FlashWriteBlock));  SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteBlock) >> 16) & 0x7F);  SHORT(0);

@@ -1,4 +1,3 @@
-//
 // This file implements a simple ADB packet transfer mechanism on top of the
 // USB layer.
 // It enables sending / receiving packets to/from an ADB device. At any given
@@ -51,7 +50,6 @@
 //   ADBPacketTasks();
 // } while (ADBPacketRecvStatus(&cmd, &arg0, &arg1, &data, &data_len) == ADB_RESULT_BUSY);
 // ... do something with the command ...
-//
 
 #ifndef __ADBPACKET_H__
 #define __ADBPACKET_H__

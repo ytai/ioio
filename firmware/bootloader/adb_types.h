@@ -1,6 +1,4 @@
-//
 // This file introduces common types to the ADB layer.
-//
 
 #ifndef __ADBTYPES_H__
 #define __ADBTYPES_H__

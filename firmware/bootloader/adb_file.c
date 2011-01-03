@@ -175,6 +175,15 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
   return i;
 }
 
+void ADBFileClose(ADB_FILE_HANDLE h) {
+  assert(h >= 0 && h < ADB_FILE_MAX_FILES);
+  ADB_FILE* f = &adb_files[h];
+  if (f->state != ADB_FILE_STATE_FREE) {
+    ADBClose(f->handle);
+    memset(f, 0, sizeof(ADB_FILE));
+  }
+}
+
 void ADBFileInit() {
   memset(adb_files, 0, sizeof adb_files);
   adb_file_buffer_refcount = 0;
