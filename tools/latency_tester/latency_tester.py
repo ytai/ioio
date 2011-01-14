@@ -68,6 +68,7 @@ def main():
     sizes += sock.recv(4 - len(sizes))
   packet_size = (ord(sizes[0]) << 8) | ord(sizes[1])
   packets_per_test = (ord(sizes[2]) << 8) | ord(sizes[3])
+  sock.send(ACK_BYTE)
   while True:
     byte = sock.recv(1)
     if not byte:
