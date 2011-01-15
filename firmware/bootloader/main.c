@@ -1,15 +1,19 @@
 // Bootloader main
 
+#include <string.h>
 #include "GenericTypeDefs.h"
 #include "bootloader_private.h"
+#include "bootloader_defs.h"
 #include "blapi/adb.h"
 #include "blapi/adb_file.h"
+#include "blapi/flash.h"
 #include "HardwareProfile.h"
 #include "logging.h"
 #include "ioio_file.h"
 
 #ifdef ENABLE_LOGGING
 #include "uart2.h"
+#include "pps.h"
 #endif
 
 // *****************************************************************************
@@ -26,6 +30,8 @@
   #error Unsupported target
 #endif
 
+#define FINGERPRINT_SIZE 16
+
 void InitializeSystem() {
 #ifdef ENABLE_LOGGING
   iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
@@ -37,23 +43,80 @@ void InitializeSystem() {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
-  MAIN_STATE_RECV,
-  MAIN_STATE_DONE,
+  MAIN_STATE_WAIT_RECV_FP,
+  MAIN_STATE_FP_FAILED,
+  MAIN_STATE_WAIT_RECV_IMAGE,
+  MAIN_STATE_RECV_IMAGE_DONE,
+  MAIN_STATE_RUN_APP,
   MAIN_STATE_ERROR
 } MAIN_STATE;
 
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
+static int fingerprint_size;
+static BYTE fingerprint[FINGERPRINT_SIZE];
 
+BOOL ValidateFingerprint() {
+  int i;
+  DWORD addr = BOOTLOADER_FINGERPRINT_ADDRESS;
+  BYTE* fp = fingerprint;
+  for (i = 0; i < FINGERPRINT_SIZE / 2; ++i) {
+    DWORD_VAL dw = {FlashReadDWORD(addr)};
+    if (*fp++ != dw.byte.LB) return FALSE;
+    if (*fp++ != dw.byte.HB) return FALSE;
+    if (dw.word.HW != 0) return FALSE;
+    addr += 2;
+  }
+  return TRUE;
+}
 
-void FileRecv(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+BOOL EraseFingerprint() {
+  return FlashErasePage(BOOTLOADER_FINGERPRINT_PAGE);
+}
+
+BOOL WriteFingerprint() {
+  int i;
+  DWORD addr = BOOTLOADER_FINGERPRINT_ADDRESS;
+  BYTE* fp = fingerprint;
+  for (i = 0; i < FINGERPRINT_SIZE / 2; ++i) {
+    DWORD_VAL dw = {0};
+    dw.byte.LB = *fp++;
+    dw.byte.HB = *fp++;
+    if (!FlashWriteDWORD(addr, dw.Val)) return FALSE;
+    addr += 2;
+  }
+  return TRUE;
+}
+
+void FileRecvFingerprint(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+  if (data) {
+    if (fingerprint_size != -1 && data_len <= FINGERPRINT_SIZE - fingerprint_size) {
+      memcpy(fingerprint + fingerprint_size, data, data_len);
+      fingerprint_size += data_len;
+    } else {
+      fingerprint_size = -1;
+    }
+  } else {
+    if (data_len == 0 && fingerprint_size == FINGERPRINT_SIZE && ValidateFingerprint()) {
+      // if all went OK and the fingerprint matches, skip download and run app
+      log_print_0("Fingerprint match - skipping download");
+      state = MAIN_STATE_RUN_APP;
+    } else {
+      // if anything went wrong or fingerprint is different, force download
+      log_print_0("Fingerprint mismatch - downloading image");
+      state = MAIN_STATE_FP_FAILED;
+    }
+  }
+}
+
+void FileRecvImage(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
     if (!IOIOFileHandleBuffer(data, data_len)) {
       state = MAIN_STATE_ERROR;
     }
   } else {
     if (data_len == 0 && IOIOFileDone()) {
-      log_print_0("\r\n\r\nSuccessfully wrote application firmware image!\r\n\r\n");
-      state = MAIN_STATE_DONE;
+      log_print_0("Successfully wrote application firmware image!");
+      state = MAIN_STATE_RECV_IMAGE_DONE;
     } else {
       state = MAIN_STATE_ERROR;
     }
@@ -76,16 +139,35 @@ int main() {
      case MAIN_STATE_WAIT_CONNECT:
       if (connected) {
         log_print_0("ADB connected!");
-        IOIOFileInit();
-        h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecv);
-        state = MAIN_STATE_RECV;
+        fingerprint_size = 0;
+        h = ADBFileRead("/data/data/ioio.manager/files/image.fp", &FileRecvFingerprint);
+        state = MAIN_STATE_WAIT_RECV_FP;
       }
       break;
 
-     case MAIN_STATE_RECV:
+     case MAIN_STATE_FP_FAILED:
+      if (!EraseFingerprint()) {
+        state = MAIN_STATE_ERROR;
+      } else {
+        IOIOFileInit();
+        h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecvImage);
+        state = MAIN_STATE_WAIT_RECV_IMAGE;
+      }
       break;
 
-     case MAIN_STATE_DONE:
+     case MAIN_STATE_WAIT_RECV_FP:
+     case MAIN_STATE_WAIT_RECV_IMAGE:
+      break;
+
+     case MAIN_STATE_RECV_IMAGE_DONE:
+      if (WriteFingerprint()) {
+        state = MAIN_STATE_RUN_APP;
+      } else {
+        state = MAIN_STATE_ERROR;
+      }
+      break;
+
+     case MAIN_STATE_RUN_APP:
       __asm__("goto __APP_RESET");
       break;
 
