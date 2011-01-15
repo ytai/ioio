@@ -38,7 +38,7 @@ static BOOL IOIOFileBlockDone() {
         log_print_1("Misaligned block: 0x%lx", address);
         return FALSE;
       }
-      if (address < BOOTLOADER_MIN_ADDRESS || address >= BOOTLOADER_MAX_ADDRESS) {
+      if (address < BOOTLOADER_MIN_APP_ADDRESS || address >= BOOTLOADER_MAX_APP_ADDRESS) {
         log_print_1("Adderess outside of permitted range: 0x%lx", address);
         return FALSE;
       }

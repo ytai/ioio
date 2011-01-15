@@ -7,8 +7,9 @@
 // i.e. located in application data space.
 #define BOOTDATA __attribute__((section("bootdata"),far))
 
-#define BOOTLOADER_MIN_ADDRESS 0x8000
-#define BOOTLOADER_MAX_ADDRESS 0x2A800
+#define BOOTLOADER_MIN_APP_ADDRESS 0x8000
+#define BOOTLOADER_MAX_APP_ADDRESS 0x15300
+#define BOOTLOADER_FINGERPRINT_ADDRESS BOOTLOADER_MAX_APP_ADDRESS
 #define BOOTLOADER_INVALID_ADDRESS ((DWORD) -1)
 
 
