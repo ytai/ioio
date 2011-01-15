@@ -1,7 +1,7 @@
 [HEADER]
 magic_cookie={66E99B07-E706-4689-9E80-9B2582898A13}
 file_version=1.0
-device=PIC24FJ256DA206
+device=PIC24FJ128DA106
 [PATH_INFO]
 BuildDirPolicy=BuildDirIsProjectDir
 dir_src=
@@ -66,6 +66,7 @@ file_038=Bootloader
 file_039=ADB
 file_040=.
 file_041=.
+file_042=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -109,6 +110,7 @@ file_038=no
 file_039=no
 file_040=no
 file_041=no
+file_042=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -152,6 +154,7 @@ file_038=no
 file_039=no
 file_040=no
 file_041=yes
+file_042=yes
 [FILE_INFO]
 file_000=main.c
 file_001=usb_config.c
@@ -193,14 +196,15 @@ file_036=..\blapi\bootloader.h
 file_037=adb_private.h
 file_038=bootloader_private.h
 file_039=adb_file_private.h
-file_040=boot_p24FJ256DA206.gld
+file_040=boot_p24FJ128DA106.gld
 file_041=boot_common.gld
+file_042=boot_p24FJ256DA206.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
 [TOOL_SETTINGS]
 TS{7D9C6ECE-785D-44CB-BA22-17BF2E119622}=-g
-TS{25AC22BD-2378-4FDB-BFB6-7345A15512D3}=-g -Wall -mlarge-data -mlarge-scalar -mconst-in-data
+TS{25AC22BD-2378-4FDB-BFB6-7345A15512D3}=-g -Wall -mlarge-data -mlarge-scalar -mconst-in-data -O3
 TS{7DAC9A1D-4C45-45D6-B25A-D117C74E8F5A}=--heap=512 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)"
 TS{509E5861-1E2A-483B-8B6B-CA8DB7F2DD78}=
 [INSTRUMENTED_TRACE]

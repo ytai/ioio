@@ -1,7 +1,7 @@
 [HEADER]
 magic_cookie={66E99B07-E706-4689-9E80-9B2582898A13}
 file_version=1.0
-device=PIC24FJ256DA206
+device=PIC24FJ128DA106
 [PATH_INFO]
 BuildDirPolicy=BuildDirIsProjectDir
 dir_src=
@@ -34,6 +34,7 @@ file_006=.
 file_007=.
 file_008=.
 file_009=.
+file_010=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -45,6 +46,7 @@ file_006=no
 file_007=no
 file_008=no
 file_009=no
+file_010=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -56,6 +58,7 @@ file_006=no
 file_007=no
 file_008=no
 file_009=yes
+file_010=yes
 [FILE_INFO]
 file_000=main.c
 file_001=C:\Microchip Solutions v2010-10-19\Microchip\Common\uart2.c
@@ -65,8 +68,9 @@ file_004=..\blapi\bootloader.h
 file_005=..\blapi\flash.h
 file_006=C:\Microchip Solutions v2010-10-19\Microchip\Include\uart2.h
 file_007=HardwareProfile.h
-file_008=..\blapi\app_p24FJ256DA206.gld
+file_008=..\blapi\app_p24FJ128DA106.gld
 file_009=..\blapi\app_common.gld
+file_010=..\blapi\app_p24FJ256DA206.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
