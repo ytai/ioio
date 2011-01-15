@@ -65,16 +65,17 @@ public class LatencyTesterActivity extends Activity {
 				InputStream in = socket.getInputStream();
 				OutputStream out = socket.getOutputStream();
 				
-				byte[] packetSize = new byte[2];
-				packetSize[0] = (byte)(MAX_PACKET_SIZE >> 8);
-				packetSize[1] = (byte)MAX_PACKET_SIZE;
-				byte[] packetsPerTest = new byte[2];
-				packetsPerTest[0] = (byte)(PACKETS_PER_TEST >> 8);
-				packetsPerTest[1] = (byte)PACKETS_PER_TEST;
-				out.write(packetSize);
-				out.write(packetsPerTest);
+				byte[] sizes = new byte[4];
+				sizes[0] = (byte)(MAX_PACKET_SIZE >> 8);
+				sizes[1] = (byte)MAX_PACKET_SIZE;
+				sizes[2] = (byte)(PACKETS_PER_TEST >> 8);
+				sizes[3] = (byte)PACKETS_PER_TEST;
+				out.write(sizes);
 				
-				if (!testUploadThroughput(in, out) || !testDownThroughput(in, out) ||
+				int read = in.read();
+				if (read != ACK_BYTE) {
+					Log.e(LOG_TAG, "Didn't get approval for sizes. Got: " + read);
+				} else if (!testUploadThroughput(in, out) || !testDownThroughput(in, out) ||
 						!testBothThroughput(in, out) || !testLatencyAverage(in, out) ||
 						!testLatencyError(in, out)) {
 					Log.w(LOG_TAG, "Failure in one of the tests");
@@ -167,7 +168,8 @@ public class LatencyTesterActivity extends Activity {
 			long startTime = System.currentTimeMillis();
 			for (int i = 0; i < PACKETS_PER_TEST; ++i) {
 				out.write(randomData.getBytes());
-				if ((in.read(buf) != MAX_PACKET_SIZE) || !randomData.equals(new String(buf))) {
+				int bytesRead = in.read(buf);
+				if ((bytesRead != MAX_PACKET_SIZE) || !randomData.equals(new String(buf))) {
 					Log.w(LOG_TAG, "Read buffer differs from sent buffer.");
 					registerError(R.id.both_throughput_text);
 					return false;
@@ -241,7 +243,9 @@ public class LatencyTesterActivity extends Activity {
 		
 		private boolean prepareForTransaction(int type, int testTextId, InputStream in, OutputStream out) throws IOException {
 			out.write(type);
-			if (in.read() != ACK_BYTE) {
+			int read = in.read();
+			if (read != ACK_BYTE) {
+				Log.e(LOG_TAG, "Read wrong byte: " + read);
 				registerError(testTextId);
 				return false;
 			}
