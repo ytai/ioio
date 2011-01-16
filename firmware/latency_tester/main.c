@@ -129,6 +129,8 @@ int main() {
   ADB_CHANNEL_HANDLE h;
   BYTE download_buffer[4096];
   int i;
+  iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42 on the PIC, 3 on IOIO V1.0 board)
+  iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43 on the PIC, 4 on IOIO V1.0 board)
   UART2Init();
 
   UART2PrintString("***** Hello from Latency Tester! *******\r\n");
