@@ -28,10 +28,25 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
 }
 
 void ResetAllPeripherals() {
-  // TODO: for real
+  // reset i/o ports - digital input, floating, latch at 0.
+  TRISB = 0xFFFF; LATB = 0x0000; ANSB = 0x0000;
+  TRISC = 0xFFFF; LATC = 0x0000;
+  TRISD = 0xFFFF; LATD = 0x0000;
+  TRISE = 0xFFFF; LATE = 0x0000;
+  TRISF = 0xFFFF; LATF = 0x0000;
+  CNPU1 = 0x0000; CNPD1 = 0x0000;
+  CNPU2 = 0x0000; CNPD2 = 0x0000;
+  CNPU3 = 0x0000; CNPD3 = 0x0000;
+  CNPU4 = 0x0000; CNPD4 = 0x0000;
+  CNPU5 = 0x0000; CNPD5 = 0x0000;
+  CNPU6 = 0x0000; CNPD6 = 0x0000;
+
+  // configure on-board LED
   LATFbits.LATF3 = 1;  // LED off
   TRISFbits.TRISF3 = 0;  // LED pin is output
   ODCFbits.ODF3 = 1;  // LED pin is open drain
+
+  // TODO: reset other peripherals
 }
 
 void AppProtocolInit() {
