@@ -171,8 +171,14 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_CLOSE) {
         LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
-      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
-        && adb_channels[arg1].remote_id == arg0) {
+      } else if ((adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
+                  || adb_channels[arg1].state == ADB_CHAN_STATE_IDLE)
+        // in the ADB documentation it says that only failed attempts to open
+        // will result in CLSE with local-id (arg0) of 0, and that in any other
+        // case we should ignore the message if it is not equal to our remote
+        // ID. In practice, however, we do get CLSE(0, ...) as result of a
+        // legitimate closure on the server-side, so this check is disabled.
+                 /*&& adb_channels[arg1].remote_id == arg0*/) {
         log_print_2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
         adb_channels[arg1].recv_func(arg1, NULL, 0);
         LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);

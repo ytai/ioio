@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
 		private TextView mText;
 		private ServerSocket mServer = null;
 		private Socket mSocket = null;
+		private boolean mStop = false;
 
 		private void connected() {
 			runOnUiThread(new Runnable() {
@@ -42,28 +43,30 @@ public class MainActivity extends Activity {
 			disconnected();
 			try {
 				mServer = new ServerSocket(IOIO_PORT);
-				while (true) {
+				while (!mStop) {
 					try {
 						Log.i("IOIOProtocolTester", "accepting");
 						mSocket = mServer.accept();
 						Log.i("IOIOProtocolTester", "accepted");
 						connected();
 						InputStream in = mSocket.getInputStream();
-						while (in.read() != -1)
-							;
+						while (in.read() != -1);
 					} finally {
-						mSocket = null;
 						disconnected();
 					}
 				}
 			} catch (IOException e) {
-				Log.e("IOIOProtocolTester", "Exception caught", e);
+				if (!mStop) {
+					Log.e("IOIOProtocolTester", "Exception caught", e);
+				}
 			}
 		}
 
 		public void kill() {
 			try {
-				mSocket.close();
+				mStop = true;
+				mSocket.shutdownOutput();
+				mSocket.shutdownInput();
 			} catch (Exception e) {
 			}
 			try {
