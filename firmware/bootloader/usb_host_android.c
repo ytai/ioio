@@ -2,7 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "GenericTypeDefs.h"
-#include "USB\usb.h"
+#include "USB/usb.h"
 #include "usb_host_android.h"
 #include "logging.h"
 

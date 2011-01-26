@@ -19,7 +19,7 @@
 // while (!BootloaderTasks());
 // h = ADBFileOpen("/data/data/ioio.app/files/temp", &FileCallback);
 // while (1) {
-//   BotloaderTasks();
+//   BootloaderTasks();
 // }
 
 #ifndef __ADBFILE_H__

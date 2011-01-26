@@ -3,7 +3,7 @@
                                                                                 
 Software License Agreement                                                      
                                                                                 
-Copyright © 2007-2008 Microchip Technology Inc. and its licensors.  All         
+Copyright ï¿½ 2007-2008 Microchip Technology Inc. and its licensors.  All         
 rights reserved.                                                                
                                                                                 
 Microchip licenses to you the right to: (1) install Software on a single        
@@ -37,7 +37,7 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
-#include "USB\usb.h"
+#include "USB/usb.h"
 #include "usb_host_android.h"
 
 // *****************************************************************************

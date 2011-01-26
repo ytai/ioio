@@ -51,7 +51,7 @@
 // }
 // ADBWrite(h, data, sizeof data);
 // while (1) {
-//   BotloaderTasks();
+//   BootloaderTasks();
 // }
 
 #ifndef __ADB_H__
@@ -105,7 +105,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func);
 void ADBBufferRef();
 
 // Must be called once per every call to ADBBufferRef(). This lets the ADB
-// layer no that the client no longer needs the data from the recieved buffer.
+// layer know that the client no longer needs the data from the recieved buffer.
 void ADBBufferUnref();
 
 // Close a channel previously opened with ADBOpen().
@@ -119,7 +119,7 @@ BOOL ADBChannelReady(ADB_CHANNEL_HANDLE handle);
 
 // Write data to the channel.
 // The data must be kept valid until the channel becomes ready to send again.
-// This will also indicate that the remote end acknoledged the reception of the
+// This will also indicate that the remote end acknowledged the reception of the
 // message.
 // Do not pass ROM buffers here, as they will silently fail.
 void ADBWrite(ADB_CHANNEL_HANDLE handle, const void* data, UINT32 data_len);
