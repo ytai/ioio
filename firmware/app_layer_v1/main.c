@@ -2,10 +2,10 @@
 #include <p24fxxxx.h>
 #include <pps.h>
 
+#include "Compiler.h"
 #include "blapi/adb.h"
 #include "blapi/bootloader.h"
-
-#include "Compiler.h"
+#include "protocol.h"
 
 typedef enum {
   STATE_INIT,
@@ -18,10 +18,8 @@ STATE state = STATE_INIT;
 
 void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
+    AppProtocolHandleIncoming(data, data_len);
   } else {
-    if (data_len == 0) {
-    } else {
-    }
     // connection closed, re-establish
     state = STATE_INIT;
   }
@@ -47,14 +45,6 @@ void ResetAllPeripherals() {
   ODCFbits.ODF3 = 1;  // LED pin is open drain
 
   // TODO: reset other peripherals
-}
-
-void AppProtocolInit() {
-}
-
-void AppProtocolTasks() {
-  static unsigned count = 0;
-  LATFbits.LATF3 = count++ >> 13;
 }
 
 int main() {
@@ -86,13 +76,13 @@ int main() {
 
       case STATE_WAIT_CHANNEL_OPEN:
         if (ADBChannelReady(h)) {
-          AppProtocolInit();
+          AppProtocolInit(h);
           state = STATE_CONNECTED;
         }
         break;
 
       case STATE_CONNECTED:
-        AppProtocolTasks();
+        AppProtocolTasks(h);
         break;
     }
   }

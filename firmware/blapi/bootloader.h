@@ -8,6 +8,12 @@
 
 #include "GenericTypeDefs.h"
 
+// The bootloader version.
+extern __attribute__((space(prog))) const DWORD BootloaderVer;
+
+// The hardware version.
+extern __attribute__((space(prog))) const DWORD HardwareVer;
+
 
 // Needs to be called by the application periodically in order to provide
 // context for the service provided by the bootloader API (BLAPI).
