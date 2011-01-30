@@ -2,29 +2,35 @@ package ioio.bluetooth_bridge;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.UUID;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	static final int IOIO_PORT = 4545;
 
-	private class ConnectionThread extends ServerThread {
+	private class BTConnectionThread extends BluetoothServerThread {
 		private TextView mText;
-		private TextView mLog;
 
-		public ConnectionThread() throws IOException {
-			super(new ServerSocket(IOIO_PORT));
-			mText = (TextView) findViewById(R.id.text_view);
-			mLog = (TextView) findViewById(R.id.log_text_view);
+		public BTConnectionThread() throws IOException {
+			super(
+					BluetoothAdapter
+							.getDefaultAdapter()
+							.listenUsingRfcommWithServiceRecord(
+									"IOIO Bridge",
+									UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")));
+			mText = (TextView) findViewById(R.id.bluetooth_text_view);
 		}
 
 		protected void connected() {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mText.setText(":-)");
+					mText.setText(R.string.bluetooth_connected);
+					mText.setTextColor(getResources().getColor(R.color.connected_color));
 				}
 			});
 		}
@@ -33,44 +39,62 @@ public class MainActivity extends Activity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mText.setText(":-(");
+					mText.setText(R.string.bluetooth_disconnected);
+					mText.setTextColor(getResources().getColor(R.color.disconnected_color));
+				}
+			});
+		}
+		
+		protected void process(byte[] buf, int size) {
+			try {
+				if (mIOIOConnectionThread.isConnected()) {
+					mIOIOConnectionThread.write(buf, size);
+				}
+			} catch (IOException e) {
+			}
+		}
+	}
+
+	private class IOIOConnectionThread extends ServerThread {
+		private TextView mText;
+
+		public IOIOConnectionThread() throws IOException {
+			super(new ServerSocket(IOIO_PORT));
+			mText = (TextView) findViewById(R.id.ioio_text_view);
+		}
+
+		protected void connected() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mText.setText(R.string.ioio_connected);
+					mText.setTextColor(getResources().getColor(R.color.connected_color));
+				}
+			});
+		}
+
+		protected void disconnected() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mText.setText(R.string.ioio_disconnected);
+					mText.setTextColor(getResources().getColor(R.color.disconnected_color));
 				}
 			});
 		}
 
 		protected void process(byte[] buf, int size) {
-			printBuf(buf, size);
-		}
-
-		private class LogPrinter implements Runnable {
-			private String mStr;
-
-			LogPrinter(String s) {
-				mStr = s;
-			}
-
-			public void run() {
-				StringBuffer log = new StringBuffer(mLog.getText());
-				log.append(mStr);
-				if (log.length() > 200) {
-					log.delete(0, log.length() - 200);
+			try {
+				if (mBTConnectionThread.isConnected()) {
+					mBTConnectionThread.write(buf, size);
 				}
-				mLog.setText(log.toString());
+			} catch (IOException e) {
 			}
-
-		}
-
-		private void printBuf(byte[] buf, int size) {
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < size; ++i) {
-				sb.append(Integer.toHexString(buf[i]));
-				sb.append(' ');
-			}
-			runOnUiThread(new LogPrinter(sb.toString()));
 		}
 	}
 
-	private ConnectionThread mConnectionThread;
+	private IOIOConnectionThread mIOIOConnectionThread;
+	private BTConnectionThread mBTConnectionThread;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -78,8 +102,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		try {
-			mConnectionThread = new ConnectionThread();
-			mConnectionThread.start();
+			mIOIOConnectionThread = new IOIOConnectionThread();
+			mIOIOConnectionThread.start();
+			mBTConnectionThread = new BTConnectionThread();
+			mBTConnectionThread.start();
 		} catch (IOException e) {
 		}
 	}
@@ -87,6 +113,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mConnectionThread.kill();
+		mIOIOConnectionThread.kill();
+		mBTConnectionThread.kill();
 	}
 }

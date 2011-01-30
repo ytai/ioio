@@ -2,15 +2,16 @@ package ioio.bluetooth_bridge;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-abstract class ServerThread extends Thread {
-	private ServerSocket mServer;
-	private Socket mSocket;
+public class BluetoothServerThread extends Thread {
+	private BluetoothServerSocket mServer;
+	private BluetoothSocket mSocket;
 	private boolean mStop = false;
+	private boolean mConnected = false;
 	private byte[] mBuf = new byte[1024];
 
 	protected void connected() {
@@ -22,7 +23,7 @@ abstract class ServerThread extends Thread {
 	protected void process(byte[] buf, int size) {
 	}
 
-	public ServerThread(ServerSocket server) {
+	public BluetoothServerThread(BluetoothServerSocket server) {
 		mServer = server;
 	}
 
@@ -33,6 +34,7 @@ abstract class ServerThread extends Thread {
 				Log.i("ServerThread", "accepting");
 				mSocket = mServer.accept();
 				Log.i("ServerThread", "accepted");
+				mConnected = true;
 				connected();
 				InputStream in = mSocket.getInputStream();
 				int size;
@@ -42,19 +44,18 @@ abstract class ServerThread extends Thread {
 			} catch (IOException e) {
 				Log.e("ServerThread", "Exception caught", e);
 			} finally {
-				if (!mSocket.isClosed()) {
-					try {
-						mSocket.close();
-					} catch (IOException e) {
-					}
+				try {
+					mConnected = false;
+					mSocket.close();
+				} catch (IOException e) {
 				}
 				disconnected();
 			}
 		}
 	}
-	
+
 	public final boolean isConnected() {
-		return mSocket.isConnected();
+		return mConnected;
 	}
 	
 	public final void write(byte[] data, int size) throws IOException {
@@ -64,15 +65,9 @@ abstract class ServerThread extends Thread {
 	public final void kill() {
 		try {
 			mStop = true;
-			if (!mSocket.isOutputShutdown()) {
-				mSocket.shutdownOutput();
-			}
-			if (!mSocket.isInputShutdown()) {
-				mSocket.shutdownInput();
-			}
-			if (!mServer.isClosed()) {
-				mServer.close();
-			}
+			mSocket.getOutputStream().close();
+			mSocket.getInputStream().close();
+			mServer.close();
 		} catch (Exception e) {
 		}
 		try {
