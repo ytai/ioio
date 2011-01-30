@@ -1,4 +1,4 @@
-package ioio.protocol_tester;
+package ioio.bluetooth_bridge;
 
 import java.io.IOException;
 import java.io.InputStream;

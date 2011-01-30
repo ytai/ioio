@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="ioio.protocol_tester"
       android:versionCode="1"
-      android:versionName="1.0">
+      android:versionName="1.0" package="ioio.bluetooth_bridge">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".MainActivity"
                   android:label="@string/app_name">
