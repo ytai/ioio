@@ -1,50 +1,26 @@
 package ioio.bluetooth_bridge;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	static final int IOIO_PORT = 4545;
 
-	private class BlinkThread extends Thread {
-		private OutputStream mOut;
-
-		BlinkThread(OutputStream out) {
-			mOut = out;
-		}
-
-		@Override
-		public void run() {
-			try {
-				while (true) {
-					mOut.write(0x03);
-					mOut.write(0x00);
-					Thread.sleep(20);
-					mOut.write(0x03);
-					mOut.write(0x01);
-					Thread.sleep(980);
-				}
-			} catch (Exception e) {
-			}
-		}
-	};
-
-	private class ConnectionThread extends Thread {
+	private class ConnectionThread extends ServerThread {
 		private TextView mText;
 		private TextView mLog;
-		private ServerSocket mServer = null;
-		private Socket mSocket = null;
-		private boolean mStop = false;
 
-		private void connected() {
+		public ConnectionThread() throws IOException {
+			super(new ServerSocket(IOIO_PORT));
+			mText = (TextView) findViewById(R.id.text_view);
+			mLog = (TextView) findViewById(R.id.log_text_view);
+		}
+
+		protected void connected() {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -53,7 +29,7 @@ public class MainActivity extends Activity {
 			});
 		}
 
-		private void disconnected() {
+		protected void disconnected() {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -62,55 +38,8 @@ public class MainActivity extends Activity {
 			});
 		}
 
-		@Override
-		public void run() {
-			mText = (TextView) findViewById(R.id.text_view);
-			mLog = (TextView) findViewById(R.id.log_text_view);
-			disconnected();
-			try {
-				mServer = new ServerSocket(IOIO_PORT);
-				while (!mStop) {
-					try {
-						Log.i("IOIOProtocolTester", "accepting");
-						mSocket = mServer.accept();
-						Log.i("IOIOProtocolTester", "accepted");
-						connected();
-						InputStream in = mSocket.getInputStream();
-						BlinkThread blink = new BlinkThread(
-								mSocket.getOutputStream());
-						byte[] buf = new byte[1024];
-						int size;
-						blink.start();
-						while ((size = in.read(buf)) != -1) {
-							printBuf(buf, size);
-						}
-						blink.stop();
-					} catch (IOException e) {
-					} finally {
-						mSocket.close();
-						disconnected();
-					}
-				}
-			} catch (IOException e) {
-				Log.e("IOIOProtocolTester", "Exception caught", e);
-			}
-		}
-
-		public void kill() {
-			try {
-				mStop = true;
-				mSocket.shutdownOutput();
-				mSocket.shutdownInput();
-			} catch (Exception e) {
-			}
-			try {
-				mServer.close();
-			} catch (Exception e) {
-			}
-			try {
-				join();
-			} catch (InterruptedException e) {
-			}
+		protected void process(byte[] buf, int size) {
+			printBuf(buf, size);
 		}
 
 		private class LogPrinter implements Runnable {
@@ -141,14 +70,18 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private ConnectionThread mConnectionThread = new ConnectionThread();
+	private ConnectionThread mConnectionThread;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		mConnectionThread.start();
+		try {
+			mConnectionThread = new ConnectionThread();
+			mConnectionThread.start();
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
