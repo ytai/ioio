@@ -14,11 +14,11 @@
   
   void log_print_buf(const void* buf, int size);
   #define log_print_0(x) do { UART2PrintString("["__FILE__": "TOSTRING(__LINE__)"] "); UART2PrintString(x); UART2PrintString("\r\n"); } while (0)
-  #define log_printf(x,...) do { sprintf(char_buf, x, __VA_ARGS__); log_print_0(char_buf); } while(0)
+  #define log_printf(...) do { sprintf(char_buf, __VA_ARGS__); log_print_0(char_buf); } while(0)
 #else
   #define log_print_buf(b,s)
   #define log_print_0(x)
-  #define log_printf(x,...)
+  #define log_printf(...)
 #endif
 
 

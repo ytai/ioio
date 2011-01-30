@@ -9,10 +9,10 @@
 #include "GenericTypeDefs.h"
 
 // The bootloader version.
-extern __attribute__((space(prog))) const DWORD BootloaderVer;
+extern const DWORD BootloaderVer;
 
 // The hardware version.
-extern __attribute__((space(prog))) const DWORD HardwareVer;
+extern const DWORD HardwareVer;
 
 
 // Needs to be called by the application periodically in order to provide

@@ -85,14 +85,14 @@ public class MainActivity extends Activity {
 							printBuf(buf, size);
 						}
 						blink.stop();
+					} catch (IOException e) {
 					} finally {
+						mSocket.close();
 						disconnected();
 					}
 				}
 			} catch (IOException e) {
-				if (!mStop) {
-					Log.e("IOIOProtocolTester", "Exception caught", e);
-				}
+				Log.e("IOIOProtocolTester", "Exception caught", e);
 			}
 		}
 
@@ -121,7 +121,12 @@ public class MainActivity extends Activity {
 			}
 
 			public void run() {
-				mLog.append(mStr);
+				StringBuffer log = new StringBuffer(mLog.getText());
+				log.append(mStr);
+				if (log.length() > 200) {
+					log.delete(0, log.length() - 200);
+				}
+				mLog.setText(log.toString());
 			}
 
 		}
@@ -129,7 +134,7 @@ public class MainActivity extends Activity {
 		private void printBuf(byte[] buf, int size) {
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < size; ++i) {
-				sb.append(Byte.toString(buf[i]));
+				sb.append(Integer.toHexString(buf[i]));
 				sb.append(' ');
 			}
 			runOnUiThread(new LogPrinter(sb.toString()));
