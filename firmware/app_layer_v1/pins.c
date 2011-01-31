@@ -224,6 +224,7 @@ void PinSetOdc(int pin, int val) {
 void PinSetCnen(int pin, int cnen) {
   const CN_INFO* cinfo = &cn_info[pin];
   const PORT_INFO* pinfo = &port_info[pin];
+  _CNIE = 0;  // disable CN interrupts
   if (cnen) {
     *cinfo->cnen |= cinfo->pos_mask;
     *pinfo->fake_cnen |= pinfo->pos_mask;
@@ -234,6 +235,7 @@ void PinSetCnen(int pin, int cnen) {
     *cinfo->cnen &= cinfo->neg_mask;
     *port_info->fake_cnen &= port_info->neg_mask;
   }
+  _CNIE = 1;  // enable CN interrupts
 }
 
 void PinSetCnpu(int pin, int cnpu) {
