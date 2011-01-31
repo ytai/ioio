@@ -7,7 +7,6 @@
 #include "features.h"
 #include "protocol_defs.h"
 
-#define IOIO_MAGIC               0x4F494F49LL
 #define FIRMWARE_ID              0x00000001LL
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
@@ -87,7 +86,7 @@ static void MessageDone() {
   // TODO: fill
   switch (rx_msg.type) {
     case HARD_RESET:
-      HardReset();
+      HardReset(rx_msg.args.hard_reset.magic);
       break;
 
     case SOFT_RESET:
@@ -126,6 +125,10 @@ void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
       --data_len;
       if (rx_msg.type < MESSAGE_TYPE_LIMIT) {
         rx_message_remaining = incoming_arg_size[rx_msg.type] & 0x7F;
+        if (rx_message_remaining == 0) {
+          // no args
+          MessageDone();
+        }
       } else {
         // TODO: go to error state
       }

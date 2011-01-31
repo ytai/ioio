@@ -4,6 +4,8 @@
 
 #define PACKED __attribute__ ((packed))
 
+#define IOIO_MAGIC               0x4F494F49L
+
 // hard reset
 typedef struct PACKED {
   DWORD magic;
