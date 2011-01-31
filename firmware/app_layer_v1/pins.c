@@ -5,6 +5,7 @@
 
 typedef struct {
   SFR* tris;
+  SFR* ansel;
   SFR* port;
   SFR* lat;
   SFR* odc;
@@ -12,7 +13,11 @@ typedef struct {
   unsigned int clr_mask;
 } PORT_INFO;
 
-#define MAKE_PORT_INFO(port, num) { &TRIS##port, &PORT##port, &LAT##port, &ODC##port, (1 << num), ~(1 << num) }
+#if defined(IOIO_V10) || defined(IOIO_V11)
+#define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
+#endif
+
+#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, (1 << num), ~(1 << num) }
 
 typedef struct {
   SFR* cnen;
@@ -142,6 +147,15 @@ void PinSetTris(int pin, int val) {
     *info->tris |= info->set_mask;
   } else {
     *info->tris &= info->clr_mask;
+  }
+}
+
+void PinSetAnsel(int pin, int val) {
+  const PORT_INFO* info = &port_info[pin];
+  if (val) {
+    *info->ansel |= info->set_mask;
+  } else {
+    *info->ansel &= info->clr_mask;
   }
 }
 

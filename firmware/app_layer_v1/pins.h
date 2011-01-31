@@ -13,6 +13,7 @@
 #endif
 
 void PinSetTris(int pin, int val);
+void PinSetAnsel(int pin, int val);
 void PinSetLat(int pin, int val);
 int PinGetPort(int pin);
 void PinSetOdc(int pin, int val);

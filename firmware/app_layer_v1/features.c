@@ -7,6 +7,7 @@
 
 void SetPinDigitalOut(int pin, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d)", pin, open_drain);
+  PinSetAnsel(pin, 0);
   PinSetCnen(pin, 0);
   PinSetCnpu(pin, 0);
   PinSetCnpd(pin, 0);
@@ -22,6 +23,7 @@ void SetDigitalOutLevel(int pin, int value) {
 
 void SetPinDigitalIn(int pin, int pull) {
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
+  PinSetAnsel(pin, 0);
   PinSetCnen(pin, 0);
   switch (pull) {
     case 1:
