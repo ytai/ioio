@@ -38,7 +38,7 @@ void SetPinDigitalIn(int pin, int pull) {
       PinSetCnpu(pin, 0);
       PinSetCnpd(pin, 0);
   }
-  PinSetTris(pin, 0);
+  PinSetTris(pin, 1);
 }
 
 void SetChangeNotify(int pin, int changeNotify) {
@@ -47,6 +47,7 @@ void SetChangeNotify(int pin, int changeNotify) {
 }
 
 void ReportDigitalInStatus(int pin) {
+  log_printf("ReportDigitalInStatus(%d)", pin);
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_DIGITAL_IN_STATUS;
   msg.args.report_digital_in_status.pin = pin;
