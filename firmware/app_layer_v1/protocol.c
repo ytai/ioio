@@ -112,6 +112,9 @@ static void MessageDone() {
     case SET_CHANGE_NOTIFY:
       SetChangeNotify(rx_msg.args.set_change_notify.pin, rx_msg.args.set_change_notify.cn);
       Echo();
+      if (rx_msg.args.set_change_notify.cn) {
+        ReportDigitalInStatus(rx_msg.args.set_change_notify.pin);
+      }
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
