@@ -10,5 +10,7 @@ void SetChangeNotify(int pin, int changeNotify);
 void ReportDigitalInStatus(int pin);
 void HardReset(DWORD magic);
 
+// BOOKMARK(add_feature): Add feature declaration.
+
 
 #endif  // __FEATURES_H__

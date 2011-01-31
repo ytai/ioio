@@ -63,3 +63,5 @@ void HardReset(DWORD magic) {
     log_printf("No magic!");
   }
 }
+
+// BOOKMARK(add_feature): Add feature implementation.

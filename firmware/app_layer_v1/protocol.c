@@ -16,6 +16,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_DIGITAL_OUT_LEVEL_ARGS),
   sizeof(SET_PIN_DIGITAL_IN_ARGS),
   sizeof(SET_CHANGE_NOTIFY_ARGS)
+  // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
+  // Array is indexed by message type enum.
 };
 
 const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
@@ -25,6 +27,8 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(REPORT_DIGITAL_IN_STATUS_ARGS),
   sizeof(SET_PIN_DIGITAL_IN_ARGS),
   sizeof(SET_CHANGE_NOTIFY_ARGS)
+  // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
+  // Array is indexed by message type enum.
 };
 
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 1024);
@@ -83,7 +87,6 @@ static void Echo() {
 }
 
 static void MessageDone() {
-  // TODO: fill
   switch (rx_msg.type) {
     case HARD_RESET:
       HardReset(rx_msg.args.hard_reset.magic);
@@ -109,6 +112,13 @@ static void MessageDone() {
     case SET_CHANGE_NOTIFY:
       SetChangeNotify(rx_msg.args.set_change_notify.pin, rx_msg.args.set_change_notify.cn);
       Echo();
+      break;
+
+    // BOOKMARK(add_feature): Add incoming message handling to switch clause.
+    // Call Echo() if the message is to be echoed back.
+
+    default:
+      // TODO: send an error message and go to error state.
       break;
   }
   rx_message_remaining = 0;

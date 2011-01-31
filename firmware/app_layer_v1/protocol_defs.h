@@ -57,6 +57,9 @@ typedef struct PACKED {
   BYTE pin : 6;
 } SET_CHANGE_NOTIFY_ARGS;
 
+// BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
+// arguments.
+
 typedef struct PACKED {
   BYTE type;
   union PACKED {
@@ -66,6 +69,7 @@ typedef struct PACKED {
     SET_DIGITAL_OUT_LEVEL_ARGS set_digital_out_level;
     SET_PIN_DIGITAL_IN_ARGS set_pin_digital_in;
     SET_CHANGE_NOTIFY_ARGS set_change_notify;
+    // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } INCOMING_MESSAGE;
 
@@ -78,6 +82,7 @@ typedef struct PACKED {
     REPORT_DIGITAL_IN_STATUS_ARGS report_digital_in_status;
     SET_PIN_DIGITAL_IN_ARGS set_pin_digital_in;
     SET_CHANGE_NOTIFY_ARGS set_change_notify;
+    // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
 
@@ -91,6 +96,7 @@ typedef enum {
   REPORT_DIGITAL_IN_STATUS = 0x03,
   SET_PIN_DIGITAL_IN       = 0x04,
   SET_CHANGE_NOTIFY        = 0x05,
+  // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
 } MESSAGE_TYPE;
 
