@@ -10,6 +10,9 @@ void SetChangeNotify(int pin, int changeNotify);
 void ReportDigitalInStatus(int pin);
 void HardReset(DWORD magic);
 void SoftReset();
+void SetPinPwm(int pin, int pwmNum);
+void SetPwmDutyCycle(int pwmNum,int dc_lsb, int dc_msb);
+void SetPwmPeriod(int pwmNum, int period, int scale256);
 
 // BOOKMARK(add_feature): Add feature declaration.
 

@@ -15,7 +15,12 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_DIGITAL_OUT_ARGS),
   sizeof(SET_DIGITAL_OUT_LEVEL_ARGS),
   sizeof(SET_PIN_DIGITAL_IN_ARGS),
-  sizeof(SET_CHANGE_NOTIFY_ARGS)
+  sizeof(SET_CHANGE_NOTIFY_ARGS),
+  sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(SET_PIN_PWM_ARGS),
+  sizeof(SET_PWM_DUTY_CYCLE_ARGS),
+  sizeof(SET_PWM_PERIOD_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -26,7 +31,11 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_DIGITAL_OUT_ARGS),
   sizeof(REPORT_DIGITAL_IN_STATUS_ARGS),
   sizeof(SET_PIN_DIGITAL_IN_ARGS),
-  sizeof(SET_CHANGE_NOTIFY_ARGS)
+  sizeof(SET_CHANGE_NOTIFY_ARGS),
+  sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -119,6 +128,22 @@ static void MessageDone() {
       if (rx_msg.args.set_change_notify.cn) {
         ReportDigitalInStatus(rx_msg.args.set_change_notify.pin);
       }
+      break;
+
+    case SET_PIN_PWM:
+      SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwmNum);
+      break;
+
+    case SET_PWM_DUTY_CYCLE:
+      SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwmNum,
+                      rx_msg.args.set_pwm_duty_cycle.dc_lsb,
+                      rx_msg.args.set_pwm_duty_cycle.dc_msb);
+      break;
+
+    case SET_PWM_PERIOD:
+      SetPwmPeriod(rx_msg.args.set_pwm_period.pwmNum,
+                   rx_msg.args.set_pwm_period.period,
+                   rx_msg.args.set_pwm_period.scale256);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

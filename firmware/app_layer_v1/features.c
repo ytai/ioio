@@ -111,5 +111,14 @@ void __attribute__((__interrupt__, auto_psv)) _CNInterrupt() {
   _CNIF = 0;
 }
 
+void SetPinPwm(int pin, int pwmNum) {
+}
+
+void SetPwmDutyCycle(int pwmNum,int dc_lsb, int dc_msb) {
+}
+
+void SetPwmPeriod(int pwmNum, int period, int scale256) {
+}
+
 
 // BOOKMARK(add_feature): Add feature implementation.
