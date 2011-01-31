@@ -70,11 +70,46 @@ void HardReset(DWORD magic) {
 void SoftReset() {
   log_printf("SoftReset()");
   int i;
+  // reset pin states
   SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
   for (i = 1; i < NUM_PINS; ++i) {
     SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
   }
+  // clear and enable global CN interrupts
+  _CNIF = 0;
+  _CNIE = 1;
   // TODO: reset all peripherals!
 }
+
+#define CHECK_PORT_CHANGE(name)                       \
+  do {                                                \
+    port = PORT##name;                                \
+    changed = (port ^ CNBACKUP##name) & CNEN##name;   \
+    for (i = 0; i < 16; ++i) {                        \
+      if (changed & 0x0001) {                         \
+        ReportDigitalInStatus(PinFromPort##name(i));  \
+      }                                               \
+      changed >>= 1;                                  \
+    }                                                 \
+    CNBACKUP##name = port;                            \
+  } while (0)
+
+
+void __attribute__((__interrupt__, auto_psv)) _CNInterrupt() {
+  unsigned int port;
+  unsigned int changed;
+  int i;
+  log_printf("_CNInterrupt()");
+
+  CHECK_PORT_CHANGE(B);
+  CHECK_PORT_CHANGE(C);
+  CHECK_PORT_CHANGE(D);
+  CHECK_PORT_CHANGE(E);
+  CHECK_PORT_CHANGE(F);
+  CHECK_PORT_CHANGE(G);
+
+  _CNIF = 0;
+}
+
 
 // BOOKMARK(add_feature): Add feature implementation.

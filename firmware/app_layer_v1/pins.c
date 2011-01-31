@@ -3,28 +3,44 @@
 
 #define SFR volatile unsigned int
 
+unsigned int CNENB = 0x0000;
+unsigned int CNENC = 0x0000;
+unsigned int CNEND = 0x0000;
+unsigned int CNENE = 0x0000;
+unsigned int CNENF = 0x0000;
+unsigned int CNENG = 0x0000;
+
+unsigned int CNBACKUPB = 0x0000;
+unsigned int CNBACKUPC = 0x0000;
+unsigned int CNBACKUPD = 0x0000;
+unsigned int CNBACKUPE = 0x0000;
+unsigned int CNBACKUPF = 0x0000;
+unsigned int CNBACKUPG = 0x0000;
+
 typedef struct {
   SFR* tris;
   SFR* ansel;
   SFR* port;
   SFR* lat;
   SFR* odc;
-  unsigned int set_mask;
-  unsigned int clr_mask;
+  unsigned int* fake_cnen;
+  unsigned int* cn_backup;
+  unsigned int pos_mask;
+  unsigned int neg_mask;
 } PORT_INFO;
 
 #if defined(IOIO_V10) || defined(IOIO_V11)
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 
-#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, (1 << num), ~(1 << num) }
+#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, &CNEN##port, &CNBACKUP##port, (1 << num), ~(1 << num) }
 
 typedef struct {
   SFR* cnen;
   SFR* cnpu;
   SFR* cnpd;
-  unsigned int set_mask;
-  unsigned int clr_mask;
+  unsigned int pos_mask;
+  unsigned int neg_mask;
 } CN_INFO;
 
 #define MAKE_CN_INFO(num, bit) { &CNEN##num, &CNPU##num, &CNPD##num, (1 << bit), ~(1 << bit) }
@@ -139,72 +155,108 @@ typedef struct {
     MAKE_CN_INFO(2, 1),  // 47 (48)
     MAKE_CN_INFO(2, 2),  // 48 (49)
   };
+
+  #if defined(IOIO_V10)
+    static const signed char port_to_pin[7][16] = {
+//        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+/* B */ {37, 36, 35, 34, 33, 32, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47},
+/* C */ {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  8,  9,  2},
+/* D */ { 7, 10, 11, 12, 13, 14, 15, 16,  3,  4,  5,  6, -1, -1, -1, -1},
+/* E */ {19, 20, 21, 22, 23, 24, 25, 26, -1, -1, -1, -1, -1, -1, -1, -1},
+/* F */ {17, 18, -1,  0, 48, 49, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+/* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 31, -1, -1, -1, -1, -1, -1}
+    };
+  #elif defined(IOIO_V11)
+    static const signed char port_to_pin[7][16] = {
+    static const signed char port_to_pin[7][16] = {
+//        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+/* B */ {36, 35, 34, 33, 32, 31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46},
+/* C */ {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  8,  9,  2},
+/* D */ { 7, 10, 11, 12, 13, 14, 15, 16,  3,  4,  5,  6, -1, -1, -1, -1},
+/* E */ {19, 20, 21, 22, 23, 24, 25, 26, -1, -1, -1, -1, -1, -1, -1, -1},
+/* F */ {17, 18, -1,  0, 47, 48, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+/* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 30, -1, -1, -1, -1, -1, -1}
+    };
+  #endif
 #endif  // defined(IOIO_V10) || defined(IOIO_V11)
 
 void PinSetTris(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];
   if (val) {
-    *info->tris |= info->set_mask;
+    *info->tris |= info->pos_mask;
   } else {
-    *info->tris &= info->clr_mask;
+    *info->tris &= info->neg_mask;
   }
 }
 
 void PinSetAnsel(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];
   if (val) {
-    *info->ansel |= info->set_mask;
+    *info->ansel |= info->pos_mask;
   } else {
-    *info->ansel &= info->clr_mask;
+    *info->ansel &= info->neg_mask;
   }
 }
 
 void PinSetLat(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];
   if (val) {
-    *info->lat |= info->set_mask;
+    *info->lat |= info->pos_mask;
   } else {
-    *info->lat &= info->clr_mask;
+    *info->lat &= info->neg_mask;
   }
 }
 
 int PinGetPort(int pin) {
   const PORT_INFO* info = &port_info[pin];
-  return (*info->port & info->set_mask) != 0;
+  return (*info->port & info->pos_mask) != 0;
 }
 
 void PinSetOdc(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];
   if (val) {
-    *info->odc |= info->set_mask;
+    *info->odc |= info->pos_mask;
   } else {
-    *info->odc &= info->clr_mask;
+    *info->odc &= info->neg_mask;
   }
 }
 
 void PinSetCnen(int pin, int cnen) {
-  const CN_INFO* info = &cn_info[pin];
+  const CN_INFO* cinfo = &cn_info[pin];
+  const PORT_INFO* pinfo = &port_info[pin];
   if (cnen) {
-    *info->cnen |= info->set_mask;
+    *cinfo->cnen |= cinfo->pos_mask;
+    *pinfo->fake_cnen |= pinfo->pos_mask;
+    // copy the pin bit from the port register to the backup register
+    *pinfo->cn_backup ^= ((*pinfo->cn_backup ^ *pinfo->port)
+                              & pinfo->pos_mask);
   } else {
-    *info->cnen &= info->clr_mask;
+    *cinfo->cnen &= cinfo->neg_mask;
+    *port_info->fake_cnen &= port_info->neg_mask;
   }
 }
 
 void PinSetCnpu(int pin, int cnpu) {
   const CN_INFO* info = &cn_info[pin];
   if (cnpu) {
-    *info->cnpu |= info->set_mask;
+    *info->cnpu |= info->pos_mask;
   } else {
-    *info->cnpu &= info->clr_mask;
+    *info->cnpu &= info->neg_mask;
   }
 }
 
 void PinSetCnpd(int pin, int cnpd) {
   const CN_INFO* info = &cn_info[pin];
   if (cnpd) {
-    *info->cnpd |= info->set_mask;
+    *info->cnpd |= info->pos_mask;
   } else {
-    *info->cnpd &= info->clr_mask;
+    *info->cnpd &= info->neg_mask;
   }
 }
+
+int PinFromPortB(int bit) { return port_to_pin[0][bit]; };
+int PinFromPortC(int bit) { return port_to_pin[1][bit]; };
+int PinFromPortD(int bit) { return port_to_pin[2][bit]; };
+int PinFromPortE(int bit) { return port_to_pin[3][bit]; };
+int PinFromPortF(int bit) { return port_to_pin[4][bit]; };
+int PinFromPortG(int bit) { return port_to_pin[5][bit]; };
