@@ -26,7 +26,7 @@ typedef struct PACKED {
 // set pin digital out
 typedef struct PACKED {
   BYTE open_drain : 1;
-  BYTE : 1;
+  BYTE value : 1;
   BYTE pin : 6;
 } SET_PIN_DIGITAL_OUT_ARGS;
 

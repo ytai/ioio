@@ -93,10 +93,14 @@ static void MessageDone() {
       break;
 
     case SOFT_RESET:
+      SoftReset();
+      Echo();
       break;
 
     case SET_PIN_DIGITAL_OUT:
-      SetPinDigitalOut(rx_msg.args.set_pin_digital_out.pin, rx_msg.args.set_pin_digital_out.open_drain);
+      SetPinDigitalOut(rx_msg.args.set_pin_digital_out.pin,
+                       rx_msg.args.set_pin_digital_out.value,
+                       rx_msg.args.set_pin_digital_out.open_drain);
       Echo();
       break;
 

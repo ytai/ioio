@@ -5,13 +5,13 @@
 #include "logging.h"
 #include "protocol.h"
 
-void SetPinDigitalOut(int pin, int open_drain) {
-  log_printf("SetPinDigitalOut(%d, %d)", pin, open_drain);
+void SetPinDigitalOut(int pin, int value, int open_drain) {
+  log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
   PinSetAnsel(pin, 0);
   PinSetCnen(pin, 0);
   PinSetCnpu(pin, 0);
   PinSetCnpd(pin, 0);
-  PinSetLat(pin, 0);
+  PinSetLat(pin, value);
   PinSetOdc(pin, open_drain);
   PinSetTris(pin, 0);
 }
@@ -58,13 +58,23 @@ void ReportDigitalInStatus(int pin) {
 }
 
 void HardReset(DWORD magic) {
-  log_printf("HardReset()");
+  log_printf("HardReset(%lx)", magic);
   if (magic == IOIO_MAGIC) {
     log_printf("Rebooting...");
     Reset();
   } else {
     log_printf("No magic!");
   }
+}
+
+void SoftReset() {
+  log_printf("SoftReset()");
+  int i;
+  SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
+  for (i = 1; i < NUM_PINS; ++i) {
+    SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+  }
+  // TODO: reset all peripherals!
 }
 
 // BOOKMARK(add_feature): Add feature implementation.
