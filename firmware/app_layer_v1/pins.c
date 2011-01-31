@@ -44,6 +44,7 @@ typedef struct {
 } CN_INFO;
 
 #define MAKE_CN_INFO(num, bit) { &CNEN##num, &CNPU##num, &CNPD##num, (1 << bit), ~(1 << bit) }
+#define MAKE_RPOR(num) (((unsigned char*) &RPOR0) + num)
 
 #if defined(IOIO_V10) || defined(IOIO_V11)
   const PORT_INFO port_info[NUM_PINS] = {
@@ -178,6 +179,61 @@ typedef struct {
 /* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 30, -1, -1, -1, -1, -1, -1}
     };
   #endif
+
+  volatile unsigned char* pin_to_rpor[NUM_PINS] = {
+    MAKE_RPOR(16),
+    0,
+    0,
+    MAKE_RPOR(2),
+    MAKE_RPOR(4),
+    MAKE_RPOR(3),
+    MAKE_RPOR(12),
+    MAKE_RPOR(11),
+    0,
+    0,
+    MAKE_RPOR(24),
+    MAKE_RPOR(23),
+    MAKE_RPOR(22),
+    MAKE_RPOR(25),
+    MAKE_RPOR(20),
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    MAKE_RPOR(21),
+    MAKE_RPOR(26),
+    MAKE_RPOR(19),
+  #ifdef IOIO_V10
+    0, // MCLR (30)
+  #endif  // IOIO_V10
+    MAKE_RPOR(27),
+    MAKE_RPOR(18),
+    MAKE_RPOR(28),
+    0,
+    MAKE_RPOR(13),
+    MAKE_RPOR(1),
+    MAKE_RPOR(0),
+    MAKE_RPOR(6),
+    MAKE_RPOR(7),
+    MAKE_RPOR(8),
+    MAKE_RPOR(9),
+    0,
+    0,
+    0,
+    0,
+    MAKE_RPOR(14),
+    MAKE_RPOR(29),
+    MAKE_RPOR(10),
+    MAKE_RPOR(17),
+  };
 #endif  // defined(IOIO_V10) || defined(IOIO_V11)
 
 void PinSetTris(int pin, int val) {
@@ -254,6 +310,10 @@ void PinSetCnpd(int pin, int cnpd) {
   } else {
     *info->cnpd &= info->neg_mask;
   }
+}
+
+void PinSetRpor(int pin, int per) {
+  *pin_to_rpor[pin] = per;
 }
 
 int PinFromPortB(int bit) { return port_to_pin[0][bit]; };

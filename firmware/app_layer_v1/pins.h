@@ -35,6 +35,7 @@ void PinSetOdc(int pin, int val);
 void PinSetCnen(int pin, int cnen);
 void PinSetCnpu(int pin, int cnpu);
 void PinSetCnpd(int pin, int cnpd);
+void PinSetRpor(int pin, int per);
 
 int PinFromPortB(int bit);
 int PinFromPortC(int bit);
