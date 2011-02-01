@@ -14,8 +14,8 @@ OPTIONAL(-lpPIC24Fxxx)
 MEMORY
 {
   data  (a!xr)   : ORIGIN = 0x800,         LENGTH = 0x17800
-  app_ivt        : ORIGIN = 0x8000,        LENGTH = 0x10C
-  program (xr)   : ORIGIN = 0x810C,        LENGTH = 0x226F4
+  app_ivt        : ORIGIN = 0x4000,        LENGTH = 0x10C
+  program (xr)   : ORIGIN = 0x410C,        LENGTH = 0x266F4
 }
 
 INCLUDE app_common.gld
