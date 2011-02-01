@@ -16,6 +16,20 @@
 #include "pps.h"
 #endif
 
+//
+// Desired behavior:
+// 1. Wait for ADB connection.
+// 2. Attempt to read fingerprint file.
+//    If read failed OR fingerprint is identical to the one we have, skip to
+//    step 6.
+// 3. Erase fingerprint.
+// 4. Read application image file and program Flash.
+// 5. Program new fingerprint.
+// 6. Run the application.
+//
+// If anything goes wrong on the way, go back to step 1.
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Configuration Bits
@@ -96,14 +110,22 @@ void FileRecvFingerprint(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
       fingerprint_size = -1;
     }
   } else {
-    if (data_len == 0 && fingerprint_size == FINGERPRINT_SIZE && ValidateFingerprint()) {
-      // if all went OK and the fingerprint matches, skip download and run app
-      log_print_0("Fingerprint match - skipping download");
-      state = MAIN_STATE_RUN_APP;
+    // EOF or error
+    if (data_len == 0 && fingerprint_size == FINGERPRINT_SIZE) {
+      if (ValidateFingerprint()) {
+        // if all went OK and the fingerprint matches, skip download and run app
+        log_print_0("Fingerprint match - skipping download");
+        state = MAIN_STATE_RUN_APP;
+      } else {
+        // if anything went wrong or fingerprint is different, force download
+        log_print_0("Fingerprint mismatch - downloading image");
+        state = MAIN_STATE_FP_FAILED;
+      }
     } else {
-      // if anything went wrong or fingerprint is different, force download
-      log_print_0("Fingerprint mismatch - downloading image");
-      state = MAIN_STATE_FP_FAILED;
+      // failed to read fingerprint file, probably doesn't exist, run whatever we have
+      // if all went OK and the fingerprint matches, skip download and run app
+      log_print_0("Couldn't find firmware to install");
+      state = MAIN_STATE_RUN_APP;
     }
   }
 }
