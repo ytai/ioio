@@ -5,6 +5,12 @@
 #include "logging.h"
 #include "protocol.h"
 
+#ifdef ENABLE_LOGGING
+  #define SAVE_PIN4_FOR_LOG() if (pin == 4) return
+#else
+  #define SAVE_PIN4_FOR_LOG()
+#endif
+
 // timer 1 works at Fosc / 2 = 16MHz
 // we use a 256x presclaer to achieve 62.5KHz
 void InitTimer1() {
@@ -16,7 +22,9 @@ void InitTimer1() {
 
 void SetPinDigitalOut(int pin, int value, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
+  SAVE_PIN4_FOR_LOG();
   PinSetAnsel(pin, 0);
+  PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
   PinSetCnpu(pin, 0);
   PinSetCnpd(pin, 0);
@@ -27,12 +35,15 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
 
 void SetDigitalOutLevel(int pin, int value) {
   log_printf("SetDigitalOutLevel(%d, %d)", pin, value);
+  SAVE_PIN4_FOR_LOG();
   PinSetLat(pin, value);
 }
 
 void SetPinDigitalIn(int pin, int pull) {
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
+  SAVE_PIN4_FOR_LOG();
   PinSetAnsel(pin, 0);
+  PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
   switch (pull) {
     case 1:
@@ -54,11 +65,13 @@ void SetPinDigitalIn(int pin, int pull) {
 
 void SetChangeNotify(int pin, int changeNotify) {
   log_printf("SetChangeNotify(%d, %d)", pin, changeNotify);
+  SAVE_PIN4_FOR_LOG();
   PinSetCnen(pin, changeNotify);
 }
 
 void ReportDigitalInStatus(int pin) {
   log_printf("ReportDigitalInStatus(%d)", pin);
+  SAVE_PIN4_FOR_LOG();
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_DIGITAL_IN_STATUS;
   msg.args.report_digital_in_status.pin = pin;
@@ -83,6 +96,10 @@ void SoftReset() {
   // clear and enable global CN interrupts
   _CNIF = 0;
   _CNIE = 1;
+  // disable PWMs
+  for (i = 1; i <= NUM_PWMS; ++i) {
+    SetPwmPeriod(i, 0, 0);
+  }
   // initialize timer 1
   InitTimer1();
   // TODO: reset all peripherals!
@@ -134,6 +151,7 @@ typedef struct {
 
 void SetPinPwm(int pin, int pwmNum) {
   log_printf("SetPinPwm(%d, %d)", pin, pwmNum);
+  SAVE_PIN4_FOR_LOG();
   PinSetRpor(pin, pwmNum == 0 ? 0 : (pwmNum == 9 ? 35 : 17 + pwmNum));
 }
 

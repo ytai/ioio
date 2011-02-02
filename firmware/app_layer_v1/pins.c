@@ -313,7 +313,8 @@ void PinSetCnpd(int pin, int cnpd) {
 }
 
 void PinSetRpor(int pin, int per) {
-  *pin_to_rpor[pin] = per;
+  if (pin_to_rpor[pin])
+    *pin_to_rpor[pin] = per;
 }
 
 int PinFromPortB(int bit) { return port_to_pin[0][bit]; };
