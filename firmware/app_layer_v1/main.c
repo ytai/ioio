@@ -12,16 +12,20 @@ typedef enum {
   STATE_INIT,
   STATE_WAIT_CONNECTION,
   STATE_WAIT_CHANNEL_OPEN,
-  STATE_CONNECTED
+  STATE_CONNECTED,
+  STATE_ERROR
 } STATE;
 
 STATE state = STATE_INIT;
 
 void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
-    AppProtocolHandleIncoming(data, data_len);
+    if (!AppProtocolHandleIncoming(data, data_len)) {
+      // got corrupt input. need to close the connection and soft reset.
+      state = STATE_ERROR;
+    }
   } else {
-    // connection closed, re-establish
+    // connection closed, soft reset and re-establish
     state = STATE_INIT;
   }
 }
@@ -43,6 +47,7 @@ int main() {
     switch (state) {
       case STATE_INIT:
         SoftReset();
+        h = ADB_INVALID_CHANNEL_HANDLE;
         state = STATE_WAIT_CONNECTION;
         break;
 
@@ -62,6 +67,11 @@ int main() {
 
       case STATE_CONNECTED:
         AppProtocolTasks(h);
+        break;
+
+      case STATE_ERROR:
+        ADBClose(h);
+        state = STATE_INIT;
         break;
     }
   }

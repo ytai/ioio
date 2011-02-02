@@ -66,14 +66,10 @@ void ReportDigitalInStatus(int pin) {
   AppProtocolSendMessage(&msg);
 }
 
-void HardReset(DWORD magic) {
-  log_printf("HardReset(%lx)", magic);
-  if (magic == IOIO_MAGIC) {
-    log_printf("Rebooting...");
-    Reset();
-  } else {
-    log_printf("No magic!");
-  }
+void HardReset() {
+  log_printf("HardReset()");
+  log_printf("Rebooting...");
+  Reset();
 }
 
 void SoftReset() {

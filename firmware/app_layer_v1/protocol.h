@@ -6,7 +6,7 @@
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h);
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h);
-void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len);
+BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len);
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg);
 
 #endif  // __PROTOCOL_H__

@@ -1,15 +1,7 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#define IOIO_V10
-
-#if defined(IOIO_V10)
-  #define NUM_PINS 50
-#elif defined(IOIO_V11)
-  #define NUM_PINS 49
-#else
-#error Unknown board
-#endif
+#include "board.h"
 
 extern unsigned int CNENA;
 extern unsigned int CNENB;

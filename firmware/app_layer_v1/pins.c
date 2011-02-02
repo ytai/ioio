@@ -29,7 +29,7 @@ typedef struct {
   unsigned int neg_mask;
 } PORT_INFO;
 
-#if defined(IOIO_V10) || defined(IOIO_V11)
+#if defined(IOIO_V10) || defined(IOIO_V11) || defined(IOIO_V12)
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 
@@ -46,7 +46,7 @@ typedef struct {
 #define MAKE_CN_INFO(num, bit) { &CNEN##num, &CNPU##num, &CNPD##num, (1 << bit), ~(1 << bit) }
 #define MAKE_RPOR(num) (((unsigned char*) &RPOR0) + num)
 
-#if defined(IOIO_V10) || defined(IOIO_V11)
+#if defined(IOIO_V10) || defined(IOIO_V11) || defined(IOIO_V12)
   const PORT_INFO port_info[NUM_PINS] = {
     MAKE_PORT_INFO(F, 3),   // LED
     MAKE_PORT_INFO(C, 12),  // 1
@@ -167,7 +167,7 @@ typedef struct {
 /* F */ {17, 18, -1,  0, 48, 49, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 /* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 31, -1, -1, -1, -1, -1, -1}
     };
-  #elif defined(IOIO_V11)
+  #elif defined(IOIO_V11) || defined(IOIO_V12)
     static const signed char port_to_pin[7][16] = {
     static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -234,7 +234,7 @@ typedef struct {
     MAKE_RPOR(10),
     MAKE_RPOR(17),
   };
-#endif  // defined(IOIO_V10) || defined(IOIO_V11)
+#endif  // defined(IOIO_V10) || defined(IOIO_V11) || defined(IOIO_V12)
 
 void PinSetTris(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];

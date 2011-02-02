@@ -6,6 +6,10 @@
 #include "byte_queue.h"
 #include "features.h"
 #include "protocol_defs.h"
+#include "logging.h"
+#include "board.h"
+
+#define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
 #define FIRMWARE_ID              0x00000001LL
 
@@ -95,10 +99,11 @@ static void Echo() {
   AppProtocolSendMessage((const OUTGOING_MESSAGE*) &rx_msg);
 }
 
-static void MessageDone() {
+static BOOL MessageDone() {
   switch (rx_msg.type) {
     case HARD_RESET:
-      HardReset(rx_msg.args.hard_reset.magic);
+      CHECK(rx_msg.args.hard_reset.magic == IOIO_MAGIC);
+      HardReset();
       break;
 
     case SOFT_RESET:
@@ -107,6 +112,7 @@ static void MessageDone() {
       break;
 
     case SET_PIN_DIGITAL_OUT:
+      CHECK(rx_msg.args.set_pin_digital_out.pin < NUM_PINS);
       SetPinDigitalOut(rx_msg.args.set_pin_digital_out.pin,
                        rx_msg.args.set_pin_digital_out.value,
                        rx_msg.args.set_pin_digital_out.open_drain);
@@ -114,15 +120,20 @@ static void MessageDone() {
       break;
 
     case SET_DIGITAL_OUT_LEVEL:
-      SetDigitalOutLevel(rx_msg.args.set_digital_out_level.pin, rx_msg.args.set_digital_out_level.value);
+      CHECK(rx_msg.args.set_digital_out_level.pin < NUM_PINS);
+      SetDigitalOutLevel(rx_msg.args.set_digital_out_level.pin,
+                         rx_msg.args.set_digital_out_level.value);
       break;
 
     case SET_PIN_DIGITAL_IN:
+      CHECK(rx_msg.args.set_pin_digital_in.pin < NUM_PINS);
+      CHECK(rx_msg.args.set_pin_digital_in.pull < 3);
       SetPinDigitalIn(rx_msg.args.set_pin_digital_in.pin, rx_msg.args.set_pin_digital_in.pull);
       Echo();
       break;
 
     case SET_CHANGE_NOTIFY:
+      CHECK(rx_msg.args.set_change_notify.pin < NUM_PINS);
       SetChangeNotify(rx_msg.args.set_change_notify.pin, rx_msg.args.set_change_notify.cn);
       Echo();
       if (rx_msg.args.set_change_notify.cn) {
@@ -131,16 +142,20 @@ static void MessageDone() {
       break;
 
     case SET_PIN_PWM:
+      CHECK(rx_msg.args.set_pin_pwm.pin < NUM_PINS);
+      CHECK(rx_msg.args.set_pin_pwm.pwmNum < NUM_PWMS);
       SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwmNum);
       break;
 
     case SET_PWM_DUTY_CYCLE:
+      CHECK(rx_msg.args.set_pwm_duty_cycle.pwmNum < NUM_PWMS);
       SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwmNum,
                       rx_msg.args.set_pwm_duty_cycle.dc_lsb,
                       rx_msg.args.set_pwm_duty_cycle.dc_msb);
       break;
 
     case SET_PWM_PERIOD:
+      CHECK(rx_msg.args.set_pwm_period.pwmNum < NUM_PWMS);
       SetPwmPeriod(rx_msg.args.set_pwm_period.pwmNum,
                    rx_msg.args.set_pwm_period.period,
                    rx_msg.args.set_pwm_period.scale256);
@@ -150,14 +165,14 @@ static void MessageDone() {
     // Call Echo() if the message is to be echoed back.
 
     default:
-      // TODO: send an error message and go to error state.
-      break;
+      return FALSE;
   }
   rx_message_remaining = 0;
   rx_buffer_cursor = 0;
+  return TRUE;
 }
 
-void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
+BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
   assert(data);
 
   while (data_len > 0) {
@@ -169,10 +184,10 @@ void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
         rx_message_remaining = incoming_arg_size[rx_msg.type] & 0x7F;
         if (rx_message_remaining == 0) {
           // no args
-          MessageDone();
+          if (!MessageDone()) return FALSE;
         }
       } else {
-        // TODO: go to error state
+        return FALSE;
       }
     } else {
       if (data_len >= rx_message_remaining) {
@@ -180,7 +195,7 @@ void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
         data += rx_message_remaining;
         data_len -= rx_message_remaining;
         // TODO: handle the case of varialbe length data
-        MessageDone();
+        if (!MessageDone()) return FALSE;
       } else {
         memcpy(((BYTE *) &rx_msg) + rx_buffer_cursor, data, data_len);
         rx_buffer_cursor += data_len;
@@ -189,4 +204,5 @@ void AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
       }
     }
   }
+  return TRUE;
 }

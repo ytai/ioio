@@ -8,7 +8,7 @@ void SetDigitalOutLevel(int pin, int value);
 void SetPinDigitalIn(int pin, int pull);
 void SetChangeNotify(int pin, int changeNotify);
 void ReportDigitalInStatus(int pin);
-void HardReset(DWORD magic);
+void HardReset();
 void SoftReset();
 void SetPinPwm(int pin, int pwmNum);
 void SetPwmDutyCycle(int pwmNum, int dc_lsb, int dc_msb);
