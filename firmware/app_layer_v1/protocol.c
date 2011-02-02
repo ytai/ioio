@@ -150,8 +150,8 @@ static BOOL MessageDone() {
     case SET_PWM_DUTY_CYCLE:
       CHECK(rx_msg.args.set_pwm_duty_cycle.pwmNum < NUM_PWMS);
       SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwmNum,
-                      rx_msg.args.set_pwm_duty_cycle.dc_lsb,
-                      rx_msg.args.set_pwm_duty_cycle.dc_msb);
+                      rx_msg.args.set_pwm_duty_cycle.dc,
+                      rx_msg.args.set_pwm_duty_cycle.fraction);
       break;
 
     case SET_PWM_PERIOD:

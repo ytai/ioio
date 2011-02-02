@@ -84,10 +84,10 @@ typedef struct PACKED {
 
 // set pwm duty cycle
 typedef struct PACKED {
-  BYTE dc_lsb : 2;
+  BYTE fraction : 2;
   BYTE pwmNum : 4;
   BYTE : 2;
-  WORD dc_msb;
+  WORD dc;
 } SET_PWM_DUTY_CYCLE_ARGS;
 
 // set pwm period

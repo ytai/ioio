@@ -137,13 +137,13 @@ void SetPinPwm(int pin, int pwmNum) {
   PinSetRpor(pin, pwmNum == 0 ? 0 : (pwmNum == 9 ? 35 : 17 + pwmNum));
 }
 
-void SetPwmDutyCycle(int pwmNum, int dc_lsb, int dc_msb) {
+void SetPwmDutyCycle(int pwmNum, int dc, int fraction) {
   volatile OC_REGS* regs;
-  log_printf("SetPwmDutyCycle(%d, %d, %d)", pwmNum, dc_lsb, dc_msb);
+  log_printf("SetPwmDutyCycle(%d, %d, %d)", pwmNum, dc, fraction);
   regs = OC_REG(pwmNum);
   regs->con2 &= ~0x0600;
-  regs->con2 |= dc_lsb << 9;
-  regs->r = dc_msb;
+  regs->con2 |= fraction << 9;
+  regs->r = dc;
 }
 
 void SetPwmPeriod(int pwmNum, int period, int scale256) {
