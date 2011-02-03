@@ -2,6 +2,7 @@
 #define __BYTEQUEUE_H__
 
 #include "GenericTypeDefs.h"
+#include "p24Fxxxx.h"
 
 
 typedef struct {
@@ -16,8 +17,8 @@ typedef struct {
   static BYTE name##_buf[size];                           \
   static ByteQueue name = { name##_buf, size, 0, 0, 0 }
 
-#define ByteQueueLock(q) __builtin_disi(0x3FFF)
-#define ByteQueueUnlock(q) __builtin_disi(0x0000)
+#define ByteQueueLock(q) __asm__("push SR"); SRbits.IPL = 1;
+#define ByteQueueUnlock(q) __asm__("pop SR"); 
 
 
 void ByteQueuePushByte(ByteQueue* q, BYTE b);
