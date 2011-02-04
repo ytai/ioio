@@ -1,6 +1,8 @@
 #include "pins.h"
 #include <p24fxxxx.h>
+#include <assert.h>
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define SFR volatile unsigned int
 
 unsigned int CNENB = 0x0000;
@@ -169,7 +171,6 @@ typedef struct {
     };
   #elif defined(IOIO_V11) || defined(IOIO_V12)
     static const signed char port_to_pin[7][16] = {
-    static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
 /* B */ {36, 35, 34, 33, 32, 31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46},
 /* C */ {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  8,  9,  2},
@@ -180,59 +181,49 @@ typedef struct {
     };
   #endif
 
+  #if defined(IOIO_V10)
+    static const signed char analog_to_pin[16] = {
+      37, 36, 35, 34, 33, 32, 38, 39,
+      40, 41, 42, 43, 44, 45, 46, 47
+    };
+  #elif defined(IOIO_V11) || defined(IOIO_V12)
+    static const signed char analog_to_pin[16] = {
+      36, 35, 34, 33, 32, 31, 37, 38,
+      39, 40, 41, 42, 43, 44, 45, 46
+    };  
+  #endif
+
+  #if defined(IOIO_V10)
+    #define MIN_ANALOG_PIN 32
+  #elif defined(IOIO_V11) || defined(IOIO_V12)
+    #define MIN_ANALOG_PIN 31
+  #endif
+
+  #if defined(IOIO_V10) || defined(IOIO_V11) || defined(IOIO_V12)
+    static const int pin_to_analog[16] = {
+       5 , 4 , 3 , 2 , 1 , 0 , 6 , 7 ,
+       8 , 9 , 10, 11, 12, 13, 14, 15
+    };
+  #endif
+
   volatile unsigned char* pin_to_rpor[NUM_PINS] = {
-    MAKE_RPOR(16),
-    0,
-    0,
-    MAKE_RPOR(2),
-    MAKE_RPOR(4),
-    MAKE_RPOR(3),
-    MAKE_RPOR(12),
-    MAKE_RPOR(11),
-    0,
-    0,
-    MAKE_RPOR(24),
-    MAKE_RPOR(23),
-    MAKE_RPOR(22),
-    MAKE_RPOR(25),
-    MAKE_RPOR(20),
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    MAKE_RPOR(21),
-    MAKE_RPOR(26),
-    MAKE_RPOR(19),
-  #ifdef IOIO_V10
-    0, // MCLR (30)
-  #endif  // IOIO_V10
-    MAKE_RPOR(27),
-    MAKE_RPOR(18),
-    MAKE_RPOR(28),
-    0,
-    MAKE_RPOR(13),
-    MAKE_RPOR(1),
-    MAKE_RPOR(0),
-    MAKE_RPOR(6),
-    MAKE_RPOR(7),
-    MAKE_RPOR(8),
-    MAKE_RPOR(9),
-    0,
-    0,
-    0,
-    0,
-    MAKE_RPOR(14),
-    MAKE_RPOR(29),
-    MAKE_RPOR(10),
-    MAKE_RPOR(17),
+    MAKE_RPOR(16), 0            , 0            , MAKE_RPOR(2) ,
+    MAKE_RPOR(4) , MAKE_RPOR(3) , MAKE_RPOR(12), MAKE_RPOR(11),
+    0            , 0            , MAKE_RPOR(24), MAKE_RPOR(23),
+    MAKE_RPOR(22), MAKE_RPOR(25), MAKE_RPOR(20), 0            ,
+    0            , 0            , 0            , 0            ,
+    0            , 0            , 0            , 0            ,
+    0            , 0            , 0            , MAKE_RPOR(21),
+    MAKE_RPOR(26), MAKE_RPOR(19),
+#ifdef IOIO_V10
+                                  0, // MCLR (30)
+#endif  // IOIO_V10
+                                  MAKE_RPOR(27), MAKE_RPOR(18),
+    MAKE_RPOR(28), 0            , MAKE_RPOR(13), MAKE_RPOR(1) ,
+    MAKE_RPOR(0) , MAKE_RPOR(6) , MAKE_RPOR(7) , MAKE_RPOR(8) ,
+    MAKE_RPOR(9) , 0            , 0            , 0            ,
+    0            , MAKE_RPOR(14), MAKE_RPOR(29), MAKE_RPOR(10),
+    MAKE_RPOR(17)
   };
 #endif  // defined(IOIO_V10) || defined(IOIO_V11) || defined(IOIO_V12)
 
@@ -323,3 +314,11 @@ int PinFromPortD(int bit) { return port_to_pin[2][bit]; };
 int PinFromPortE(int bit) { return port_to_pin[3][bit]; };
 int PinFromPortF(int bit) { return port_to_pin[4][bit]; };
 int PinFromPortG(int bit) { return port_to_pin[5][bit]; };
+
+int PinFromAnalogChannel(int ch) { return analog_to_pin[ch]; }
+
+int PinToAnalogChannel(int pin) {
+  assert(pin >= MIN_ANALOG_PIN
+        && pin - MIN_ANALOG_PIN < ARRAY_SIZE(pin_to_analog));
+  return pin_to_analog[pin - MIN_ANALOG_PIN];
+}

@@ -19,6 +19,8 @@ extern unsigned int CNBACKUPE;
 extern unsigned int CNBACKUPF;
 extern unsigned int CNBACKUPG;
 
+// TODO: pin capabilities
+
 void PinSetTris(int pin, int val);
 void PinSetAnsel(int pin, int val);
 void PinSetLat(int pin, int val);
@@ -35,5 +37,8 @@ int PinFromPortD(int bit);
 int PinFromPortE(int bit);
 int PinFromPortF(int bit);
 int PinFromPortG(int bit);
+
+int PinToAnalogChannel(int pin);
+int PinFromAnalogChannel(int ch);
 
 #endif  // __PINS_H__
