@@ -20,24 +20,8 @@ typedef struct {
 #define ByteQueueLock(q) BYTE q##ipl_save = SRbits.IPL; SRbits.IPL = 1;
 #define ByteQueueUnlock(q) SRbits.IPL = q##ipl_save; 
 
-
-void ByteQueuePushByte(ByteQueue* q, BYTE b);
 void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len);
-
-static inline void ByteQueuePushWord(ByteQueue* q, WORD w) {
-  ByteQueuePushBuffer(q, &w, 2);
-}
-
-static inline void ByteQueuePushInt24(ByteQueue* q, DWORD dw) {
-  ByteQueuePushBuffer(q, &dw, 3);
-}
-
-static inline void ByteQueuePushDword(ByteQueue* q, DWORD dw) {
-  ByteQueuePushBuffer(q, &dw, 4);
-}
-
 void ByteQueuePeek(ByteQueue* q, BYTE** data, int* size);
-
 void ByteQueuePull(ByteQueue* q, int size);
 
 #endif  // __BYTEQUEUE_H__
