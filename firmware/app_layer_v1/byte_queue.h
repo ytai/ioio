@@ -14,11 +14,12 @@ typedef struct {
 } ByteQueue;
 
 #define DEFINE_STATIC_BYTE_QUEUE(name, size)              \
+  static BYTE name##ipl_save;                             \
   static BYTE name##_buf[size];                           \
   static ByteQueue name = { name##_buf, size, 0, 0, 0 }
 
-#define ByteQueueLock(q) __asm__("push SR"); SRbits.IPL = 1;
-#define ByteQueueUnlock(q) __asm__("pop SR"); 
+#define ByteQueueLock(q) q##ipl_save = SRbits.IPL; SRbits.IPL = 1;
+#define ByteQueueUnlock(q) SRbits.IPL = q##ipl_save; 
 
 
 void ByteQueuePushByte(ByteQueue* q, BYTE b);

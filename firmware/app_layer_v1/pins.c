@@ -318,7 +318,8 @@ int PinFromPortG(int bit) { return port_to_pin[5][bit]; };
 int PinFromAnalogChannel(int ch) { return analog_to_pin[ch]; }
 
 int PinToAnalogChannel(int pin) {
-  assert(pin >= MIN_ANALOG_PIN
-        && pin - MIN_ANALOG_PIN < ARRAY_SIZE(pin_to_analog));
+ if (pin < MIN_ANALOG_PIN
+     || pin - MIN_ANALOG_PIN >= ARRAY_SIZE(pin_to_analog))
+    return -1;
   return pin_to_analog[pin - MIN_ANALOG_PIN];
 }

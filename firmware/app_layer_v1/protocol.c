@@ -10,6 +10,7 @@
 #include "board.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
+#define VAR_ARGS 0x80
 
 #define FIRMWARE_ID              0x00000001LL
 
@@ -24,7 +25,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(SET_PIN_PWM_ARGS),
   sizeof(SET_PWM_DUTY_CYCLE_ARGS),
-  sizeof(SET_PWM_PERIOD_ARGS)
+  sizeof(SET_PWM_PERIOD_ARGS),
+  sizeof(SET_PIN_ANALOG_IN_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -38,8 +40,10 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
+  /*sizeof(REPORT_ANALOG_IN_FORMAT_ARGS)*/1 | VAR_ARGS,  // TODO: fix
+  /*sizeof(REPORT_ANALOG_IN_STATUS_ARGS)*/0 | VAR_ARGS,
   sizeof(RESERVED_ARGS),
-  sizeof(RESERVED_ARGS)
+  sizeof(SET_PIN_ANALOG_IN_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -52,8 +56,27 @@ static int rx_buffer_cursor;
 static int rx_message_remaining;
 
 static BYTE OutgoingMessageLength(const OUTGOING_MESSAGE* msg) {
-  return sizeof(BYTE) + outgoing_arg_size[msg->type];
-  // TODO: handle variable size
+  int arg_size = outgoing_arg_size[msg->type];
+  if (arg_size & VAR_ARGS) {
+    static int report_analog_in_status_size = 0;
+    int var_arg_size;
+    switch (msg->type) {
+      case REPORT_ANALOG_IN_FORMAT:
+        var_arg_size = msg->args.report_analog_in_format.num_pins;
+        report_analog_in_status_size = var_arg_size + (var_arg_size + 3) / 4;
+        break;
+
+      case REPORT_ANALOG_IN_STATUS:
+        var_arg_size = report_analog_in_status_size;
+        break;
+
+      default:
+        assert(FALSE);
+    }
+    return sizeof(BYTE) + (arg_size & ~VAR_ARGS) + var_arg_size;
+  } else {
+    return sizeof(BYTE) + arg_size;
+  }
 }
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
@@ -100,6 +123,7 @@ static void Echo() {
 }
 
 static BOOL MessageDone() {
+  // TODO: check pin capabilities
   switch (rx_msg.type) {
     case HARD_RESET:
       CHECK(rx_msg.args.hard_reset.magic == IOIO_MAGIC);
@@ -143,22 +167,28 @@ static BOOL MessageDone() {
 
     case SET_PIN_PWM:
       CHECK(rx_msg.args.set_pin_pwm.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_pwm.pwmNum < NUM_PWMS);
-      SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwmNum);
+      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWMS);
+      SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwm_num);
       break;
 
     case SET_PWM_DUTY_CYCLE:
-      CHECK(rx_msg.args.set_pwm_duty_cycle.pwmNum < NUM_PWMS);
-      SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwmNum,
+      CHECK(rx_msg.args.set_pwm_duty_cycle.pwm_num < NUM_PWMS);
+      SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwm_num,
                       rx_msg.args.set_pwm_duty_cycle.dc,
                       rx_msg.args.set_pwm_duty_cycle.fraction);
       break;
 
     case SET_PWM_PERIOD:
-      CHECK(rx_msg.args.set_pwm_period.pwmNum < NUM_PWMS);
-      SetPwmPeriod(rx_msg.args.set_pwm_period.pwmNum,
+      CHECK(rx_msg.args.set_pwm_period.pwm_num < NUM_PWMS);
+      SetPwmPeriod(rx_msg.args.set_pwm_period.pwm_num,
                    rx_msg.args.set_pwm_period.period,
                    rx_msg.args.set_pwm_period.scale256);
+      break;
+
+    case SET_PIN_ANALOG_IN:
+      CHECK(rx_msg.args.set_pin_analog_in.pin < NUM_PINS);
+      SetPinAnalogIn(rx_msg.args.set_pin_analog_in.pin);
+      Echo();
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
@@ -181,7 +211,7 @@ BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
       ++data;
       --data_len;
       if (rx_msg.type < MESSAGE_TYPE_LIMIT) {
-        rx_message_remaining = incoming_arg_size[rx_msg.type] & 0x7F;
+        rx_message_remaining = incoming_arg_size[rx_msg.type] & ~VAR_ARGS;
         if (rx_message_remaining == 0) {
           // no args
           if (!MessageDone()) return FALSE;

@@ -44,19 +44,19 @@ static void PWMInit() {
   Timer1Init();  // constantly running, feeds low-speed PWM
 }
 
-void SetPwmDutyCycle(int pwmNum, int dc, int fraction) {
+void SetPwmDutyCycle(int pwm_num, int dc, int fraction) {
   volatile OC_REGS* regs;
-  log_printf("SetPwmDutyCycle(%d, %d, %d)", pwmNum, dc, fraction);
-  regs = OC_REG(pwmNum);
+  log_printf("SetPwmDutyCycle(%d, %d, %d)", pwm_num, dc, fraction);
+  regs = OC_REG(pwm_num);
   regs->con2 &= ~0x0600;
   regs->con2 |= fraction << 9;
   regs->r = dc;
 }
 
-void SetPwmPeriod(int pwmNum, int period, int scale256) {
+void SetPwmPeriod(int pwm_num, int period, int scale256) {
   volatile OC_REGS* regs;
-  log_printf("SetPwmPeriod(%d, %d, %d)", pwmNum, period, scale256);
-  regs = OC_REG(pwmNum);
+  log_printf("SetPwmPeriod(%d, %d, %d)", pwm_num, period, scale256);
+  regs = OC_REG(pwm_num);
   regs->con1 = 0x0000;
   if (period) {
     regs->r = 0;
@@ -127,38 +127,69 @@ static inline void ADCInit() {
   _AD1IF = 0;        // clear interrupt
   AD1CON1 = 0x0000;  // ADC off
   AD1CON2 = 0x0400;  // Avdd Avss ref, scan inputs, single buffer, interrupt on every sample 
-  AD1CON3 = 0x0A01;  // system clock, 10 Tad acquisition time, ADC clock @8MHz
+  AD1CON3 = 0x1F01;  // system clock, 31 Tad acquisition time, ADC clock @8MHz
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
 
-  _SMPI = 0;         // interrupt every sample
   _AD1IF = 0;
   _AD1IP = 7;        // high priority to stop automatic sampling
-  _AD1IE = 1;
+  _AD1IE = 1;        // enable interrupt
 
   Timer2Init();  // when started generates an immediate interrupt to read ADC buffer
   Timer3Init();  // runs when ADC is used to periodically trigger sampling
 
-  analog_scan_bitmask = 0x0001;
-  analog_scan_num_channels = 0x0000;
+  analog_scan_bitmask = 0x0000;
+  analog_scan_num_channels = 0;
+}
+
+static inline int CountOnes(unsigned int val) {
+  int res = 0;
+  while (val) {
+    if (val & 1) ++res;
+    val >>= 1;
+  }
+  return res;
 }
 
 static inline void ReportAnalogInStatus() {
-  log_printf("value");
+  volatile unsigned int* buf = &ADC1BUF0;
+  int num_channels = CountOnes(AD1CSSL);
+  int i;
+  int var_arg_pos = 0;
+  int group_header_pos;
+  int pos_in_group;
+  int value;
+  OUTGOING_MESSAGE msg;
+  msg.type = REPORT_ANALOG_IN_STATUS;
+  for (i = 0; i < num_channels; i++) {
+    pos_in_group = i & 3;
+    if (pos_in_group == 0) {
+      group_header_pos = var_arg_pos;
+      msg.args.report_analog_in_status.values[var_arg_pos++] = 0;  // reset header
+    }
+    value = buf[i];
+    //log_printf("%d", value);
+    msg.args.report_analog_in_status.values[group_header_pos] |= (value & 3) << (pos_in_group * 2);  // two LSb to group header
+    msg.args.report_analog_in_status.values[var_arg_pos++] = value >> 2;  // eight MSb to channel byte
+  }
+  AppProtocolSendMessage(&msg);
 }
 
 static inline void ReportAnalogInFormat() {
-  log_printf("change in format");
-}
-
-static inline void ADCTrigger() {
-  if (AD1CSSL != analog_scan_bitmask) {
-    ReportAnalogInFormat();
-    AD1CSSL = analog_scan_bitmask;
+  unsigned int mask = analog_scan_bitmask;
+  int channel = 0;
+  int var_arg_pos = 0;
+  OUTGOING_MESSAGE msg;
+  msg.type = REPORT_ANALOG_IN_FORMAT;
+  msg.args.report_analog_in_format.num_pins = analog_scan_num_channels;
+  while (mask) {
+    if (mask & 1) {
+      msg.args.report_analog_in_format.pins[var_arg_pos++] = PinFromAnalogChannel(channel);
+    }
+    mask >>= 1;
+    ++channel;
   }
-  _AD1IE  = 1;       // enable interrupt
-  AD1CON1 = 0x80E6;  // start ADC
+  AppProtocolSendMessage(&msg);
 }
-
 
 static inline void ADCStart() {
   Timer3Start();
@@ -168,43 +199,52 @@ static inline void ADCStop() {
   Timer3Stop();
 }
 
+static inline void ADCTrigger() {
+  if (AD1CSSL != analog_scan_bitmask) {
+    ReportAnalogInFormat();
+    AD1CSSL = analog_scan_bitmask;
+    _SMPI = analog_scan_num_channels - 1;
+  }
+  if (analog_scan_num_channels) {
+    AD1CON1 = 0x80E6;  // start ADC
+  } else {
+    ADCStop();
+  }
+}
+
 static inline void ADCSetScan(int pin) {
-  int mask = 1 << PinToAnalogChannel(pin);
-  // ignore if channel is already being scanned
-  if (!(mask & analog_scan_bitmask)) {
-    if (analog_scan_num_channels) {
-      // already running, just add the new channel
-      _T3IE = 0;
-      ++analog_scan_num_channels;
-      analog_scan_bitmask |= mask;
-      _T3IE = 1;
-    } else {
-      // first channel, start running
-      analog_scan_num_channels = 1;
-      analog_scan_bitmask = mask;
-      ADCStart();
-    }
+  int channel = PinToAnalogChannel(pin);
+  int mask;
+  if (channel == -1) return;
+  mask = 1 << channel;
+  if (mask & analog_scan_bitmask) return;
+
+  if (analog_scan_num_channels) {
+    // already running, just add the new channel
+    _T3IE = 0;
+    ++analog_scan_num_channels;
+    analog_scan_bitmask |= mask;
+    _T3IE = 1;
+  } else {
+    // first channel, start running
+    analog_scan_num_channels = 1;
+    analog_scan_bitmask = mask;
+    ADCStart();
   }
 }
 
 static inline void ADCClrScan(int pin) {
-  int mask = 1 << PinToAnalogChannel(pin);
-  // ignore if channel is already not scanned
-  if (mask & analog_scan_bitmask) {
-    if (analog_scan_num_channels == 1) {
-      // last channel, stop running
-      ADCStop();
-      analog_scan_num_channels = 0;
-      analog_scan_bitmask = 0x0000;
-      ReportAnalogInFormat();
-    } else {
-      // already running, just remove the new channel
-      _T3IE = 0;
-      --analog_scan_num_channels;
-      analog_scan_bitmask &= ~mask;
-      _T3IE = 1;
-    }
-  }
+  int channel = PinToAnalogChannel(pin);
+  int mask;
+  if (channel == -1) return;
+  mask = 1 << channel;
+  if (!(mask & analog_scan_bitmask)) return;
+
+  // if this was the last channel, the next T3 interrupt will stop the sampling
+  _T3IE = 0;
+  --analog_scan_num_channels;
+  analog_scan_bitmask &= ~mask;
+  _T3IE = 1;
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T3Interrupt() {
@@ -337,19 +377,21 @@ void SetPinDigitalIn(int pin, int pull) {
   PinSetTris(pin, 1);
 }
 
-void SetPinPwm(int pin, int pwmNum) {
-  log_printf("SetPinPwm(%d, %d)", pin, pwmNum);
+void SetPinPwm(int pin, int pwm_num) {
+  log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
   SAVE_PIN4_FOR_LOG();
-  PinSetRpor(pin, pwmNum == 0 ? 0 : (pwmNum == 9 ? 35 : 17 + pwmNum));
+  PinSetRpor(pin, pwm_num == 0 ? 0 : (pwm_num == 9 ? 35 : 17 + pwm_num));
 }
 
 void SetPinAnalogIn(int pin) {
+  log_printf("SetPinAnalogIn(%d)", pin);
+  SAVE_PIN4_FOR_LOG();
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
   PinSetCnpu(pin, 0);
   PinSetCnpd(pin, 0);
   PinSetAnsel(pin, 1);
-  PinSetTris(pin, 0);
+  PinSetTris(pin, 1);
   ADCSetScan(pin);
 }
 
@@ -371,7 +413,7 @@ void SoftReset() {
   // initialize PWM
   PWMInit();
   // initialze ADC
-  // ADCInit();
+  ADCInit();
   // TODO: reset all peripherals!
 }
 

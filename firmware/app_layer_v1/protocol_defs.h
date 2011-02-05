@@ -78,14 +78,14 @@ typedef struct PACKED {
 typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
-  BYTE pwmNum : 4;
+  BYTE pwm_num : 4;
   BYTE : 4;
 } SET_PIN_PWM_ARGS;
 
 // set pwm duty cycle
 typedef struct PACKED {
   BYTE fraction : 2;
-  BYTE pwmNum : 4;
+  BYTE pwm_num : 4;
   BYTE : 2;
   WORD dc;
 } SET_PWM_DUTY_CYCLE_ARGS;
@@ -93,10 +93,23 @@ typedef struct PACKED {
 // set pwm period
 typedef struct PACKED {
   BYTE scale256 : 1;
-  BYTE pwmNum : 4;
+  BYTE pwm_num : 4;
   BYTE : 3;
   WORD period;
 } SET_PWM_PERIOD_ARGS;
+
+typedef struct PACKED {
+  BYTE pin;
+} SET_PIN_ANALOG_IN_ARGS;
+
+typedef struct PACKED {
+  BYTE num_pins;
+  BYTE pins[16];  // actual length is variable - this is just the maximum
+} REPORT_ANALOG_IN_FORMAT_ARGS;
+
+typedef struct PACKED {
+  BYTE values[16 / 4 * 5];  // actual length is variable - this is just the maximum
+} REPORT_ANALOG_IN_STATUS_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
@@ -104,16 +117,17 @@ typedef struct PACKED {
 typedef struct PACKED {
   BYTE type;
   union PACKED {
-    HARD_RESET_ARGS hard_reset;
-    SOFT_RESET_ARGS soft_reset;
-    SET_PIN_DIGITAL_OUT_ARGS set_pin_digital_out;
-    SET_DIGITAL_OUT_LEVEL_ARGS set_digital_out_level;
-    SET_PIN_DIGITAL_IN_ARGS set_pin_digital_in;
-    SET_CHANGE_NOTIFY_ARGS set_change_notify;
-    REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS register_periodic_digital_sampling;
-    SET_PIN_PWM_ARGS set_pin_pwm;
-    SET_PWM_DUTY_CYCLE_ARGS set_pwm_duty_cycle; 
-    SET_PWM_PERIOD_ARGS set_pwm_period; 
+    HARD_RESET_ARGS                          hard_reset;
+    SOFT_RESET_ARGS                          soft_reset;
+    SET_PIN_DIGITAL_OUT_ARGS                 set_pin_digital_out;
+    SET_DIGITAL_OUT_LEVEL_ARGS               set_digital_out_level;
+    SET_PIN_DIGITAL_IN_ARGS                  set_pin_digital_in;
+    SET_CHANGE_NOTIFY_ARGS                   set_change_notify;
+    REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS  register_periodic_digital_sampling;
+    SET_PIN_PWM_ARGS                         set_pin_pwm;
+    SET_PWM_DUTY_CYCLE_ARGS                  set_pwm_duty_cycle; 
+    SET_PWM_PERIOD_ARGS                      set_pwm_period;
+    SET_PIN_ANALOG_IN_ARGS                   set_pin_analog_in;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } INCOMING_MESSAGE;
@@ -121,13 +135,15 @@ typedef struct PACKED {
 typedef struct PACKED {
   BYTE type;
   union PACKED {
-    ESTABLISH_CONNECTION_ARGS establish_connection;
-    SOFT_RESET_ARGS soft_reset;
-    SET_PIN_DIGITAL_OUT_ARGS set_pin_digital_out;
-    REPORT_DIGITAL_IN_STATUS_ARGS report_digital_in_status;
-    SET_PIN_DIGITAL_IN_ARGS set_pin_digital_in;
-    SET_CHANGE_NOTIFY_ARGS set_change_notify;
-    REPORT_PERIODIC_DIGITAL_IN_STATUS_ARGS report_periodic_digital_in_status;
+    ESTABLISH_CONNECTION_ARGS               establish_connection;
+    SOFT_RESET_ARGS                         soft_reset;
+    SET_PIN_DIGITAL_OUT_ARGS                set_pin_digital_out;
+    REPORT_DIGITAL_IN_STATUS_ARGS           report_digital_in_status;
+    SET_PIN_DIGITAL_IN_ARGS                 set_pin_digital_in;
+    SET_CHANGE_NOTIFY_ARGS                  set_change_notify;
+    REPORT_PERIODIC_DIGITAL_IN_STATUS_ARGS  report_periodic_digital_in_status;
+    REPORT_ANALOG_IN_FORMAT_ARGS            report_analog_in_format;
+    REPORT_ANALOG_IN_STATUS_ARGS            report_analog_in_status;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -145,8 +161,11 @@ typedef enum {
   REGISTER_PERIOD_DIGITAL_SAMPLING  = 0x06,
   REPORT_PERIODIC_DIGITAL_IN_STATUS = 0x07,
   SET_PIN_PWM                       = 0x08,
+  REPORT_ANALOG_IN_FORMAT           = 0x08,
   SET_PWM_DUTY_CYCLE                = 0x09,
+  REPORT_ANALOG_IN_STATUS           = 0x09,
   SET_PWM_PERIOD                    = 0x0A,
+  SET_PIN_ANALOG_IN                 = 0x0B,
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
 } MESSAGE_TYPE;
