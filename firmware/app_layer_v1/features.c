@@ -113,7 +113,7 @@ static inline void Timer3Init() {
 static inline void Timer3Start() {
   TMR3  = 0x0000;  // reset counter
   _T3IE = 1;       // enable interrupt
-  T3CON = 0x8030;  // timer on, 16-bit, instruction clock with no prescaling  TODO: 0x8000
+  T3CON = 0x8000;  // timer on, 16-bit, instruction clock with no prescaling
 }
 
 static inline void Timer3Stop() {

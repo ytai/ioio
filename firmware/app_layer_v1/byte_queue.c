@@ -2,9 +2,11 @@
 
 #include <assert.h>
 #include <string.h>
+#include "logging.h"
 
 void ByteQueueOverflow() {
   // TODO: do something
+  log_printf("Buffer overflow!");
 }
 
 void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len) {
