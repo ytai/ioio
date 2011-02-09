@@ -131,7 +131,7 @@ static inline void ADCInit() {
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
 
   _AD1IF = 0;
-  _AD1IP = 7;        // high priority to stop automatic sampling
+  _AD1IP = 6;        // high priority to stop automatic sampling
   _AD1IE = 1;        // enable interrupt
 
   Timer2Init();  // when started generates an immediate interrupt to read ADC buffer
@@ -407,7 +407,10 @@ void HardReset() {
 }
 
 void SoftReset() {
+  BYTE ipl_backup = SRbits.IPL;
   log_printf("SoftReset()");
+  // disable interrupts
+  SRbits.IPL = 7;
   // initialize pins
   PinsInit();
   // initialize PWM
@@ -415,6 +418,7 @@ void SoftReset() {
   // initialze ADC
   ADCInit();
   // TODO: reset all peripherals!
+  SRbits.IPL = ipl_backup;
 }
 
 // BOOKMARK(add_feature): Add feature implementation.
