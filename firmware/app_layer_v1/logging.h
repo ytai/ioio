@@ -16,11 +16,13 @@
   #define log_printf(...) do { sprintf(char_buf, __VA_ARGS__); log_print_0(char_buf); } while(0)
 
   #define SAVE_PIN4_FOR_LOG() if (pin == 4) return
+  #define SAVE_UART1_FOR_LOG() if (uart == 1) return
 #else
   #define log_print_buf(b,s)
   #define log_print_0(x)
   #define log_printf(...)
   #define SAVE_PIN4_FOR_LOG()
+  #define SAVE_UART1_FOR_LOG()
 #endif
 
 

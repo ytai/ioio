@@ -66,7 +66,7 @@ void SetPinDigitalIn(int pin, int pull) {
 void SetPinPwm(int pin, int pwm_num) {
   log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
   SAVE_PIN4_FOR_LOG();
-  PinSetRpor(pin, pwm_num == 0 ? 0 : (pwm_num == 9 ? 35 : 17 + pwm_num));
+  PinSetRpor(pin, pwm_num == 0x0F ? 0 : (pwm_num == 8 ? 35 : 18 + pwm_num));
 }
 
 void SetPinAnalogIn(int pin) {
@@ -94,17 +94,14 @@ void HardReset() {
 
 void SoftReset() {
   BYTE ipl_backup = SRbits.IPL;
+  SRbits.IPL = 7;  // disable interrupts
   log_printf("SoftReset()");
-  // disable interrupts
-  SRbits.IPL = 7;
-  // initialize pins
   PinsInit();
-  // initialize PWM
   PWMInit();
-  // initialze ADC
   ADCInit();
+  UARTInit();
   // TODO: reset all peripherals!
-  SRbits.IPL = ipl_backup;
+  SRbits.IPL = ipl_backup;  // enable interrupts
 }
 
 // BOOKMARK(add_feature): Add feature implementation.

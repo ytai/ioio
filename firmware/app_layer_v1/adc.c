@@ -89,6 +89,7 @@ static inline void ReportAnalogInStatus() {
   volatile unsigned int* buf = &ADC1BUF0;
   int num_channels = CountOnes(AD1CSSL);
   int i;
+  BYTE var_arg[16];
   int var_arg_pos = 0;
   int group_header_pos;
   int pos_in_group;
@@ -99,31 +100,32 @@ static inline void ReportAnalogInStatus() {
     pos_in_group = i & 3;
     if (pos_in_group == 0) {
       group_header_pos = var_arg_pos;
-      msg.args.report_analog_in_status.values[var_arg_pos++] = 0;  // reset header
+      var_arg[var_arg_pos++] = 0;  // reset header
     }
     value = buf[i];
     //log_printf("%d", value);
-    msg.args.report_analog_in_status.values[group_header_pos] |= (value & 3) << (pos_in_group * 2);  // two LSb to group header
-    msg.args.report_analog_in_status.values[var_arg_pos++] = value >> 2;  // eight MSb to channel byte
+    var_arg[group_header_pos] |= (value & 3) << (pos_in_group * 2);  // two LSb to group header
+    var_arg[var_arg_pos++] = value >> 2;  // eight MSb to channel byte
   }
-  AppProtocolSendMessage(&msg);
+  AppProtocolSendMessageWithVarArg(&msg, var_arg, var_arg_pos);
 }
 
 static inline void ReportAnalogInFormat() {
   unsigned int mask = analog_scan_bitmask;
   int channel = 0;
+  BYTE var_arg[16 / 4 * 5];
   int var_arg_pos = 0;
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_ANALOG_IN_FORMAT;
   msg.args.report_analog_in_format.num_pins = analog_scan_num_channels;
   while (mask) {
     if (mask & 1) {
-      msg.args.report_analog_in_format.pins[var_arg_pos++] = PinFromAnalogChannel(channel);
+      var_arg[var_arg_pos++] = PinFromAnalogChannel(channel);
     }
     mask >>= 1;
     ++channel;
   }
-  AppProtocolSendMessage(&msg);
+  AppProtocolSendMessageWithVarArg(&msg, var_arg, var_arg_pos);
 }
 
 static inline void ADCStart() {

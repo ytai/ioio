@@ -17,11 +17,18 @@ typedef struct {
   static BYTE name##_buf[size];                           \
   static ByteQueue name = { name##_buf, size, 0, 0, 0 }
 
-#define ByteQueueLock(q) BYTE q##ipl_save = SRbits.IPL; SRbits.IPL = 1;
-#define ByteQueueUnlock(q) SRbits.IPL = q##ipl_save; 
+#define ByteQueueLock(q, lock) do { lock = SRbits.IPL; SRbits.IPL = 1; } while (0)
+#define ByteQueueUnlock(q, lock) do { SRbits.IPL = lock; } while (0)
+
+#define ByteQueueInit(q, b, cap) do { (q)->buf = b; (q)->capacity = cap; (q)->size = 0; (q)->read_cursor = 0; } while(0)
 
 void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len);
-void ByteQueuePeek(ByteQueue* q, BYTE** data, int* size);
+void ByteQueuePeek(ByteQueue* q, const BYTE** data, int* size);
 void ByteQueuePull(ByteQueue* q, int size);
+
+void ByteQueuePushByte(ByteQueue* q, BYTE b);
+BYTE ByteQueuePullByte(ByteQueue* q);
+
+static inline int ByteQueueSize(ByteQueue* q) { return q->size; }
 
 #endif  // __BYTEQUEUE_H__

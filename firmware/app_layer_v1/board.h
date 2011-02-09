@@ -13,6 +13,7 @@
 
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
   #define NUM_PWMS 9
+  #define NUM_UARTS 4
 #else
   #error Unknown MCU
 #endif

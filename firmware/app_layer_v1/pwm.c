@@ -22,12 +22,12 @@ static void Timer1Init() {
   T1CON = 0x8030;
 }
 
-#define OC_REG(num) (((OC_REGS *) 0x186) + num)
+#define OC_REG(num) (((volatile OC_REGS *) &OC1CON1) + num)
 
 void PWMInit() {
   int i;
   // disable PWMs
-  for (i = 1; i <= NUM_PWMS; ++i) {
+  for (i = 0; i < NUM_PWMS; ++i) {
     SetPwmPeriod(i, 0, 0);
   }
   Timer1Init();  // constantly running, feeds low-speed PWM

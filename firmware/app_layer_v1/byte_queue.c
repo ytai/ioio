@@ -9,6 +9,29 @@ void ByteQueueOverflow() {
   log_printf("Buffer overflow!");
 }
 
+void ByteQueuePushByte(ByteQueue* q, BYTE b) {
+  if (q->size == q->capacity) {
+    ByteQueueOverflow();
+    return;
+  }
+  q->buf[q->write_cursor++] = b;
+  if (q->write_cursor == q->capacity) {
+    q->write_cursor = 0;
+  }
+  ++q->size;
+}
+
+BYTE ByteQueuePullByte(ByteQueue* q) {
+  BYTE ret;
+  assert(q->size);
+  ret = q->buf[q->read_cursor++];
+  if (q->read_cursor == q->capacity) {
+    q->read_cursor = 0;
+  }
+  --q->size;
+  return ret;
+}
+
 void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len) {
   if (q->size + len > q->capacity) {
     ByteQueueOverflow();
@@ -29,7 +52,7 @@ void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len) {
   q->size += len;
 }
 
-void ByteQueuePeek(ByteQueue* q, BYTE** data, int* size) {
+void ByteQueuePeek(ByteQueue* q, const BYTE** data, int* size) {
   *data = q->buf + q->read_cursor;
   if (q->write_cursor < q->read_cursor) {
     *size = q->capacity - q->read_cursor;

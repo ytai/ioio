@@ -10,10 +10,11 @@
 #include "digital.h"
 #include "logging.h"
 #include "board.h"
+#include "uart.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
-#define VAR_ARGS 0x80
 
+#define VAR_IN_ARGS 0x80
 #define FIRMWARE_ID              0x00000001LL
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
@@ -28,7 +29,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_PWM_ARGS),
   sizeof(SET_PWM_DUTY_CYCLE_ARGS),
   sizeof(SET_PWM_PERIOD_ARGS),
-  sizeof(SET_PIN_ANALOG_IN_ARGS)
+  sizeof(SET_PIN_ANALOG_IN_ARGS),
+  sizeof(UART_DATA_ARGS) | VAR_IN_ARGS
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -42,10 +44,11 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
-  /*sizeof(REPORT_ANALOG_IN_FORMAT_ARGS)*/1 | VAR_ARGS,  // TODO: fix
-  /*sizeof(REPORT_ANALOG_IN_STATUS_ARGS)*/0 | VAR_ARGS,
+  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
+  sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(SET_PIN_ANALOG_IN_ARGS)
+  sizeof(SET_PIN_ANALOG_IN_ARGS),
+  sizeof(UART_DATA_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -53,38 +56,37 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 1024);
 static int bytes_transmitted;
 
+typedef enum {
+  WAIT_TYPE,
+  WAIT_ARGS,
+  WAIT_VAR_ARGS
+} RX_MESSAGE_STATE;
+
 static INCOMING_MESSAGE rx_msg;
 static int rx_buffer_cursor;
 static int rx_message_remaining;
+static RX_MESSAGE_STATE rx_message_state;
 
-static BYTE OutgoingMessageLength(const OUTGOING_MESSAGE* msg) {
-  int arg_size = outgoing_arg_size[msg->type];
-  if (arg_size & VAR_ARGS) {
-    static int report_analog_in_status_size = 0;
-    int var_arg_size;
-    switch (msg->type) {
-      case REPORT_ANALOG_IN_FORMAT:
-        var_arg_size = msg->args.report_analog_in_format.num_pins;
-        report_analog_in_status_size = var_arg_size + (var_arg_size + 3) / 4;
-        break;
+static inline BYTE OutgoingMessageLength(const OUTGOING_MESSAGE* msg) {
+  return 1 + outgoing_arg_size[msg->type];
+}
 
-      case REPORT_ANALOG_IN_STATUS:
-        var_arg_size = report_analog_in_status_size;
-        break;
+static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
+  switch (msg->type) {
+    case UART_DATA:
+      return msg->args.uart_data.size + 1;
 
-      default:
-        assert(FALSE);
-    }
-    return sizeof(BYTE) + (arg_size & ~VAR_ARGS) + var_arg_size;
-  } else {
-    return sizeof(BYTE) + arg_size;
+    // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
+    default:
+      return 0;
   }
 }
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
-  rx_message_remaining = 0;
+  rx_message_remaining = 1;
+  rx_message_state = WAIT_TYPE;
 
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
@@ -97,15 +99,26 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
 }
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
-  ByteQueueLock(tx_queue);
+  BYTE lock;
+  ByteQueueLock(&tx_queue, lock);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  ByteQueueUnlock(tx_queue);
+  ByteQueueUnlock(&tx_queue, lock);
+}
+
+void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
+  BYTE lock;
+  ByteQueueLock(&tx_queue, lock);
+  ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
+  ByteQueuePushBuffer(&tx_queue, data, size);
+  ByteQueueUnlock(&tx_queue, lock);
 }
 
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
+  UARTTasks();
   if (ADBChannelReady(h)) {
-    ByteQueueLock(tx_queue);
-    BYTE* data;
+    BYTE lock;
+    ByteQueueLock(&tx_queue, lock);
+    const BYTE* data;
     int size;
     if (bytes_transmitted) {
       ByteQueuePull(&tx_queue, bytes_transmitted);
@@ -116,7 +129,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
       ADBWrite(h, data, size);
       bytes_transmitted = size;
     }
-    ByteQueueUnlock(tx_queue);
+    ByteQueueUnlock(&tx_queue, lock);
   }
 }
 
@@ -169,7 +182,8 @@ static BOOL MessageDone() {
 
     case SET_PIN_PWM:
       CHECK(rx_msg.args.set_pin_pwm.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWMS);
+      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWMS
+            || rx_msg.args.set_pin_pwm.pwm_num == 0xF);
       SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwm_num);
       break;
 
@@ -193,14 +207,19 @@ static BOOL MessageDone() {
       Echo();
       break;
 
+    case UART_DATA:
+      CHECK(rx_msg.args.uart_data.uart_num < NUM_UARTS);
+      UARTTransmit(rx_msg.args.uart_data.uart_num,
+                   rx_msg.args.uart_data.data,
+                   rx_msg.args.uart_data.size + 1);
+      break;
+
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
     // Call Echo() if the message is to be echoed back.
 
     default:
       return FALSE;
   }
-  rx_message_remaining = 0;
-  rx_buffer_cursor = 0;
   return TRUE;
 }
 
@@ -208,31 +227,41 @@ BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
   assert(data);
 
   while (data_len > 0) {
-    if (rx_message_remaining == 0) {
-      ((BYTE *) &rx_msg)[rx_buffer_cursor++] = data[0];
-      ++data;
-      --data_len;
-      if (rx_msg.type < MESSAGE_TYPE_LIMIT) {
-        rx_message_remaining = incoming_arg_size[rx_msg.type] & ~VAR_ARGS;
-        if (rx_message_remaining == 0) {
-          // no args
-          if (!MessageDone()) return FALSE;
-        }
-      } else {
-        return FALSE;
-      }
+    // copy a chunk of data to rx_msg
+    if (data_len >= rx_message_remaining) {
+      memcpy(((BYTE *) &rx_msg) + rx_buffer_cursor, data, rx_message_remaining);
+      data += rx_message_remaining;
+      data_len -= rx_message_remaining;
+      rx_buffer_cursor += rx_message_remaining;
+      rx_message_remaining = 0;
     } else {
-      if (data_len >= rx_message_remaining) {
-        memcpy(((BYTE *) &rx_msg) + rx_buffer_cursor, data, rx_message_remaining);
-        data += rx_message_remaining;
-        data_len -= rx_message_remaining;
-        // TODO: handle the case of varialbe length data
-        if (!MessageDone()) return FALSE;
-      } else {
-        memcpy(((BYTE *) &rx_msg) + rx_buffer_cursor, data, data_len);
-        rx_buffer_cursor += data_len;
-        rx_message_remaining -= data_len;
-        data_len = 0;
+      memcpy(((BYTE *) &rx_msg) + rx_buffer_cursor, data, data_len);
+      rx_buffer_cursor += data_len;
+      rx_message_remaining -= data_len;
+      data_len = 0;
+    }
+
+    // change state
+    if (rx_message_remaining == 0) {
+      switch (rx_message_state) {
+        case WAIT_TYPE:
+          rx_message_state = WAIT_ARGS;
+          rx_message_remaining = incoming_arg_size[rx_msg.type] & ~VAR_IN_ARGS;
+          if (rx_message_remaining) break;
+          // fall-through on purpose
+
+        case WAIT_ARGS:
+          rx_message_state = WAIT_VAR_ARGS;
+          rx_message_remaining = IncomingVarArgSize(&rx_msg);
+          if (rx_message_remaining) break;
+          // fall-through on purpose
+
+        case WAIT_VAR_ARGS:
+          rx_message_state = WAIT_TYPE;
+          rx_message_remaining = 1;
+          rx_buffer_cursor = 0;
+          if (!MessageDone()) return FALSE;
+          break;
       }
     }
   }

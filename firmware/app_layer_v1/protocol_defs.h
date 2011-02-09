@@ -104,12 +104,16 @@ typedef struct PACKED {
 
 typedef struct PACKED {
   BYTE num_pins;
-  BYTE pins[16];  // actual length is variable - this is just the maximum
 } REPORT_ANALOG_IN_FORMAT_ARGS;
 
 typedef struct PACKED {
-  BYTE values[16 / 4 * 5];  // actual length is variable - this is just the maximum
 } REPORT_ANALOG_IN_STATUS_ARGS;
+
+typedef struct PACKED {
+  BYTE size : 6;
+  BYTE uart_num : 2;
+  BYTE data[0];
+} UART_DATA_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
@@ -128,8 +132,10 @@ typedef struct PACKED {
     SET_PWM_DUTY_CYCLE_ARGS                  set_pwm_duty_cycle; 
     SET_PWM_PERIOD_ARGS                      set_pwm_period;
     SET_PIN_ANALOG_IN_ARGS                   set_pin_analog_in;
+    UART_DATA_ARGS                           uart_data;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
+  BYTE __vabuf[64];  // buffer for var args. never access directly!
 } INCOMING_MESSAGE;
 
 typedef struct PACKED {
@@ -144,6 +150,7 @@ typedef struct PACKED {
     REPORT_PERIODIC_DIGITAL_IN_STATUS_ARGS  report_periodic_digital_in_status;
     REPORT_ANALOG_IN_FORMAT_ARGS            report_analog_in_format;
     REPORT_ANALOG_IN_STATUS_ARGS            report_analog_in_status;
+    UART_DATA_ARGS                          uart_data;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -166,6 +173,7 @@ typedef enum {
   REPORT_ANALOG_IN_STATUS           = 0x09,
   SET_PWM_PERIOD                    = 0x0A,
   SET_PIN_ANALOG_IN                 = 0x0B,
+  UART_DATA                         = 0x0C,
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
 } MESSAGE_TYPE;
