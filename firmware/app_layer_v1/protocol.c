@@ -5,7 +5,9 @@
 #include "blapi/bootloader.h"
 #include "byte_queue.h"
 #include "features.h"
-#include "protocol_defs.h"
+#include "pwm.h"
+#include "adc.h"
+#include "digital.h"
 #include "logging.h"
 #include "board.h"
 
