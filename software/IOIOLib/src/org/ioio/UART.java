@@ -15,8 +15,8 @@ public class UART {
 	public static final int BAUD_4800 = 4800;
 	public static final int BAUD_9600 = 9600;
 	public static final int BAUD_19200 = 19200;
-	public static final int BAUD_24400 = 24400;
-	public static final int BAUD_48000 = 48000;
+	public static final int BAUD_28800 = 28800;
+	public static final int BAUD_33600 = 33600;
 	
 	public static final float ONE_STOP_BIT = 1;
 	public static final float TWO_STOP_BITS = 2;
