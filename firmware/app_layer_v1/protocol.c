@@ -100,14 +100,14 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
   BYTE lock;
-  ByteQueueLock(&tx_queue, lock);
+  ByteQueueLock(&tx_queue, lock, 1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueueUnlock(&tx_queue, lock);
 }
 
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
   BYTE lock;
-  ByteQueueLock(&tx_queue, lock);
+  ByteQueueLock(&tx_queue, lock, 1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data, size);
   ByteQueueUnlock(&tx_queue, lock);
@@ -117,7 +117,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   if (ADBChannelReady(h)) {
     BYTE lock;
-    ByteQueueLock(&tx_queue, lock);
+    ByteQueueLock(&tx_queue, lock, 1);
     const BYTE* data;
     int size;
     if (bytes_transmitted) {

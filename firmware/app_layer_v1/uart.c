@@ -27,7 +27,7 @@ static ByteQueue tx_queues[NUM_UARTS];
   #error Currently only devices with 4 UARTs are supported. Please fix below.
 #endif
 #define SetUART(flag)                                    \
-  static void SetUART##flag(int uart, int val) {  \
+  static void SetUART##flag(int uart, int val) {         \
     switch (uart) {                                      \
       case 0:                                            \
         _U1##flag = val;                                 \
@@ -86,21 +86,8 @@ void UARTConfig(int uart, int rate, int high_speed, int two_stop_bits) {
     SetUARTRXIP(uart, 4);  // RX int. priority 4
     SetUARTTXIP(uart, 4);  // TX int. priority 4
     SetUARTRXIE(uart, 1);  // enable RX int.
-    regs->uxmode = 0x8000 | (high_speed ? 0x0008 : 0x0000) | two_stop_bits/* | 0x0040*/;  // enable TODO: disable loopback
+    regs->uxmode = 0x8000 | (high_speed ? 0x0008 : 0x0000) | two_stop_bits | 0x0040;  // enable TODO: disable loopback
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
-
-    // HACK
-/*    _U1RXIE = 0;
-    _U1TXIE = 0;
-    U1BRG = 206;
-    U1MODE = 0;
-    U1MODEbits.BRGH = 1;
-    U1STA = 0x8000;
-    U1MODEbits.UARTEN = 1;
-    U1STAbits.UTXEN = 1;
-    _U1RXIF = 0;*/
-
-    log_printf("U1MODE=0x%x, U1STA=0x%x, U1TXIE=%d, U1TXIF=%d", U1MODE, U1STA, _U1TXIE, _U1TXIE);
   }
 }
 
@@ -109,7 +96,8 @@ void UARTTasks() {
   for (i = 0; i < NUM_UARTS; ++i) {
     int size;
     const BYTE* data;
-    ByteQueuePeek(rx_queues + i, &data, &size);
+    ByteQueue* q = rx_queues + i;
+    ByteQueuePeek(q, &data, &size);
     if (size > 64) size = 64;  // truncate
     if (size) {
       log_printf("UART %d received %d bytes", i, size);
@@ -118,36 +106,33 @@ void UARTTasks() {
       msg.args.uart_data.uart_num = i;
       msg.args.uart_data.size = size - 1;
       AppProtocolSendMessageWithVarArg(&msg, data, size);
+      ByteQueuePull(q, size);
     }
   }
 }
 
 static void TXInterrupt(int uart) {
-  log_printf("TXInterrupt(%d)", uart);
-  log_printf("U1MODE=0x%x, U1STA=0x%x, U1TXIE=%d, U1TXIF=%d", U1MODE, U1STA, _U1TXIE, _U1TXIE);
+  UART2PutChar('.');
   BYTE lock;
   volatile UART* reg = UART_REG(uart);
   ByteQueue* q = tx_queues + uart;
-  SetUARTTXIE(uart, 0);  // disable TX int.
-  ByteQueueLock(q, lock);
-  while (ByteQueueSize(q) && (UART2PutChar('@'), !(reg->uxsta & 0x0200))) {
-    UART2PutChar('^');
+  ByteQueueLock(q, lock, 4);
+  while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
+    SetUARTTXIF(uart, 0);
     reg->uxtxreg = ByteQueuePullByte(q);
   }
+  SetUARTTXIE(uart, ByteQueueSize(q) != 0);
   ByteQueueUnlock(q, lock);
-  SetUARTTXIE(uart, ByteQueueSize(q) > 0);  // enable TX int.
 }
 
 static void RXInterrupt(int uart) {
-  return;
-  log_printf("RXInterrupt(%d)", uart);
+  UART2PutChar(':');
   BYTE lock;
   volatile UART* reg = UART_REG(uart);
   ByteQueue* q = rx_queues + uart;
-  ByteQueueLock(q, lock);
+  ByteQueueLock(q, lock, 4);
   // TODO: handle error
   while (reg->uxsta & 0x0001) {
-    UART2PutChar('V');
     ByteQueuePushByte(q, reg->uxrxreg);
   }
   ByteQueueUnlock(q, lock);
@@ -158,7 +143,7 @@ void UARTTransmit(int uart, const void* data, int size) {
   SAVE_UART1_FOR_LOG();
   BYTE lock;
   ByteQueue* q = tx_queues + uart;
-  ByteQueueLock(q, lock);
+  ByteQueueLock(q, lock, 4);
   ByteQueuePushBuffer(q, data, size);
   SetUARTTXIE(uart, 1);  // enable TX int.
   ByteQueueUnlock(q, lock);
@@ -171,10 +156,7 @@ void UARTTransmit(int uart, const void* data, int size) {
  }                                                                        \
                                                                           \
  void __attribute__((__interrupt__, auto_psv)) _U##uart##TXInterrupt() {  \
-   log_printf("%d", _U1TXIF);                                             \
    TXInterrupt(uart - 1);                                                 \
-   _U##uart##TXIF = 0;                                                    \
-   log_printf("%d", _U1TXIF);                                             \
  }
 
 #if NUM_UARTS > 4
