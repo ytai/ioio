@@ -19,10 +19,20 @@ import android.util.Log;
  */
 public class IOIO implements IOIOApi {
 
+	// ytai: This actually spells OIOI. Reverse.
 	// Magic bytes for the IOIO, spells 'IOIO'
 	public final byte[] IOIO_MAGIC = { 0x4F,  0x49, 0x4F, 0x49 };
 
 	// for convenience, might not stay long
+	// ytai: why singleton? i think there should be:
+	// a. one class (this one) that implements the protocol and exposes IOIOApi.
+	//    has a non-public (package scope) ctor that gets a InputStream and OutputStream
+	//    for the connection.
+	// b. a factory/glue/bootstrap class that listens on TCP and instantiates the IOIO class with
+	//    its input and output streams when a connection comes in.
+	// the upside is that this class become independent from the physical connection.
+	// for testing purposes we can give it mock input and output stream.
+	// for development we can stick a protocol logger between this layer and the TCP socket, etc.
 	static private IOIO singleton = null;
 	
 	// Outgoing messages
@@ -71,6 +81,8 @@ public class IOIO implements IOIOApi {
 	 * Blocking call that will not return until connected. 
 	 * hmm. this must throw an exception at some point, else very un-androidy
 	 */
+	// ytai: put a abort() method here that guarantees to immediately exist all currently
+	// blocking calls with an AbortedException or something.
 	public void connect() {
 		
 	}
@@ -104,6 +116,11 @@ public class IOIO implements IOIOApi {
 		public static final int IOIO_PORT = 4545;
 		
 		// mS timeout in which we consider the ioio not connected if no response.
+		// ytai: i would just leave it to the client to abort(). from a GUI perspective
+		// it might more sense to leave it to the human user to press "cancel" when he
+		// gives up. he might be in the process of connecting the ioio and will be annoyed
+		// with automatic timeout. if a certain app does want this behaviour, they can always
+		// setup a thread that sleeps for 3 seconds, then fires abort() unless stopped.
 		public static final int IOIO_TIMEOUT = 3000; 
 
 		ServerSocket ssocket;
@@ -165,6 +182,8 @@ public class IOIO implements IOIOApi {
 				contents[4] != IOIO_MAGIC[3] 				
 			) return false;
 			
+			// ytai: verify that the hardware/firmware/bootloader versions are ones
+			// this library supports, for forward compatibility.
 			Log.i("IOIO", "ESTABLISH packet verified");
 			return true;
 		}
@@ -176,7 +195,7 @@ public class IOIO implements IOIOApi {
 		private boolean readFully(byte[] buffer) throws IOException {
 			int val = 0;
 			for (int x = 0; x < buffer.length; x++) {
-				val = in.read();
+				val = in.read();  // ytai: use the (buffer, size, offset) version of read for performance?
 				if (val == -1) return false;
 				buffer[x] = (byte) (0xFF & val);				
 			}
@@ -207,6 +226,8 @@ public class IOIO implements IOIOApi {
 					// TODO(arshan): find a softer way of doing this, maybe new message in proto
 					// This is to check that we can hardreset and then reestablish
 					try {
+						// ytai: why is this special? why not treat it within the main state
+						// machine for incoming messages?
 						if (! handshake()) {
 							Log.e("IOIOConnection", "handshake FAILED");
 							state = DISCONNECTED;
@@ -216,11 +237,14 @@ public class IOIO implements IOIOApi {
 					}					
 					
 					try {
+						// ytai: IncomingMessageHandler class?
 						// Handle any incoming packets
 						int message_type;
 						while (state == CONNECTED) {														
 							message_type = in.read();
 							// TODO(arshan): how do we re-sync if things have gone bad.
+							// ytai: it is in the protocol spec: you close the socket (or i/o streams),
+							// reset your internal state, and wait for ioio to reconnect.
 							switch (message_type) {
 							
 							case ESTABLISH_CONNECTION:
