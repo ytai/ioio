@@ -67,18 +67,15 @@ public class UART {
 	}
 
 	public class UARTInputStream extends InputStream {
-
 		
-		protected UARTInputStream(UART uart) {
-			
+		protected UARTInputStream(UART uart) {			
 		}
 		
 		@Override
 		public int read() throws IOException {
 			// TODO Auto-generated method stub
 			return 0;
-		}
-		
+		}		
 	}
 	
 

@@ -20,6 +20,9 @@ import android.widget.TextView;
  */
 public class SelfTest extends Activity {
 	
+	// Dont stop testing if there is a failure, try them all.
+	private static final boolean FORCE_ALL_TESTS = true;
+	
 	public static final int OUTPUT_PIN = 2;
 	public static final int INPUT_PIN = 3;
 	
@@ -53,8 +56,15 @@ public class SelfTest extends Activity {
     				testDigitalOutput();
     				testDigitalInput();
     				msg("Tests Finished");
-    			    status("PASSED", Color.GREEN);
+
+    				if (FORCE_ALL_TESTS) {
+    					status("FORCED", Color.YELLOW);
     				}
+    				else {
+    					status("PASSED", Color.GREEN);
+    				}
+    				
+    			}
     			catch (FailException fail) {
     				status("FAILED", Color.RED);
     				StackTraceElement[] stack = fail.getStackTrace();
@@ -189,14 +199,26 @@ public class SelfTest extends Activity {
     
     private void assertTrue(boolean val) throws FailException{
     	if (!val) {
-    		throw new FailException();
+    		if (FORCE_ALL_TESTS) {
+    			status("FAILED", Color.RED);
+    			msg("FAILED");
+    		}
+    		else {
+    			throw new FailException();
+    		}
     	}
 //    	msg(val?"pass":"fail");
     }
     
     private void assertFalse(boolean val) throws FailException {
     	if (val) {
-    		throw new FailException();
+    		if (FORCE_ALL_TESTS) {
+    			status("FAILED", Color.RED);
+    			msg("FAILED");
+    		}
+    		else {
+    			throw new FailException();
+    		}
     	}
 //    	msg(val?"fail":"pass");
     }

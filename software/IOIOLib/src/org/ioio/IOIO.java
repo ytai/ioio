@@ -19,7 +19,9 @@ import android.util.Log;
  */
 public class IOIO implements IOIOApi {
 
-	
+	// Magic bytes for the IOIO, spells 'IOIO'
+	public final byte[] IOIO_MAGIC = { 0x4F,  0x49, 0x4F, 0x49 };
+
 	// for convenience, might not stay long
 	static private IOIO singleton = null;
 	
@@ -35,10 +37,21 @@ public class IOIO implements IOIOApi {
 	private static final int SET_PWM = 0x08;
 	private static final int SET_DUTYCYCLE = 0x09;
 	private static final int SET_PERIOD = 0x0A;
+	private static final int SET_ANALOG_INPUT = 0x0B;
+	private static final int UART_TX = 0x0C;
+	
+	// Cache some packets that are static
+	private IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
+	private IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
 	
 	// Incoming messages (where different)
 	private static final int ESTABLISH_CONNECTION = 0x00;
-		
+	private static final int REPORT_DIGITAL_STATUS = 0x03;
+	private static final int REPORT_PERIODIC_DIGITAL = 0x07;
+	private static final int REPORT_ANALOG_FORMAT = 0x08;
+	private static final int REPORT_ANALOG_STATUS = 0x09;
+	private static final int UART_RX = 0x0C;
+	
 	private IOIOConnection ioio_connection;
 	/**
 	 * Strict singleton? or just for convenience
@@ -46,7 +59,6 @@ public class IOIO implements IOIOApi {
 	 */
 	public IOIO() {
 		ioio_connection = new IOIOConnection();
-
 		// TODO(arshan): this wants to move, sorting out good flow.
 		ioio_connection.start();
 	}
@@ -64,11 +76,12 @@ public class IOIO implements IOIOApi {
 	}
 	
 	public void softReset() {
-		
+		ioio_connection.sendToIOIO(SOFT_RESET_PACKET);
 	}
 	
 	public void hardReset() {
-		
+		// request a reset
+		ioio_connection.sendToIOIO( HARD_RESET_PACKET);
 	}
 	
 	// Singleton? TBD
@@ -89,7 +102,6 @@ public class IOIO implements IOIOApi {
 				
 		// Didnt find documentation but looking at firmware this seems right.
 		public static final int IOIO_PORT = 4545;
-		public final byte[] IOIO_MAGIC = { 0x4F,  0x49, 0x4F, 0x49 };
 		
 		// mS timeout in which we consider the ioio not connected if no response.
 		public static final int IOIO_TIMEOUT = 3000; 
@@ -133,25 +145,27 @@ public class IOIO implements IOIOApi {
 		 * few synchronous transactions.
 		 * @return
 		 */
-		private boolean handshake() throws IOException {
-			out.write(HARD_RESET);
-			out.write(IOIO_MAGIC);
-			
+		private boolean handshake() throws IOException {		
 			byte[] establish_packet = new byte[14];
-			if (readFully(establish_packet)) {				
+			if (readFully(establish_packet)) {			
+				Log.i("IOIO", "got EST packet");
 				return verifyEstablishPacket(establish_packet);
-			}			
+			}		
+			
+			Log.e("IOIO", "FAILED HANDSHAKE");
 			return false;			
 		}
-		
+
+		// Will formalize once we have a working hello world.
 		private boolean verifyEstablishPacket(byte[] contents) {
 			if (contents[0] != ESTABLISH_CONNECTION ||
-					contents[1] != IOIO_MAGIC[0] ||
-					contents[2] != IOIO_MAGIC[1] ||
-					contents[3] != IOIO_MAGIC[2] ||
-					contents[4] != IOIO_MAGIC[3] 				
+				contents[1] != IOIO_MAGIC[0] ||
+				contents[2] != IOIO_MAGIC[1] ||
+				contents[3] != IOIO_MAGIC[2] ||
+				contents[4] != IOIO_MAGIC[3] 				
 			) return false;
 			
+			Log.i("IOIO", "ESTABLISH packet verified");
 			return true;
 		}
 
@@ -169,8 +183,7 @@ public class IOIO implements IOIOApi {
 			return true;
 		}
 		
-		public void run() {			
-			
+		public void run() {						
 			setTimeout(IOIO_TIMEOUT);
 			try {
 				startService();
@@ -180,8 +193,8 @@ public class IOIO implements IOIOApi {
 			}
 			
 			while (true) {
-				if (reconnect()) {
-					state = CONNECTED;
+				if (reconnect()) {					
+					// state here must be CONNECTED
 					Log.i("IOIOConnection", "initial connection");
 					try {
 						in = socket.getInputStream();
@@ -192,6 +205,7 @@ public class IOIO implements IOIOApi {
 					
 					// Try the handshake
 					// TODO(arshan): find a softer way of doing this, maybe new message in proto
+					// This is to check that we can hardreset and then reestablish
 					try {
 						if (! handshake()) {
 							Log.e("IOIOConnection", "handshake FAILED");
@@ -204,13 +218,27 @@ public class IOIO implements IOIOApi {
 					try {
 						// Handle any incoming packets
 						int message_type;
-						while (state == CONNECTED) {							
-							
+						while (state == CONNECTED) {														
 							message_type = in.read();
 							// TODO(arshan): how do we re-sync if things have gone bad.
 							switch (message_type) {
+							
 							case ESTABLISH_CONNECTION:
+								// this means the IOIO has reset.
 								break;
+							
+							case REPORT_DIGITAL_STATUS:							
+								break;
+								
+							case REPORT_ANALOG_FORMAT:
+								break;
+								
+							case REPORT_ANALOG_STATUS:
+								break;
+								
+							case REPORT_PERIODIC_DIGITAL:
+								break;
+																
 							default:
 								Log.i("IOIOConnection", "Unknown message type : " + message_type);
 								state = SHUTTINGDOWN; // conservative now, try to recover later.
@@ -256,13 +284,14 @@ public class IOIO implements IOIOApi {
 						socket.close();
 						socket = null;
 					}
-					socket = ssocket.accept();					
+					socket = ssocket.accept();		
+					state = CONNECTED;
 				}
 				catch (SocketTimeoutException toe) {
-					
+					toe.printStackTrace();
 				}
 				catch (IOException e) {
-					
+					e.printStackTrace();
 				}
 				return isConnected();
 		}
@@ -297,11 +326,19 @@ public class IOIO implements IOIOApi {
 	 */
 	public class IOIOPacket {
 		
-		private int message;
-		private byte[] payload;
+		public final int message;
+		public final byte[] payload;
 
 		public IOIOPacket(int message, byte[] payload) {
-			
+			this.message = message;
+			if (payload == null ) {
+				// better as 0 length array? 
+				this.payload = null;
+			}
+			else {
+				this.payload = new byte[payload.length];
+				System.arraycopy(payload, 0, this.payload, 0, this.payload.length);
+			}
 		}
 		
 	}
@@ -319,8 +356,6 @@ public class IOIO implements IOIOApi {
 	}
 
 	public void disconnect() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public DigitalInput getDigitalInput(int pin) {
