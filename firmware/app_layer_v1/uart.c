@@ -7,9 +7,6 @@
 #include "byte_queue.h"
 #include "protocol.h"
 
-// TODO: temp
-#include "uart2.h"
-
 #define RX_BUF_SIZE 128
 #define TX_BUF_SIZE 256
 
@@ -97,6 +94,7 @@ void UARTTasks() {
     int size;
     const BYTE* data;
     ByteQueue* q = rx_queues + i;
+    BYTE lock;
     ByteQueuePeek(q, &data, &size);
     if (size > 64) size = 64;  // truncate
     if (size) {
@@ -106,36 +104,30 @@ void UARTTasks() {
       msg.args.uart_data.uart_num = i;
       msg.args.uart_data.size = size - 1;
       AppProtocolSendMessageWithVarArg(&msg, data, size);
+      ByteQueueLock(q, lock, 4);
       ByteQueuePull(q, size);
+      ByteQueueUnlock(q, lock);
     }
   }
 }
 
 static void TXInterrupt(int uart) {
-  UART2PutChar('.');
-  BYTE lock;
   volatile UART* reg = UART_REG(uart);
   ByteQueue* q = tx_queues + uart;
-  ByteQueueLock(q, lock, 4);
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
     SetUARTTXIF(uart, 0);
     reg->uxtxreg = ByteQueuePullByte(q);
   }
   SetUARTTXIE(uart, ByteQueueSize(q) != 0);
-  ByteQueueUnlock(q, lock);
 }
 
 static void RXInterrupt(int uart) {
-  UART2PutChar(':');
-  BYTE lock;
   volatile UART* reg = UART_REG(uart);
   ByteQueue* q = rx_queues + uart;
-  ByteQueueLock(q, lock, 4);
   // TODO: handle error
   while (reg->uxsta & 0x0001) {
     ByteQueuePushByte(q, reg->uxrxreg);
   }
-  ByteQueueUnlock(q, lock);
 }
 
 void UARTTransmit(int uart, const void* data, int size) {
