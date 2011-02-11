@@ -17,45 +17,34 @@ static ByteQueue tx_queues[NUM_UARTS];
 
 #define UART_REG(num) (((volatile UART *) &UART1) + num)
 
-// This is a "function template" for setting interrupt related flags for UART
-// by number. It currently only works if there are 4 UARTs. Can be fixed with
-// some pre-processor magic when the time comes.
+// The macro magic below generates for each type of flag from
+// {RXIE, TXIE, RXIF, TXIF, RXIP, TXIP}
+// an array of function pointers for setting this flag, where each element in
+// the array corresponds to a single UART.
+//
+// For example, to set RXIE of UART2 to 1, call:
+// SetRXIE[1](1);
+#define UART_FLAG_FUNC(uart, flag) static void Set##flag##uart(int val) { _U##uart##flag = val; }
+
+typedef void (*UARTFlagFunc)(int val);
+
 #if NUM_UARTS != 4
   #error Currently only devices with 4 UARTs are supported. Please fix below.
 #endif
-#define SetUART(flag)                                    \
-  static void SetUART##flag(int uart, int val) {         \
-    switch (uart) {                                      \
-      case 0:                                            \
-        _U1##flag = val;                                 \
-        break;                                           \
-                                                         \
-      case 1:                                            \
-        _U2##flag = val;                                 \
-        break;                                           \
-                                                         \
-      case 2:                                            \
-        _U3##flag = val;                                 \
-        break;                                           \
-                                                         \
-      case 3:                                            \
-        _U4##flag = val;                                 \
-        break;                                           \
-                                                         \
-      default:                                           \
-        log_printf("Invalid UART number: %d", uart);     \
-        assert(0);                                       \
-    }                                                    \
-  }
 
-SetUART(RXIE)
-SetUART(TXIE)
-SetUART(RXIF)
-SetUART(TXIF)
-SetUART(RXIP)
-SetUART(TXIP)
+#define ALL_UART_FLAG_FUNC(flag) \
+  UART_FLAG_FUNC(1, flag)        \
+  UART_FLAG_FUNC(2, flag)        \
+  UART_FLAG_FUNC(3, flag)        \
+  UART_FLAG_FUNC(4, flag)        \
+  UARTFlagFunc Set##flag[NUM_UARTS] = { &Set##flag##1, &Set##flag##2, &Set##flag##3, &Set##flag##4 };
 
-#undef SetUART
+ALL_UART_FLAG_FUNC(RXIE)
+ALL_UART_FLAG_FUNC(RXIF)
+ALL_UART_FLAG_FUNC(RXIP)
+ALL_UART_FLAG_FUNC(TXIE)
+ALL_UART_FLAG_FUNC(TXIF)
+ALL_UART_FLAG_FUNC(TXIP)
 
 void UARTInit() {
   int i;
@@ -70,19 +59,19 @@ void UARTConfig(int uart, int rate, int high_speed, int two_stop_bits) {
   volatile UART* regs = UART_REG(uart);
   log_printf("UARTConfig(%d, %d, %d, %d)", uart, rate, high_speed, two_stop_bits);
   SAVE_UART1_FOR_LOG();
-  SetUARTRXIE(uart, 0);  // disable RX int.
-  SetUARTTXIE(uart, 0);  // disable TX int.
+  SetRXIE[uart](0);  // disable RX int.
+  SetTXIE[uart](0);  // disable TX int.
   regs->uxmode = 0x0000;  // disable UART
-  SetUARTRXIF(uart, 0);  // clear RX int.
-  SetUARTTXIF(uart, 0);  // clear TX int.
+  SetRXIF[uart](0);  // clear RX int.
+  SetTXIF[uart](0);  // clear TX int.
   // clear SW buffers
   ByteQueueInit(rx_queues + uart, rx_buffer[uart], RX_BUF_SIZE);
   ByteQueueInit(tx_queues + uart, tx_buffer[uart], TX_BUF_SIZE);
   if (rate) {
     regs->uxbrg = rate;
-    SetUARTRXIP(uart, 4);  // RX int. priority 4
-    SetUARTTXIP(uart, 4);  // TX int. priority 4
-    SetUARTRXIE(uart, 1);  // enable RX int.
+    SetRXIP[uart](4);  // RX int. priority 4
+    SetTXIP[uart](4);  // TX int. priority 4
+    SetRXIE[uart](1);  // enable RX int.
     regs->uxmode = 0x8000 | (high_speed ? 0x0008 : 0x0000) | two_stop_bits | 0x0040;  // enable TODO: disable loopback
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
   }
@@ -115,10 +104,10 @@ static void TXInterrupt(int uart) {
   volatile UART* reg = UART_REG(uart);
   ByteQueue* q = tx_queues + uart;
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
-    SetUARTTXIF(uart, 0);
+    SetTXIF[uart](0);
     reg->uxtxreg = ByteQueuePullByte(q);
   }
-  SetUARTTXIE(uart, ByteQueueSize(q) != 0);
+  SetTXIE[uart](ByteQueueSize(q) != 0);
 }
 
 static void RXInterrupt(int uart) {
@@ -137,7 +126,7 @@ void UARTTransmit(int uart, const void* data, int size) {
   ByteQueue* q = tx_queues + uart;
   ByteQueueLock(q, lock, 4);
   ByteQueuePushBuffer(q, data, size);
-  SetUARTTXIE(uart, 1);  // enable TX int.
+  SetTXIE[uart](1);  // enable TX int.
   ByteQueueUnlock(q, lock);
 }
 
