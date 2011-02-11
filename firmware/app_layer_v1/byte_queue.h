@@ -17,6 +17,7 @@ typedef struct {
   static BYTE name##_buf[size];                           \
   static ByteQueue name = { name##_buf, size, 0, 0, 0 }
 
+// TODO: get these out of here - they are not buffer-related
 #define ByteQueueLock(lock, level) do { lock = SRbits.IPL; SRbits.IPL = level; } while (0)
 #define ByteQueueUnlock(lock) do { SRbits.IPL = lock; } while (0)
 
