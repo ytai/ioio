@@ -14,7 +14,6 @@
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
-#define VAR_IN_ARGS 0x80
 #define FIRMWARE_ID              0x00000001LL
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
@@ -30,7 +29,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PWM_DUTY_CYCLE_ARGS),
   sizeof(SET_PWM_PERIOD_ARGS),
   sizeof(SET_PIN_ANALOG_IN_ARGS),
-  sizeof(UART_DATA_ARGS) | VAR_IN_ARGS
+  sizeof(UART_DATA_ARGS),
+  sizeof(UART_CONFIG_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -48,7 +48,8 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(SET_PIN_ANALOG_IN_ARGS),
-  sizeof(UART_DATA_ARGS)
+  sizeof(UART_DATA_ARGS),
+  sizeof(UART_CONFIG_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -100,24 +101,24 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
   BYTE lock;
-  ByteQueueLock(&tx_queue, lock, 1);
+  ByteQueueLock(lock, 1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  ByteQueueUnlock(&tx_queue, lock);
+  ByteQueueUnlock(lock);
 }
 
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
   BYTE lock;
-  ByteQueueLock(&tx_queue, lock, 1);
+  ByteQueueLock(lock, 1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data, size);
-  ByteQueueUnlock(&tx_queue, lock);
+  ByteQueueUnlock(lock);
 }
 
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   if (ADBChannelReady(h)) {
     BYTE lock;
-    ByteQueueLock(&tx_queue, lock, 1);
+    ByteQueueLock(lock, 1);
     const BYTE* data;
     int size;
     if (bytes_transmitted) {
@@ -129,7 +130,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
       ADBWrite(h, data, size);
       bytes_transmitted = size;
     }
-    ByteQueueUnlock(&tx_queue, lock);
+    ByteQueueUnlock(lock);
   }
 }
 
@@ -214,6 +215,17 @@ static BOOL MessageDone() {
                    rx_msg.args.uart_data.size + 1);
       break;
 
+    case UART_CONFIG:
+      CHECK(rx_msg.args.uart_config.uart_num < NUM_UARTS);
+      CHECK(rx_msg.args.uart_config.parity < 3);
+      UARTConfig(rx_msg.args.uart_config.uart_num,
+                 rx_msg.args.uart_config.rate,
+                 rx_msg.args.uart_config.speed4x,
+                 rx_msg.args.uart_config.two_stop_bits,
+                 rx_msg.args.uart_config.parity);
+      Echo();
+      break;
+
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
     // Call Echo() if the message is to be echoed back.
 
@@ -246,7 +258,7 @@ BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
       switch (rx_message_state) {
         case WAIT_TYPE:
           rx_message_state = WAIT_ARGS;
-          rx_message_remaining = incoming_arg_size[rx_msg.type] & ~VAR_IN_ARGS;
+          rx_message_remaining = incoming_arg_size[rx_msg.type];
           if (rx_message_remaining) break;
           // fall-through on purpose
 

@@ -49,30 +49,28 @@ ALL_UART_FLAG_FUNC(TXIP)
 void UARTInit() {
   int i;
   for (i = 0; i < NUM_UARTS; ++i) {
-    UARTConfig(i, 0, 0, 0);
+    UARTConfig(i, 0, 0, 0, 0);
+    SetRXIP[i](4);  // RX int. priority 4
+    SetTXIP[i](4);  // TX int. priority 4
   }
-  // TODO: temp
-  UARTConfig(0, 207, 1, 0);
 }
 
-void UARTConfig(int uart, int rate, int high_speed, int two_stop_bits) {
+void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity) {
   volatile UART* regs = UART_REG(uart);
-  log_printf("UARTConfig(%d, %d, %d, %d)", uart, rate, high_speed, two_stop_bits);
+  log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart, rate, speed4x, two_stop_bits, parity);
   SAVE_UART1_FOR_LOG();
   SetRXIE[uart](0);  // disable RX int.
   SetTXIE[uart](0);  // disable TX int.
   regs->uxmode = 0x0000;  // disable UART
-  SetRXIF[uart](0);  // clear RX int.
-  SetTXIF[uart](0);  // clear TX int.
   // clear SW buffers
   ByteQueueInit(rx_queues + uart, rx_buffer[uart], RX_BUF_SIZE);
   ByteQueueInit(tx_queues + uart, tx_buffer[uart], TX_BUF_SIZE);
   if (rate) {
     regs->uxbrg = rate;
-    SetRXIP[uart](4);  // RX int. priority 4
-    SetTXIP[uart](4);  // TX int. priority 4
+    SetRXIF[uart](0);  // clear RX int.
+    SetTXIF[uart](0);  // clear TX int.
     SetRXIE[uart](1);  // enable RX int.
-    regs->uxmode = 0x8000 | (high_speed ? 0x0008 : 0x0000) | two_stop_bits | 0x0040;  // enable TODO: disable loopback
+    regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
   }
 }
@@ -93,9 +91,9 @@ void UARTTasks() {
       msg.args.uart_data.uart_num = i;
       msg.args.uart_data.size = size - 1;
       AppProtocolSendMessageWithVarArg(&msg, data, size);
-      ByteQueueLock(q, lock, 4);
+      ByteQueueLock(lock, 4);
       ByteQueuePull(q, size);
-      ByteQueueUnlock(q, lock);
+      ByteQueueUnlock(lock);
     }
   }
 }
@@ -124,10 +122,10 @@ void UARTTransmit(int uart, const void* data, int size) {
   SAVE_UART1_FOR_LOG();
   BYTE lock;
   ByteQueue* q = tx_queues + uart;
-  ByteQueueLock(q, lock, 4);
+  ByteQueueLock(lock, 4);
   ByteQueuePushBuffer(q, data, size);
   SetTXIE[uart](1);  // enable TX int.
-  ByteQueueUnlock(q, lock);
+  ByteQueueUnlock(lock);
 }
 
 #define DEFINE_INTERRUPT_HANDLERS(uart)                                   \
