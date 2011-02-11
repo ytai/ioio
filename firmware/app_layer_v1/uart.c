@@ -15,7 +15,12 @@ static BYTE tx_buffer[NUM_UARTS][TX_BUF_SIZE];
 static ByteQueue rx_queues[NUM_UARTS];
 static ByteQueue tx_queues[NUM_UARTS];
 
-#define UART_REG(num) (((volatile UART *) &UART1) + num)
+volatile UART* uart_reg[NUM_UARTS] = {
+  (volatile UART*) 0x220,
+  (volatile UART*) 0x230,
+  (volatile UART*) 0x250,
+  (volatile UART*) 0x280
+};
 
 // The macro magic below generates for each type of flag from
 // {RXIE, TXIE, RXIF, TXIF, RXIP, TXIP}
@@ -56,7 +61,7 @@ void UARTInit() {
 }
 
 void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity) {
-  volatile UART* regs = UART_REG(uart);
+  volatile UART* regs = uart_reg[uart];
   log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart, rate, speed4x, two_stop_bits, parity);
   SAVE_UART1_FOR_LOG();
   SetRXIE[uart](0);  // disable RX int.
@@ -99,7 +104,7 @@ void UARTTasks() {
 }
 
 static void TXInterrupt(int uart) {
-  volatile UART* reg = UART_REG(uart);
+  volatile UART* reg = uart_reg[uart];
   ByteQueue* q = tx_queues + uart;
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
     SetTXIF[uart](0);
@@ -109,7 +114,7 @@ static void TXInterrupt(int uart) {
 }
 
 static void RXInterrupt(int uart) {
-  volatile UART* reg = UART_REG(uart);
+  volatile UART* reg = uart_reg[uart];
   ByteQueue* q = rx_queues + uart;
   // TODO: handle error
   while (reg->uxsta & 0x0001) {
