@@ -48,7 +48,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
-  sizeof(RESERVED_ARGS),
+  sizeof(UART_REPORT_TX_STATUS),
   sizeof(SET_PIN_ANALOG_IN_ARGS),
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
@@ -228,6 +228,7 @@ static BOOL MessageDone() {
                  rx_msg.args.uart_config.two_stop_bits,
                  rx_msg.args.uart_config.parity);
       Echo();
+      UARTReportTxStatus(rx_msg.args.uart_config.uart_num);
       break;
 
     case SET_PIN_UART_RX:

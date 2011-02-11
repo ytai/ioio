@@ -98,23 +98,34 @@ typedef struct PACKED {
   WORD period;
 } SET_PWM_PERIOD_ARGS;
 
+// uart report tx status
+typedef struct PACKED {
+  BYTE uart_num : 2;
+  WORD bytes_remaining : 14;
+} UART_REPORT_TX_STATUS_ARGS;
+
+// set pin analog in
 typedef struct PACKED {
   BYTE pin;
 } SET_PIN_ANALOG_IN_ARGS;
 
+// report analog in format
 typedef struct PACKED {
   BYTE num_pins;
 } REPORT_ANALOG_IN_FORMAT_ARGS;
 
+// report analog in status
 typedef struct PACKED {
 } REPORT_ANALOG_IN_STATUS_ARGS;
 
+// uart data
 typedef struct PACKED {
   BYTE size : 6;
   BYTE uart_num : 2;
   BYTE data[0];
 } UART_DATA_ARGS;
 
+// uart config
 typedef struct PACKED {
   BYTE parity : 2;
   BYTE two_stop_bits : 1;
@@ -124,6 +135,7 @@ typedef struct PACKED {
   WORD rate;
 } UART_CONFIG_ARGS;
 
+// set pin uart rx
 typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
@@ -132,6 +144,7 @@ typedef struct PACKED {
   BYTE enable : 1;
 } SET_PIN_UART_RX_ARGS;
 
+// set pin uart tx
 typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
@@ -174,6 +187,7 @@ typedef struct PACKED {
     REPORT_PERIODIC_DIGITAL_IN_STATUS_ARGS  report_periodic_digital_in_status;
     REPORT_ANALOG_IN_FORMAT_ARGS            report_analog_in_format;
     REPORT_ANALOG_IN_STATUS_ARGS            report_analog_in_status;
+    UART_REPORT_TX_STATUS_ARGS              uart_report_tx_status;
     UART_DATA_ARGS                          uart_data;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
@@ -196,6 +210,7 @@ typedef enum {
   SET_PWM_DUTY_CYCLE                = 0x09,
   REPORT_ANALOG_IN_STATUS           = 0x09,
   SET_PWM_PERIOD                    = 0x0A,
+  UART_REPORT_TX_STATUS             = 0x0A,
   SET_PIN_ANALOG_IN                 = 0x0B,
   UART_DATA                         = 0x0C,
   UART_CONFIG                       = 0x0D,

@@ -30,5 +30,6 @@ void ByteQueuePushByte(ByteQueue* q, BYTE b);
 BYTE ByteQueuePullByte(ByteQueue* q);
 
 static inline int ByteQueueSize(ByteQueue* q) { return q->size; }
+static inline int ByteQueueRemaining(ByteQueue* q) { return q->capacity - q->size; }
 
 #endif  // __BYTEQUEUE_H__

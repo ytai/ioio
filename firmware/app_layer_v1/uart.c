@@ -15,6 +15,8 @@ static BYTE tx_buffer[NUM_UARTS][TX_BUF_SIZE];
 static ByteQueue rx_queues[NUM_UARTS];
 static ByteQueue tx_queues[NUM_UARTS];
 
+static int num_tx_since_last_report[NUM_UARTS];
+
 volatile UART* uart_reg[NUM_UARTS] = {
   (volatile UART*) 0x220,
   (volatile UART*) 0x230,
@@ -70,6 +72,7 @@ void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity) 
   // clear SW buffers
   ByteQueueInit(rx_queues + uart, rx_buffer[uart], RX_BUF_SIZE);
   ByteQueueInit(tx_queues + uart, tx_buffer[uart], TX_BUF_SIZE);
+  num_tx_since_last_report[uart] = 0;
   if (rate) {
     regs->uxbrg = rate;
     SetRXIF[uart](0);  // clear RX int.
@@ -100,7 +103,25 @@ void UARTTasks() {
       ByteQueuePull(q, size);
       ByteQueueUnlock(lock);
     }
+    if (num_tx_since_last_report[i] > TX_BUF_SIZE / 2) {
+      UARTReportTxStatus(i);
+    }
   }
+}
+
+void UARTReportTxStatus(int uart) {
+  int remaining;
+  ByteQueue* q = tx_queues + uart;
+  BYTE lock;
+  ByteQueueLock(lock, 4);
+  remaining = ByteQueueRemaining(q);
+  num_tx_since_last_report[uart] = 0;
+  ByteQueueUnlock(lock);
+  OUTGOING_MESSAGE msg;
+  msg.type = UART_REPORT_TX_STATUS;
+  msg.args.uart_report_tx_status.uart_num = uart;
+  msg.args.uart_report_tx_status.bytes_remaining = remaining;
+  AppProtocolSendMessage(&msg);
 }
 
 static void TXInterrupt(int uart) {
@@ -109,6 +130,7 @@ static void TXInterrupt(int uart) {
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
     SetTXIF[uart](0);
     reg->uxtxreg = ByteQueuePullByte(q);
+    ++num_tx_since_last_report[uart];
   }
   SetTXIE[uart](ByteQueueSize(q) != 0);
 }
