@@ -14,10 +14,14 @@
 
 static void PinsInit() {
   int i;
+  _CNIE = 0;
   // reset pin states
   SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
   for (i = 1; i < NUM_PINS; ++i) {
     SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+  }
+  for (i = 0; i < NUM_UARTS; ++i) {
+    SetPinUartRx(0, i, 0);
   }
   // clear and enable global CN interrupts
   _CNIF = 0;
@@ -68,6 +72,37 @@ void SetPinPwm(int pin, int pwm_num) {
   log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
   SAVE_PIN4_FOR_LOG();
   PinSetRpor(pin, pwm_num == 0x0F ? 0 : (pwm_num == 8 ? 35 : 18 + pwm_num));
+}
+
+void SetPinUartRx(int pin, int uart, int enable) {
+  log_printf("SetPinUartRx(%d, %d, %d)", pin, uart, enable);
+  SAVE_PIN4_FOR_LOG();
+  SAVE_UART1_FOR_LOG();
+  int rpin = enable ? PinToRpin(pin) : 0x3F;
+  switch (uart) {
+    case 0:
+      _U1RXR = rpin;
+      break;
+
+    case 1:
+      _U2RXR = rpin;
+      break;
+
+    case 2:
+      _U3RXR = rpin;
+      break;
+
+    case 3:
+      _U4RXR = rpin;
+      break;
+  }
+}
+
+void SetPinUartTx(int pin, int uart, int enable) {
+  log_printf("SetPinUartTx(%d, %d, %d)", pin, uart, enable);
+  SAVE_PIN4_FOR_LOG();
+  const BYTE rp[] = { 3, 5, 28, 30 };
+  PinSetRpor(pin, enable ? rp[uart] : 0);
 }
 
 void SetPinAnalogIn(int pin) {

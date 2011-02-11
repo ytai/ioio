@@ -159,6 +159,19 @@ typedef struct {
     MAKE_CN_INFO(2, 2),  // 48 (49)
   };
 
+  const signed char pin_to_rpin[NUM_PINS] = {
+    16, -1, -1,  2,  4,  3, 12, 11,
+    -1, 37, 24, 23, 22, 25, 20, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, 21, 26, 19,
+  #ifdef IOIO_V10
+                            -1,
+  #endif
+                            27, 18,
+    28, -1, 13,  1,  0,  6,  7,  8,
+     9, -1, -1, -1, -1, 14, 29, 10,
+    17  };
+
   #if defined(IOIO_V10)
     static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -322,4 +335,8 @@ int PinToAnalogChannel(int pin) {
      || pin - MIN_ANALOG_PIN >= ARRAY_SIZE(pin_to_analog))
     return -1;
   return pin_to_analog[pin - MIN_ANALOG_PIN];
+}
+
+int PinToRpin(int pin) {
+  return pin_to_rpin[pin];
 }

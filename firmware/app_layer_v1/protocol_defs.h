@@ -124,6 +124,22 @@ typedef struct PACKED {
   WORD rate;
 } UART_CONFIG_ARGS;
 
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 2;
+  BYTE uart_num : 2;
+  BYTE : 5;
+  BYTE enable : 1;
+} SET_PIN_UART_RX_ARGS;
+
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 2;
+  BYTE uart_num : 2;
+  BYTE : 5;
+  BYTE enable : 1;
+} SET_PIN_UART_TX_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -143,6 +159,8 @@ typedef struct PACKED {
     SET_PIN_ANALOG_IN_ARGS                   set_pin_analog_in;
     UART_DATA_ARGS                           uart_data;
     UART_CONFIG_ARGS                         uart_config;
+    SET_PIN_UART_RX_ARGS                     set_pin_uart_rx;
+    SET_PIN_UART_TX_ARGS                     set_pin_uart_tx;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -181,6 +199,9 @@ typedef enum {
   SET_PIN_ANALOG_IN                 = 0x0B,
   UART_DATA                         = 0x0C,
   UART_CONFIG                       = 0x0D,
+  SET_PIN_UART_RX                   = 0x0E,
+  SET_PIN_UART_TX                   = 0x0F,
+
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
 } MESSAGE_TYPE;
