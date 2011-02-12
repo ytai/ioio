@@ -6,6 +6,7 @@ package ioio.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -80,16 +81,7 @@ public class IOIO extends Service implements IOIOApi {
 	}
 	
 	
-	// Support for service interface.	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		
-		// if Server thread is not started, then do it. 
-		
-	    // We want this service to continue running until it is explicitly
-	    // stopped, so return sticky.
-	    return START_STICKY;
-	}
+
 	
 
 	@Override
@@ -188,7 +180,8 @@ public class IOIO extends Service implements IOIOApi {
 			this.ssocket = ssocket;
 		}
 		
-		public boolean startService() throws IOException {
+		public boolean startService() throws IOException, BindException{
+			
 			ssocket = new ServerSocket(this.port);							
 			return true;
 		}
@@ -248,12 +241,14 @@ public class IOIO extends Service implements IOIOApi {
 		 */
 		public void run() {						
 			setTimeout(IOIO_TIMEOUT);
+			
 			try {
 				startService();
 			} catch (IOException e) {
 				Log.e("IOIOConnection", "Could not open serversocket");
 				e.printStackTrace();
-			}
+				return; 
+			} 
 			
 			while (true) {
 				if (reconnect()) {					
@@ -441,12 +436,12 @@ public class IOIO extends Service implements IOIOApi {
 		return null;
 	}
 
-	public PwmOutput getPWMOutput(int pin) {
+	public PwmOutput openPwmOutput(int pin) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Uart openUART(int rx, int tx, int baud, int parity, int stopbits) {
+	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits) {
 		// TODO Auto-generated method stub
 		return null;
 	}
