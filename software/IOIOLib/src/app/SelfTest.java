@@ -1,12 +1,13 @@
 package app;
 
+import ioio.lib.DigitalInput;
+import ioio.lib.DigitalOutput;
+import ioio.lib.IOIO;
+import ioio.lib.IOIOException;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import org.ioio.DigitalInput;
-import org.ioio.DigitalOutput;
-import org.ioio.IOIO;
-import org.ioio.IOIOException;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -67,15 +68,14 @@ public class SelfTest extends Activity {
     			}
     			catch (FailException fail) {
     				status("FAILED", Color.RED);
-    				StackTraceElement[] stack = fail.getStackTrace();
-    				for (StackTraceElement line : stack) {
+    				for (StackTraceElement line : fail.getStackTrace()) {
     					msg(line.toString());
     				}
     			}
     			catch (Exception e) {
     				exception(e);    
     				e.printStackTrace();
-    				}
+    			}
     			}
     		}.start();    	
     		
@@ -132,7 +132,7 @@ public class SelfTest extends Activity {
     					//	layout_root.setBackgroundColor(color);
     					//}
     				    statusText.setTextColor(color);
-    					statusText.setText(txt );    					
+    					statusText.setText(txt);    					
     				}
     			});  
     }
@@ -154,7 +154,7 @@ public class SelfTest extends Activity {
     public void testDigitalOutput() throws FailException {
 
     	msg("Starting Digital Output Test");
-    	DigitalOutput output = IOIO.getInstance().getDigitalOutput(OUTPUT_PIN);    
+    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);    
     	try {
     		for (int x = 0; x < REPETITIONS; x++) {
     			sleep(100);
@@ -175,8 +175,8 @@ public class SelfTest extends Activity {
 
     public void testDigitalInput() throws FailException {
     	msg("Starting Digital Input Test");
-    	DigitalInput input = IOIO.getInstance().getDigitalInput(INPUT_PIN);
-    	DigitalOutput output = IOIO.getInstance().getDigitalOutput(OUTPUT_PIN);
+    	DigitalInput input = IOIO.getInstance().openDigitalInput(INPUT_PIN);
+    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);
     	try {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.read());
