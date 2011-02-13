@@ -9,7 +9,7 @@ package ioio.lib;
 // ytai: for "analog" output, float is nicer. for servo control, absolute time in
 // ms may be more intuitive, or maybe even a different float that represents the angle.
 // why not expose both ways, commenting that they are different accessors to the same value?
-public class PwmOutput extends DigitalOutput {
+public class PwmOutput extends IOIOPin {
 
 	/**
 	 * percent duty cycle from 0 to 1
@@ -18,13 +18,12 @@ public class PwmOutput extends DigitalOutput {
 	private int period = 0; // period measured in us
 	
 	public PwmOutput(int pin) {
-		super(IOIO.getInstance(), pin);
+		super(pin);
 	}
 	
 	public PwmOutput(IOIO ioio, int pin) {
-		super(ioio, pin);
-	}
-	
+		super(pin);
+	}	
 	
 	/**
 	 * @param dutyCycle the dutyCycle to set

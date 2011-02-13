@@ -1,23 +1,57 @@
 package ioio.lib;
 
-// ytai: seems like it will be best if ALL API is interfaces and not classes.
-// will make it easy for us to make implementations over different protocols and 
-// specifically to introduce mocks for testing purposes.
-// arshan: agreed, will extract interfaces when we've nailed the classes.
-public class DigitalInput extends DigitalIO {
+import android.util.Log;
 
-	// ytai: don't understand the ctor. do you use the IOIOApi to obtain this object
-	// (my personal preference) or do you construct the object and pass it the IOIOApi?
-	// The latter isn't very clean, since it ruins some of the abstraction and will force us
-	// to expose low-level methods on IOIOApi.
-	// arshan: I was actually playing with it to see if there were possibilities here, I tend 
-	// to agree with you, but wanted to explore at this phase.
-	public DigitalInput(IOIOApi ioio, int pin) {
-		super(ioio, pin);
+public class DigitalInput extends IOIOPin implements IOIOPacketListener {
+
+	public static final int FLOATING = 0;
+	public static final int PULL_UP = 1;
+	public static final int PULL_DOWN = 2;
+	
+	private boolean active = false;
+	private boolean state = false;
+	
+	IOIO ioio;
+	
+	DigitalInput(IOIO ioio, int pin, int mode) {
+		super(pin);
+		this.ioio = ioio;
+		ioio.registerListener(this);
+		
+		init(mode);
 	}
 
-	@Override
-	public void write(boolean val) throws IOIOException{
-		throw new IOIOException("Cannot write value to an input pin.");
+	private void init(int mode) {
+		ioio.queuePacket(new IOIOPacket(
+			IOIO.SET_INPUT,
+			new byte[]{ (byte)(pin << 2 | mode) }
+			));
+		
+		ioio.queuePacket(new IOIOPacket(
+			IOIO.SET_CHANGE_NOTIFY,
+			new byte[]{(byte)(pin<<2 | 1)}
+		));
+		
+	}
+	
+	public boolean read() {
+		return state;
+	}
+	
+	public void handlePacket(IOIOPacket packet) {
+		// TODO(arshan): is it active before the first report? 
+		switch(packet.message) {
+		case IOIOApi.SET_INPUT:
+			active = true;
+			Log.i("IOIO","pin " + pin + " set as input");
+			break;
+		case IOIOApi.REPORT_DIGITAL_STATUS:
+			if (active && packet.payload[0] >> 2 == pin) {
+				state = ((packet.payload[0] & 0x1) == 0)? false : true; 
+				Log.i("IOIO", "pin " + pin + " status is here : " + (state?"Hi":"Low"));
+			}
+			break;
+		}
+		
 	}
 }

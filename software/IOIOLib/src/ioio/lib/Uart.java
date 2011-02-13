@@ -1,5 +1,7 @@
 package ioio.lib;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,6 +40,13 @@ public class Uart {
 		//TBI waiting on protocol spec
 	}
 	
+	public DataOutputStream openDataOutputStream() {
+		return new DataOutputStream(openOutputStream());
+	}
+	
+	public DataInputStream openDataInputStream() {
+		return new DataInputStream(openInputStream());
+	}
 	
 	public UARTOutputStream openOutputStream() {
 		return new UARTOutputStream(this);
@@ -46,35 +55,41 @@ public class Uart {
 	public UARTInputStream openInputStream() {
 		return new UARTInputStream(this);
 	}
+		
+	int readByte() {
+		return 0;
+	}
 	
-	// override the input/output streams? 
-	public void close() {
+	void writeByte(int val) {
 		
 	}
 	
 	public class UARTOutputStream extends OutputStream {
 
-		protected UARTOutputStream(Uart uart) {
-			
+		Uart parent;
+		
+		protected UARTOutputStream(Uart uart) {	
+			parent = uart;
 		}
 		
 		@Override
-		public void write(int arg0) throws IOException {
-			// TODO Auto-generated method stub
-			
+		public void write(int val) throws IOException {
+			parent.writeByte(val);			
 		}
 		
 	}
 
 	public class UARTInputStream extends InputStream {
 		
+		Uart parent;
+		
 		protected UARTInputStream(Uart uart) {			
+			parent = uart;
 		}
 		
 		@Override
 		public int read() throws IOException {
-			// TODO Auto-generated method stub
-			return 0;
+			return parent.readByte();
 		}		
 	}
 	
