@@ -44,6 +44,13 @@ public class PwmOutput extends DigitalOutput {
 	// resetting the period has the side effect of setting the DC to 0
 	// which may have undesired behavior.
 	// ouch, too bad. 
+	// ytai: i could change this behavior, only that is isn't clear what to change it to.
+	//       when changing the frequency, what should the new duty cycle be? should the
+	//       relative on-time be preserved? should the absolute on-time be preserved? what if the
+	//       absolute on-time is now greater than the entire period?
+	//       in all use-cases i had in mind, you initially set PWM frequency to something
+	//       that suits the peripheral you have conected there, and never touch it. i might
+	//       be overlooking something.
 	public void setPeriod(int period) {
 		this.period = period;
 	}

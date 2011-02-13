@@ -146,6 +146,13 @@ public class IOIO extends Service implements IOIOApi {
 		// arshan: not sure that 3seconds is the right time, but think we should have some 
 		// upper bound where if no connection is made we eject any pending requests of IOIO, 
 		// and any blocking calls in the api throw exceptions
+		// ytai: there are two separate scenarios here:
+		//       1. the program has just started. the user is expected to connect the IOIO to the
+		//          phone. in this case, and infinite timeout with the option to abort() (perhaps
+		//          during OnDestroy() etc. is probably the most reasonable behavior.
+		//       2. during the operation connection got lost. in this case, you should get an
+		//          IOException from the socket, and could internally abort all blocking calls,
+		//          throwing a IOIOConnectionLostExcption etc.
 		public static final int IOIO_TIMEOUT = 3000; 
 
 		ServerSocket ssocket;
