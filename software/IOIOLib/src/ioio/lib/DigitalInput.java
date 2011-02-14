@@ -16,9 +16,9 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener {
 	private boolean active = false;
 	private boolean state = false;
 	
-	IOIO ioio;
+	IOIOImplPic24f ioio;
 	
-	DigitalInput(IOIO ioio, int pin, int mode) {
+	DigitalInput(IOIOImplPic24f ioio, int pin, int mode) {
 		super(pin);
 		this.ioio = ioio;
 		ioio.registerListener(this);
@@ -28,12 +28,12 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener {
 
 	private void init(int mode) {
 		ioio.queuePacket(new IOIOPacket(
-			IOIO.SET_INPUT,
+			Constants.SET_INPUT,
 			new byte[]{ (byte)(pin << 2 | mode) }
 			));
 		
 		ioio.queuePacket(new IOIOPacket(
-			IOIO.SET_CHANGE_NOTIFY,
+			Constants.SET_CHANGE_NOTIFY,
 			new byte[]{(byte)(pin<<2 | 1)}
 		));
 		
@@ -46,11 +46,11 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener {
 	public void handlePacket(IOIOPacket packet) {
 		// TODO(arshan): is it active before the first report? 
 		switch(packet.message) {
-		case IOIOApi.SET_INPUT:
+		case Constants.SET_INPUT:
 			active = true;
 			Log.i("IOIO","pin " + pin + " set as input");
 			break;
-		case IOIOApi.REPORT_DIGITAL_STATUS:
+		case Constants.REPORT_DIGITAL_STATUS:
 			if (active && packet.payload[0] >> 2 == pin) {
 				state = ((packet.payload[0] & 0x1) == 0)? false : true; 
 				Log.i("IOIO", "pin " + pin + " status is here : " + (state?"Hi":"Low"));
