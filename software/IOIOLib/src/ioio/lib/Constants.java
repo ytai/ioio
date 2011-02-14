@@ -38,4 +38,9 @@ public class Constants {
 
 // Didnt find documentation but looking at firmware this seems right.
 public static final int IOIO_PORT = 4545;
+
+// Cache some packets that are static
+static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
+
+static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
 }

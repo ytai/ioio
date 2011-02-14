@@ -6,7 +6,6 @@ package ioio.lib;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 
 /**
@@ -20,11 +19,8 @@ import android.util.Log;
  */
 public class IOIOImplPic24f extends Service implements IOIO {
 
-	private static final String TAG = "IOIO";
-
 	// Where the onboard LED is connected.
 	public static final int LED_PIN = 0;
-
 
 	// for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
@@ -37,10 +33,6 @@ public class IOIOImplPic24f extends Service implements IOIO {
 	// for testing purposes we can give it mock input and output stream.
 	// for development we can stick a protocol logger between this layer and the TCP socket, etc.
 	static private IOIOImplPic24f singleton = null;
-
-	// Cache some packets that are static
-	private static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(Constants.HARD_RESET, Constants.IOIO_MAGIC);
-	private static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(Constants.SOFT_RESET, null);
 
 	private final IOIOConnection ioio_connection;
 
@@ -70,49 +62,47 @@ public class IOIOImplPic24f extends Service implements IOIO {
 		ioio_connection.sendToIOIO(pkt);
 	}
 
-	static long last_log = 0;
-	public static void log(String msg) {
-		long current = System.currentTimeMillis();
-		Log.i(TAG, msg + " @" + current + " (+" +(current-last_log)+ ")");
-		last_log = current;
-	}
+	private boolean abortConnection = false;
 
 	/**
 	 * Blocking call that will not return until connected.
 	 * hmm. this must throw an exception at some point, else very un-androidy
 	 */
-	// ytai: put a abort() method here that guarantees to immediately exist all currently
-	// blocking calls with an AbortedException or something.
-	public void connect() {
+	@Override
+    public void connect() {
+	    abortConnection = false;
+
 	    // TODO(birmiwal): throw exception if already connected?
 	    if (!isConnected()) {
   	        // TODO(arshan): this wants to move, sorting out good flow.
 	        ioio_connection.start();
 	    }
 	    // TODO(birmiwal): make this better
-	    while (!ioio_connection.isConnected()) {
+	    while (!isConnected() && !abortConnection) {
 	        try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 // do nothing for now
             }
 	    }
+	    // TODO(birmiwal): throw an AbortedException on abort
 	}
 
-	/**
-	 *
-	 */
+	@Override
+	public void abortConnection() {
+	    abortConnection = true;
+	}
+
+	@Override
 	public void softReset() {
-		ioio_connection.sendToIOIO(SOFT_RESET_PACKET);
+		ioio_connection.sendToIOIO(Constants.SOFT_RESET_PACKET);
 		ioio_connection.resetListeners();
 	}
 
-	/**
-	 *
-	 */
-	public void hardReset() {
+	@Override
+    public void hardReset() {
 		// request a reset
-		ioio_connection.sendToIOIO(HARD_RESET_PACKET);
+		ioio_connection.sendToIOIO(Constants.HARD_RESET_PACKET);
 	}
 
 	// Singleton? TBD
@@ -127,28 +117,41 @@ public class IOIOImplPic24f extends Service implements IOIO {
 		ioio_connection.registerListener(listener);
 	}
 
-	public void disconnect() {
+	@Override
+    public void disconnect() {
+	    ioio_connection.disconnect();
+	    try {
+            ioio_connection.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	}
 
 	// TODO(TF): support other modes.
-	public DigitalInput openDigitalInput(int pin) {
+	@Override
+    public DigitalInput openDigitalInput(int pin) {
 		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
 	}
 
-	public DigitalOutput openDigitalOutput(int pin) {
+	@Override
+    public DigitalOutput openDigitalOutput(int pin) {
 		return new DigitalOutput(this, pin, DigitalOutput.SOURCE);
 	}
 
-	public AnalogInput openAnalogInput(int pin) {
+	@Override
+    public AnalogInput openAnalogInput(int pin) {
 		return new AnalogInput(this,pin);
 	}
 
-	public PwmOutput openPwmOutput(int pin) {
+	@Override
+    public PwmOutput openPwmOutput(int pin) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
+	@Override
+    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
 		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
 	}
 
@@ -158,6 +161,4 @@ public class IOIOImplPic24f extends Service implements IOIO {
 	private int nextAvailableUart() {
 		return 0; // support just the one for now.
 	}
-
-
 }

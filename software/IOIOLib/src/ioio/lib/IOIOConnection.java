@@ -60,6 +60,8 @@ public class IOIOConnection extends Thread {
 	public static final int SHUTTINGDOWN = 2;
 	public static final int DISCONNECTED = 3;
 
+	private boolean disconnectionRequested;
+
 	public IOIOConnection() {
 		this(Constants.IOIO_PORT);
 	}
@@ -100,11 +102,11 @@ public class IOIOConnection extends Thread {
 		// TODO(arshan): verify that the hardware/firmware/bootloader versions are ones
 		// this library supports, for forward compatibility.
 
-		IOIOImplPic24f.log("Hardware ID : " + asInt(contents, 3, 4));
-		IOIOImplPic24f.log("Bootload ID : " + asInt(contents, 3, 7));
-		IOIOImplPic24f.log("Firmware ID : " + asInt(contents, 3, 10));
+		IOIOLogger.log("Hardware ID : " + asInt(contents, 3, 4));
+		IOIOLogger.log("Bootload ID : " + asInt(contents, 3, 7));
+		IOIOLogger.log("Firmware ID : " + asInt(contents, 3, 10));
 
-		IOIOImplPic24f.log("ESTABLISH packet verified");
+		IOIOLogger.log("ESTABLISH packet verified");
 		return true;
 	}
 
@@ -188,12 +190,12 @@ public class IOIOConnection extends Thread {
 		@Override
         public void run() {
 			IOIOPacket packet;
-			IOIOImplPic24f.log("started outgoing handler thread");
+			IOIOLogger.log("started outgoing handler thread");
 			try {
 			while (running) {
 				try {
 					packet = outgoing.take();
-					IOIOImplPic24f.log("Sending message " + packet.message);
+					IOIOLogger.log("Sending message " + packet.message);
 					out.write(packet.message);
 					if (packet.payload != null) {
 						out.write(packet.payload);
@@ -201,7 +203,7 @@ public class IOIOConnection extends Thread {
 				}
 				catch (InterruptedException ie)	{
 					if (!running) {
-						IOIOImplPic24f.log("outgoing thread exiting");
+						IOIOLogger.log("outgoing thread exiting");
 						return; }
 				}
 			}
@@ -212,7 +214,7 @@ public class IOIOConnection extends Thread {
 		}
 
 		public synchronized void halt() {
-				IOIOImplPic24f.log("halting outgoing thread");
+				IOIOLogger.log("halting outgoing thread");
 				running = false;
 				this.notifyAll();
 		}
@@ -232,12 +234,12 @@ public class IOIOConnection extends Thread {
 			return;
 		}
 
-		while (true) {
-			IOIOImplPic24f.log("waiting for connection");
+		while (!disconnectionRequested) {
+			IOIOLogger.log("waiting for connection");
 			if (reconnect()) {
 			     resetListeners();
 				// state here must be CONNECTED
-				IOIOImplPic24f.log("initial connection");
+				IOIOLogger.log("initial connection");
 				try {
 					in = socket.getInputStream();
 					out = socket.getOutputStream();
@@ -249,7 +251,7 @@ public class IOIOConnection extends Thread {
 				try {
 					// Handle any incoming packets
 					int message_type;
-					while (state == CONNECTED) {
+					while (!disconnectionRequested && state == CONNECTED) {
 
 						message_type = readByte();
 
@@ -309,24 +311,19 @@ public class IOIOConnection extends Thread {
 
 						// TODO(TF): we are avoiding this with a while loop above, theres a bug somewhere.
 						case EOF: // The universal signal of end connection
-							IOIOImplPic24f.log("Connection broken by EOF");
+							IOIOLogger.log("Connection broken by EOF");
 							state = SHUTTINGDOWN;
 							break;
 
 						default:
 							// TODO(ytai): if we had a standard header, that included number of payload bytes ...
-							IOIOImplPic24f.log("Unknown message type : " + message_type);
+							IOIOLogger.log("Unknown message type : " + message_type);
 						    state = SHUTTINGDOWN; // conservative now, try to recover later.
 						}
 					}
 
 					if (state == SHUTTINGDOWN) {
-						IOIOImplPic24f.log("Connection is shutting down");
-						outgoingHandler.halt();
-						in.close();
-						out.close();
-						socket.close();
-						socket = null;
+						handleShutdown();
 					}
 
 				} catch (IOException e) {
@@ -339,6 +336,15 @@ public class IOIOConnection extends Thread {
 			}
 		}
 	}
+
+    private void handleShutdown() throws IOException {
+        IOIOLogger.log("Connection is shutting down");
+        outgoingHandler.halt();
+        in.close();
+        out.close();
+        socket.close();
+        socket = null;
+    }
 
 	private void figureAnalogBytes() {
 
@@ -394,7 +400,7 @@ public class IOIOConnection extends Thread {
 	 */
 	public void handleIOIOPacket(IOIOPacket packet) {
 		// send to my listeners
-		IOIOImplPic24f.log("handle packet : " + packet.message);
+		IOIOLogger.log("handle packet : " + packet.message);
 		// TODO(arshan): add some filters for message types? we've already case'd it above
 		for (IOIOPacketListener listener: listeners) {
 			listener.handlePacket(packet);
@@ -416,4 +422,16 @@ public class IOIOConnection extends Thread {
 	public void sendToIOIO(IOIOPacket packet) {
 		outgoing.offer(packet);
 	}
+
+    public void disconnect() {
+        disconnectionRequested = true;
+        try {
+            handleShutdown();
+            ssocket.close();
+            ssocket = null;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

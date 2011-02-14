@@ -11,6 +11,8 @@ public interface IOIO {
 
 	public void disconnect();
 
+	public void abortConnection();
+
 	public void softReset();
 
 	public void hardReset();
