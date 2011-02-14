@@ -1,5 +1,12 @@
 package ioio.lib;
 
+/**
+ * Base class for the IOIOPins. 
+ * 
+ * TODO(TF): account for the pin usage, restrict illegal use and already claimed pins.
+ * 
+ * @author arshan
+ */
 public class IOIOPin {
 	
 	protected int pin;
@@ -7,6 +14,7 @@ public class IOIOPin {
 	public IOIOPin(int pin) {
 		this.pin = pin;
 	}
+	
 	/**
 	 * Call when you are finished using the pin.
 	 * This will return it to the pool of available connections.

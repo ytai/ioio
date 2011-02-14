@@ -22,6 +22,9 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <cstdint>
+#include <cstring>
+
 using namespace std;
 
 // a block the size of one flash row = 64 instructions = 256 bytes

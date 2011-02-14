@@ -1,3 +1,5 @@
+// A generic byte queue, used for data buffering.
+
 #ifndef __BYTEQUEUE_H__
 #define __BYTEQUEUE_H__
 

@@ -1,5 +1,5 @@
 /**
- * 
+ * TODO(TF): What is the copyright info? all the files need it
  */
 package ioio.lib;
 
@@ -11,6 +11,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.LinkedList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import android.app.Service;
 import android.content.Intent;
@@ -18,14 +21,18 @@ import android.os.IBinder;
 import android.util.Log;
 
 /**
- * High level interface and vars.
+ * High level interface and vars to the IOIO.
+ * 
+ * TODO(TF): make sure the right set of methods are extracted to the interface
+ * TODO(TF): manage resources, ie. uart modules, pwm modules, pin allocation, mcu usage
+ * TODO(arshan): refactor this to IOIOPic24 or something more descriptive.
+ * 
  * @author arshan
  */
 public class IOIO extends Service implements IOIOApi {
 
-	// Magic bytes for the IOIO, spells 'IOIO'
-	public final byte[] IOIO_MAGIC = { 0x49,  0x4F, 0x49, 0x4F };
-
+	private static final String TAG = "IOIO";
+	
 	// Where the onboard LED is connected.
 	public static final int LED_PIN = 0;
 	
@@ -42,32 +49,11 @@ public class IOIO extends Service implements IOIOApi {
 	// for development we can stick a protocol logger between this layer and the TCP socket, etc.
 	static private IOIO singleton = null;
 	
-	// Outgoing messages
-	private static final int HARD_RESET 	= 0x00;
-	private static final int SOFT_RESET 	= 0x01;
-	private static final int SET_OUTPUT 	= 0x02;
-	private static final int SET_VALUE 		= 0x03;
-	private static final int SET_INPUT 		= 0x04;
-	private static final int SET_CHANGE_NOTIFY = 0x05;
-	private static final int SET_PERIODIC_SAMPLE = 0x06;
-	private static final int RESERVED1 = 0x07;
-	private static final int SET_PWM = 0x08;
-	private static final int SET_DUTYCYCLE = 0x09;
-	private static final int SET_PERIOD = 0x0A;
-	private static final int SET_ANALOG_INPUT = 0x0B;
-	private static final int UART_TX = 0x0C;
 	
 	// Cache some packets that are static
 	private IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
 	private IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
 	
-	// Incoming messages (where different)
-	private static final int ESTABLISH_CONNECTION = 0x00;
-	private static final int REPORT_DIGITAL_STATUS = 0x03;
-	private static final int REPORT_PERIODIC_DIGITAL = 0x07;
-	private static final int REPORT_ANALOG_FORMAT = 0x08;
-	private static final int REPORT_ANALOG_STATUS = 0x09;
-	private static final int UART_RX = 0x0C;
 	
 	private IOIOConnection ioio_connection;
 	/**
@@ -76,11 +62,14 @@ public class IOIO extends Service implements IOIOApi {
 	 */
 	public IOIO() {
 		ioio_connection = new IOIOConnection();
+		init();
 		// TODO(arshan): this wants to move, sorting out good flow.
 		ioio_connection.start();
 	}
 	
-	
+	private void init() {
+		ioio_connection.init();
+	}
 
 	
 
@@ -91,6 +80,18 @@ public class IOIO extends Service implements IOIOApi {
 	
 	public boolean isConnected() {
 		return ioio_connection.isConnected();
+	}
+	
+	// queue an outgoing packet
+	public void queuePacket(IOIOPacket pkt) {
+		ioio_connection.sendToIOIO(pkt);
+	}
+	
+	long last_log = 0;
+	public void log(String msg) {
+		long current = System.currentTimeMillis();
+		Log.i(TAG, msg + " @" + current + " (+" +(current-last_log)+ ")");
+		last_log = current;
 	}
 	
 	/**
@@ -108,6 +109,7 @@ public class IOIO extends Service implements IOIOApi {
 	 */
 	public void softReset() {
 		ioio_connection.sendToIOIO(SOFT_RESET_PACKET);
+		init();
 	}
 	
 	/**
@@ -134,6 +136,13 @@ public class IOIO extends Service implements IOIOApi {
 	 */
 	public class IOIOConnection extends Thread {
 				
+		private static final String TAG = "IOIOConnection";
+		
+		BlockingQueue<IOIOPacket> outgoing = new LinkedBlockingQueue<IOIOPacket>();
+		OutgoingHandler outgoingHandler;
+		
+		LinkedList<IOIOPacketListener> listeners;
+		
 		// Didnt find documentation but looking at firmware this seems right.
 		public static final int IOIO_PORT = 4545;
 		
@@ -155,12 +164,18 @@ public class IOIO extends Service implements IOIOApi {
 		//          throwing a IOIOConnectionLostExcption etc.
 		public static final int IOIO_TIMEOUT = 3000; 
 
+		public static final int EOF = -1;
+		
 		ServerSocket ssocket;
 		Socket socket;
 		int port;
 
 		InputStream in;
 		OutputStream out;
+
+		// Connection specific vars for analog status.
+	    int analogPinCount = 0;
+	    int analogPinBytes = 0;
 		
 		// Connection state.
 		int state = 0;
@@ -177,6 +192,9 @@ public class IOIO extends Service implements IOIOApi {
 			this.port = port;
 		}		
 
+		void init() {
+			listeners = new LinkedList<IOIOPacketListener>();			
+		}
 
 		IOIOConnection(InputStream in, OutputStream out) {
 			this.in = in;
@@ -188,41 +206,29 @@ public class IOIO extends Service implements IOIOApi {
 		}
 		
 		public boolean startService() throws IOException, BindException{
-			
 			ssocket = new ServerSocket(this.port);							
 			return true;
 		}
-		
-		/**
-		 * Attempt a handshake, return true if successful.
-		 * 
-		 * This is a hard reset followed by listening for the 
-		 * establish connection message. This should be amongst the 
-		 * few synchronous transactions.
-		 * @return
-		 */
-		private boolean handshake() throws IOException {		
-			byte[] establish_packet = new byte[14];
-			if (readFully(establish_packet)) {			
-				Log.i("IOIO", "got EST packet");
-				return verifyEstablishPacket(establish_packet);
-			}					
-			Log.e("IOIO", "FAILED HANDSHAKE");
-			return false;			
-		}
 
 		// Will formalize once we have a working hello world.
-		private boolean verifyEstablishPacket(byte[] contents) {
-			if (contents[0] != ESTABLISH_CONNECTION ||
-				contents[1] != IOIO_MAGIC[0] ||
-				contents[2] != IOIO_MAGIC[1] ||
-				contents[3] != IOIO_MAGIC[2] ||
-				contents[4] != IOIO_MAGIC[3] 				
+		private boolean verifyEstablishPacket(IOIOPacket packet) {
+			byte[] contents = packet.payload;
+			
+			if (packet.message != ESTABLISH_CONNECTION ||
+				contents[0] != IOIO_MAGIC[0] ||
+				contents[1] != IOIO_MAGIC[1] ||
+				contents[2] != IOIO_MAGIC[2] ||
+				contents[3] != IOIO_MAGIC[3] 				
 			) return false;
 			
-			// ytai: verify that the hardware/firmware/bootloader versions are ones
+			// TODO(arshan): verify that the hardware/firmware/bootloader versions are ones
 			// this library supports, for forward compatibility.
-			Log.i("IOIO", "ESTABLISH packet verified");
+			
+			log("Hardware ID : " + asInt(contents, 3, 4));
+			log("Bootload ID : " + asInt(contents, 3, 7));
+			log("Firmware ID : " + asInt(contents, 3, 10));
+					
+			log("ESTABLISH packet verified");
 			return true;
 		}
 
@@ -230,11 +236,16 @@ public class IOIO extends Service implements IOIOApi {
 		 * poll the input stream until the bytes of the buffer are filled.
 		 * @param buffer
 		 */
+
 		private boolean readFully(byte[] buffer) throws IOException {
+			return readFully(buffer, 0);
+		}
+		
+		private boolean readFully(byte[] buffer, int offset) throws IOException {
 			int val = 0;
-			int current = 0;
-			while (val != buffer.length) {	
-				val = in.read(buffer, val, buffer.length-val);
+			int current = offset;
+			while (current < buffer.length) {	
+				val = in.read(buffer, current, buffer.length-current);
 				if (val == -1) {
 					return false;
 				}
@@ -243,6 +254,92 @@ public class IOIO extends Service implements IOIOApi {
 			return true;
 		}
 
+		private int readByte() throws IOException{
+			// !!! its gone? WTF. I swear I was getting no-block, just return EOF, and then 
+			// it would still function for return from IOIO. 
+			boolean workaround = false;
+			
+			if (!workaround) {
+				return in.read();
+			}
+			else {
+			// Ahem, getting -1's instead of blocking?
+			// TODO(arshan): This seems to be gone, leaving it for some more debugging, then delete.
+			int val;
+			val = in.read();
+			while (val == -1) {
+				sleep(1); 
+				// yield();				
+				val = in.read(); 
+			}
+			return val;
+			}
+		}
+		
+		// Utility to allocate the array and return it with bytes filled.
+		private byte[] readBytes(int size) throws IOException {
+			byte[] bytes = new byte[size];
+			if (readFully(bytes)) {
+				return bytes;
+			}
+			throw new IOException("stream is broke");
+		}
+		
+		private int asInt(byte[] bytes, int len, int offset) {
+			int result = 0;
+			// TODO(arshan) unroll
+			for (int x = 0; x < len; x++) {
+				result |= (0xFF & bytes[x + offset]) << (x * 8);
+			}
+			return result;
+		}
+		
+		private void startOutgoingHandler() {
+			if (outgoingHandler != null) {
+				outgoingHandler.halt();
+			}
+			// clear any pending ... 
+			synchronized (outgoing) {
+				outgoing.clear();
+				outgoingHandler = new OutgoingHandler();
+				outgoingHandler.start();
+			}
+		}
+		
+		public class OutgoingHandler extends Thread {
+			boolean running = true;
+			
+			public void run() {
+				IOIOPacket packet;
+				log("started outgoing handler thread");
+				try {
+				while (running) {					
+					try {
+						packet = outgoing.take();
+						log("Sending message " + packet.message);						
+						out.write(packet.message);
+						if (packet.payload != null) {
+							out.write(packet.payload);
+						}						
+					} 
+					catch (InterruptedException ie)	{	
+						if (!running) { 
+							log("outgoing thread exiting");
+							return; }
+					}				
+				}
+				}catch (IOException e) {
+					// TODO(arshan): reset the connection.
+					e.printStackTrace();
+				}
+			}
+			
+			public synchronized void halt() {
+					log("halting outgoing thread");
+					running = false;
+					this.notifyAll();				
+			}
+		}
 		/**
 		 * 
 		 */
@@ -252,74 +349,103 @@ public class IOIO extends Service implements IOIOApi {
 			try {
 				startService();
 			} catch (IOException e) {
-				Log.e("IOIOConnection", "Could not open serversocket");
+				Log.e(TAG, "Could not open serversocket");
 				e.printStackTrace();
 				return; 
 			} 
 			
 			while (true) {
+				log("waiting for connection");
 				if (reconnect()) {					
 					// state here must be CONNECTED
-					Log.i("IOIOConnection", "initial connection");
+					log("initial connection");
 					try {
 						in = socket.getInputStream();
 						out = socket.getOutputStream();
+						state = CONNECTED;
 					} catch (IOException e) {
 						e.printStackTrace();
-					}
-					
-					// Try the handshake
-					// TODO(arshan): find a softer way of doing this, maybe new message in proto
-					// This is to check that we can hardreset and then reestablish
+					}										
+										
 					try {
-						// ytai: why is this special? why not treat it within the main state
-						// machine for incoming messages?
-						// mostly for testing. though I could see the argument that since we know
-						// this should always be the first message on connect, we should handle the first
-						// one out of band.
-						if (! handshake()) {
-							Log.e("IOIOConnection", "handshake FAILED");
-							state = DISCONNECTED;
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}					
-					
-					try {
-						// ytai: IncomingMessageHandler class?
 						// Handle any incoming packets
 						int message_type;
-						while (state == CONNECTED) {														
-							message_type = in.read();
+						while (state == CONNECTED) {	
+							
+							message_type = readByte();
+							
 							// TODO(arshan): how do we re-sync if things have gone bad.
 							// ytai: it is in the protocol spec: you close the socket (or i/o streams),
 							// reset your internal state, and wait for ioio to reconnect.
 							switch (message_type) {
 							
-							case ESTABLISH_CONNECTION:
-								// this means the IOIO has reset.
+							case ESTABLISH_CONNECTION: // 13 byte payload
+								if (verifyEstablishPacket(new IOIOPacket(message_type, readBytes(13)))) {									
+									startOutgoingHandler();									
+								} else {
+									state = SHUTTINGDOWN;
+								}
+								// TODO(arshan): pass on to listeners? 
 								break;
 							
-							case REPORT_DIGITAL_STATUS:							
+							case REPORT_ANALOG_FORMAT: // variable
+								analogPinCount = readByte();
+								int groups = (analogPinCount/4) + 1;
+								analogPinBytes = (groups * 5) + (analogPinCount % 4) + 1;								
+								byte[] payload = new byte[analogPinCount+1];
+								payload[0] = (byte)analogPinCount;
+								readFully(payload, 1);
+								handleIOIOPacket(new IOIOPacket(message_type, payload));
 								break;
 								
-							case REPORT_ANALOG_FORMAT:
+							case REPORT_ANALOG_STATUS: // variable 
+								handleIOIOPacket(new IOIOPacket(message_type, readBytes(analogPinBytes)));
 								break;
 								
-							case REPORT_ANALOG_STATUS:
+							case REPORT_PERIODIC_DIGITAL: // variable
 								break;
 								
-							case REPORT_PERIODIC_DIGITAL:
+							case UART_CONFIGURE: // 3 byte payload
+								handleIOIOPacket(new IOIOPacket(message_type, readBytes(3)));								
 								break;
-																
+								
+							case SET_PERIODIC_SAMPLE: // 2 byte payload
+							case UART_SET_RX:
+							case UART_SET_TX:
+							case UART_TX_STATUS:
+								handleIOIOPacket(new IOIOPacket(message_type, readBytes(2)));								
+								break;
+								
+							case SET_OUTPUT: // 1 byte payload
+							case SET_INPUT:
+							case SET_CHANGE_NOTIFY:
+							case SET_ANALOG_INPUT:
+							case REPORT_DIGITAL_STATUS:
+								handleIOIOPacket(new IOIOPacket(message_type, readBytes(1)));								
+								break;
+
+							case SOFT_RESET: // 0 byte payload
+								handleIOIOPacket(new IOIOPacket(message_type, null));								
+								break;
+									
+							// TODO(TF): we are avoiding this with a while loop above, theres a bug somewhere.
+							case EOF: // The universal signal of end connection
+								log("Connection broken by EOF");
+								state = SHUTTINGDOWN;
+								break;
+								
 							default:
-								Log.i("IOIOConnection", "Unknown message type : " + message_type);
-								state = SHUTTINGDOWN; // conservative now, try to recover later.
+								// TODO(ytai): if we had a standard header, that included number of payload bytes ...
+								log("Unknown message type : " + message_type);
+							    state = SHUTTINGDOWN; // conservative now, try to recover later.
 							}
 						}
 						
 						if (state == SHUTTINGDOWN) {
-							Log.i("IOIOConnection", "Connection is shutting down");
+							log("Connection is shutting down");
+							outgoingHandler.halt();
+							in.close();
+							out.close();
 							socket.close();
 							socket = null;
 						}
@@ -332,6 +458,18 @@ public class IOIO extends Service implements IOIOApi {
 					// We're all done
 					state = DISCONNECTED;
 				}
+			}
+		}
+		
+		private void figureAnalogBytes() {
+			
+		}
+		
+		private void sleep(int ms) {
+			try {
+				Thread.sleep(ms);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 		
@@ -376,71 +514,50 @@ public class IOIO extends Service implements IOIOApi {
 		 * Handle an incoming packet from the IOIO.
 		 */
 		public void handleIOIOPacket(IOIOPacket packet) {
-			
+			// send to my listeners
+			log("handle packet : " + packet.message);
+			// TODO(arshan): add some filters for message types? we've already case'd it above
+			for (IOIOPacketListener listener: listeners) {
+				listener.handlePacket(packet);
+			}
 		}
 	
+		public void registerListener(IOIOPacketListener listener) {
+			if (!listeners.contains(listener)) {
+				listeners.add(listener);
+			}
+		}
+		
 		/**
 		 * queue a packet to be sent to the IOIO at the next
 		 * opportunity. 
 		 * NOTE: this is not necessarily immediate.
 		 * @param packet
 		 */
-		public void sendToIOIO(IOIOPacket packet) {
-			
-			
+		public void sendToIOIO(IOIOPacket packet) {		
+			outgoing.offer(packet);
 		}
 	}
 	
-	/**
-	 * reflect the state of a packet from or to the IOIO
-	 * @author arshan
-	 *
-	 */
-	public class IOIOPacket {
-		
-		public final int message;
-		public final byte[] payload;
 
-		public IOIOPacket(int message, byte[] payload) {
-			this.message = message;
-			if (payload == null ) {
-				// better as 0 length array? 
-				this.payload = null;
-			}
-			else {
-				this.payload = new byte[payload.length];
-				System.arraycopy(payload, 0, this.payload, 0, this.payload.length);
-			}
-		}
-		
+	public void registerListener(IOIOPacketListener listener){
+		ioio_connection.registerListener(listener);		
 	}
 	
-	// poormans resource pooling
-	public class BytePool{
-		
-		public byte[] getByteBuffer(int size) {
-			return new byte[size];
-		}
-		
-		public void returnByteBuffer(byte[] b) {
-			
-		}
-	}
-
 	public void disconnect() {
 	}
 
+	// TODO(TF): support other modes.
 	public DigitalInput openDigitalInput(int pin) {
-		return new DigitalInput(this, pin);
+		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
 	}
 
 	public DigitalOutput openDigitalOutput(int pin) {		
-		return new DigitalOutput(this, pin);
+		return new DigitalOutput(this, pin, DigitalOutput.SOURCE);
 	}
 
 	public AnalogInput openAnalogInput(int pin) {
-		// TODO Auto-generated method stub
-		return null;
+		return new AnalogInput(this,pin);
 	}
 
 	public PwmOutput openPwmOutput(int pin) {
@@ -448,8 +565,16 @@ public class IOIO extends Service implements IOIOApi {
 		return null;
 	}
 
-	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits) {
-		// TODO Auto-generated method stub
-		return null;
+	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
+		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
 	}
+	
+	/**
+	 * @return the next available uart module
+	 */
+	private int nextAvailableUart() {
+		return 0; // support just the one for now.
+	}
+	
+
 }
