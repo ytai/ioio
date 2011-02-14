@@ -24,7 +24,7 @@ public class SelfTest extends Activity {
 	// Dont stop testing if there is a failure, try them all.
 	private static final boolean FORCE_ALL_TESTS = false;
 	
-	
+	// Some setup for the tests, this pins should be shorted to each other
 	public static final int OUTPUT_PIN = 26;
 	public static final int INPUT_PIN = 23;
 	public static final int ANALOG_INPUT_PIN = 33;
@@ -32,7 +32,8 @@ public class SelfTest extends Activity {
 	
 	// for repetitive tests, do this many
 	public static final int REPETITIONS = 5;
-	
+
+	// UI, sort of.
 	private LinearLayout layout_root;
 	private TextView messageText;
 	private TextView statusText;
@@ -43,9 +44,8 @@ public class SelfTest extends Activity {
     public void onCreate(Bundle savedInstanceState) {        
     	super.onCreate(savedInstanceState);
     	setupViews();
-    	
-    	// capture our log messages ... 
-    	
+    	// TODO(arshan): intercept Log.i output and put to screen
+    	// TODO(arshan): buttons for restart/pause/nextTest
     }
 
     @Override  
@@ -61,11 +61,12 @@ public class SelfTest extends Activity {
     				testConnection();
     				
     				status("Testing");
-    				// testSoftReset();
+    				testHardReset();
+    			    testSoftReset();
     				// should test hard reset too.
-    				// testDigitalOutput(); // need external connections
+    				// testDigitalOutput(); // for probing output with meter
     				testDigitalInput();
-    				testAnalogInput();
+    				// testAnalogInput();
     				msg("Tests Finished");
 
     				if (FORCE_ALL_TESTS) {
@@ -77,6 +78,8 @@ public class SelfTest extends Activity {
     				
     			}
     			catch (FailException fail) {
+    				IOIO.getInstance().log("failed"); // to get timing info in logs
+    				fail.printStackTrace(); 
     				status("FAILED", Color.RED);
     				for (StackTraceElement line : fail.getStackTrace()) {
     					msg(line.toString());
@@ -89,6 +92,120 @@ public class SelfTest extends Activity {
     			}
     		}.start();    	
     		
+    }
+    
+
+    public void testConnection() throws FailException {
+    	msg("Connecting to IOIO");
+    	assertTrue(IOIO.getInstance().isConnected());    	
+    }
+    
+    public void testHardReset() throws FailException {
+    	msg("Starting Hard Reset Test");
+    	IOIO ioio = IOIO.getInstance();
+    	for (int x = 0; x < REPETITIONS; x++) {
+			ioio.hardReset();
+			sleep(1100); // experimentally this is taking a little more then 1000mS
+			assertTrue(ioio.isConnected());
+		}
+    }
+    
+    /**
+     * how fast and how often can we soft reset.
+     * @throws FailException
+     */
+    public void testSoftReset() throws FailException {
+    	msg("Starting Soft Reset Test");
+    	IOIO ioio = IOIO.getInstance();
+		for (int x = 0; x < REPETITIONS; x++) {
+			sleep(100);
+			ioio.softReset();
+			sleep(700); // experimentally this is taking a little more then 500mS
+			assertTrue(ioio.isConnected());
+		}		
+    }
+
+    /**
+     * Example of using a digital output.
+     * @throws FailException
+     */
+    public void testDigitalOutput() throws FailException {
+    	msg("Starting Digital Output Test");
+    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);    
+    	try {
+    		for (int x = 0; x < REPETITIONS; x++) {
+    			output.write(true);
+    			sleep(500);
+    			assertTrue(output.read());
+    			output.write(false);
+    			sleep(500);
+    			assertFalse(output.read());    			
+    		}
+    	}
+    	catch (IOException e) {
+    		status("Exception", Color.BLUE);
+    		msg(e.toString());
+    		e.printStackTrace();
+    		throw new FailException();
+    	}    	 
+    	output.close();
+    }
+    
+    /**
+     * Example of using a Digital Input
+     * @throws FailException
+     */
+    public void testDigitalInput() throws FailException {
+    	msg("Starting Digital Input Test");
+    	IOIO ioio = IOIO.getInstance();
+    	ioio.softReset();
+    	sleep(1000); // wait for soft reset? debugging
+    	DigitalInput input = IOIO.getInstance().openDigitalInput(INPUT_PIN);
+    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);
+    	try {
+			for (int x = 0; x < REPETITIONS; x++) {
+				output.write(!output.read());
+				sleep(100); // experimentally seems to take a bit more then 80mS
+				//sleep(1000); // shouldnt be necessary, but it is. hmmm
+				Log.i("IOIO SelfTest", "doing input compare @" + System.currentTimeMillis());
+				assertEquals(output.read(), input.read());
+			}			
+		} 
+		catch (IOException e) {
+			exception(e);
+		}
+    }
+    
+    public void testAnalogInput() throws FailException {
+    	msg("Starting Analog Input Test");
+    	IOIO ioio = IOIO.getInstance();
+    	ioio.softReset();
+    	AnalogInput input = IOIO.getInstance().openAnalogInput(ANALOG_INPUT_PIN);
+    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(ANALOG_OUTPUT_PIN);
+    	try {
+			for (int x = 0; x < REPETITIONS; x++) {
+				sleep(100);
+				output.write(!output.read());
+				sleep(100); // shouldnt be necessary
+				assertTrue(3.3f == input.read());
+			}			
+		} 
+		catch (IOException e) {
+			exception(e);
+		}
+    }
+    
+    /*
+     * Utility methods below.
+     */
+    
+    private void sleep(int ms) {
+    	try {
+    		Thread.yield();
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
     
     private void setupViews() {
@@ -154,107 +271,7 @@ public class SelfTest extends Activity {
     	status("Exception", Color.BLUE);
     	msg(e.toString());   
     }
-    
-    public void testConnection() throws FailException {
-    	msg("Connecting to IOIO");
-    	assertTrue(IOIO.getInstance().isConnected());    	
-    }
-
-    /**
-     * Example of using a digital output.
-     * @throws FailException
-     */
-    public void testDigitalOutput() throws FailException {
-
-    	msg("Starting Digital Output Test");
-    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);    
-    	try {
-    		for (int x = 0; x < REPETITIONS; x++) {
-    			sleep(500);
-    			output.write(true);
-    			assertTrue(output.read());
-    			sleep(500);
-    			output.write(false);
-    			assertFalse(output.read());    			
-    		}
-    	}
-    	catch (IOException e) {
-    		status("Exception", Color.BLUE);
-    		msg(e.toString());
-    		e.printStackTrace();
-    		throw new FailException();
-    	}
-    	 
-    	output.close();
-    }
-
-    /**
-     * how fast and how often can we soft reset.
-     * @throws FailException
-     */
-    public void testSoftReset() throws FailException {
-    	msg("Starting Soft Reset Test");
-    	IOIO ioio = IOIO.getInstance();
-		for (int x = 0; x < REPETITIONS; x++) {
-			sleep(200);
-			ioio.softReset();
-			assertTrue(ioio.isConnected());
-		}		
-    }
-    
-    /**
-     * Example of using a Digital Input
-     * @throws FailException
-     */
-    public void testDigitalInput() throws FailException {
-    	msg("Starting Digital Input Test");
-    	IOIO ioio = IOIO.getInstance();
-    	ioio.softReset();
-    	sleep(1000); // wait for soft reset? debugging
-    	DigitalInput input = IOIO.getInstance().openDigitalInput(INPUT_PIN);
-    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(OUTPUT_PIN);
-    	try {
-			for (int x = 0; x < REPETITIONS; x++) {
-				sleep(100);
-				output.write(!output.read());
-				// sleep(1000); // shouldnt be necessary, but it is. hmmm
-				Log.i("IOIO SelfTest", "doing input compare");
-				assertEquals(output.read(), input.read());
-			}			
-		} 
-		catch (IOException e) {
-			exception(e);
-		}
-    }
-    
-    public void testAnalogInput() throws FailException {
-    	msg("Starting Analog Input Test");
-    	IOIO ioio = IOIO.getInstance();
-    	ioio.softReset();
-    	AnalogInput input = IOIO.getInstance().openAnalogInput(ANALOG_INPUT_PIN);
-    	DigitalOutput output = IOIO.getInstance().openDigitalOutput(ANALOG_OUTPUT_PIN);
-    	try {
-			for (int x = 0; x < REPETITIONS; x++) {
-				sleep(100);
-				output.write(!output.read());
-				sleep(100); // shouldnt be necessary
-				assertTrue(3.3f == input.read());
-			}			
-		} 
-		catch (IOException e) {
-			exception(e);
-		}
-    }
-    
-    private void sleep(int ms) {
-    	try {
-    		Thread.yield();
-			Thread.sleep(ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    }
-    
+        
     private void assertTrue(boolean val) throws FailException{
     	if (!val) {
     		if (FORCE_ALL_TESTS) {

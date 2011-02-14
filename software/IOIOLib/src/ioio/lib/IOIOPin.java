@@ -7,6 +7,7 @@ public class IOIOPin {
 	public IOIOPin(int pin) {
 		this.pin = pin;
 	}
+	
 	/**
 	 * Call when you are finished using the pin.
 	 * This will return it to the pool of available connections.

@@ -4,6 +4,8 @@ package ioio.lib;
 // arshan: agreed, will add as needed, wanted to get basic functions in first.
 public class IOIOException extends Exception {
 
+	private static final long serialVersionUID = 2372683427743695278L;
+	
 	public IOIOException() {
 		super("IOIOException");
 	}
@@ -11,10 +13,4 @@ public class IOIOException extends Exception {
 	public IOIOException(String msg) {
 		super(msg);
 	}
-
-	/*
-	 * 
-	 */
-	private static final long serialVersionUID = 2372683427743695278L;
-
 }

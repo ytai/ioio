@@ -57,7 +57,7 @@ public class Uart {
 	}
 		
 	int readByte() {
-		return 0;
+		return -1;
 	}
 	
 	void writeByte(int val) {
@@ -75,8 +75,7 @@ public class Uart {
 		@Override
 		public void write(int val) throws IOException {
 			parent.writeByte(val);			
-		}
-		
+		}	
 	}
 
 	public class UARTInputStream extends InputStream {
@@ -92,6 +91,4 @@ public class Uart {
 			return parent.readByte();
 		}		
 	}
-	
-
 }

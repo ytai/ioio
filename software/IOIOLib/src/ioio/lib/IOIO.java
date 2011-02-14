@@ -82,8 +82,11 @@ public class IOIO extends Service implements IOIOApi {
 		ioio_connection.sendToIOIO(pkt);
 	}
 	
+	long last_log = 0;
 	public void log(String msg) {
-		Log.i(TAG, msg + " @" + System.currentTimeMillis());
+		long current = System.currentTimeMillis();
+		Log.i(TAG, msg + " @" + current + " (+" +(current-last_log)+ ")");
+		last_log = current;
 	}
 	
 	/**
@@ -230,6 +233,30 @@ public class IOIO extends Service implements IOIOApi {
 			return true;
 		}
 
+		private int readByte() throws IOException{
+			// !!! its gone? WTF. I swear I was getting no-block, just return EOF, and then 
+			// it would still function for return from IOIO. 
+			boolean workaround = false;
+			
+			if (!workaround) {
+				return in.read();
+			}
+			else {
+			// Ahem, getting -1's instead of blocking?
+			// TODO(TF): sort this out, read should block unless we are getting EOF.
+			int val;
+			val = in.read();
+			while (val == -1) {
+				// sleep(1); 
+				// yield();
+				
+				val = in.read(); 
+			}
+			return val;
+			}
+		}
+		
+		// Utility to allocate the array and return it with bytes filled.
 		private byte[] readBytes(int size) throws IOException {
 			byte[] bytes = new byte[size];
 			if (readFully(bytes)) {
@@ -265,6 +292,7 @@ public class IOIO extends Service implements IOIOApi {
 			public void run() {
 				IOIOPacket packet;
 				log("started outgoing handler thread");
+				try {
 				while (running) {					
 					try {
 						packet = outgoing.take();
@@ -273,15 +301,16 @@ public class IOIO extends Service implements IOIOApi {
 						if (packet.payload != null) {
 							out.write(packet.payload);
 						}						
-					} catch (IOException e) {
-						// TODO(arshan): reset the connection.
-						e.printStackTrace();
-					}
+					} 
 					catch (InterruptedException ie)	{	
 						if (!running) { 
 							log("outgoing thread exiting");
 							return; }
 					}				
+				}
+				}catch (IOException e) {
+					// TODO(arshan): reset the connection.
+					e.printStackTrace();
 				}
 			}
 			
@@ -323,14 +352,7 @@ public class IOIO extends Service implements IOIOApi {
 						int message_type;
 						while (state == CONNECTED) {	
 							
-							message_type = in.read();
-
-							// Ahem, getting -1's instead of blocking?
-							// TODO(TF): sort this out, read should block unless we are getting EOF.
-							while (message_type == -1) {
-								Thread.yield();
-								message_type = in.read(); 
-							}
+							message_type = readByte();
 							
 							// TODO(arshan): how do we re-sync if things have gone bad.
 							// ytai: it is in the protocol spec: you close the socket (or i/o streams),
@@ -347,6 +369,7 @@ public class IOIO extends Service implements IOIOApi {
 								break;
 							
 							case REPORT_ANALOG_FORMAT: // variable
+								int numPins = readByte();
 								break;
 								
 							case REPORT_ANALOG_STATUS: // variable 
@@ -393,6 +416,7 @@ public class IOIO extends Service implements IOIOApi {
 						
 						if (state == SHUTTINGDOWN) {
 							log("Connection is shutting down");
+							outgoingHandler.halt();
 							in.close();
 							out.close();
 							socket.close();
