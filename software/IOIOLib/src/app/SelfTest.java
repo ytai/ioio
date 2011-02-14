@@ -65,7 +65,7 @@ public class SelfTest extends Activity {
     			    testSoftReset();
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
-    				testDigitalInput();
+    				testDigitalIO();
     				// testAnalogInput();
     				msg("Tests Finished");
 
@@ -155,8 +155,8 @@ public class SelfTest extends Activity {
      * Example of using a Digital Input
      * @throws FailException
      */
-    public void testDigitalInput() throws FailException {
-    	msg("Starting Digital Input Test");
+    public void testDigitalIO() throws FailException {
+    	msg("Starting Digital I/O Test");
     	IOIO ioio = IOIO.getInstance();
     	ioio.softReset();
     	sleep(1000); // wait for soft reset? debugging
