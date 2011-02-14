@@ -23,21 +23,20 @@ public class Uart {
 	public static final float ONE_STOP_BIT = 1;
 	public static final float TWO_STOP_BITS = 2;
 	public static final float ONE_AND_HALF_STOP_BITS = 1.5f; 
+		
+	private int baud = 0; // Support all standard bauds (or send in divisor and support arbitrary?)
+	private int parity = 0; // even/odd/no
+	private float stop_bits = 0; // 1/1.5/2
+	private int data_bits = 8;	// 7/8/9
+	private IOIOPin rx;
+	private IOIOPin tx;
 	
-	// Support all standard bauds
-	private int baud = 0;
-	
-	// even/odd/no
-	private int parity = 0;
-	
-	// 1/1.5/2
-	private int stop_bits = 0;
-	
-	// 7/8/9
-	private int data_bits = 0;
-	
-	public Uart(int Rx, int Tx) {		
-		//TBI waiting on protocol spec
+	public Uart(int rx, int tx, int baud, int parity, float stop) {		
+		this.stop_bits = stop;
+		this.parity = parity;
+		this.baud = baud;
+		this.rx = new IOIOPin(rx);
+		this.tx = new IOIOPin(tx);
 	}
 	
 	public DataOutputStream openDataOutputStream() {

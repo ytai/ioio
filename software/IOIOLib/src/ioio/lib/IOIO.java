@@ -545,9 +545,8 @@ public class IOIO extends Service implements IOIOApi {
 		return null;
 	}
 
-	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits) {
-		// TODO Auto-generated method stub
-		return null;
+	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
+		return new Uart(this, rx, tx, baud, parity, stopbits);
 	}
 	
 

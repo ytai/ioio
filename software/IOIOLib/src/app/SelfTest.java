@@ -4,6 +4,7 @@ import ioio.lib.AnalogInput;
 import ioio.lib.DigitalInput;
 import ioio.lib.DigitalOutput;
 import ioio.lib.IOIO;
+import ioio.lib.Uart;
 
 import java.io.IOException;
 
@@ -29,6 +30,10 @@ public class SelfTest extends Activity {
 	public static final int INPUT_PIN = 23;
 	public static final int ANALOG_INPUT_PIN = 33;
 	public static final int ANALOG_OUTPUT_PIN = 14;
+	
+	// note that these overload the above digital i/o connections, but input/output reversed
+	public static final int UART_RX = 26;
+	public static final int UART_TX = 23;
 	
 	// for repetitive tests, do this many
 	public static final int REPETITIONS = 5;
@@ -67,6 +72,7 @@ public class SelfTest extends Activity {
     				// testDigitalOutput(); // for probing output with meter
     				testDigitalIO();
     				// testAnalogInput();
+    				testUart(); // needs a loopback
     				msg("Tests Finished");
 
     				if (FORCE_ALL_TESTS) {
@@ -166,7 +172,6 @@ public class SelfTest extends Activity {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.read());
 				sleep(100); // experimentally seems to take a bit more then 80mS
-				//sleep(1000); // shouldnt be necessary, but it is. hmmm
 				Log.i("IOIO SelfTest", "doing input compare @" + System.currentTimeMillis());
 				assertEquals(output.read(), input.read());
 			}			
@@ -193,6 +198,14 @@ public class SelfTest extends Activity {
 		catch (IOException e) {
 			exception(e);
 		}
+    }
+    
+    public void testUart() {
+    	msg("Starting UART Test");
+    	Uart uart = IOIO.getInstance().openUart(UART_RX, UART_TX, 
+    			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
+    	InputStream in = uart.openInputStream();
+    	OutputStream out = uart.openOutputStream();
     }
     
     /*
