@@ -43,4 +43,7 @@ public static final int IOIO_PORT = 4545;
 static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
 
 static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
+
+// Where the onboard LED is connected.
+public static final int LED_PIN = 0;
 }

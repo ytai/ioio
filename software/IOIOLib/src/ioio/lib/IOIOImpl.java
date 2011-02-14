@@ -62,4 +62,10 @@ public class IOIOImpl implements IOIO {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public boolean isConnected() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

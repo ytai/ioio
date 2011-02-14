@@ -10,6 +10,7 @@ import android.widget.TextView;
 import ioio.lib.AnalogInput;
 import ioio.lib.DigitalInput;
 import ioio.lib.DigitalOutput;
+import ioio.lib.IOIO;
 import ioio.lib.IOIOImplPic24f;
 import ioio.lib.IOIOLogger;
 import ioio.lib.Uart;
@@ -115,7 +116,7 @@ public class SelfTest extends Activity {
 
     public void testHardReset() throws FailException {
     	msg("Starting Hard Reset Test");
-    	IOIOImplPic24f ioio = IOIOImplPic24f.getInstance();
+    	IOIO ioio = IOIOImplPic24f.getInstance();
     	for (int x = 0; x < REPETITIONS; x++) {
 			ioio.hardReset();
 			sleep(1100); // experimentally this is taking a little more then 1000mS
@@ -129,7 +130,7 @@ public class SelfTest extends Activity {
      */
     public void testSoftReset() throws FailException {
     	msg("Starting Soft Reset Test");
-    	IOIOImplPic24f ioio = IOIOImplPic24f.getInstance();
+    	IOIO ioio = IOIOImplPic24f.getInstance();
 		for (int x = 0; x < REPETITIONS; x++) {
 			sleep(100);
 			ioio.softReset();
@@ -170,7 +171,7 @@ public class SelfTest extends Activity {
      */
     public void testDigitalIO() throws FailException {
     	msg("Starting Digital I/O Test");
-    	IOIOImplPic24f ioio = IOIOImplPic24f.getInstance();
+    	IOIO ioio = IOIOImplPic24f.getInstance();
     	ioio.softReset();
     	sleep(1000); // wait for soft reset? debugging
     	DigitalInput input = IOIOImplPic24f.getInstance().openDigitalInput(INPUT_PIN);
@@ -190,7 +191,7 @@ public class SelfTest extends Activity {
 
     public void testAnalogInput() throws FailException {
     	msg("Starting Analog Input Test");
-    	IOIOImplPic24f ioio = IOIOImplPic24f.getInstance();
+    	IOIO ioio = IOIOImplPic24f.getInstance();
     	ioio.softReset();
     	sleep(800);
 
@@ -232,7 +233,7 @@ public class SelfTest extends Activity {
 
     private void testDisconnectReconnect() throws FailException {
         msg("Starting disconnect/connect test");
-        IOIOImplPic24f ioio = IOIOImplPic24f.getInstance();
+        IOIO ioio = IOIOImplPic24f.getInstance();
         ioio.disconnect();
         assertFalse(ioio.isConnected());
         ioio.connect();

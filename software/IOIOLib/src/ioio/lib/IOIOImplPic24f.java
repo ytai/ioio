@@ -19,9 +19,6 @@ import android.os.IBinder;
  */
 public class IOIOImplPic24f extends Service implements IOIO {
 
-	// Where the onboard LED is connected.
-	public static final int LED_PIN = 0;
-
 	// for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
 	// a. one class (this one) that implements the protocol and exposes IOIOApi.
@@ -53,7 +50,8 @@ public class IOIOImplPic24f extends Service implements IOIO {
 		return null;
 	}
 
-	public boolean isConnected() {
+	@Override
+    public boolean isConnected() {
 		return ioio_connection.isConnected();
 	}
 
@@ -74,7 +72,6 @@ public class IOIOImplPic24f extends Service implements IOIO {
 
 	    // TODO(birmiwal): throw exception if already connected?
 	    if (!isConnected()) {
-  	        // TODO(arshan): this wants to move, sorting out good flow.
 	        ioio_connection.start();
 	    }
 	    // TODO(birmiwal): make this better
@@ -106,7 +103,7 @@ public class IOIOImplPic24f extends Service implements IOIO {
 	}
 
 	// Singleton? TBD
-	static public IOIOImplPic24f getInstance() {
+	static public IOIO getInstance() {
 		if (singleton == null) {
 			singleton = new IOIOImplPic24f();
 		}
@@ -146,7 +143,6 @@ public class IOIOImplPic24f extends Service implements IOIO {
 
 	@Override
     public PwmOutput openPwmOutput(int pin) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

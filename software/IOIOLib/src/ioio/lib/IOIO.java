@@ -13,6 +13,8 @@ public interface IOIO {
 
 	public void abortConnection();
 
+	public boolean isConnected();
+
 	public void softReset();
 
 	public void hardReset();
