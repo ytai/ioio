@@ -39,7 +39,7 @@ public class Uart implements IOIOPacketListener {
 	private DigitalInput rx;
 	private DigitalOutput tx;
 	
-	private IOIOImplPic24f ioio;
+	private IOIOImpl ioio;
 	
 	// Uart module on the ioio.
 	private int uartNum;
@@ -56,7 +56,7 @@ public class Uart implements IOIOPacketListener {
 	BlockingQueue<Byte> incoming = new LinkedBlockingQueue<Byte>();
 	BlockingQueue<Byte> outgoing = new LinkedBlockingQueue<Byte>();
 	
-	Uart(IOIOImplPic24f ioio, int module, int rx, int tx, int baud, int parity, float stop) {		
+	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop) {		
 		this.stop_bits = stop;
 		this.parity = parity;
 		this.baud = baud;

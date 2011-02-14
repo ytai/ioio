@@ -9,13 +9,13 @@ import android.util.Log;
  */
 public class AnalogInput extends IOIOPin implements IOIOPacketListener {
 
-	IOIOImplPic24f ioio;
+	IOIOImpl ioio;
 	int value = 0;
 	
 	boolean active = false;
 	private int reportPin = 0;
 	
-	public AnalogInput(IOIOImplPic24f ioio, int pin) {
+	public AnalogInput(IOIOImpl ioio, int pin) {
 		super(pin);
 		this.ioio = ioio;
 		init();

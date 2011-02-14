@@ -17,7 +17,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	public static final int SOURCE = 0;
 	public static final int SINK = 1;
 	
-	IOIOImplPic24f ioio;
+	IOIOImpl ioio;
 
 	// Only true when we are confirmed active from the IOIO
 	// looks like we can Q requests anyway as they are in order.
@@ -31,7 +31,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 	
-	DigitalOutput(IOIOImplPic24f ioio, int pin, int openDrain) {
+	DigitalOutput(IOIOImpl ioio, int pin, int openDrain) {
 		super(pin);
 		this.ioio = ioio;
 		

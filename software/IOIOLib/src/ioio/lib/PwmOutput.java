@@ -19,14 +19,14 @@ public class PwmOutput extends IOIOPin {
 
 	private boolean scale256 = false;
 	
-	private IOIOImplPic24f ioio;
+	private IOIOImpl ioio;
 	private int module;
 	
 	private IOIOPacket setPwm;
 	private IOIOPacket setPeriod;
 	private IOIOPacket setDutyCycle;
 	
-	PwmOutput(IOIOImplPic24f ioio, int pin, int module, int period) {
+	PwmOutput(IOIOImpl ioio, int pin, int module, int period) {
 		super(pin);
 		this.ioio = ioio;
 		this.module = module;

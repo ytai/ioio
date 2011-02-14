@@ -16,9 +16,9 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener {
 	private boolean active = false;
 	private boolean state = false;
 	
-	IOIOImplPic24f ioio;
+	IOIOImpl ioio;
 	
-	DigitalInput(IOIOImplPic24f ioio, int pin, int mode) {
+	DigitalInput(IOIOImpl ioio, int pin, int mode) {
 		super(pin);
 		this.ioio = ioio;
 		ioio.registerListener(this);
