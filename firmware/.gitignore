@@ -4,3 +4,6 @@
 *.mcs
 *.mcw
 *.o
+build
+dist
+
