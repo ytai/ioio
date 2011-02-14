@@ -7,6 +7,8 @@ import ioio.lib.IOIO;
 import ioio.lib.Uart;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -17,13 +19,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * A simple self test for the IOIOLib
+ * High level tests and example of usage for the IOIOLib
+ * 
  * @author arshan
  */
 public class SelfTest extends Activity {
 	
 	// Dont stop testing if there is a failure, try them all.
-	private static final boolean FORCE_ALL_TESTS = false;
+	private static final boolean FORCE_ALL_TESTS = true;
 	
 	// Some setup for the tests, this pins should be shorted to each other
 	public static final int OUTPUT_PIN = 26;
@@ -71,8 +74,9 @@ public class SelfTest extends Activity {
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
     				testDigitalIO();
-    				// testAnalogInput();
-    				testUart(); // needs a loopback
+    				testAnalogInput();
+    				// testPWM(); // TODO(TF)
+    				// testUart(); // needs a loopback
     				msg("Tests Finished");
 
     				if (FORCE_ALL_TESTS) {
@@ -117,7 +121,7 @@ public class SelfTest extends Activity {
     }
     
     /**
-     * how fast and how often can we soft reset.
+     * How fast and how often can we soft reset.
      * @throws FailException
      */
     public void testSoftReset() throws FailException {
@@ -132,7 +136,7 @@ public class SelfTest extends Activity {
     }
 
     /**
-     * Example of using a digital output.
+     * Example of using a digital output, slow so that can be measured with a meter
      * @throws FailException
      */
     public void testDigitalOutput() throws FailException {
@@ -171,8 +175,8 @@ public class SelfTest extends Activity {
     	try {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.read());
-				sleep(100); // experimentally seems to take a bit more then 80mS
-				Log.i("IOIO SelfTest", "doing input compare @" + System.currentTimeMillis());
+				sleep(100); // experimentally seems to take a bit more then 75mS
+				ioio.log("doing input compare"); // to get timing info in the log
 				assertEquals(output.read(), input.read());
 			}			
 		} 
@@ -185,13 +189,16 @@ public class SelfTest extends Activity {
     	msg("Starting Analog Input Test");
     	IOIO ioio = IOIO.getInstance();
     	ioio.softReset();
+    	sleep(800);
+    	
     	AnalogInput input = IOIO.getInstance().openAnalogInput(ANALOG_INPUT_PIN);
     	DigitalOutput output = IOIO.getInstance().openDigitalOutput(ANALOG_OUTPUT_PIN);
     	try {
 			for (int x = 0; x < REPETITIONS; x++) {
 				sleep(100);
 				output.write(!output.read());
-				sleep(100); // shouldnt be necessary
+				sleep(800); // 
+				ioio.log("analog pin : " + input.read());
 				assertTrue(3.3f == input.read());
 			}			
 		} 
@@ -200,12 +207,24 @@ public class SelfTest extends Activity {
 		}
     }
     
-    public void testUart() {
+    public void testUart() throws FailException {
     	msg("Starting UART Test");
+    	// TODO(TF): try this at different settings? 
     	Uart uart = IOIO.getInstance().openUart(UART_RX, UART_TX, 
     			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
     	InputStream in = uart.openInputStream();
     	OutputStream out = uart.openOutputStream();
+    	// TODO(TF): do the corner case chars too
+    	String TEST = "IOIOabcdefghijklmnopqrstuvqzyzIOIOABCDEFGHIJKLMNOPQRSTUVWXYZIOIO";
+    	for (int x = 0; x < TEST.length(); x++) {
+    		try {
+				out.write(TEST.charAt(x));
+				assertTrue(in.read() == TEST.charAt(x));
+			} catch (IOException e) {
+				e.printStackTrace();
+				exception(e);
+			}    	
+    	}
     }
     
     /*

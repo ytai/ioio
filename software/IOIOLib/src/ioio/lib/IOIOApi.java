@@ -1,7 +1,7 @@
 package ioio.lib;
 
 /**
- * Interface to the IOIO board.
+ * Interface for the IOIO proto.
  * 
  * @author arshan
  */
@@ -52,6 +52,6 @@ public interface IOIOApi {
 
 	public PwmOutput openPwmOutput(int pin);
 	
-	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits);
+	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);
 	
 }

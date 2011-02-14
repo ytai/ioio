@@ -3,8 +3,8 @@ package ioio.lib;
 /**
  * Do we want to represent this as the abstract float% or 
  * actually expose the bits of accuracy
- * @author arshan
- *
+ * 
+ * TODO(TF): TBI
  */
 // ytai: for "analog" output, float is nicer. for servo control, absolute time in
 // ms may be more intuitive, or maybe even a different float that represents the angle.
@@ -16,14 +16,44 @@ public class PwmOutput extends IOIOPin {
 	 */
 	private float dutyCycle = 0;
 	private int period = 0; // period measured in us
+
+	private boolean scale256 = false;
 	
-	public PwmOutput(int pin) {
-		super(pin);
-	}
+	private IOIO ioio;
+	private int module;
 	
-	public PwmOutput(IOIO ioio, int pin) {
+	private IOIOPacket setPwm;
+	private IOIOPacket setPeriod;
+	private IOIOPacket setDutyCycle;
+	
+	PwmOutput(IOIO ioio, int pin, int module, int period) {
 		super(pin);
+		this.ioio = ioio;
+		this.module = module;
+		this.period = period;
+		init();
 	}	
+	
+	private void init() {
+		setPwm = new IOIOPacket(
+				IOIOApi.SET_PWM,
+				new byte[]{(byte)pin, (byte)module}
+		);
+	
+		setPeriod = new IOIOPacket(
+				IOIOApi.SET_PERIOD,
+				new byte[]{
+						(byte)(module << 1 | (scale256?1:0)),
+						(byte)(period & 0xFF),
+						(byte)(period >> 8)
+					}
+		);
+		
+		ioio.queuePacket(setPwm);
+		// Must always set period before duty cycle.
+		ioio.queuePacket(setPeriod);	
+		// setDutyCycle(0); // disable at init if its not by default.
+	}
 	
 	/**
 	 * @param dutyCycle the dutyCycle to set
@@ -37,17 +67,5 @@ public class PwmOutput extends IOIOPin {
 	 */
 	public float getDutyCycle() {
 		return dutyCycle;
-	}
-
-	// ytai: should be final and set upon construction i think.
-	// resetting the period has the side effect of setting the DC to 0
-	// which may have undesired behavior.
-	// ouch, too bad. 
-	public void setPeriod(int period) {
-		this.period = period;
-	}
-	
-	public int getPeriod() {
-		return period;
 	}
 }

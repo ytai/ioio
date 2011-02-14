@@ -1,8 +1,8 @@
 package ioio.lib;
 /**
- * reflect the state of a packet from or to the IOIO
+ * A packet to or from the IOIO protocol.
+ * 
  * @author arshan
- *
  */
 public class IOIOPacket {
 	

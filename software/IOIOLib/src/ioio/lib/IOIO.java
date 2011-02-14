@@ -1,5 +1,5 @@
 /**
- * 
+ * TODO(TF): What is the copyright info? all the files need it
  */
 package ioio.lib;
 
@@ -21,7 +21,12 @@ import android.os.IBinder;
 import android.util.Log;
 
 /**
- * High level interface and vars.
+ * High level interface and vars to the IOIO.
+ * 
+ * TODO(TF): make sure the right set of methods are extracted to the interface
+ * TODO(TF): manage resources, ie. uart modules, pwm modules, pin allocation, mcu usage
+ * TODO(arshan): refactor this to IOIOPic24 or something more descriptive.
+ * 
  * @author arshan
  */
 public class IOIO extends Service implements IOIOApi {
@@ -160,6 +165,10 @@ public class IOIO extends Service implements IOIOApi {
 
 		InputStream in;
 		OutputStream out;
+
+		// Connection specific vars for analog status.
+	    int analogPinCount = 0;
+	    int analogPinBytes = 0;
 		
 		// Connection state.
 		int state = 0;
@@ -220,9 +229,14 @@ public class IOIO extends Service implements IOIOApi {
 		 * poll the input stream until the bytes of the buffer are filled.
 		 * @param buffer
 		 */
+
 		private boolean readFully(byte[] buffer) throws IOException {
+			return readFully(buffer, 0);
+		}
+		
+		private boolean readFully(byte[] buffer, int offset) throws IOException {
 			int val = 0;
-			int current = 0;
+			int current = offset;
 			while (current < buffer.length) {	
 				val = in.read(buffer, current, buffer.length-current);
 				if (val == -1) {
@@ -243,13 +257,12 @@ public class IOIO extends Service implements IOIOApi {
 			}
 			else {
 			// Ahem, getting -1's instead of blocking?
-			// TODO(TF): sort this out, read should block unless we are getting EOF.
+			// TODO(arshan): This seems to be gone, leaving it for some more debugging, then delete.
 			int val;
 			val = in.read();
 			while (val == -1) {
-				// sleep(1); 
-				// yield();
-				
+				sleep(1); 
+				// yield();				
 				val = in.read(); 
 			}
 			return val;
@@ -369,10 +382,17 @@ public class IOIO extends Service implements IOIOApi {
 								break;
 							
 							case REPORT_ANALOG_FORMAT: // variable
-								int numPins = readByte();
+								analogPinCount = readByte();
+								int groups = (analogPinCount/4) + 1;
+								analogPinBytes = (groups * 5) + (analogPinCount % 4) + 1;								
+								byte[] payload = new byte[analogPinCount+1];
+								payload[0] = (byte)analogPinCount;
+								readFully(payload, 1);
+								handleIOIOPacket(new IOIOPacket(message_type, payload));
 								break;
 								
 							case REPORT_ANALOG_STATUS: // variable 
+								handleIOIOPacket(new IOIOPacket(message_type, readBytes(analogPinBytes)));
 								break;
 								
 							case REPORT_PERIODIC_DIGITAL: // variable
@@ -432,6 +452,10 @@ public class IOIO extends Service implements IOIOApi {
 					state = DISCONNECTED;
 				}
 			}
+		}
+		
+		private void figureAnalogBytes() {
+			
 		}
 		
 		private void sleep(int ms) {
@@ -513,21 +537,10 @@ public class IOIO extends Service implements IOIOApi {
 		ioio_connection.registerListener(listener);		
 	}
 	
-	// TODO(TF): fix mem management throughout, try to allocate nearly nothing
-	public class BytePool{
-		
-		public byte[] getByteBuffer(int size) {
-			return new byte[size];
-		}
-		
-		public void returnByteBuffer(byte[] b) {
-			
-		}
-	}
-
 	public void disconnect() {
 	}
 
+	// TODO(TF): support other modes.
 	public DigitalInput openDigitalInput(int pin) {
 		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
 	}
@@ -546,7 +559,14 @@ public class IOIO extends Service implements IOIOApi {
 	}
 
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
-		return new Uart(this, rx, tx, baud, parity, stopbits);
+		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
+	}
+	
+	/**
+	 * @return the next available uart module
+	 */
+	private int nextAvailableUart() {
+		return 0; // support just the one for now.
 	}
 	
 

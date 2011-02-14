@@ -4,7 +4,14 @@ import java.io.IOException;
 
 import android.util.Log;
 
-// TODO(arshan): implement and add PinChangeListener
+/**
+ * Represent and manage digital output pins on the IOIO.
+ * 
+ * TODO(TF): implement and add PinChangeListener
+ * TODO(arshan): DigitalIO class that supports changing mode while in use.
+ * 
+ * @author arshan
+ */
 public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 
 	public static final int SOURCE = 0;
@@ -12,17 +19,18 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	
 	IOIO ioio;
 
-	// Only true when we are confirmed active from the IOIO,
-	// Im pretty sure ytai will object, but seems prudent for the async behaviour
+	// Only true when we are confirmed active from the IOIO
+	// looks like we can Q requests anyway as they are in order.
 	boolean active = false;
-	
+
+	// Keep a local version of the state, not sure its necessary.
+	// TODO(TF): should we set changeNotify on the pin and only update this on set from the IOIO? 
 	boolean shadowState = false;
 
 	// cache most used packets
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 	
-	// package private
 	DigitalOutput(IOIO ioio, int pin, int openDrain) {
 		super(pin);
 		this.ioio = ioio;

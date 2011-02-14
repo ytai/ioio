@@ -2,6 +2,11 @@ package ioio.lib;
 
 import android.util.Log;
 
+/**
+ * Represent and manage digital input pins on the IOIO.
+ * 
+ * @author arshan
+ */
 public class DigitalInput extends IOIOPin implements IOIOPacketListener {
 
 	public static final int FLOATING = 0;
