@@ -30,7 +30,7 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/1472/pwm.o ${OBJECTDIR}/_ext/1472/features.o ${OBJECTDIR}/_ext/1472/byte_queue.o ${OBJECTDIR}/_ext/1472/digital.o ${OBJECTDIR}/_ext/1472/pins.o ${OBJECTDIR}/_ext/1472/protocol.o ${OBJECTDIR}/_ext/1472/uart.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/adc.o ${OBJECTDIR}/_ext/131612190/uart2.o ${OBJECTDIR}/_ext/1472/logging.o
+OBJECTFILES=${OBJECTDIR}/_ext/1472/pwm.o ${OBJECTDIR}/_ext/1472/features.o ${OBJECTDIR}/_ext/1472/byte_queue.o ${OBJECTDIR}/_ext/1472/digital.o ${OBJECTDIR}/_ext/1472/pins.o ${OBJECTDIR}/_ext/1472/protocol.o ${OBJECTDIR}/_ext/1472/uart.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1275607617/uart2.o ${OBJECTDIR}/_ext/1472/adc.o ${OBJECTDIR}/_ext/1472/logging.o
 
 
 CFLAGS=
@@ -71,7 +71,7 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/_ext/1472/pwm.o: ../pwm.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/pwm.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pwm.o.d -o ${OBJECTDIR}/_ext/1472/pwm.o ../pwm.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pwm.o.d -o ${OBJECTDIR}/_ext/1472/pwm.o ../pwm.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/pwm.o.d > ${OBJECTDIR}/_ext/1472/pwm.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/pwm.o.d 
@@ -86,7 +86,7 @@ endif
 ${OBJECTDIR}/_ext/1472/features.o: ../features.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/features.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/features.o.d -o ${OBJECTDIR}/_ext/1472/features.o ../features.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/features.o.d -o ${OBJECTDIR}/_ext/1472/features.o ../features.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/features.o.d > ${OBJECTDIR}/_ext/1472/features.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/features.o.d 
@@ -101,7 +101,7 @@ endif
 ${OBJECTDIR}/_ext/1472/byte_queue.o: ../byte_queue.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/byte_queue.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/byte_queue.o.d -o ${OBJECTDIR}/_ext/1472/byte_queue.o ../byte_queue.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/byte_queue.o.d -o ${OBJECTDIR}/_ext/1472/byte_queue.o ../byte_queue.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/byte_queue.o.d > ${OBJECTDIR}/_ext/1472/byte_queue.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/byte_queue.o.d 
@@ -116,7 +116,7 @@ endif
 ${OBJECTDIR}/_ext/1472/digital.o: ../digital.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/digital.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/digital.o.d -o ${OBJECTDIR}/_ext/1472/digital.o ../digital.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/digital.o.d -o ${OBJECTDIR}/_ext/1472/digital.o ../digital.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/digital.o.d > ${OBJECTDIR}/_ext/1472/digital.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/digital.o.d 
@@ -131,7 +131,7 @@ endif
 ${OBJECTDIR}/_ext/1472/pins.o: ../pins.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/pins.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pins.o.d -o ${OBJECTDIR}/_ext/1472/pins.o ../pins.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pins.o.d -o ${OBJECTDIR}/_ext/1472/pins.o ../pins.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/pins.o.d > ${OBJECTDIR}/_ext/1472/pins.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/pins.o.d 
@@ -146,7 +146,7 @@ endif
 ${OBJECTDIR}/_ext/1472/protocol.o: ../protocol.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/protocol.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/protocol.o.d -o ${OBJECTDIR}/_ext/1472/protocol.o ../protocol.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/protocol.o.d -o ${OBJECTDIR}/_ext/1472/protocol.o ../protocol.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/protocol.o.d > ${OBJECTDIR}/_ext/1472/protocol.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/protocol.o.d 
@@ -161,7 +161,7 @@ endif
 ${OBJECTDIR}/_ext/1472/uart.o: ../uart.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/uart.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/uart.o.d -o ${OBJECTDIR}/_ext/1472/uart.o ../uart.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/uart.o.d -o ${OBJECTDIR}/_ext/1472/uart.o ../uart.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/uart.o.d > ${OBJECTDIR}/_ext/1472/uart.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/uart.o.d 
@@ -176,7 +176,7 @@ endif
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/main.o.d > ${OBJECTDIR}/_ext/1472/main.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
@@ -188,10 +188,25 @@ else
 	${CP} ${OBJECTDIR}/_ext/1472/main.o.tmp ${OBJECTDIR}/_ext/1472/main.o.d 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.tmp}
 endif
+${OBJECTDIR}/_ext/1275607617/uart2.o: /usr/local/google/users/ytai/mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
+	${MKDIR} ${OBJECTDIR}/_ext/1275607617 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1275607617/uart2.o.d -o ${OBJECTDIR}/_ext/1275607617/uart2.o /usr/local/google/users/ytai/mal/Common/uart2.c 
+ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
+	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1275607617/uart2.o.d > ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${CP} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp}
+else 
+	 sed -e 's/\"//g' ${OBJECTDIR}/_ext/1275607617/uart2.o.d > ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${CP} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp}
+endif
 ${OBJECTDIR}/_ext/1472/adc.o: ../adc.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/adc.o.d -o ${OBJECTDIR}/_ext/1472/adc.o ../adc.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/adc.o.d -o ${OBJECTDIR}/_ext/1472/adc.o ../adc.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/adc.o.d > ${OBJECTDIR}/_ext/1472/adc.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.d 
@@ -203,25 +218,10 @@ else
 	${CP} ${OBJECTDIR}/_ext/1472/adc.o.tmp ${OBJECTDIR}/_ext/1472/adc.o.d 
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.tmp}
 endif
-${OBJECTDIR}/_ext/131612190/uart2.o: ../../../../mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR}/_ext/131612190 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/131612190/uart2.o.d -o ${OBJECTDIR}/_ext/131612190/uart2.o ../../../../mal/Common/uart2.c 
-ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
-	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/131612190/uart2.o.d > ${OBJECTDIR}/_ext/131612190/uart2.o.tmp
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${CP} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp}
-else 
-	 sed -e 's/\"//g' ${OBJECTDIR}/_ext/131612190/uart2.o.d > ${OBJECTDIR}/_ext/131612190/uart2.o.tmp
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${CP} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp}
-endif
 ${OBJECTDIR}/_ext/1472/logging.o: ../logging.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/logging.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/logging.o.d -o ${OBJECTDIR}/_ext/1472/logging.o ../logging.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_UNKNOWN=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/logging.o.d -o ${OBJECTDIR}/_ext/1472/logging.o ../logging.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/logging.o.d > ${OBJECTDIR}/_ext/1472/logging.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/logging.o.d 
@@ -237,7 +237,7 @@ else
 ${OBJECTDIR}/_ext/1472/pwm.o: ../pwm.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/pwm.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pwm.o.d -o ${OBJECTDIR}/_ext/1472/pwm.o ../pwm.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pwm.o.d -o ${OBJECTDIR}/_ext/1472/pwm.o ../pwm.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/pwm.o.d > ${OBJECTDIR}/_ext/1472/pwm.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/pwm.o.d 
@@ -252,7 +252,7 @@ endif
 ${OBJECTDIR}/_ext/1472/features.o: ../features.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/features.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/features.o.d -o ${OBJECTDIR}/_ext/1472/features.o ../features.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/features.o.d -o ${OBJECTDIR}/_ext/1472/features.o ../features.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/features.o.d > ${OBJECTDIR}/_ext/1472/features.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/features.o.d 
@@ -267,7 +267,7 @@ endif
 ${OBJECTDIR}/_ext/1472/byte_queue.o: ../byte_queue.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/byte_queue.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/byte_queue.o.d -o ${OBJECTDIR}/_ext/1472/byte_queue.o ../byte_queue.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/byte_queue.o.d -o ${OBJECTDIR}/_ext/1472/byte_queue.o ../byte_queue.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/byte_queue.o.d > ${OBJECTDIR}/_ext/1472/byte_queue.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/byte_queue.o.d 
@@ -282,7 +282,7 @@ endif
 ${OBJECTDIR}/_ext/1472/digital.o: ../digital.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/digital.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/digital.o.d -o ${OBJECTDIR}/_ext/1472/digital.o ../digital.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/digital.o.d -o ${OBJECTDIR}/_ext/1472/digital.o ../digital.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/digital.o.d > ${OBJECTDIR}/_ext/1472/digital.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/digital.o.d 
@@ -297,7 +297,7 @@ endif
 ${OBJECTDIR}/_ext/1472/pins.o: ../pins.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/pins.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pins.o.d -o ${OBJECTDIR}/_ext/1472/pins.o ../pins.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/pins.o.d -o ${OBJECTDIR}/_ext/1472/pins.o ../pins.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/pins.o.d > ${OBJECTDIR}/_ext/1472/pins.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/pins.o.d 
@@ -312,7 +312,7 @@ endif
 ${OBJECTDIR}/_ext/1472/protocol.o: ../protocol.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/protocol.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/protocol.o.d -o ${OBJECTDIR}/_ext/1472/protocol.o ../protocol.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/protocol.o.d -o ${OBJECTDIR}/_ext/1472/protocol.o ../protocol.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/protocol.o.d > ${OBJECTDIR}/_ext/1472/protocol.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/protocol.o.d 
@@ -327,7 +327,7 @@ endif
 ${OBJECTDIR}/_ext/1472/uart.o: ../uart.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/uart.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/uart.o.d -o ${OBJECTDIR}/_ext/1472/uart.o ../uart.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/uart.o.d -o ${OBJECTDIR}/_ext/1472/uart.o ../uart.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/uart.o.d > ${OBJECTDIR}/_ext/1472/uart.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/uart.o.d 
@@ -342,7 +342,7 @@ endif
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/main.o.d > ${OBJECTDIR}/_ext/1472/main.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
@@ -354,10 +354,25 @@ else
 	${CP} ${OBJECTDIR}/_ext/1472/main.o.tmp ${OBJECTDIR}/_ext/1472/main.o.d 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.tmp}
 endif
+${OBJECTDIR}/_ext/1275607617/uart2.o: /usr/local/google/users/ytai/mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
+	${MKDIR} ${OBJECTDIR}/_ext/1275607617 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1275607617/uart2.o.d -o ${OBJECTDIR}/_ext/1275607617/uart2.o /usr/local/google/users/ytai/mal/Common/uart2.c 
+ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
+	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1275607617/uart2.o.d > ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${CP} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp}
+else 
+	 sed -e 's/\"//g' ${OBJECTDIR}/_ext/1275607617/uart2.o.d > ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${CP} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp ${OBJECTDIR}/_ext/1275607617/uart2.o.d 
+	${RM} ${OBJECTDIR}/_ext/1275607617/uart2.o.tmp}
+endif
 ${OBJECTDIR}/_ext/1472/adc.o: ../adc.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/adc.o.d -o ${OBJECTDIR}/_ext/1472/adc.o ../adc.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/adc.o.d -o ${OBJECTDIR}/_ext/1472/adc.o ../adc.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/adc.o.d > ${OBJECTDIR}/_ext/1472/adc.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.d 
@@ -369,25 +384,10 @@ else
 	${CP} ${OBJECTDIR}/_ext/1472/adc.o.tmp ${OBJECTDIR}/_ext/1472/adc.o.d 
 	${RM} ${OBJECTDIR}/_ext/1472/adc.o.tmp}
 endif
-${OBJECTDIR}/_ext/131612190/uart2.o: ../../../../mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR}/_ext/131612190 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/131612190/uart2.o.d -o ${OBJECTDIR}/_ext/131612190/uart2.o ../../../../mal/Common/uart2.c 
-ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
-	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/131612190/uart2.o.d > ${OBJECTDIR}/_ext/131612190/uart2.o.tmp
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${CP} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp}
-else 
-	 sed -e 's/\"//g' ${OBJECTDIR}/_ext/131612190/uart2.o.d > ${OBJECTDIR}/_ext/131612190/uart2.o.tmp
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${CP} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp ${OBJECTDIR}/_ext/131612190/uart2.o.d 
-	${RM} ${OBJECTDIR}/_ext/131612190/uart2.o.tmp}
-endif
 ${OBJECTDIR}/_ext/1472/logging.o: ../logging.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/logging.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -DENABLE_LOGGING -I".." -I"../.." -I"../../blapi" -I"/home/ytai/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/logging.o.d -o ${OBJECTDIR}/_ext/1472/logging.o ../logging.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I".." -I"../.." -I"../../blapi" -I"/home/ytai/localhome/mal/Include" -O3 -MMD -MF ${OBJECTDIR}/_ext/1472/logging.o.d -o ${OBJECTDIR}/_ext/1472/logging.o ../logging.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/logging.o.d > ${OBJECTDIR}/_ext/1472/logging.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/logging.o.d 
