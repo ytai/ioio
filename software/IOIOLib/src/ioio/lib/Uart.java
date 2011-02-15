@@ -39,7 +39,7 @@ public class Uart implements IOIOPacketListener {
 	private DigitalInput rx;
 	private DigitalOutput tx;
 	
-	private IOIO ioio;
+	private IOIOImpl ioio;
 	
 	// Uart module on the ioio.
 	private int uartNum;
@@ -56,7 +56,7 @@ public class Uart implements IOIOPacketListener {
 	BlockingQueue<Byte> incoming = new LinkedBlockingQueue<Byte>();
 	BlockingQueue<Byte> outgoing = new LinkedBlockingQueue<Byte>();
 	
-	Uart(IOIO ioio, int module, int rx, int tx, int baud, int parity, float stop) {		
+	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop) {		
 		this.stop_bits = stop;
 		this.parity = parity;
 		this.baud = baud;
@@ -71,7 +71,7 @@ public class Uart implements IOIOPacketListener {
 		calculateRates();
 
 		configure = new IOIOPacket(
-				IOIOApi.UART_CONFIGURE,
+				Constants.UART_CONFIGURE,
 				new byte[]{
 						(byte) (uartNum << 6 
 								| (fourX ? 0x80 : 0x00) 
@@ -82,10 +82,10 @@ public class Uart implements IOIOPacketListener {
 				}
 		);
 		
-		setRx = new IOIOPacket(IOIOApi.UART_SET_RX, 
+		setRx = new IOIOPacket(Constants.UART_SET_RX, 
 				new byte[]{(byte)rx.pin, (byte)(0x80|uartNum)});
 
-		setTx = new IOIOPacket(IOIOApi.UART_SET_TX, 
+		setTx = new IOIOPacket(Constants.UART_SET_TX, 
 				new byte[]{(byte)tx.pin, (byte)(0x80|uartNum)});
 	
 		// Since the rx and tx pins are initialized as DigitalI/O pins we already have
@@ -165,7 +165,7 @@ public class Uart implements IOIOPacketListener {
 
 	public void handlePacket(IOIOPacket packet) {
 		switch (packet.message) {
-		case IOIOApi.UART_RX:
+		case Constants.UART_RX:
 			// received bytes from ioio.
 			if ((packet.payload[0] >> 6) == uartNum) {
 				// TODO(arshan): consider our own buffer implementation for perf. ie. circular byte[]
@@ -175,13 +175,13 @@ public class Uart implements IOIOPacketListener {
 			}
 			break;
 			
-		case IOIOApi.UART_SET_RX:
-		case IOIOApi.UART_SET_TX:
-		case IOIOApi.UART_CONFIGURE:
+		case Constants.UART_SET_RX:
+		case Constants.UART_SET_TX:
+		case Constants.UART_CONFIGURE:
 			// consider catching these to get the confirmations.
 			break;
 			
-		case IOIOApi.UART_TX_STATUS:
+		case Constants.UART_TX_STATUS:
 			break;
 		}
 		

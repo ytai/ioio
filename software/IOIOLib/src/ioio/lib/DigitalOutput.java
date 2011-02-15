@@ -17,7 +17,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	public static final int SOURCE = 0;
 	public static final int SINK = 1;
 	
-	IOIO ioio;
+	IOIOImpl ioio;
 
 	// Only true when we are confirmed active from the IOIO
 	// looks like we can Q requests anyway as they are in order.
@@ -31,12 +31,12 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 	
-	DigitalOutput(IOIO ioio, int pin, int openDrain) {
+	DigitalOutput(IOIOImpl ioio, int pin, int openDrain) {
 		super(pin);
 		this.ioio = ioio;
 		
-		setHi = new IOIOPacket(IOIOApi.SET_VALUE, new byte[]{(byte)(pin<<2|1)});
-		setLo = new IOIOPacket(IOIOApi.SET_VALUE, new byte[]{(byte)(pin<<2)});
+		setHi = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2|1)});
+		setLo = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2)});
 	
 		ioio.registerListener(this);
 		
@@ -47,7 +47,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 		// TODO(arshan): does this need a sanity check?
 		IOIOPacket request_output = 
 			new IOIOPacket(
-			  IOIOApi.SET_OUTPUT,
+			  Constants.SET_OUTPUT,
 			  new byte[]{(byte) (pin << 2
 					  | (shadowState?1:0) << 1
 					  | openDrain)}
@@ -83,7 +83,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 	
 	public void handlePacket(IOIOPacket packet) {
 		switch (packet.message) {
-			case IOIOApi.SET_OUTPUT:
+			case Constants.SET_OUTPUT:
 				active = true;
 				Log.i("IOIO","pin " + pin + " set as output");
 		}

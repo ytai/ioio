@@ -1,6 +1,6 @@
 package ioio.lib.pro;
 
-import ioio.lib.IOIO;
+import ioio.lib.IOIOImpl;
 
 /**
  * This class can have side effects on the IOIO that will result in 
@@ -15,6 +15,6 @@ import ioio.lib.IOIO;
  * @author arshan
  *
  */
-public class ProIO extends IOIO {
+public class ProIO extends IOIOImpl {
 	
 }

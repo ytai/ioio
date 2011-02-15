@@ -19,14 +19,14 @@ public class PwmOutput extends IOIOPin {
 
 	private boolean scale256 = false;
 	
-	private IOIO ioio;
+	private IOIOImpl ioio;
 	private int module;
 	
 	private IOIOPacket setPwm;
 	private IOIOPacket setPeriod;
 	private IOIOPacket setDutyCycle;
 	
-	PwmOutput(IOIO ioio, int pin, int module, int period) {
+	PwmOutput(IOIOImpl ioio, int pin, int module, int period) {
 		super(pin);
 		this.ioio = ioio;
 		this.module = module;
@@ -36,12 +36,12 @@ public class PwmOutput extends IOIOPin {
 	
 	private void init() {
 		setPwm = new IOIOPacket(
-				IOIOApi.SET_PWM,
+				Constants.SET_PWM,
 				new byte[]{(byte)pin, (byte)module}
 		);
 	
 		setPeriod = new IOIOPacket(
-				IOIOApi.SET_PERIOD,
+				Constants.SET_PERIOD,
 				new byte[]{
 						(byte)(module << 1 | (scale256?1:0)),
 						(byte)(period & 0xFF),
