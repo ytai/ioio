@@ -14,6 +14,7 @@
   void log_print_buf(const void* buf, int size);
   #define log_print_0(x) do { UART2PrintString("["__FILE__": "TOSTRING(__LINE__)"] "); UART2PrintString(x); UART2PrintString("\r\n"); } while (0)
   #define log_printf(...) do { sprintf(char_buf, __VA_ARGS__); log_print_0(char_buf); } while(0)
+  void log_init();
 
   #define SAVE_PIN4_FOR_LOG() if (pin == 4) return
   #define SAVE_UART1_FOR_LOG() if (uart == 1) return
@@ -23,6 +24,7 @@
   #define log_printf(...)
   #define SAVE_PIN4_FOR_LOG()
   #define SAVE_UART1_FOR_LOG()
+  #define log_init()
 #endif
 
 

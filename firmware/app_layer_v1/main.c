@@ -1,12 +1,9 @@
-#include <uart2.h>
-#include <p24Fxxxx.h>
-#include <PPS.h>
-
 #include "Compiler.h"
 #include "blapi/adb.h"
 #include "blapi/bootloader.h"
 #include "features.h"
 #include "protocol.h"
+#include "logging.h"
 
 typedef enum {
   STATE_INIT,
@@ -33,12 +30,8 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
 int main() {
   ADB_CHANNEL_HANDLE h;
 
-  // TODO: move this ugliness into logging.c and protect with #if ENABLE_LOGGING
-  iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-  iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
-  UART2Init();
-
-  UART2PrintString("***** Hello from app-layer! *******\r\n");
+  log_init();
+  log_printf("***** Hello from app-layer! *******\r\n");
 
   while (1) {
     BOOL adb_connected = BootloaderTasks();
