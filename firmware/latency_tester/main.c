@@ -1,6 +1,7 @@
 #include <uart2.h>
 #include <p24fxxxx.h>
 #include <pps.h>
+#include <string.h>
 
 #include "blapi/adb_file.h"
 #include "blapi/bootloader.h"
@@ -28,12 +29,17 @@ BYTE to_send = ACK_BYTE;
 const void* data_to_send = NULL;
 UINT32 data_to_send_len = 0;
 
+char recv_sizes_buf[4];
+int sizes_bytes_recived = 0;
+
 unsigned long packets_per_test = 0;
 unsigned long packet_size = 0;
 unsigned long total_upload_size = 0;
 unsigned long total_download_packets = 0;
 unsigned long total_latency_packets = 0;
+unsigned long total_both_size = 0;
 unsigned long total_both_packets = 0;
+BOOL one_direction_finished = FALSE;
 
 void recv_sizes(const char* data) {
   packet_size = data[0] << 8 | data[1];
@@ -43,21 +49,26 @@ void recv_sizes(const char* data) {
 BOOL recv_command(char command_id) {
   switch (command_id) {
     case 'U':
+      UART2PrintString("Starting upload test... ");
       main_state = MAIN_STATE_TEST_UPLOAD;
       total_upload_size = 0;
       return TRUE;
 
     case 'D':
+      UART2PrintString("Starting download test... ");
       main_state = MAIN_STATE_TEST_DOWNLOAD;
       total_download_packets = 0;
       return TRUE;
 
     case 'B':
+      UART2PrintString("Starting both test... ");
       main_state = MAIN_STATE_TEST_BOTH;
+      total_both_size = 0;
       total_both_packets = 0;
       return TRUE;
 
     case 'L':
+      UART2PrintString("Starting latency test... ");
       main_state = MAIN_STATE_TEST_LATENCY;
       total_latency_packets = 0;
       return TRUE;
@@ -68,16 +79,23 @@ BOOL recv_command(char command_id) {
 }
 
 void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
-  UART2PrintString("Reading data");
+  if (data == NULL && data_len == 0) {
+    sizes_bytes_recived = 0;
+    main_state = MAIN_STATE_WAIT_CONNECT;
+    return;
+  }
   switch (main_state) {
     case MAIN_STATE_RECV_SIZES:
-      if (data_len != 4) {
+      memcpy(recv_sizes_buf + sizes_bytes_recived, data, 4 - sizes_bytes_recived);
+      sizes_bytes_recived += data_len;
+      if (sizes_bytes_recived > 4) {
         main_state = MAIN_STATE_ERROR;
-      } else {
-        recv_sizes((const char*) data);
+      } else if (sizes_bytes_recived == 4) {
+        recv_sizes(recv_sizes_buf);
         main_state = MAIN_STATE_RECV_COMMAND;
         send_byte = TRUE;
         to_send = ACK_BYTE;
+        UART2PrintString("Sizes recieved.\r\n");
       }
       break;
       
@@ -96,18 +114,20 @@ void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
         send_byte = TRUE;
         to_send = ACK_BYTE;
         main_state = MAIN_STATE_RECV_COMMAND;
+        UART2PrintString("Done upload test\r\n");
       }
       break;
 
     case MAIN_STATE_TEST_BOTH:
-      total_both_packets++;
-      ADBBufferRef();
-      data_to_send = data;
-      data_to_send_len = data_len;
-      if (total_both_packets == packets_per_test) {
-        send_byte = TRUE;
-        to_send = ACK_BYTE;
-        main_state = MAIN_STATE_RECV_COMMAND;
+      total_both_size += data_len;
+      if (total_both_size == (packet_size * packets_per_test)) {
+        if (one_direction_finished == TRUE) {
+          send_byte = TRUE;
+          to_send = ACK_BYTE;
+          main_state = MAIN_STATE_RECV_COMMAND;
+          UART2PrintString("Done both test\r\n");
+        }
+        one_direction_finished = TRUE;
       }
       break;
 
@@ -117,6 +137,7 @@ void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
       to_send = ((const BYTE*) data)[0];
       if (total_latency_packets == packets_per_test) {
         main_state = MAIN_STATE_RECV_COMMAND;
+        UART2PrintString("Done latency test\r\n");
       }
       break;
 
@@ -162,7 +183,6 @@ int main() {
     switch (main_state) {
       case MAIN_STATE_WAIT_CONNECT:
         if (connected) {
-          UART2PrintString("Connected");
           h = ADBOpen("tcp:7149", &ChannelRecv);
           main_state = MAIN_STATE_WAIT_READY;
         }
@@ -170,6 +190,7 @@ int main() {
 
       case MAIN_STATE_WAIT_READY:
         if (ADBChannelReady(h)) {
+          UART2PrintString("Connected\r\n");
           main_state = MAIN_STATE_RECV_SIZES;
         }
         break;
@@ -184,6 +205,24 @@ int main() {
           send_byte = TRUE;
           to_send = ACK_BYTE;
           main_state = MAIN_STATE_RECV_COMMAND;
+          UART2PrintString("Done download test\r\n");
+        }
+        break;
+
+      case MAIN_STATE_TEST_BOTH:
+        if (total_both_packets < packets_per_test) {
+          if (ADBChannelReady(h)) {
+            ADBWrite(h, download_buffer, packet_size);
+            total_both_packets += 1;
+          }
+        } else {
+          if (one_direction_finished == TRUE) {
+            send_byte = TRUE;
+            to_send = ACK_BYTE;
+            main_state = MAIN_STATE_RECV_COMMAND;
+            UART2PrintString("Done both test\r\n");
+          }
+          one_direction_finished = TRUE;
         }
         break;
 
