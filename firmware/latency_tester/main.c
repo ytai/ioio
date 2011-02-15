@@ -80,6 +80,10 @@ BOOL recv_command(char command_id) {
 
 void ChannelRecv(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data == NULL && data_len == 0) {
+    send_byte = FALSE;
+    to_send = ACK_BYTE;
+    data_to_send = NULL;
+    data_to_send_len = 0;
     sizes_bytes_recived = 0;
     main_state = MAIN_STATE_WAIT_CONNECT;
     return;
