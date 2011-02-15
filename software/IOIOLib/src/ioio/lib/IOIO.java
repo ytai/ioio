@@ -1,5 +1,7 @@
 package ioio.lib;
 
+import ioio.lib.IOIOException.OperationAbortedException;
+
 /**
  * Interface for the IOIO proto.
  *
@@ -7,7 +9,7 @@ package ioio.lib;
  */
 public interface IOIO {
 
-	public void connect();
+	public void connect() throws OperationAbortedException;
 
 	public void disconnect();
 

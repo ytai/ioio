@@ -3,9 +3,12 @@
  */
 package ioio.lib;
 
+import android.accounts.OperationCanceledException;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+
+import ioio.lib.IOIOException.OperationAbortedException;
 
 
 /**
@@ -19,7 +22,9 @@ import android.os.IBinder;
  */
 public class IOIOImpl extends Service implements IOIO {
 
-	// for convenience, might not stay long
+	private static final long CONNECT_WAIT_TIME_MS = 50;
+
+    // for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
 	// a. one class (this one) that implements the protocol and exposes IOIOApi.
 	//    has a non-public (package scope) ctor that gets a InputStream and OutputStream
@@ -31,12 +36,12 @@ public class IOIOImpl extends Service implements IOIO {
 	// for development we can stick a protocol logger between this layer and the TCP socket, etc.
 	static private IOIOImpl singleton = null;
 
-	private final IOIOConnection ioio_connection;
+	private final IOIOConnection ioioConnection;
 
 	private boolean abortConnection = false;
 
 	public IOIOImpl(IOIOConnection ioio_connection) {
-	    this.ioio_connection = ioio_connection;
+	    this.ioioConnection = ioio_connection;
 	}
 
 	/**
@@ -54,35 +59,39 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
     public boolean isConnected() {
-		return ioio_connection.isConnected();
+		return ioioConnection.isConnected();
 	}
 
 	// queue an outgoing packet
 	public void queuePacket(IOIOPacket pkt) {
-		ioio_connection.sendToIOIO(pkt);
+		ioioConnection.sendToIOIO(pkt);
 	}
 
 	/**
 	 * Blocking call that will not return until connected.
 	 * hmm. this must throw an exception at some point, else very un-androidy
+	 * @throws OperationCanceledException if {@link #abortConnection()} is called
 	 */
 	@Override
-    public void connect() {
+    public void connect() throws OperationAbortedException {
 	    abortConnection = false;
 
 	    // TODO(birmiwal): throw exception if already connected?
 	    if (!isConnected()) {
-	        ioio_connection.start();
+	        ioioConnection.start();
 	    }
 	    // TODO(birmiwal): make this better
 	    while (!isConnected() && !abortConnection) {
 	        try {
-                Thread.sleep(10);
+                Thread.sleep(CONNECT_WAIT_TIME_MS);
             } catch (InterruptedException e) {
-                // do nothing for now
+                break;
             }
 	    }
-	    // TODO(birmiwal): throw an AbortedException on abort
+
+	    if (!isConnected()) {
+	        throw new OperationAbortedException("operation aborted while in connect()");
+	    }
 	}
 
 	@Override
@@ -92,14 +101,14 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
 	public void softReset() {
-		ioio_connection.sendToIOIO(Constants.SOFT_RESET_PACKET);
-		ioio_connection.resetListeners();
+		ioioConnection.sendToIOIO(Constants.SOFT_RESET_PACKET);
+		ioioConnection.resetListeners();
 	}
 
 	@Override
     public void hardReset() {
 		// request a reset
-		ioio_connection.sendToIOIO(Constants.HARD_RESET_PACKET);
+		ioioConnection.sendToIOIO(Constants.HARD_RESET_PACKET);
 	}
 
 	// Singleton? TBD
@@ -111,14 +120,14 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	public void registerListener(IOIOPacketListener listener){
-		ioio_connection.registerListener(listener);
+		ioioConnection.registerListener(listener);
 	}
 
 	@Override
     public void disconnect() {
-	    ioio_connection.disconnect();
+	    ioioConnection.disconnect();
 	    try {
-            ioio_connection.join();
+            ioioConnection.join();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -143,7 +152,7 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
     public PwmOutput openPwmOutput(int pin) {
-		return null;
+		return new PwmOutput(this, pin, 0, 0xff);
 	}
 
 	@Override

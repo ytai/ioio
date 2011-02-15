@@ -83,8 +83,10 @@ public class IOIOConnection extends Thread {
 		this.ssocket = ssocket;
 	}
 
-	public boolean startService() throws IOException, BindException{
-		ssocket = new ServerSocket(this.port);
+	public boolean startService() throws IOException, BindException {
+	    if (ssocket == null) {
+	        ssocket = new ServerSocket(port);
+	    }
 		return true;
 	}
 
@@ -102,126 +104,26 @@ public class IOIOConnection extends Thread {
 		// TODO(arshan): verify that the hardware/firmware/bootloader versions are ones
 		// this library supports, for forward compatibility.
 
-		IOIOLogger.log("Hardware ID : " + asInt(contents, 3, 4));
-		IOIOLogger.log("Bootload ID : " + asInt(contents, 3, 7));
-		IOIOLogger.log("Firmware ID : " + asInt(contents, 3, 10));
+		IOIOLogger.log("Hardware ID : " + Bytes.asInt(contents, 3, 4));
+		IOIOLogger.log("Bootload ID : " + Bytes.asInt(contents, 3, 7));
+		IOIOLogger.log("Firmware ID : " + Bytes.asInt(contents, 3, 10));
 
 		IOIOLogger.log("ESTABLISH packet verified");
 		return true;
 	}
 
-	/**
-	 * poll the input stream until the bytes of the buffer are filled.
-	 * @param buffer
-	 */
-
-	private boolean readFully(byte[] buffer) throws IOException {
-		return readFully(buffer, 0);
-	}
-
-	private boolean readFully(byte[] buffer, int offset) throws IOException {
-		int val = 0;
-		int current = offset;
-		while (current < buffer.length) {
-			val = in.read(buffer, current, buffer.length-current);
-			if (val == -1) {
-				return false;
-			}
-			current += val;
-		}
-		return true;
-	}
-
-	private int readByte() throws IOException{
-		// !!! its gone? WTF. I swear I was getting no-block, just return EOF, and then
-		// it would still function for return from IOIO.
-		boolean workaround = false;
-
-		if (!workaround) {
-			return in.read();
-		}
-		else {
-		// Ahem, getting -1's instead of blocking?
-		// TODO(arshan): This seems to be gone, leaving it for some more debugging, then delete.
-		int val;
-		val = in.read();
-		while (val == -1) {
-			sleep(1);
-			// yield();
-			val = in.read();
-		}
-		return val;
-		}
-	}
-
-	// Utility to allocate the array and return it with bytes filled.
-	private byte[] readBytes(int size) throws IOException {
-		byte[] bytes = new byte[size];
-		if (readFully(bytes)) {
-			return bytes;
-		}
-		throw new IOException("stream is broke");
-	}
-
-	private int asInt(byte[] bytes, int len, int offset) {
-		int result = 0;
-		// TODO(arshan) unroll
-		for (int x = 0; x < len; x++) {
-			result |= (0xFF & bytes[x + offset]) << (x * 8);
-		}
-		return result;
-	}
-
-	private void startOutgoingHandler() {
+	private void startOutgoingHandler(OutputStream out) {
 		if (outgoingHandler != null) {
 			outgoingHandler.halt();
 		}
 		// clear any pending ...
 		synchronized (outgoing) {
 			outgoing.clear();
-			outgoingHandler = new OutgoingHandler();
+			outgoingHandler = new OutgoingHandler(outgoing, out);
 			outgoingHandler.start();
 		}
 	}
 
-	public class OutgoingHandler extends Thread {
-		boolean running = true;
-
-		@Override
-        public void run() {
-			IOIOPacket packet;
-			IOIOLogger.log("started outgoing handler thread");
-			try {
-			while (running) {
-				try {
-					packet = outgoing.take();
-					IOIOLogger.log("Sending message " + packet.message);
-					out.write(packet.message);
-					if (packet.payload != null) {
-						out.write(packet.payload);
-					}
-				}
-				catch (InterruptedException ie)	{
-					if (!running) {
-						IOIOLogger.log("outgoing thread exiting");
-						return; }
-				}
-			}
-			}catch (IOException e) {
-				// TODO(arshan): reset the connection.
-				e.printStackTrace();
-			}
-		}
-
-		public synchronized void halt() {
-				IOIOLogger.log("halting outgoing thread");
-				running = false;
-				this.notifyAll();
-		}
-	}
-	/**
-	 *
-	 */
 	@Override
     public void run() {
 		setTimeout(IOIO_TIMEOUT);
@@ -236,104 +138,106 @@ public class IOIOConnection extends Thread {
 
 		while (!disconnectionRequested) {
 			IOIOLogger.log("waiting for connection");
-			if (reconnect()) {
-			     resetListeners();
-				// state here must be CONNECTED
-				IOIOLogger.log("initial connection");
-				try {
-					in = socket.getInputStream();
-					out = socket.getOutputStream();
-					state = CONNECTED;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					// Handle any incoming packets
-					int message_type;
-					while (!disconnectionRequested && state == CONNECTED) {
-
-						message_type = readByte();
-
-						// TODO(arshan): how do we re-sync if things have gone bad.
-						// ytai: it is in the protocol spec: you close the socket (or i/o streams),
-						// reset your internal state, and wait for ioio to reconnect.
-						switch (message_type) {
-
-						case Constants.ESTABLISH_CONNECTION: // 13 byte payload
-							if (verifyEstablishPacket(new IOIOPacket(message_type, readBytes(13)))) {
-								startOutgoingHandler();
-							} else {
-								state = SHUTTINGDOWN;
-							}
-							// TODO(arshan): pass on to listeners?
-							break;
-
-						case Constants.REPORT_ANALOG_FORMAT: // variable
-							analogPinCount = readByte();
-							int groups = (analogPinCount/4) + 1;
-							analogPinBytes = (groups * 5) + (analogPinCount % 4) + 1;
-							byte[] payload = new byte[analogPinCount+1];
-							payload[0] = (byte)analogPinCount;
-							readFully(payload, 1);
-							handleIOIOPacket(new IOIOPacket(message_type, payload));
-							break;
-
-						case Constants.REPORT_ANALOG_STATUS: // variable
-							handleIOIOPacket(new IOIOPacket(message_type, readBytes(analogPinBytes)));
-							break;
-
-						case Constants.REPORT_PERIODIC_DIGITAL: // variable
-							break;
-
-						case Constants.UART_CONFIGURE: // 3 byte payload
-							handleIOIOPacket(new IOIOPacket(message_type, readBytes(3)));
-							break;
-
-						case Constants.SET_PERIODIC_SAMPLE: // 2 byte payload
-						case Constants.UART_SET_RX:
-						case Constants.UART_SET_TX:
-						case Constants.UART_TX_STATUS:
-							handleIOIOPacket(new IOIOPacket(message_type, readBytes(2)));
-							break;
-
-						case Constants.SET_OUTPUT: // 1 byte payload
-						case Constants.SET_INPUT:
-						case Constants.SET_CHANGE_NOTIFY:
-						case Constants.SET_ANALOG_INPUT:
-						case Constants.REPORT_DIGITAL_STATUS:
-							handleIOIOPacket(new IOIOPacket(message_type, readBytes(1)));
-							break;
-
-						case Constants.SOFT_RESET: // 0 byte payload
-							handleIOIOPacket(new IOIOPacket(message_type, null));
-							break;
-
-						// TODO(TF): we are avoiding this with a while loop above, theres a bug somewhere.
-						case EOF: // The universal signal of end connection
-							IOIOLogger.log("Connection broken by EOF");
-							state = SHUTTINGDOWN;
-							break;
-
-						default:
-							// TODO(ytai): if we had a standard header, that included number of payload bytes ...
-							IOIOLogger.log("Unknown message type : " + message_type);
-						    state = SHUTTINGDOWN; // conservative now, try to recover later.
-						}
-					}
-
-					if (state == SHUTTINGDOWN) {
-						handleShutdown();
-					}
-
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				// We're all done
-				state = DISCONNECTED;
+			if (!reconnect()) {
+			    continue;
 			}
+		     resetListeners();
+			// state here must be CONNECTED
+			IOIOLogger.log("initial connection");
+			try {
+				in = socket.getInputStream();
+				out = socket.getOutputStream();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				// Handle any incoming packets
+				int message_type;
+				while (!disconnectionRequested && state == CONNECTED) {
+
+					message_type = Bytes.readByte(in);
+					// IOIOLogger.log("read message of type: " + message_type);
+
+					// TODO(arshan): how do we re-sync if things have gone bad.
+					// ytai: it is in the protocol spec: you close the socket (or i/o streams),
+					// reset your internal state, and wait for ioio to reconnect.
+					switch (message_type) {
+
+					case Constants.ESTABLISH_CONNECTION: // 13 byte payload
+						if (verifyEstablishPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 13)))) {
+							startOutgoingHandler(out);
+						} else {
+						    IOIOLogger.log("setting state to shutting down");
+							state = SHUTTINGDOWN;
+						}
+						// TODO(arshan): pass on to listeners?
+						break;
+
+					case Constants.REPORT_ANALOG_FORMAT: // variable
+						analogPinCount = Bytes.readByte(in);
+						int groups = (analogPinCount+3)/4;
+						analogPinBytes = (analogPinCount * 10 + 7)/8; //(groups * 5) + (analogPinCount % 4) + 1;
+						byte[] payload = new byte[analogPinCount+1];
+						payload[0] = (byte)analogPinCount;
+						Bytes.readFully(in, payload, 1);
+						handleIOIOPacket(new IOIOPacket(message_type, payload));
+						break;
+
+					case Constants.REPORT_ANALOG_STATUS: // variable
+						handleIOIOPacket(new IOIOPacket(message_type, Bytes.readBytes(in, analogPinBytes)));
+						break;
+
+					case Constants.REPORT_PERIODIC_DIGITAL: // variable
+						break;
+
+					case Constants.UART_CONFIGURE: // 3 byte payload
+						handleIOIOPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 3)));
+						break;
+
+					case Constants.SET_PERIODIC_SAMPLE: // 2 byte payload
+					case Constants.UART_SET_RX:
+					case Constants.UART_SET_TX:
+					case Constants.UART_TX_STATUS:
+						handleIOIOPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 2)));
+						break;
+
+					case Constants.SET_OUTPUT: // 1 byte payload
+					case Constants.SET_INPUT:
+					case Constants.SET_CHANGE_NOTIFY:
+					case Constants.SET_ANALOG_INPUT:
+					case Constants.REPORT_DIGITAL_STATUS:
+						handleIOIOPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 1)));
+						break;
+
+					case Constants.SOFT_RESET: // 0 byte payload
+						handleIOIOPacket(new IOIOPacket(message_type, null));
+						break;
+
+					// TODO(TF): we are avoiding this with a while loop above, theres a bug somewhere.
+					case EOF: // The universal signal of end connection
+						IOIOLogger.log("Connection broken by EOF");
+						state = SHUTTINGDOWN;
+						break;
+
+					default:
+						// TODO(ytai): if we had a standard header, that included number of payload bytes ...
+						IOIOLogger.log("Unknown message type : " + message_type);
+					    state = SHUTTINGDOWN; // conservative now, try to recover later.
+					}
+				}
+
+				if (state == SHUTTINGDOWN) {
+					handleShutdown();
+				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// We're all done
+			state = DISCONNECTED;
 		}
 	}
 
@@ -350,7 +254,7 @@ public class IOIOConnection extends Thread {
 
 	}
 
-	private void sleep(int ms) {
+	static void sleep(int ms) {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
@@ -400,7 +304,7 @@ public class IOIOConnection extends Thread {
 	 */
 	public void handleIOIOPacket(IOIOPacket packet) {
 		// send to my listeners
-		IOIOLogger.log("handle packet : " + packet.message);
+		// IOIOLogger.log("handle packet : " + packet.message);
 		// TODO(arshan): add some filters for message types? we've already case'd it above
 		for (IOIOPacketListener listener: listeners) {
 			listener.handlePacket(packet);

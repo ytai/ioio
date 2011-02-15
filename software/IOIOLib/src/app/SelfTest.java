@@ -11,6 +11,7 @@ import ioio.lib.AnalogInput;
 import ioio.lib.DigitalInput;
 import ioio.lib.DigitalOutput;
 import ioio.lib.IOIO;
+import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOImpl;
 import ioio.lib.IOIOLogger;
 import ioio.lib.Uart;
@@ -48,11 +49,14 @@ public class SelfTest extends Activity {
 	private TextView statusText;
 	private TextView titleText;
 
+    IOIO ioio;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setupViews();
+    	ioio = IOIOImpl.getInstance();
     	// TODO(arshan): intercept Log.i output and put to screen
     	// TODO(arshan): buttons for restart/pause/nextTest
     }
@@ -66,8 +70,8 @@ public class SelfTest extends Activity {
     		@Override
             public void run() {
     			try {
-    			    IOIOImpl.getInstance().connect();
     				status("Connecting");
+                    ioio.connect();
     				testConnection();
 
     				status("Testing");
@@ -111,12 +115,11 @@ public class SelfTest extends Activity {
 
     public void testConnection() throws FailException {
     	msg("Connecting to IOIO");
-    	assertTrue(IOIOImpl.getInstance().isConnected());
+    	assertTrue(ioio.isConnected());
     }
 
     public void testHardReset() throws FailException {
     	msg("Starting Hard Reset Test");
-    	IOIO ioio = IOIOImpl.getInstance();
     	for (int x = 0; x < REPETITIONS; x++) {
 			ioio.hardReset();
 			sleep(1100); // experimentally this is taking a little more then 1000mS
@@ -130,7 +133,6 @@ public class SelfTest extends Activity {
      */
     public void testSoftReset() throws FailException {
     	msg("Starting Soft Reset Test");
-    	IOIO ioio = IOIOImpl.getInstance();
 		for (int x = 0; x < REPETITIONS; x++) {
 			sleep(100);
 			ioio.softReset();
@@ -145,7 +147,7 @@ public class SelfTest extends Activity {
      */
     public void testDigitalOutput() throws FailException {
     	msg("Starting Digital Output Test");
-    	DigitalOutput output = IOIOImpl.getInstance().openDigitalOutput(OUTPUT_PIN);
+    	DigitalOutput output = ioio.openDigitalOutput(OUTPUT_PIN);
     	try {
     		for (int x = 0; x < REPETITIONS; x++) {
     			output.write(true);
@@ -171,11 +173,10 @@ public class SelfTest extends Activity {
      */
     public void testDigitalIO() throws FailException {
     	msg("Starting Digital I/O Test");
-    	IOIO ioio = IOIOImpl.getInstance();
     	ioio.softReset();
     	sleep(1000); // wait for soft reset? debugging
-    	DigitalInput input = IOIOImpl.getInstance().openDigitalInput(INPUT_PIN);
-    	DigitalOutput output = IOIOImpl.getInstance().openDigitalOutput(OUTPUT_PIN);
+    	DigitalInput input = ioio.openDigitalInput(INPUT_PIN);
+    	DigitalOutput output = ioio.openDigitalOutput(OUTPUT_PIN);
     	try {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.read());
@@ -191,19 +192,22 @@ public class SelfTest extends Activity {
 
     public void testAnalogInput() throws FailException {
     	msg("Starting Analog Input Test");
-    	IOIO ioio = IOIOImpl.getInstance();
     	ioio.softReset();
     	sleep(800);
 
-    	AnalogInput input = IOIOImpl.getInstance().openAnalogInput(ANALOG_INPUT_PIN);
-    	DigitalOutput output = IOIOImpl.getInstance().openDigitalOutput(ANALOG_OUTPUT_PIN);
+        AnalogInput input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
+        AnalogInput inputp1 = ioio.openAnalogInput(ANALOG_INPUT_PIN + 1);
+        AnalogInput inputm1 = ioio.openAnalogInput(ANALOG_INPUT_PIN - 1);
+    	DigitalOutput output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN);
     	try {
+    	    boolean bit = false;
 			for (int x = 0; x < REPETITIONS; x++) {
 				sleep(100);
-				output.write(!output.read());
-				sleep(800); //
-				IOIOLogger.log("analog pin : " + input.read());
-				assertTrue(3.3f == input.read());
+				bit = !output.read();
+                output.write(bit);
+				sleep(200);
+                IOIOLogger.log("analog pins : [" + bit + "] " + input.read() + "/" + inputm1.read() + " / " + inputp1.read());
+				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
 		}
 		catch (IOException e) {
@@ -214,7 +218,7 @@ public class SelfTest extends Activity {
     public void testUart() throws FailException {
     	msg("Starting UART Test");
     	// TODO(TF): try this at different settings?
-    	Uart uart = IOIOImpl.getInstance().openUart(UART_RX, UART_TX,
+    	Uart uart = ioio.openUart(UART_RX, UART_TX,
     			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
     	InputStream in = uart.openInputStream();
     	OutputStream out = uart.openOutputStream();
@@ -233,17 +237,20 @@ public class SelfTest extends Activity {
 
     private void testDisconnectReconnect() throws FailException {
         msg("Starting disconnect/connect test");
-        IOIO ioio = IOIOImpl.getInstance();
         ioio.disconnect();
         assertFalse(ioio.isConnected());
-        ioio.connect();
+        try {
+            ioio.connect();
+        } catch (OperationAbortedException e) {
+            e.printStackTrace();
+            throw new FailException();
+        }
         assertTrue(ioio.isConnected());
     }
 
     /*
      * Utility methods below.
      */
-
     private void sleep(int ms) {
     	try {
     		Thread.yield();
@@ -333,16 +340,7 @@ public class SelfTest extends Activity {
     }
 
     private void assertFalse(boolean val) throws FailException {
-    	if (val) {
-    		if (FORCE_ALL_TESTS) {
-    			status("FAILED", Color.RED);
-    			msg("FAILED");
-    		}
-    		else {
-    			throw new FailException();
-    		}
-    	}
-//    	msg(val?"fail":"pass");
+        assertTrue(!val);
     }
 
     private void assertEquals(boolean x, boolean y) throws FailException {
