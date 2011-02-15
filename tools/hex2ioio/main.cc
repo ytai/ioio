@@ -13,7 +13,7 @@
 // The file starts with 4B "IOIO".
 // Then followed by a 4B (little endian) format version code.
 // Currently version must be 1.
-// 
+//
 // The rest of the file is a sequnence of blocks, each 196B long, containing:
 //   1. 4B address (little endian)
 //   2. 192B contents (equal to one Flash row in a PIC24), which are actually
@@ -22,8 +22,9 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <cstdint>
+#include <stdint.h>
 #include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
