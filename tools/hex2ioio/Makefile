@@ -1,2 +1,1 @@
-hex2ioio: main.cc
-	g++ -o $@ $<
+all: hex2ioio
