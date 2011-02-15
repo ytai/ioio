@@ -1,5 +1,5 @@
 #include "pins.h"
-#include <p24fxxxx.h>
+#include <p24Fxxxx.h>
 #include <assert.h>
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))

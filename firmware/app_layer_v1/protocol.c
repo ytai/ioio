@@ -88,6 +88,8 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 }
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
+  // TODO: clear outgoing message buffer.
+
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;

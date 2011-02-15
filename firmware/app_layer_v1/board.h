@@ -1,6 +1,15 @@
+// Capabilities and features of specific board versions.
+//
+// Provides:
+// NUM_PINS - The number of physical pins on the board, including the on-board
+//            LED.
+// NUM_PWMS - The number of available PWM modules.
+// NUM_UARTS - The number of available UART modules.
+
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
+// TODO: move to a project flag.
 #define IOIO_V10
 
 #if defined(IOIO_V10)

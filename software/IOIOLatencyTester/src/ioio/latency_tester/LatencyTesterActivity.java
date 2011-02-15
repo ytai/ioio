@@ -75,8 +75,8 @@ public class LatencyTesterActivity extends Activity {
 				int read = in.read();
 				if (read != ACK_BYTE) {
 					Log.e(LOG_TAG, "Didn't get approval for sizes. Got: " + read);
-				} else if (!testUploadThroughput(in, out) || !testDownThroughput(in, out) ||
-						!testBothThroughput(in, out) || !testLatencyAverage(in, out) ||
+				} else if (!testLatencyAverage(in, out) || !testUploadThroughput(in, out) ||
+						!testDownThroughput(in, out) || !testBothThroughput(in, out) ||
 						!testLatencyError(in, out)) {
 					Log.w(LOG_TAG, "Failure in one of the tests");
 				}
@@ -156,24 +156,55 @@ public class LatencyTesterActivity extends Activity {
 			return true;
 		}
 		
-		private boolean testBothThroughput(InputStream in, OutputStream out) throws IOException {
+		private boolean testBothThroughput(final InputStream in, final OutputStream out) throws IOException {
 			updateProgressMessage("Both throughput");
 			if (!prepareForTransaction(BOTH_THROUGHPUT_START_BYTE, R.id.both_throughput_text, in, out)) {
 				return false;
 			}
 			
-			byte[] buf = new byte[MAX_PACKET_SIZE];
-			String randomData = new BigInteger(MAX_PACKET_SIZE * 5, random).toString(32);
-			
-			long startTime = System.currentTimeMillis();
-			for (int i = 0; i < PACKETS_PER_TEST; ++i) {
-				out.write(randomData.getBytes());
-				int bytesRead = in.read(buf);
-				if ((bytesRead != MAX_PACKET_SIZE) || !randomData.equals(new String(buf))) {
-					Log.w(LOG_TAG, "Read buffer differs from sent buffer.");
-					registerError(R.id.both_throughput_text);
-					return false;
+			Thread recvThread = new Thread() {
+				private byte[] buf = new byte[MAX_PACKET_SIZE];
+				@Override
+				public void run() {
+					super.run();
+					int readCount = 0;
+					while (readCount < PACKETS_PER_TEST*MAX_PACKET_SIZE) {
+						try {
+							readCount += in.read(buf, 0, MAX_PACKET_SIZE);
+						} catch (IOException e) {
+							Log.e(LOG_TAG, e.getMessage());
+							registerError(R.id.both_throughput_text);
+						}
+					}
+					if (readCount > PACKETS_PER_TEST*MAX_PACKET_SIZE) {
+						registerError(R.id.both_throughput_text);
+					}
 				}
+			};
+			Thread sendThread = new Thread() {
+				private byte[] buf = new BigInteger(MAX_PACKET_SIZE * 5, random).toString(32).getBytes();
+
+				@Override
+				public void run() {
+					super.run();
+					for (int i = 0; i < PACKETS_PER_TEST; ++i) {
+						try {
+							out.write(buf);
+						} catch (IOException e) {
+							Log.e(LOG_TAG, e.getMessage());
+							registerError(R.id.both_throughput_text);
+						}
+					}
+				}
+			};
+			long startTime = System.currentTimeMillis();
+			recvThread.start();
+			sendThread.start();
+			try {
+				recvThread.join();
+				sendThread.join();
+			} catch (InterruptedException e) {
+				Log.e(LOG_TAG, e.getMessage());
 			}
 			
 			double time = (System.currentTimeMillis() - startTime) / 1000.;
@@ -235,9 +266,9 @@ public class LatencyTesterActivity extends Activity {
 			Arrays.sort(results);
 			long minTime = results[0];
 			long maxTime = results[PACKETS_PER_TEST - 2];
-			int delta = (PACKETS_PER_TEST - 1) / 20;
+			int delta = (PACKETS_PER_TEST - 1) / 100;
 			registerLatencyError(minTime, maxTime,
-					results[19*delta], results[18*delta], results[16*delta], results[4*delta], results[2*delta], results[1*delta]);
+					results[99*delta], results[95*delta], results[90*delta], results[80*delta], results[50*delta], results[20*delta]);
 			return true;
 		}
 		
@@ -293,12 +324,12 @@ public class LatencyTesterActivity extends Activity {
 		}
 		
 		private void registerLatencyError(long minTime, long maxTime,
-				long p5, long p10, long p20, long p80, long p90, long p95) {
+				long p1, long p5, long p10, long p20, long p50, long p80) {
 			long error = (maxTime - minTime + 1) / 2;
 			final String errStr = String.format(getString(R.string.default_latency_error)
 					.replace("--", "%s"), error, maxTime, minTime);
 			final String perStr = String.format(getString(R.string.default_latency_histogram)
-					.replace("%", "%%").replace("--", "%s"), p5, p10, p20, p80, p90, p95);
+					.replace("%", "%%").replace("--", "%s"), p1, p5, p10, p20, p50, p80);
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {

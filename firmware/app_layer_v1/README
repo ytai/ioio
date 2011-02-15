@@ -1,0 +1,38 @@
+IOIO Application Layer Firmware
+===============================
+
+Introduction
+------------
+The IOIO application layer firmware provides the implementation of the IOIO
+application layer protocol, which enables control of the IOIO's on-board
+peripherals over a serial connection, which is established by the lower layers
+of the IOIO firmware stack.
+
+Code Organization
+-----------------
+The file main.c contains the main function and the main state machine, which
+tries to establish an ADB channel with TCP port 4545 of the ADB device.
+Whenever a connection is established the protocol module will be initialized and
+incoming messages will be passed to it for handling. Whenever the connection
+drops - the entire protocol and peripheral state will be reset immediately.
+
+The protocol module (protocol.{h,c}) handles parsing of incoming protocol
+messages, dispatching them to the appropriate function modules. It also handles
+sending of outgoing protocol messages, providing convenience buffering of
+outgoing data, so that all other modules do not need to worry about whether the
+outgoing channel is currently busy, etc.
+
+Then there are function-specific modules:
+features.{h,c} has some generic functions (resets, pin modes)
+adc.{h,c} implements the analog input functions.
+pwm.{h,c} implements PWM output.
+digital.{h,c} implements digital input and output.
+
+The module logging.{h,c} facilitates convenience logging functions through UART1
+at 38400 baud on pin 4. It is switched on using the ENABLE_LOGGING macro, which
+should be off for production.
+
+The module pins.{h,c} contains all the information on mapping pin numbers as
+appear on the board to/from respective pin-related registers in the MCU.
+
+The file board.h contains information on specific boards.

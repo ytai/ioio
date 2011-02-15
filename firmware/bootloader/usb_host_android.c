@@ -4,13 +4,17 @@
 #include "GenericTypeDefs.h"
 #include "USB/usb.h"
 #include "usb_host_android.h"
+
 #include "logging.h"
 
 ANDROID_DEVICE gc_DevData;
 
 BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   USB_DEVICE_DESCRIPTOR *pDev;
-  
+  USB_DEVICE_INFO *pDevInfo = USBHostGetDeviceInfo();
+  USB_ENDPOINT_INFO *pFirstEpInfo;
+  USB_ENDPOINT_INFO *pSecondEpInfo;
+
   // Initialize state
   gc_DevData.rxLength = 0;
   gc_DevData.flags.val = 0;
@@ -23,12 +27,23 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   
   // Save the Client Driver ID
   gc_DevData.clientDriverID = clientDriverID;
-  
+
   // Save the endpoint addresses
-  // TODO(ytai): those are currently hard-coded because the USB host doesn't allow easy access
-  // to the parsed descriptors for easy retrieval of the endpoints of the current interface.
-  gc_DevData.inEndpoint = 0x84;
-  gc_DevData.outEndpoint = 0x03;
+  pFirstEpInfo = pDevInfo->pInterfaceList->pCurrentSetting->pEndpointList;
+  if (!pFirstEpInfo) return FALSE;
+  pSecondEpInfo = pFirstEpInfo->next;
+  if (!pSecondEpInfo) return FALSE;
+  if (pSecondEpInfo->next) return FALSE;  // we expect exactly 2 endpoints.
+
+  if (pFirstEpInfo->bEndpointAddress & 0x80) {
+      if (pSecondEpInfo->bEndpointAddress & 0x80) return FALSE;
+      gc_DevData.inEndpoint = pFirstEpInfo->bEndpointAddress;
+      gc_DevData.outEndpoint = pSecondEpInfo->bEndpointAddress;
+  } else {
+      if (!(pSecondEpInfo->bEndpointAddress & 0x80)) return FALSE;
+      gc_DevData.inEndpoint = pSecondEpInfo->bEndpointAddress;
+      gc_DevData.outEndpoint = pFirstEpInfo->bEndpointAddress;
+  }
   
   log_print_6("Android Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x IN_EP=0x%x OUT_EP=0x%x",
               flags, address, gc_DevData.ID.vid, gc_DevData.ID.pid, gc_DevData.inEndpoint, gc_DevData.outEndpoint);

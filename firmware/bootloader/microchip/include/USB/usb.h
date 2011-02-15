@@ -66,8 +66,8 @@ Description:
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the “Company”) for its PICmicro® Microcontroller is intended and
- supplied to you, the Company’s customer, for use solely and
+ (the ï¿½Companyï¿½) for its PICmicroï¿½ Microcontroller is intended and
+ supplied to you, the Companyï¿½s customer, for use solely and
  exclusively on Microchip PICmicro Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
  protected under applicable copyright laws. All rights are reserved.
@@ -76,7 +76,7 @@ Description:
  civil liability for the breach of the terms and conditions of this
  license.
 
- THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
+ THIS SOFTWARE IS PROVIDED IN AN ï¿½AS ISï¿½ CONDITION. NO WARRANTIES,
  WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -112,22 +112,22 @@ Description:
 
 #include "usb_config.h"             // Must be defined by the application
 
-#include "usb/usb_common.h"         // Common USB library definitions
-#include "usb/usb_ch9.h"            // USB device framework definitions
+#include "USB/usb_common.h"         // Common USB library definitions
+#include "USB/usb_ch9.h"            // USB device framework definitions
 
 #if defined( USB_SUPPORT_DEVICE )
     #include "usb/usb_device.h"     // USB Device abstraction layer interface
 #endif
 
 #if defined( USB_SUPPORT_HOST )
-    #include "usb/usb_host.h"       // USB Host abstraction layer interface
+    #include "USB/usb_host.h"       // USB Host abstraction layer interface
 #endif
 
 #if defined ( USB_SUPPORT_OTG )
     #include "usb/usb_otg.h" 
 #endif
 
-#include "usb/usb_hal.h"            // Hardware Abstraction Layer interface
+#include "USB/usb_hal.h"            // Hardware Abstraction Layer interface
 
 // *****************************************************************************
 // *****************************************************************************
