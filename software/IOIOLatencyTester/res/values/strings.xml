@@ -10,6 +10,6 @@
 	<string name="default_throughput">--(kb)/--(s)  --(kb/s)</string>
 	<string name="default_latency_avg">--(p)/--(s)  --(ms)</string>
 	<string name="default_latency_error">±--(ms)  --:--(max:min)</string>
-	<string name="default_latency_histogram" formatted="false">    --(5%) --(10%) --(20%) --(80%) --(90%) --(95%)</string>
+	<string name="default_latency_histogram" formatted="false">    --(1%) --(5%) --(10%) --(20%) --(50%) --(80%)</string>
 	<string name="start_button">Start test</string>
 </resources>

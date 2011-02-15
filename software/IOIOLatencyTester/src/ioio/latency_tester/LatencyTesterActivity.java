@@ -75,8 +75,8 @@ public class LatencyTesterActivity extends Activity {
 				int read = in.read();
 				if (read != ACK_BYTE) {
 					Log.e(LOG_TAG, "Didn't get approval for sizes. Got: " + read);
-				} else if (!testUploadThroughput(in, out) || !testDownThroughput(in, out) ||
-						!testBothThroughput(in, out) || !testLatencyAverage(in, out) ||
+				} else if (!testLatencyAverage(in, out) || !testUploadThroughput(in, out) ||
+						!testDownThroughput(in, out) || !testBothThroughput(in, out) ||
 						!testLatencyError(in, out)) {
 					Log.w(LOG_TAG, "Failure in one of the tests");
 				}
@@ -183,6 +183,7 @@ public class LatencyTesterActivity extends Activity {
 			};
 			Thread sendThread = new Thread() {
 				private byte[] buf = new BigInteger(MAX_PACKET_SIZE * 5, random).toString(32).getBytes();
+
 				@Override
 				public void run() {
 					super.run();
@@ -265,9 +266,9 @@ public class LatencyTesterActivity extends Activity {
 			Arrays.sort(results);
 			long minTime = results[0];
 			long maxTime = results[PACKETS_PER_TEST - 2];
-			int delta = (PACKETS_PER_TEST - 1) / 20;
+			int delta = (PACKETS_PER_TEST - 1) / 100;
 			registerLatencyError(minTime, maxTime,
-					results[19*delta], results[18*delta], results[16*delta], results[4*delta], results[2*delta], results[1*delta]);
+					results[99*delta], results[95*delta], results[90*delta], results[80*delta], results[50*delta], results[20*delta]);
 			return true;
 		}
 		
@@ -323,12 +324,12 @@ public class LatencyTesterActivity extends Activity {
 		}
 		
 		private void registerLatencyError(long minTime, long maxTime,
-				long p5, long p10, long p20, long p80, long p90, long p95) {
+				long p1, long p5, long p10, long p20, long p50, long p80) {
 			long error = (maxTime - minTime + 1) / 2;
 			final String errStr = String.format(getString(R.string.default_latency_error)
 					.replace("--", "%s"), error, maxTime, minTime);
 			final String perStr = String.format(getString(R.string.default_latency_histogram)
-					.replace("%", "%%").replace("--", "%s"), p5, p10, p20, p80, p90, p95);
+					.replace("%", "%%").replace("--", "%s"), p1, p5, p10, p20, p50, p80);
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
