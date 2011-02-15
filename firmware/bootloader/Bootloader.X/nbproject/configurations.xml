@@ -96,7 +96,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <compilerSet>C30</compilerSet>
-        <platform>4</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -107,14 +107,14 @@
       <C30>
         <property key="scalar-model" value="large-scalar"/>
         <property key="extra-include-directories"
-                  value="..;../..;../microchip/include;../../blapi;../microchip/usb;../microchip/include/USB"/>
+                  value="..;../..;../microchip/include;../../blapi;../microchip/USB;../microchip/include/USB"/>
         <property key="preprocessor-macros" value=""/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
         <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="3"/>
+        <property key="optimization-level" value="s"/>
         <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -129,11 +129,11 @@
         <property key="extra-include-directories-for-assembler" value=".."/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
-        <property key="list-assembly" value="false"/>
         <property key="list-source" value="false"/>
+        <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>

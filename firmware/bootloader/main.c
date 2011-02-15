@@ -13,7 +13,7 @@
 
 #ifdef ENABLE_LOGGING
 #include "uart2.h"
-#include "pps.h"
+#include "PPS.h"
 #endif
 
 //

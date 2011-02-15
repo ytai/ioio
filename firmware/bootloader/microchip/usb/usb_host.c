@@ -190,6 +190,8 @@ static USB_DEVICE_INFO               usbDeviceInfo;                             
 static USB_ROOT_HUB_INFO             usbRootHubInfo;                             // Information about a specific port.
 
 
+USB_DEVICE_INFO* USBHostGetDeviceInfo() { return &usbDeviceInfo; }
+
 
 // *****************************************************************************
 // *****************************************************************************
