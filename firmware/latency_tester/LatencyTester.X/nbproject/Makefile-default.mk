@@ -71,7 +71,7 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -omf=elf -x c -c -mcpu=24FJ256DA206 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/main.o.d > ${OBJECTDIR}/_ext/1472/main.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
@@ -86,7 +86,7 @@ endif
 ${OBJECTDIR}/_ext/490575874/uart2.o: /Applications/microchip/mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/490575874 
 	${RM} ${OBJECTDIR}/_ext/490575874/uart2.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -omf=elf -x c -c -mcpu=24FJ256DA206 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/490575874/uart2.o.d -o ${OBJECTDIR}/_ext/490575874/uart2.o /Applications/microchip/mal/Common/uart2.c 
+	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/490575874/uart2.o.d -o ${OBJECTDIR}/_ext/490575874/uart2.o /Applications/microchip/mal/Common/uart2.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/490575874/uart2.o.d > ${OBJECTDIR}/_ext/490575874/uart2.o.tmp
 	${RM} ${OBJECTDIR}/_ext/490575874/uart2.o.d 
@@ -102,7 +102,7 @@ else
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/1472 
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ256DA206 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/1472/main.o.d -o ${OBJECTDIR}/_ext/1472/main.o ../main.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/1472/main.o.d > ${OBJECTDIR}/_ext/1472/main.o.tmp
 	${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
@@ -117,7 +117,7 @@ endif
 ${OBJECTDIR}/_ext/490575874/uart2.o: /Applications/microchip/mal/Common/uart2.c  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} ${OBJECTDIR}/_ext/490575874 
 	${RM} ${OBJECTDIR}/_ext/490575874/uart2.o.d 
-	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ256DA206 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/490575874/uart2.o.d -o ${OBJECTDIR}/_ext/490575874/uart2.o /Applications/microchip/mal/Common/uart2.c 
+	${MP_CC}  -omf=elf -x c -c -mcpu=24FJ128DA106 -Wall -I"/Applications/microchip/mal/Include" -I"../../" -I"../" -MMD -MF ${OBJECTDIR}/_ext/490575874/uart2.o.d -o ${OBJECTDIR}/_ext/490575874/uart2.o /Applications/microchip/mal/Common/uart2.c 
 ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
 	 sed -e 's/\"//g' -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/_ext/490575874/uart2.o.d > ${OBJECTDIR}/_ext/490575874/uart2.o.tmp
 	${RM} ${OBJECTDIR}/_ext/490575874/uart2.o.d 
@@ -136,11 +136,11 @@ endif
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CC}  -omf=elf  -mcpu=24FJ256DA206  -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -o dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=../../blapi/app_p24FJ256DA206.gld,--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_PK3=1,-Map="$(BINDIR_)$(TARGETBASE).map",--report-mem
+	${MP_CC}  -omf=elf  -mcpu=24FJ128DA106  -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -o dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=../../blapi/app_p24FJ128DA106.gld,--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_PK3=1,-Map="$(BINDIR_)$(TARGETBASE).map",--report-mem
 else
 dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CC}  -omf=elf  -mcpu=24FJ256DA206  -o dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=../../blapi/app_p24FJ256DA206.gld,-Map="$(BINDIR_)$(TARGETBASE).map",--report-mem
+	${MP_CC}  -omf=elf  -mcpu=24FJ128DA106  -o dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=../../blapi/app_p24FJ128DA106.gld,-Map="$(BINDIR_)$(TARGETBASE).map",--report-mem
 	${MP_CC_DIR}/pic30-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/LatencyTester.X.${IMAGE_TYPE}.elf -omf=elf
 endif
 

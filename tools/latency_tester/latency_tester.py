@@ -4,6 +4,7 @@ import random
 import socket
 import string
 import time
+import threading
 
 PORT = 7149
 ACK_BYTE = 'A'
@@ -35,15 +36,30 @@ def test_download_throughput(sock, packet_size, packets_per_test):
 def test_both_throughput(sock, packet_size, packets_per_test):
   sock.send(ACK_BYTE)
   print "Acked for testing both throughput"
+  s = "".join(random.choice(string.printable) for x in xrange(packet_size))
+
+  class Reciever(threading.Thread):
+    def run(self):
+      for x in xrange(packets_per_test):
+        r = sock.recv(packet_size)
+        if not r:
+          print "ERROR: couldn't read from socket for both test"
+          return
+        if len(r) != packet_size:
+          print "WARNING: wrong packet length %s != %s" % (len(r), packet_size)
+  reciever = Reciever()
+
+  class Sender(threading.Thread):
+    def run(self):
+      for x in xrange(packets_per_test):
+        sock.send(s)
+  sender = Sender()
+
   start = time.time()
-  for x in xrange(packets_per_test):
-    r = sock.recv(packet_size)
-    if not r:
-      print "ERROR: couldn't read from socket"
-      return
-    if len(r) != packet_size:
-      print "WARNING: wrong packet length %s != %s" % (len(r), packet_size)
-    sock.send(r)
+  reciever.start()
+  sender.start()
+  reciever.join()
+  sender.join()
   sock.send(ACK_BYTE)
   print "Echoed all packets for both throughput test in %s seconds" % (time.time() - start)
 

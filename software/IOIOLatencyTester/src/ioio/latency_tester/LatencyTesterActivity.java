@@ -156,24 +156,54 @@ public class LatencyTesterActivity extends Activity {
 			return true;
 		}
 		
-		private boolean testBothThroughput(InputStream in, OutputStream out) throws IOException {
+		private boolean testBothThroughput(final InputStream in, final OutputStream out) throws IOException {
 			updateProgressMessage("Both throughput");
 			if (!prepareForTransaction(BOTH_THROUGHPUT_START_BYTE, R.id.both_throughput_text, in, out)) {
 				return false;
 			}
 			
-			byte[] buf = new byte[MAX_PACKET_SIZE];
-			String randomData = new BigInteger(MAX_PACKET_SIZE * 5, random).toString(32);
-			
-			long startTime = System.currentTimeMillis();
-			for (int i = 0; i < PACKETS_PER_TEST; ++i) {
-				out.write(randomData.getBytes());
-				int bytesRead = in.read(buf);
-				if ((bytesRead != MAX_PACKET_SIZE) || !randomData.equals(new String(buf))) {
-					Log.w(LOG_TAG, "Read buffer differs from sent buffer.");
-					registerError(R.id.both_throughput_text);
-					return false;
+			Thread recvThread = new Thread() {
+				private byte[] buf = new byte[MAX_PACKET_SIZE];
+				@Override
+				public void run() {
+					super.run();
+					int readCount = 0;
+					while (readCount < PACKETS_PER_TEST*MAX_PACKET_SIZE) {
+						try {
+							readCount += in.read(buf, 0, MAX_PACKET_SIZE);
+						} catch (IOException e) {
+							Log.e(LOG_TAG, e.getMessage());
+							registerError(R.id.both_throughput_text);
+						}
+					}
+					if (readCount > PACKETS_PER_TEST*MAX_PACKET_SIZE) {
+						registerError(R.id.both_throughput_text);
+					}
 				}
+			};
+			Thread sendThread = new Thread() {
+				private byte[] buf = new BigInteger(MAX_PACKET_SIZE * 5, random).toString(32).getBytes();
+				@Override
+				public void run() {
+					super.run();
+					for (int i = 0; i < PACKETS_PER_TEST; ++i) {
+						try {
+							out.write(buf);
+						} catch (IOException e) {
+							Log.e(LOG_TAG, e.getMessage());
+							registerError(R.id.both_throughput_text);
+						}
+					}
+				}
+			};
+			long startTime = System.currentTimeMillis();
+			recvThread.start();
+			sendThread.start();
+			try {
+				recvThread.join();
+				sendThread.join();
+			} catch (InterruptedException e) {
+				Log.e(LOG_TAG, e.getMessage());
 			}
 			
 			double time = (System.currentTimeMillis() - startTime) / 1000.;

@@ -18,7 +18,7 @@ MEMORY
   program (xr)   : ORIGIN = 0x410C,        LENGTH = 0x266F4
 }
 
-INCLUDE app_common.gld
+INCLUDE ../../blapi/app_common.gld
 /*
 ** ============== Equates for SFR Addresses =============
 */
