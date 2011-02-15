@@ -10,7 +10,7 @@
 #define __BOARD_H__
 
 // TODO: move to a project flag.
-#define IOIO_V10
+#define IOIO_V12
 
 #if defined(IOIO_V10)
   #define NUM_PINS 50
