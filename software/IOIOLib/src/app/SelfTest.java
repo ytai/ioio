@@ -196,8 +196,6 @@ public class SelfTest extends Activity {
     	sleep(800);
 
         AnalogInput input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
-        AnalogInput inputp1 = ioio.openAnalogInput(ANALOG_INPUT_PIN + 1);
-        AnalogInput inputm1 = ioio.openAnalogInput(ANALOG_INPUT_PIN - 1);
     	DigitalOutput output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN);
     	try {
     	    boolean bit = false;
@@ -206,7 +204,7 @@ public class SelfTest extends Activity {
 				bit = !output.read();
                 output.write(bit);
 				sleep(200);
-                IOIOLogger.log("analog pins : [" + bit + "] " + input.read() + "/" + inputm1.read() + " / " + inputp1.read());
+                IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
 		}
