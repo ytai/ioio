@@ -50,27 +50,28 @@ BOOL recv_command(char command_id) {
   switch (command_id) {
     case 'U':
       UART2PrintString("Starting upload test... ");
-      main_state = MAIN_STATE_TEST_UPLOAD;
       total_upload_size = 0;
+      main_state = MAIN_STATE_TEST_UPLOAD;
       return TRUE;
 
     case 'D':
       UART2PrintString("Starting download test... ");
-      main_state = MAIN_STATE_TEST_DOWNLOAD;
       total_download_packets = 0;
+      main_state = MAIN_STATE_TEST_DOWNLOAD;
       return TRUE;
 
     case 'B':
       UART2PrintString("Starting both test... ");
-      main_state = MAIN_STATE_TEST_BOTH;
       total_both_size = 0;
       total_both_packets = 0;
+      one_direction_finished = FALSE;
+      main_state = MAIN_STATE_TEST_BOTH;
       return TRUE;
 
     case 'L':
       UART2PrintString("Starting latency test... ");
-      main_state = MAIN_STATE_TEST_LATENCY;
       total_latency_packets = 0;
+      main_state = MAIN_STATE_TEST_LATENCY;
       return TRUE;
 
     default:
