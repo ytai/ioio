@@ -16,11 +16,14 @@ public class PwmOutput extends IOIOPin {
 	 */
 	private float dutyCycle = 0;
 	private int periodUs = 0; // period measured in us
-
+	private int period = 0;   // period as sent to IOIO
+	private int dutyCyclePeriod = 0; // period as set as duty cycle 
+	
 	private boolean scale256 = true;
 
 	private IOIOImpl ioio;
 	private int module;
+	
 
 	private IOIOPacket setPwm;
 	private IOIOPacket setPeriod;
@@ -40,8 +43,17 @@ public class PwmOutput extends IOIOPin {
 				new byte[]{(byte)pin, (byte)module}
 		);
 
-		// TODO: calculate period from periodUs
-		int period = periodUs;
+		if (periodUs == 0) {
+		   period = 0;
+		   scale256 = false;
+		} else if (periodUs <= 4096) {
+		  scale256 = false;
+		  period = (periodUs * 16) - 1;
+		} else {
+		  scale256 = true;
+		  period = (periodUs / 16) - 1;
+		}
+		
 		setPeriod = new IOIOPacket(
 				Constants.SET_PERIOD,
 				new byte[]{
@@ -54,7 +66,7 @@ public class PwmOutput extends IOIOPin {
 		ioio.queuePacket(setPwm);
 		// Must always set period before duty cycle.
 		ioio.queuePacket(setPeriod);
-		setDutyCycle(0); // disable at init if its not by default.
+		// setDutyCycle(0); // disable at init if its not by default.  This is done autmatially by IOIO
 	}
 
 	/**
@@ -62,16 +74,18 @@ public class PwmOutput extends IOIOPin {
 	 */
 	public void setDutyCycle(float dutyCycle) {
 		this.dutyCycle = dutyCycle;
-		// TODO(TF) -- compute fraction?
 		byte fraction = 0;
-		int dutyCycleInt = (int) (dutyCycle * 0xffff);
-        new IOIOPacket(
+		dutyCyclePeriod = (int) (dutyCycle * period);
+		if (period != 0 && !scale256) {
+		    fraction = (byte)((byte)(dutyCycle * 4 * period) & 0x03);
+		}
+        ioio.queuePacket(new IOIOPacket(
 		        Constants.SET_DUTYCYCLE,
 		        new byte[] {
 		            (byte) ((module << 2) | fraction),
-		            (byte) (dutyCycleInt & 0xff),
-		            (byte) (dutyCycleInt >> 8)
-		        });
+		            (byte) (dutyCyclePeriod & 0xff),
+		            (byte) (dutyCyclePeriod >> 8)
+		        }));
 	}
 
 	/**

@@ -44,7 +44,7 @@ public class SelfTest extends Activity {
 	// for repetitive tests, do this many
 	public static final int REPETITIONS = 5;
 
-    private static final int PWM_OUT_PIN = 12;
+    private static final int PWM_OUT_PIN = 7;
 
 	// UI, sort of.
 	private LinearLayout layout_root;
@@ -85,8 +85,8 @@ public class SelfTest extends Activity {
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
-     				testDigitalIO();
-     				testAnalogInput();
+     				//testDigitalIO();
+     				//testAnalogInput();
     				testPWM(); // TODO(TF)
     				// testUart(); // needs a loopback
     				msg("Tests Finished");
@@ -272,24 +272,32 @@ public class SelfTest extends Activity {
         msg("Starting PWM tests");
         ioio.waitForConnect();
         DigitalOutput digitalOutput = ioio.openDigitalOutput(PWM_OUT_PIN, true);
-        PwmOutput pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 0, 624);
+        // 10ms for the servo.
+        PwmOutput pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 0, 10000);
         int NUM_REPS = 20;
+        msg("Moving right");
         for (int i = 0; i <= 5; i++) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(500);
+            msg("Increasing speed");
+            sleep(2000);
         }
         for (int i = 5; i > 0; i--) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(500);
+            msg("Decreasing speed");
+            sleep(2000);
         }
+        msg("Moving left");
         for (int i = 0; i >= -5; i--) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(500);
+            sleep(2000);
+            msg("increasing speed");
         }
         for (int i = -4; i <= 0; i++) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(500);
+            sleep(2000);
+            msg("decreasing speed");
         }
+        status("stopped");
     }
 
     /*
