@@ -9,7 +9,7 @@ import ioio.lib.IOIOException.OperationAbortedException;
  */
 public interface IOIO {
 
-	public void connect() throws OperationAbortedException;
+	public void waitForConnect() throws OperationAbortedException;
 
 	public void disconnect();
 
@@ -23,11 +23,11 @@ public interface IOIO {
 
 	public DigitalInput openDigitalInput(int pin);
 
-	public DigitalOutput openDigitalOutput(int pin);
+	public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain);
 
 	public AnalogInput openAnalogInput(int pin);
 
-	public PwmOutput openPwmOutput(int pin);
+	public PwmOutput openPwmOutput(int pin, int module, int periodUs);
 
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);
 }

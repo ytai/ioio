@@ -61,7 +61,7 @@ public class Uart implements IOIOPacketListener {
 		this.parity = parity;
 		this.baud = baud;
 		this.rx = ioio.openDigitalInput(rx);
-		this.tx = ioio.openDigitalOutput(tx);
+		this.tx = ioio.openDigitalOutput(tx, false);
 		this.ioio = ioio;
 		uartNum = module;
 		init();

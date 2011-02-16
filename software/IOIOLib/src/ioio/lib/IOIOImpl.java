@@ -73,7 +73,7 @@ public class IOIOImpl extends Service implements IOIO {
 	 * @throws OperationCanceledException if {@link #abortConnection()} is called
 	 */
 	@Override
-    public void connect() throws OperationAbortedException {
+    public void waitForConnect() throws OperationAbortedException {
 	    abortConnection = false;
 
 	    // TODO(birmiwal): throw exception if already connected?
@@ -141,8 +141,8 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-    public DigitalOutput openDigitalOutput(int pin) {
-		return new DigitalOutput(this, pin, DigitalOutput.SOURCE);
+    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) {
+		return new DigitalOutput(this, pin, enableOpenDrain);
 	}
 
 	@Override
@@ -151,8 +151,8 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-    public PwmOutput openPwmOutput(int pin) {
-		return new PwmOutput(this, pin, 0, 0xff);
+    public PwmOutput openPwmOutput(int pin, int module, int periodUs) {
+		return new PwmOutput(this, pin, module, periodUs);
 	}
 
 	@Override
