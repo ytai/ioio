@@ -153,8 +153,8 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-    public PwmOutputImpl openPwmOutput(int pin, int periodUs) throws OutOfResourceException {
-		return new PwmOutputImpl(this, pin, periodUs);
+    public PwmOutputImpl openPwmOutput(int pin, int periodUs, boolean enableOpenDrain) throws OutOfResourceException {
+		return new PwmOutputImpl(this, pin, periodUs, enableOpenDrain);
 	}
 
 	@Override

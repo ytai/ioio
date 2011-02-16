@@ -86,8 +86,8 @@ public class SelfTest extends Activity {
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
-     				//testDigitalIO();
-     				//testAnalogInput();
+     				testDigitalIO();
+     				testAnalogInput();
     				testPWM(); // TODO(TF)
     				// testUart(); // needs a loopback
     				msg("Tests Finished");
@@ -272,32 +272,32 @@ public class SelfTest extends Activity {
     private void testPWM() throws OperationAbortedException {
         msg("Starting PWM tests");
         ioio.waitForConnect();
-        InOut<Boolean> digitalOutput = ioio.openDigitalOutput(PWM_OUT_PIN, true);
         PwmOutput pwmOutput = null;
+        final int SLEEP_TIME = 500;
         try {
             // 10ms for the servo.
-             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 10000);
+             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 10000, true);
         int NUM_REPS = 20;
         msg("Moving right");
         for (int i = 0; i <= 5; i++) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
             msg("Increasing speed");
-            sleep(2000);
+            sleep(SLEEP_TIME);
         }
         for (int i = 5; i > 0; i--) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
             msg("Decreasing speed");
-            sleep(2000);
+            sleep(SLEEP_TIME);
         }
         msg("Moving left");
         for (int i = 0; i >= -5; i--) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(2000);
+            sleep(SLEEP_TIME);
             msg("increasing speed");
         }
         for (int i = -4; i <= 0; i++) {
             pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(2000);
+            sleep(SLEEP_TIME);
             msg("decreasing speed");
         }
         status("stopped");

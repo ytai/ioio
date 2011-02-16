@@ -1,5 +1,11 @@
 package ioio.lib;
 
+/**
+ * An interface for a resource that needs to be closed to be freed. It is necessary to call {@link #close()}
+ * for the resource to be available for reallocation later.
+ *
+ * @author birmiwal
+ */
 public interface Closeable {
     /**
      * Call this when the resource is no longer needed.

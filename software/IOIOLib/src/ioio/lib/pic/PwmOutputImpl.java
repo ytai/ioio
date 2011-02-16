@@ -32,8 +32,9 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 	private IOIOPacket setPeriod;
 	private IOIOPacket setDutyCycle;
 	private static final ModuleAllocator PWM_ID_ALLOCATOR = new ModuleAllocator(Constants.NUM_PWMS);
+    private DigitalOutput digitalOutput;
 
-	PwmOutputImpl(IOIOImpl ioio, int pin, int periodUs) throws OutOfResourceException {
+	PwmOutputImpl(IOIOImpl ioio, int pin, int periodUs, boolean enableOpenDrain) throws OutOfResourceException {
 		super(pin);
 		this.ioio = ioio;
 		this.module = PWM_ID_ALLOCATOR.allocateModule();
@@ -41,6 +42,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		    throw new OutOfResourceException("all PWMs have been allocated");
 		}
 		this.periodUs = periodUs;
+		digitalOutput = ioio.openDigitalOutput(pin, enableOpenDrain);
 		init();
 	}
 
@@ -105,6 +107,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
     @Override
     public void close() {
+        digitalOutput.close();
         PWM_ID_ALLOCATOR.releaseModule(module);
         // TODO(TF): Implement this
     }

@@ -5,9 +5,10 @@ import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.pic.Uart;
 
 /**
- * Interface for the IOIO proto.
+ * An interface for controlling the IOIO board.
  *
  * @author arshan
+ * @author birmiwal
  */
 public interface IOIO {
 
@@ -29,7 +30,7 @@ public interface IOIO {
 
 	public Input<Float> openAnalogInput(int pin);
 
-	public PwmOutput openPwmOutput(int pin, int periodUs) throws OutOfResourceException;
+	public PwmOutput openPwmOutput(int pin, int periodUs, boolean enableOpenDrain) throws OutOfResourceException;
 
 	/** TODO: test support for this */
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);

@@ -3,7 +3,7 @@ package ioio.lib;
 import ioio.lib.IOIOException.ConnectionLostException;
 
 /**
- * An interface to control the PWM output.
+ * An interface to control the PWM output on an IOIO board.
  *
  * @author birmiwal
  */
