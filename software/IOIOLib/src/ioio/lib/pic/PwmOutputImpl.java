@@ -105,12 +105,13 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
     @Override
     public void close() {
+        PWM_ID_ALLOCATOR.releaseModule(module);
         // TODO(TF): Implement this
     }
 
     @Override
     public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
-        // TODO Auto-generated method stub
+        // TODO(TF): Implement this
 
     }
 }
