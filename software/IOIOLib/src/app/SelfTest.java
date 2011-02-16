@@ -13,9 +13,9 @@ import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.InOut;
 import ioio.lib.Input;
+import ioio.lib.PwmOutput;
 import ioio.lib.pic.IOIOImpl;
 import ioio.lib.pic.IOIOLogger;
-import ioio.lib.pic.PwmOutputImpl;
 import ioio.lib.pic.Uart;
 
 import java.io.IOException;
@@ -273,13 +273,10 @@ public class SelfTest extends Activity {
         msg("Starting PWM tests");
         ioio.waitForConnect();
         InOut<Boolean> digitalOutput = ioio.openDigitalOutput(PWM_OUT_PIN, true);
-        PwmOutputImpl pwmOutput = null;
+        PwmOutput pwmOutput = null;
         try {
             // 10ms for the servo.
              pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 10000);
-        } catch (OutOfResourceException e) {
-            exception(e);
-        }
         int NUM_REPS = 20;
         msg("Moving right");
         for (int i = 0; i <= 5; i++) {
@@ -304,6 +301,15 @@ public class SelfTest extends Activity {
             msg("decreasing speed");
         }
         status("stopped");
+        } catch (OutOfResourceException e) {
+            exception(e);
+        } catch (ConnectionLostException e) {
+            exception(e);
+        } finally {
+            if (pwmOutput != null) {
+                pwmOutput.close();
+            }
+        }
     }
 
     /*

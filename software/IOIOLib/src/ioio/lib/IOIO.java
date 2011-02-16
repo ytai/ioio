@@ -2,7 +2,6 @@ package ioio.lib;
 
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
-import ioio.lib.pic.PwmOutputImpl;
 import ioio.lib.pic.Uart;
 
 /**
@@ -30,7 +29,7 @@ public interface IOIO {
 
 	public Input<Float> openAnalogInput(int pin);
 
-	public PwmOutputImpl openPwmOutput(int pin, int periodUs) throws OutOfResourceException;
+	public PwmOutput openPwmOutput(int pin, int periodUs) throws OutOfResourceException;
 
 	/** TODO: test support for this */
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);
