@@ -73,7 +73,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		ioio.queuePacket(setPwm);
 		// Must always set period before duty cycle.
 		ioio.queuePacket(setPeriod);
-		// setDutyCycle(0); // disable at init if its not by default.  This is done autmatially by IOIO
+		// setDutyCycle(0); // disable at init if its not by default.  This is done automatially by IOIO
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
     @Override
     public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
-        // TODO(TF): Implement this
-
+        float dutyCycle = ((float) pulseWidthUs) / periodUs;
+        setDutyCycle(dutyCycle);
     }
 }
