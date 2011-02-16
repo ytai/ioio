@@ -1,4 +1,4 @@
-package ioio.lib;
+package ioio.lib.pic;
 
 import android.util.Log;
 

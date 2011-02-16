@@ -1,6 +1,6 @@
 package ioio.lib.pro;
 
-import ioio.lib.IOIOImpl;
+import ioio.lib.pic.IOIOImpl;
 
 /**
  * This class can have side effects on the IOIO that will result in 

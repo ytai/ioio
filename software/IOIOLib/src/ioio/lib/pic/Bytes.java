@@ -1,4 +1,4 @@
-package ioio.lib;
+package ioio.lib.pic;
 
 import java.io.IOException;
 import java.io.InputStream;

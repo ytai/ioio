@@ -7,15 +7,16 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import ioio.lib.AnalogInput;
-import ioio.lib.DigitalInput;
-import ioio.lib.DigitalOutput;
 import ioio.lib.IOIO;
+import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.OperationAbortedException;
-import ioio.lib.IOIOImpl;
-import ioio.lib.IOIOLogger;
-import ioio.lib.PwmOutput;
-import ioio.lib.Uart;
+import ioio.lib.IOIOException.OutOfResourceException;
+import ioio.lib.InOut;
+import ioio.lib.Input;
+import ioio.lib.pic.IOIOImpl;
+import ioio.lib.pic.IOIOLogger;
+import ioio.lib.pic.PwmOutputImpl;
+import ioio.lib.pic.Uart;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -167,7 +168,7 @@ public class SelfTest extends Activity {
      */
     public void testDigitalOutput() throws FailException {
     	msg("Starting Digital Output Test");
-    	DigitalOutput output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+    	InOut<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
     	try {
     		for (int x = 0; x < REPETITIONS; x++) {
     			output.write(true);
@@ -178,7 +179,7 @@ public class SelfTest extends Activity {
     			assertFalse(output.read());
     		}
     	}
-    	catch (IOException e) {
+    	catch (ConnectionLostException e) {
     		status("Exception", Color.BLUE);
     		msg(e.toString());
     		e.printStackTrace();
@@ -195,8 +196,8 @@ public class SelfTest extends Activity {
     	msg("Starting Digital I/O Test");
     	ioio.softReset();
     	sleep(1000); // wait for soft reset? debugging
-    	DigitalInput input = ioio.openDigitalInput(INPUT_PIN);
-    	DigitalOutput output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+    	Input<Boolean> input = ioio.openDigitalInput(INPUT_PIN);
+    	InOut<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
     	try {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.read());
@@ -205,7 +206,7 @@ public class SelfTest extends Activity {
 				assertEquals(output.read(), input.read());
 			}
 		}
-		catch (IOException e) {
+		catch (ConnectionLostException e) {
 			exception(e);
 		}
     }
@@ -215,8 +216,8 @@ public class SelfTest extends Activity {
     	ioio.softReset();
     	sleep(800);
 
-        AnalogInput input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
-    	DigitalOutput output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, true);
+        Input<Float> input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
+    	InOut<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, true);
     	try {
     	    boolean bit = false;
 			for (int x = 0; x < REPETITIONS; x++) {
@@ -228,7 +229,7 @@ public class SelfTest extends Activity {
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
 		}
-		catch (IOException e) {
+		catch (ConnectionLostException e) {
 			exception(e);
 		}
     }
@@ -271,9 +272,14 @@ public class SelfTest extends Activity {
     private void testPWM() throws OperationAbortedException {
         msg("Starting PWM tests");
         ioio.waitForConnect();
-        DigitalOutput digitalOutput = ioio.openDigitalOutput(PWM_OUT_PIN, true);
-        // 10ms for the servo.
-        PwmOutput pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 0, 10000);
+        InOut<Boolean> digitalOutput = ioio.openDigitalOutput(PWM_OUT_PIN, true);
+        PwmOutputImpl pwmOutput = null;
+        try {
+            // 10ms for the servo.
+             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 10000);
+        } catch (OutOfResourceException e) {
+            exception(e);
+        }
         int NUM_REPS = 20;
         msg("Moving right");
         for (int i = 0; i <= 5; i++) {

@@ -1,14 +1,16 @@
 /**
  * TODO(TF): What is the copyright info? all the files need it
  */
-package ioio.lib;
+package ioio.lib.pic;
 
 import android.accounts.OperationCanceledException;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import ioio.lib.IOIO;
 import ioio.lib.IOIOException.OperationAbortedException;
+import ioio.lib.IOIOException.OutOfResourceException;
 
 
 /**
@@ -151,8 +153,8 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-    public PwmOutput openPwmOutput(int pin, int module, int periodUs) {
-		return new PwmOutput(this, pin, module, periodUs);
+    public PwmOutputImpl openPwmOutput(int pin, int periodUs) throws OutOfResourceException {
+		return new PwmOutputImpl(this, pin, periodUs);
 	}
 
 	@Override

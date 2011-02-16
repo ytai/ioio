@@ -1,6 +1,9 @@
 package ioio.lib;
 
 import ioio.lib.IOIOException.OperationAbortedException;
+import ioio.lib.IOIOException.OutOfResourceException;
+import ioio.lib.pic.PwmOutputImpl;
+import ioio.lib.pic.Uart;
 
 /**
  * Interface for the IOIO proto.
@@ -21,13 +24,14 @@ public interface IOIO {
 
 	public void hardReset();
 
-	public DigitalInput openDigitalInput(int pin);
+	public Input<Boolean> openDigitalInput(int pin);
 
-	public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain);
+	public InOut<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain);
 
-	public AnalogInput openAnalogInput(int pin);
+	public Input<Float> openAnalogInput(int pin);
 
-	public PwmOutput openPwmOutput(int pin, int module, int periodUs);
+	public PwmOutputImpl openPwmOutput(int pin, int periodUs) throws OutOfResourceException;
 
+	/** TODO: test support for this */
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);
 }

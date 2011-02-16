@@ -1,4 +1,4 @@
-package ioio.lib;
+package ioio.lib.pic;
 /**
  * A packet to or from the IOIO protocol.
  *

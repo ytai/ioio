@@ -1,13 +1,15 @@
-package ioio.lib;
+package ioio.lib.pic;
 
 import android.util.Log;
+
+import ioio.lib.Input;
 
 /**
  * Represent and manage analog input pins on the IOIO.
  *
  * @author arshan
  */
-public class AnalogInput extends IOIOPin implements IOIOPacketListener {
+public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Float> {
 
 	IOIOImpl ioio;
 	int value = 0;
@@ -30,7 +32,8 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener {
 	}
 
 	// TODO(TF): decide on units, mV? let the user set them?
-	public float read() {
+	@Override
+    public Float read() {
 		return value / 1023.0f;
 	}
 
@@ -70,4 +73,9 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener {
 			break;
 		}
 	}
+
+    @Override
+    public void close() {
+        // TODO(TF): Implement this
+    }
 }

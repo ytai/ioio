@@ -37,4 +37,10 @@ public class IOIOException extends Exception {
             super(msg);
         }
     }
+
+    public static class OutOfResourceException extends IOIOException {
+        public OutOfResourceException(String msg) {
+            super(msg);
+        }
+    }
 }

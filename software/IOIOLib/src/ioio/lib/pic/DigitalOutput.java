@@ -1,8 +1,8 @@
-package ioio.lib;
+package ioio.lib.pic;
 
 import android.util.Log;
 
-import java.io.IOException;
+import ioio.lib.InOut;
 
 /**
  * Represent and manage digital output pins on the IOIO.
@@ -12,7 +12,7 @@ import java.io.IOException;
  *
  * @author arshan
  */
-public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
+public class DigitalOutput extends IOIOPin implements IOIOPacketListener, InOut<Boolean> {
 
 	public static final int SOURCE = 0;
 	public static final int SINK = 1;
@@ -55,7 +55,8 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 		ioio.queuePacket(request_output);
 	}
 
-	public void write(boolean val) throws IOException{
+	@Override
+    public void write(Boolean val) {
 		if (!active) {
 			// TODO(arshan): need a policy for this, not likely to come up, but ...
 			// throw new IOException("output not yet active");
@@ -77,7 +78,8 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 		}
 	}
 
-	public boolean read() {
+	@Override
+    public Boolean read() {
 		return shadowState;
 	}
 
@@ -89,4 +91,9 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener {
 				Log.i("IOIO","pin " + pin + " set as output");
 		}
 	}
+
+    @Override
+    public void close() {
+        // TODO(TF): Implement this
+    }
 }

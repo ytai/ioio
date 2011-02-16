@@ -1,4 +1,5 @@
-package ioio.lib;
+package ioio.lib.pic;
+
 
 /**
  * Constants used in IOIO.
@@ -36,16 +37,19 @@ public class Constants {
   public static final int UART_TX_STATUS = 0x0A;
   public static final int UART_RX = 0x0C;
 
-// Didnt find documentation but looking at firmware this seems right.
-public static final int IOIO_PORT = 4545;
+    // Didnt find documentation but looking at firmware this seems right.
+    public static final int IOIO_PORT = 4545;
 
-// Cache some packets that are static
-static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
+    // Cache some packets that are static
+    static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
 
-static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
+    static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
 
-static final IOIOPacket ESTABLISH_CONNECTION_PACKET = new IOIOPacket(ESTABLISH_CONNECTION, IOIO_MAGIC);
+    static final IOIOPacket ESTABLISH_CONNECTION_PACKET = new IOIOPacket(ESTABLISH_CONNECTION, IOIO_MAGIC);
 
-// Where the onboard LED is connected.
-public static final int LED_PIN = 0;
+    // Where the onboard LED is connected.
+    public static final int LED_PIN = 0;
+
+    // number of PWMs on the IOIO board
+    public static final int NUM_PWMS = 8;
 }
