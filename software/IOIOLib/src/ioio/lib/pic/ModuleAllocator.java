@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Utility to allocate and assign unique module ids.
+ * A module id is requested via {@link #allocateModule()}
+ * and released via {@link #releaseModule(int)}.
+ *
+ * @author birmiwal
+ */
 public class ModuleAllocator {
 
     private Set<Integer> availableModuleIds;
@@ -29,7 +36,10 @@ public class ModuleAllocator {
         return availableModuleIds;
     }
 
-    Integer allocateModule() {
+    /**
+     * @return a module id that was allocated, or {@code null} if nothing was available
+     */
+    public Integer allocateModule() {
         if (availableModuleIds.isEmpty()) {
             return null;
         }
@@ -41,6 +51,10 @@ public class ModuleAllocator {
         }
     }
 
+    /**
+     * @param moduleId the moduleId to be released; throws {@link IllegalArgumentException} if
+     *     a moduleId is re-returned, or an invalid moduleId is provided
+     */
     public void releaseModule(int moduleId) {
         if (!allocatedModuleIds.contains(moduleId)) {
             throw new IllegalArgumentException("moduleId: " + moduleId+ "; not yet allocated");

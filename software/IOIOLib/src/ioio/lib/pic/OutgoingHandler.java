@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Handles outgoing packets.
+ *
+ * @author birmiwal
+ */
 public class OutgoingHandler extends Thread {
-	boolean running = true;
-
 	private final BlockingQueue<IOIOPacket> outgoing;
-
     private final OutputStream out;
 
 	public OutgoingHandler(BlockingQueue<IOIOPacket> outgoing, OutputStream out) {
@@ -21,31 +23,28 @@ public class OutgoingHandler extends Thread {
 		IOIOPacket packet;
 		IOIOLogger.log("started outgoing handler thread");
 		try {
-			while (running) {
-				try {
-					packet = outgoing.take();
-					IOIOLogger.log("Sending message: " + packet.toString());
-					out.write(packet.message);
-					if (packet.payload != null) {
-						out.write(packet.payload);
-					}
-				}
-				catch (InterruptedException ie)	{
-					if (!running) {
-						IOIOLogger.log("outgoing thread exiting");
-						return;
-					}
+			while (!Thread.currentThread().isInterrupted()) {
+			    IOIOLogger.log("outgoing thread waiting for a packet to send");
+				packet = outgoing.take();
+				IOIOLogger.log("outgoing thread Sending message: " + packet.toString());
+				out.write(packet.message);
+				if (packet.payload != null) {
+					out.write(packet.payload);
 				}
 			}
 		} catch (IOException e) {
-			// TODO(arshan): reset the connection.
 			e.printStackTrace();
+		} catch (InterruptedException ie) {
+		    ie.printStackTrace();
 		}
+        IOIOLogger.log("outgoing thread exiting");
+        return;
 	}
 
 	public synchronized void halt() {
 		IOIOLogger.log("halting outgoing thread");
-		running = false;
-		this.notifyAll();
+		if (Thread.currentThread() != this) {
+		    interrupt();
+		}
 	}
 }

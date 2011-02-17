@@ -3,6 +3,11 @@ package ioio.lib.pic;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Utility class to handle byte operations.
+ *
+ * @author birmiwal
+ */
 public class Bytes {
 
     public static int asInt(byte[] bytes, int len, int offset) {
@@ -37,7 +42,7 @@ public class Bytes {
     	int val;
     	val = in.read();
     		while (val == -1) {
-    			IOIOConnection.sleep(1);
+    			Sleeper.sleep(1);
     			// yield();
     			val = in.read();
     		}

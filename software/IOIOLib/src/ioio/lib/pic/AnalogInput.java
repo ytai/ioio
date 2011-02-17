@@ -14,14 +14,16 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	IOIOImpl ioio;
 	int value = 0;
 
+	int counter = 0;
+
 	boolean active = false;
 	private int reportPin = 0;
 
 	public AnalogInput(IOIOImpl ioio, int pin) {
 		super(pin);
 		this.ioio = ioio;
-		init();
 		ioio.registerListener(this);
+        init();
 	}
 
 	private void init() {
@@ -58,18 +60,19 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 			break;
 
 		case Constants.REPORT_ANALOG_STATUS:
-
+            if (packet.payload == null || packet.payload.length == 0) {
+                Log.d("IOIO-ANALOG", "payload is strange");
+                return;
+            }
 			// TODO(arshan): make these class vars.
 			int offset = (reportPin / 4) * 5;
 			int rem  = reportPin % 4;
-			int oldValue = value;
 
 			// MSB
 			value = (packet.payload[offset + rem + 1]) << 2;
 			// LSB
 			value |= (packet.payload[offset] & (0x3 << (rem*2))) >> (rem * 2);
 	        value &= 0x3ff;
-//            Log.d("IOIO-ANALOG", "status packet: " + packet.toString() + " .. value: " + value);
 			break;
 		}
 	}

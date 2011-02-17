@@ -2,7 +2,7 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
-import ioio.lib.InOut;
+import ioio.lib.Output;
 
 /**
  * Represent and manage digital output pins on the IOIO.
@@ -12,7 +12,7 @@ import ioio.lib.InOut;
  *
  * @author arshan
  */
-public class DigitalOutput extends IOIOPin implements IOIOPacketListener, InOut<Boolean> {
+public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output<Boolean> {
 
 	public static final int SOURCE = 0;
 	public static final int SINK = 1;
@@ -25,7 +25,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, InOut<
 
 	// Keep a local version of the state, not sure its necessary.
 	// TODO(TF): should we set changeNotify on the pin and only update this on set from the IOIO?
-	boolean shadowState = false;
+	Boolean shadowState = false;
 
 	// cache most used packets
 	public final IOIOPacket setHi;
@@ -79,7 +79,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, InOut<
 	}
 
 	@Override
-    public Boolean read() {
+    public Boolean getLastWrittenValue() {
 		return shadowState;
 	}
 

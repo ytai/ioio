@@ -26,11 +26,11 @@ public interface IOIO {
 
 	public Input<Boolean> openDigitalInput(int pin);
 
-	public InOut<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain);
+	public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain);
 
 	public Input<Float> openAnalogInput(int pin);
 
-	public PwmOutput openPwmOutput(int pin, int periodUs, boolean enableOpenDrain) throws OutOfResourceException;
+	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException;
 
 	/** TODO: test support for this */
 	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);

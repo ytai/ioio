@@ -2,6 +2,12 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+/**
+ * Utility logger.
+ *
+ * @author birmiwal
+ *
+ */
 public class IOIOLogger {
     static final String TAG = "IOIO";
     static long last_log = 0;

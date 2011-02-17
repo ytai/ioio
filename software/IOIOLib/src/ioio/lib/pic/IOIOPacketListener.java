@@ -1,7 +1,10 @@
 package ioio.lib.pic;
 
-import ioio.lib.pic.IOIOPacket;
-
+/**
+ * Handles packets for processing.
+ *
+ * @author birmiwal
+ */
 public interface IOIOPacketListener {
-	public void handlePacket(IOIOPacket packet);	
+    public void handlePacket(IOIOPacket packet);
 }

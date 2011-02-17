@@ -12,6 +12,9 @@ import ioio.lib.IOIO;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 
+import java.io.IOException;
+import java.net.BindException;
+
 
 /**
  * High level interface and vars to the IOIO.
@@ -24,7 +27,7 @@ import ioio.lib.IOIOException.OutOfResourceException;
  */
 public class IOIOImpl extends Service implements IOIO {
 
-	private static final long CONNECT_WAIT_TIME_MS = 50;
+	private static final int CONNECT_WAIT_TIME_MS = 100;
 
     // for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
@@ -42,8 +45,15 @@ public class IOIOImpl extends Service implements IOIO {
 
 	private boolean abortConnection = false;
 
-	public IOIOImpl(IOIOConnection ioio_connection) {
+	ListenerManager listeners;
+
+	public IOIOImpl(IOIOConnection ioio_connection, ListenerManager listeners) {
 	    this.ioioConnection = ioio_connection;
+	    this.listeners = listeners;
+	}
+
+	public IOIOImpl(ListenerManager listeners) {
+	    this(new IOIOConnection(listeners), listeners);
 	}
 
 	/**
@@ -51,7 +61,7 @@ public class IOIOImpl extends Service implements IOIO {
 	 * @param iostream
 	 */
 	public IOIOImpl() {
-		this(new IOIOConnection());
+	    this(new ListenerManager());
 	}
 
 	@Override
@@ -61,7 +71,7 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
     public boolean isConnected() {
-		return ioioConnection.isConnected();
+		return ioioConnection.isVerified();
 	}
 
 	// queue an outgoing packet
@@ -72,6 +82,8 @@ public class IOIOImpl extends Service implements IOIO {
 	/**
 	 * Blocking call that will not return until connected.
 	 * hmm. this must throw an exception at some point, else very un-androidy
+	 * @throws IOException
+	 * @throws BindException
 	 * @throws OperationCanceledException if {@link #abortConnection()} is called
 	 */
 	@Override
@@ -80,31 +92,38 @@ public class IOIOImpl extends Service implements IOIO {
 
 	    // TODO(birmiwal): throw exception if already connected?
 	    if (!isConnected()) {
-	        ioioConnection.start();
+	        try {
+                ioioConnection.start();
+            } catch (BindException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 	    }
 	    // TODO(birmiwal): make this better
 	    while (!isConnected() && !abortConnection) {
-	        try {
-                Thread.sleep(CONNECT_WAIT_TIME_MS);
-            } catch (InterruptedException e) {
-                break;
-            }
+	        Sleeper.sleep(CONNECT_WAIT_TIME_MS);
 	    }
 
 	    if (!isConnected()) {
 	        throw new OperationAbortedException("operation aborted while in connect()");
 	    }
+
+	    Sleeper.sleep(CONNECT_WAIT_TIME_MS);
 	}
 
 	@Override
 	public void abortConnection() {
 	    abortConnection = true;
+	    ioioConnection.disconnect();
 	}
 
 	@Override
 	public void softReset() {
 		ioioConnection.sendToIOIO(Constants.SOFT_RESET_PACKET);
-		ioioConnection.resetListeners();
+		listeners.resetListeners();
 	}
 
 	@Override
@@ -122,7 +141,7 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	public void registerListener(IOIOPacketListener listener){
-		ioioConnection.registerListener(listener);
+	    listeners.registerListener(listener);
 	}
 
 	@Override
@@ -149,12 +168,12 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
     public AnalogInput openAnalogInput(int pin) {
-		return new AnalogInput(this,pin);
+		return new AnalogInput(this, pin);
 	}
 
 	@Override
-    public PwmOutputImpl openPwmOutput(int pin, int periodUs, boolean enableOpenDrain) throws OutOfResourceException {
-		return new PwmOutputImpl(this, pin, periodUs, enableOpenDrain);
+    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException {
+		return new PwmOutputImpl(this, pin, freqHz, enableOpenDrain);
 	}
 
 	@Override

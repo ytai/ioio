@@ -11,8 +11,8 @@ import ioio.lib.IOIO;
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
-import ioio.lib.InOut;
 import ioio.lib.Input;
+import ioio.lib.Output;
 import ioio.lib.PwmOutput;
 import ioio.lib.pic.IOIOImpl;
 import ioio.lib.pic.IOIOLogger;
@@ -78,17 +78,18 @@ public class SelfTest extends Activity {
                     ioio.waitForConnect();
     				testConnection();
 
-    				status("Testing");
+                    status("Testing");
+
     				testHardReset();
-    			    testSoftReset();
+     			    testSoftReset();
 
     			    // testDisconnectReconnect();
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
      				testDigitalIO();
-     				testAnalogInput();
-    				testPWM(); // TODO(TF)
+                    testAnalogInput();
+                    testPWM(); // TODO(TF)
     				// testUart(); // needs a loopback
     				msg("Tests Finished");
 
@@ -168,15 +169,15 @@ public class SelfTest extends Activity {
      */
     public void testDigitalOutput() throws FailException {
     	msg("Starting Digital Output Test");
-    	InOut<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+    	Output<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
     	try {
     		for (int x = 0; x < REPETITIONS; x++) {
     			output.write(true);
     			sleep(500);
-    			assertTrue(output.read());
+    			assertTrue(output.getLastWrittenValue());
     			output.write(false);
     			sleep(500);
-    			assertFalse(output.read());
+    			assertFalse(output.getLastWrittenValue());
     		}
     	}
     	catch (ConnectionLostException e) {
@@ -196,41 +197,45 @@ public class SelfTest extends Activity {
     	msg("Starting Digital I/O Test");
     	ioio.softReset();
     	sleep(1000); // wait for soft reset? debugging
-    	Input<Boolean> input = ioio.openDigitalInput(INPUT_PIN);
-    	InOut<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
-    	try {
+        try {
+        	ioio.waitForConnect();
+        	Input<Boolean> input = ioio.openDigitalInput(INPUT_PIN);
+        	Output<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
 			for (int x = 0; x < REPETITIONS; x++) {
-				output.write(!output.read());
+				output.write(!output.getLastWrittenValue());
 				sleep(100); // experimentally seems to take a bit more then 75mS
 				IOIOLogger.log("doing input compare"); // to get timing info in the log
-				assertEquals(output.read(), input.read());
+				assertEquals(output.getLastWrittenValue(), input.read());
 			}
-		}
-		catch (ConnectionLostException e) {
+		} catch (ConnectionLostException e) {
 			exception(e);
+		} catch (OperationAbortedException e) {
+		    exception(e);
 		}
     }
 
     public void testAnalogInput() throws FailException {
     	msg("Starting Analog Input Test");
-    	ioio.softReset();
-    	sleep(800);
-
-        Input<Float> input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
-    	InOut<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, true);
-    	try {
+        ioio.softReset();
+        sleep(1000); // wait for soft reset? debugging
+        try {
+            ioio.waitForConnect();
+            Output<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, false);
+            Input<Float> input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
     	    boolean bit = false;
+    	    output.write(false);
 			for (int x = 0; x < REPETITIONS; x++) {
 				sleep(100);
-				bit = !output.read();
+				bit = !output.getLastWrittenValue();
                 output.write(bit);
 				sleep(200);
                 IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
-		}
-		catch (ConnectionLostException e) {
+		} catch (ConnectionLostException e) {
 			exception(e);
+		} catch (OperationAbortedException e) {
+		    exception(e);
 		}
     }
 
@@ -275,32 +280,32 @@ public class SelfTest extends Activity {
         PwmOutput pwmOutput = null;
         final int SLEEP_TIME = 500;
         try {
-            // 10ms for the servo.
-             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, 10000, true);
-        int NUM_REPS = 20;
-        msg("Moving right");
-        for (int i = 0; i <= 5; i++) {
-            pwmOutput.setDutyCycle((15 + i) / 100.f);
-            msg("Increasing speed");
-            sleep(SLEEP_TIME);
-        }
-        for (int i = 5; i > 0; i--) {
-            pwmOutput.setDutyCycle((15 + i) / 100.f);
-            msg("Decreasing speed");
-            sleep(SLEEP_TIME);
-        }
-        msg("Moving left");
-        for (int i = 0; i >= -5; i--) {
-            pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(SLEEP_TIME);
-            msg("increasing speed");
-        }
-        for (int i = -4; i <= 0; i++) {
-            pwmOutput.setDutyCycle((15 + i) / 100.f);
-            sleep(SLEEP_TIME);
-            msg("decreasing speed");
-        }
-        status("stopped");
+            // 10ms / 100Hz for the servo.
+             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, true, 100);
+            int NUM_REPS = 20;
+            msg("Moving right");
+            for (int i = 0; i <= 5; i++) {
+                pwmOutput.setDutyCycle((15 + i) / 100.f);
+                msg("Increasing speed");
+                sleep(SLEEP_TIME);
+            }
+            for (int i = 5; i > 0; i--) {
+                pwmOutput.setDutyCycle((15 + i) / 100.f);
+                msg("Decreasing speed");
+                sleep(SLEEP_TIME);
+            }
+            msg("Moving left");
+            for (int i = 0; i >= -5; i--) {
+                pwmOutput.setDutyCycle((15 + i) / 100.f);
+                sleep(SLEEP_TIME);
+                msg("increasing speed");
+            }
+            for (int i = -4; i <= 0; i++) {
+                pwmOutput.setDutyCycle((15 + i) / 100.f);
+                sleep(SLEEP_TIME);
+                msg("decreasing speed");
+            }
+            status("stopped");
         } catch (OutOfResourceException e) {
             exception(e);
         } catch (ConnectionLostException e) {
