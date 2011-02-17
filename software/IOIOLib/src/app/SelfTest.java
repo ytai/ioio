@@ -282,7 +282,6 @@ public class SelfTest extends Activity {
         try {
             // 10ms / 100Hz for the servo.
              pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, true, 100);
-            int NUM_REPS = 20;
             msg("Moving right");
             for (int i = 0; i <= 5; i++) {
                 pwmOutput.setDutyCycle((15 + i) / 100.f);
