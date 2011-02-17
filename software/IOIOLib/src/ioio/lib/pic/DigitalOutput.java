@@ -31,15 +31,15 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 
-	DigitalOutput(IOIOImpl ioio, int pin, boolean enableOpenDrain) {
+	DigitalOutput(IOIOImpl ioio, int pin, boolean enableOpenDrain, boolean startValue) {
 		super(pin);
+		this.shadowState = startValue;
 		this.ioio = ioio;
 
 		setHi = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2|1)});
 		setLo = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2)});
 
 		ioio.registerListener(this);
-
 		init(enableOpenDrain);
 	}
 

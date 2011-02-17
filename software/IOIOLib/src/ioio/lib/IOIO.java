@@ -27,7 +27,9 @@ public interface IOIO {
 
 	public Input<Boolean> openDigitalInput(int pin) throws ConnectionLostException;
 
-	public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException;
+    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException;
+
+    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException;
 
 	public Input<Float> openAnalogInput(int pin) throws ConnectionLostException;
 

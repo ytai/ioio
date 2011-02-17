@@ -157,10 +157,15 @@ public class IOIOImpl extends Service implements IOIO {
 		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
 	}
 
-	@Override
+    @Override
     public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException {
-		return new DigitalOutput(this, pin, enableOpenDrain);
-	}
+        return openDigitalOutput(pin, enableOpenDrain, false);
+    }
+
+    @Override
+    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
+        return new DigitalOutput(this, pin, enableOpenDrain, startValue);
+    }
 
 	@Override
     public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
