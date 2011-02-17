@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import ioio.lib.IOIO;
+import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 
@@ -146,38 +147,33 @@ public class IOIOImpl extends Service implements IOIO {
 
 	@Override
     public void disconnect() {
+	    abortConnection = true;
 	    ioioConnection.disconnect();
-	    try {
-            ioioConnection.join();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 	}
 
 	// TODO(TF): support other modes.
 	@Override
-    public DigitalInput openDigitalInput(int pin) {
+    public DigitalInput openDigitalInput(int pin) throws ConnectionLostException {
 		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
 	}
 
 	@Override
-    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) {
+    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException {
 		return new DigitalOutput(this, pin, enableOpenDrain);
 	}
 
 	@Override
-    public AnalogInput openAnalogInput(int pin) {
+    public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
 		return new AnalogInput(this, pin);
 	}
 
 	@Override
-    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException {
+    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException, ConnectionLostException {
 		return new PwmOutputImpl(this, pin, freqHz, enableOpenDrain);
 	}
 
 	@Override
-    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) {
+    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) throws ConnectionLostException {
 		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
 	}
 

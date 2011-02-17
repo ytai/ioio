@@ -35,7 +35,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
     private DigitalOutput digitalOutput;
     private final int freqHz;
 
-	PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain) throws OutOfResourceException {
+	PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain) throws OutOfResourceException, ConnectionLostException {
 		super(pin);
 		this.ioio = ioio;
         this.freqHz = freqHz;

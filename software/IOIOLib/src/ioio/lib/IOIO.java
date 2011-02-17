@@ -1,5 +1,6 @@
 package ioio.lib;
 
+import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.pic.Uart;
@@ -24,14 +25,14 @@ public interface IOIO {
 
 	public void hardReset();
 
-	public Input<Boolean> openDigitalInput(int pin);
+	public Input<Boolean> openDigitalInput(int pin) throws ConnectionLostException;
 
-	public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain);
+	public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException;
 
-	public Input<Float> openAnalogInput(int pin);
+	public Input<Float> openAnalogInput(int pin) throws ConnectionLostException;
 
-	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException;
+	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException, ConnectionLostException;
 
 	/** TODO: test support for this */
-	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits);
+	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) throws ConnectionLostException;
 }

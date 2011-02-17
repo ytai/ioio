@@ -74,6 +74,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 
 	private boolean bindOnPortForIOIOBoard() throws IOException, BindException {
 	    if (ssocket == null) {
+	        IOIOLogger.log("binding on port : " + port);
 	        ssocket = new ServerSocket(port);
 	    }
         setTimeout(IOIO_TIMEOUT);
@@ -85,11 +86,15 @@ public class IOIOConnection implements ConnectionStateCallback {
 
         if (outgoingHandler != null) {
             outgoingHandler.halt();
+            IOIOLogger.log("Waiting for outgoing thread to join");
+            safeJoin(outgoingHandler);
             outgoingHandler = null;
         }
 
         if (incomingHandler != null) {
             incomingHandler.halt();
+            IOIOLogger.log("Waiting for incoming thread to join");
+            safeJoin(incomingHandler);
             incomingHandler = null;
         }
 
@@ -109,7 +114,19 @@ public class IOIOConnection implements ConnectionStateCallback {
         }
     }
 
-	private void setTimeout(int timeout) {
+	private void safeJoin(Thread thread) {
+	    if (Thread.currentThread() != thread && thread != null) {
+	        try {
+                thread.join();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                IOIOLogger.log("Yikes! error in join");
+            }
+	    }
+    }
+
+    private void setTimeout(int timeout) {
 		if (ssocket != null && timeout > 0) {
 			try {
 				ssocket.setSoTimeout(timeout);
@@ -125,6 +142,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	 * @return true if successful
 	 */
 	public boolean waitForBoardToConnect() {
+	    IOIOLogger.log("waiting for connection...");
 		try {
 			if (socket != null) {
 				socket.close();
@@ -161,8 +179,10 @@ public class IOIOConnection implements ConnectionStateCallback {
         disconnectionRequested = true;
         try {
             handleShutdown();
-            ssocket.close();
-            ssocket = null;
+            if (ssocket != null) {
+                ssocket.close();
+                ssocket = null;
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -185,6 +205,7 @@ public class IOIOConnection implements ConnectionStateCallback {
     }
 
     public void start() throws BindException, IOException {
+        disconnectionRequested = false;
         bindOnPortForIOIOBoard();
         IOIOLogger.log("waiting for connection");
         listeners.resetListeners();

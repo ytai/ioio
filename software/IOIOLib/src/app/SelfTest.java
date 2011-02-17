@@ -18,7 +18,6 @@ import ioio.lib.pic.IOIOImpl;
 import ioio.lib.pic.IOIOLogger;
 import ioio.lib.pic.Uart;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -100,21 +99,21 @@ public class SelfTest extends Activity {
     					status("PASSED", Color.GREEN);
     				}
 
-    			}
-    			catch (FailException fail) {
+    			} catch (FailException fail) {
     				IOIOLogger.log("failed"); // to get timing info in logs
     				fail.printStackTrace();
     				status("FAILED", Color.RED);
     				for (StackTraceElement line : fail.getStackTrace()) {
     					msg(line.toString());
     				}
-    			}
-    			catch (Exception e) {
+    			} catch (Exception e) {
     				exception(e);
     				e.printStackTrace();
+    			} finally {
+    			    ioio.disconnect();
     			}
-    			}
-    		}.start();
+			}
+		}.start();
 
     }
 
@@ -169,8 +168,9 @@ public class SelfTest extends Activity {
      */
     public void testDigitalOutput() throws FailException {
     	msg("Starting Digital Output Test");
-    	Output<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+    	Output<Boolean> output = null;
     	try {
+            output = ioio.openDigitalOutput(OUTPUT_PIN, false);
     		for (int x = 0; x < REPETITIONS; x++) {
     			output.write(true);
     			sleep(500);
@@ -179,14 +179,14 @@ public class SelfTest extends Activity {
     			sleep(500);
     			assertFalse(output.getLastWrittenValue());
     		}
-    	}
-    	catch (ConnectionLostException e) {
+    	} catch (ConnectionLostException e) {
     		status("Exception", Color.BLUE);
     		msg(e.toString());
     		e.printStackTrace();
     		throw new FailException();
+    	} finally {
+	        output.close();
     	}
-    	output.close();
     }
 
     /**
@@ -241,21 +241,21 @@ public class SelfTest extends Activity {
 
     public void testUart() throws FailException {
     	msg("Starting UART Test");
-    	// TODO(TF): try this at different settings?
-    	Uart uart = ioio.openUart(UART_RX, UART_TX,
-    			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
-    	InputStream in = uart.openInputStream();
-    	OutputStream out = uart.openOutputStream();
-    	// TODO(TF): do the corner case chars too
-    	String TEST = "IOIOabcdefghijklmnopqrstuvqzyzIOIOABCDEFGHIJKLMNOPQRSTUVWXYZIOIO";
-    	for (int x = 0; x < TEST.length(); x++) {
-    		try {
-				out.write(TEST.charAt(x));
-				assertTrue(in.read() == TEST.charAt(x));
-			} catch (IOException e) {
-				e.printStackTrace();
-				exception(e);
-			}
+    	try {
+        	// TODO(TF): try this at different settings?
+        	Uart uart = ioio.openUart(UART_RX, UART_TX,
+        			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
+        	InputStream in = uart.openInputStream();
+        	OutputStream out = uart.openOutputStream();
+        	// TODO(TF): do the corner case chars too
+        	String TEST = "IOIOabcdefghijklmnopqrstuvqzyzIOIOABCDEFGHIJKLMNOPQRSTUVWXYZIOIO";
+        	for (int x = 0; x < TEST.length(); x++) {
+    			out.write(TEST.charAt(x));
+    			assertTrue(in.read() == TEST.charAt(x));
+        	}
+    	} catch (Exception e) {
+    	    e.printStackTrace();
+    	    exception(e);
     	}
     }
 
@@ -264,12 +264,13 @@ public class SelfTest extends Activity {
         ioio.disconnect();
         IOIOLogger.log("disconnected");
         assertFalse(ioio.isConnected());
+        sleep(1000);
         try {
             ioio.waitForConnect();
             IOIOLogger.log("connected");
         } catch (OperationAbortedException e) {
             e.printStackTrace();
-            throw new FailException();
+            IOIOLogger.log("operation aborted");
         }
         assertTrue(ioio.isConnected());
     }

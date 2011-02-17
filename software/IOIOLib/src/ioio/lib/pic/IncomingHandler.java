@@ -109,8 +109,20 @@ public class IncomingHandler extends Thread {
 	}
 
     public void halt() {
+        safeClose(in);
         if (Thread.currentThread() != this) {
             interrupt();
+        }
+    }
+
+    private void safeClose(InputStream in) {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException e) {
+                // do nothing
+                e.printStackTrace();
+            }
         }
     }
 
