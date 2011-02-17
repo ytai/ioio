@@ -26,6 +26,7 @@ public class IncomingHandler extends Thread {
 
     @Override
     public void run() {
+        IOIOLogger.log("starting incoming handler");
 		// state here must be CONNECTED
 		try {
 			// Handle any incoming packets

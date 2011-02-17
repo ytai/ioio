@@ -188,7 +188,10 @@ public class IOIOConnection implements ConnectionStateCallback {
         bindOnPortForIOIOBoard();
         IOIOLogger.log("waiting for connection");
         listeners.resetListeners();
-        waitForBoardToConnect();
+        while (!disconnectionRequested && !waitForBoardToConnect());
+        if (disconnectionRequested) {
+            return;
+        }
         IOIOLogger.log("initial connection");
         try {
             in = socket.getInputStream();
