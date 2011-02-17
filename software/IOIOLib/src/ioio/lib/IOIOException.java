@@ -38,6 +38,12 @@ public class IOIOException extends Exception {
         }
     }
 
+    public static class InvalidStateException extends IOIOException {
+        public InvalidStateException(String msg) {
+            super(msg);
+        }
+    }
+
     public static class OutOfResourceException extends IOIOException {
         public OutOfResourceException(String msg) {
             super(msg);

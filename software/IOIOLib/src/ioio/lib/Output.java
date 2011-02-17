@@ -1,6 +1,7 @@
 package ioio.lib;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidStateException;
 
 /**
  * An interface for a resource that provides output to the IOIO board.
@@ -9,6 +10,6 @@ import ioio.lib.IOIOException.ConnectionLostException;
  * @author birmiwal
  */
 public interface Output<T> extends Closeable {
-    public void write(T value) throws ConnectionLostException;
-    public T getLastWrittenValue();
+    public void write(T value) throws ConnectionLostException, InvalidStateException;
+    public T getLastWrittenValue() throws InvalidStateException;
 }

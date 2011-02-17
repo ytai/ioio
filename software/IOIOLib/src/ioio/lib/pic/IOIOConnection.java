@@ -1,5 +1,7 @@
 package ioio.lib.pic;
 
+import ioio.lib.IOIOException.ConnectionLostException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,7 +9,6 @@ import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 
 /**
  * Simple thread to maintain connection to IOIO, buffers all IO
@@ -42,7 +43,6 @@ public class IOIOConnection implements ConnectionStateCallback {
 	// Connection state.
 	int state = DISCONNECTED;
 
-    public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 3;
 	public static final int VERIFIED = 2;
 
@@ -72,21 +72,14 @@ public class IOIOConnection implements ConnectionStateCallback {
 	    if (ssocket == null) {
 	        IOIOLogger.log("binding on port : " + port);
 	        ssocket = new ServerSocket(port);
+	        setTimeout(IOIO_TIMEOUT);
 	    }
-        setTimeout(IOIO_TIMEOUT);
 		return true;
 	}
 
     private void handleShutdown() throws IOException {
         IOIOLogger.log("Connection is shutting down");
-
-        if (outgoingHandler != null) {
-            outgoingHandler.halt();
-            IOIOLogger.log("Waiting for outgoing thread to join");
-            safeJoin(outgoingHandler);
-            outgoingHandler = null;
-        }
-
+        outgoingHandler = null;
         if (incomingHandler != null) {
             incomingHandler.halt();
             IOIOLogger.log("Waiting for incoming thread to join");
@@ -145,19 +138,14 @@ public class IOIOConnection implements ConnectionStateCallback {
 				socket = null;
 			}
 			socket = ssocket.accept();
-			state = CONNECTED;
+		} catch (IOException e) {
+		    return false;
 		}
-		catch (SocketTimeoutException toe) {
-			toe.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		return isConnectedEstablished();
+		return true;
 	}
 
 	public boolean isConnectedEstablished() {
-		return state == CONNECTED || state == VERIFIED;
+		return state == VERIFIED;
 	}
 
 	/**
@@ -165,9 +153,10 @@ public class IOIOConnection implements ConnectionStateCallback {
 	 * opportunity.
 	 * NOTE: this is not necessarily immediate.
 	 * @param packet
+	 * @throws ConnectionLostException
 	 */
-	public void sendToIOIO(IOIOPacket packet) {
-		outgoingHandler.addToQueue(packet);
+	public void sendToIOIO(IOIOPacket packet) throws ConnectionLostException {
+		outgoingHandler.sendPacket(packet);
 	}
 
     public void disconnect() {
@@ -186,11 +175,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 
     public void join() throws InterruptedException {
         IOIOLogger.log("Waiting for threads to join");
-        if (outgoingHandler != null) {
-            outgoingHandler.join();
-            outgoingHandler = null;
-            IOIOLogger.log("Outgoing handler joined");
-        }
+        outgoingHandler = null;
 
         if (incomingHandler != null) {
             incomingHandler.join();
@@ -200,10 +185,10 @@ public class IOIOConnection implements ConnectionStateCallback {
     }
 
     public void start() throws BindException, IOException {
+        listeners.disconnectListeners();
         disconnectionRequested = false;
         bindOnPortForIOIOBoard();
         IOIOLogger.log("waiting for connection");
-        listeners.resetListeners();
         while (!disconnectionRequested && !waitForBoardToConnect());
         if (disconnectionRequested) {
             return;
@@ -222,7 +207,8 @@ public class IOIOConnection implements ConnectionStateCallback {
     @Override
     public void stateChanged(ConnectionState state) {
         IOIOLogger.log("State changed to " + state);
-        if (ConnectionState.CONNECTION_VERIFIED.equals(state)) {
+        IOIOLogger.log("Out is : " + out);
+        if (ConnectionState.CONNECTED.equals(state)) {
             startOutgoingHandler();
             this.state = VERIFIED;
         }
@@ -238,11 +224,7 @@ public class IOIOConnection implements ConnectionStateCallback {
     }
 
     private void startOutgoingHandler() {
-        if (outgoingHandler != null) {
-            outgoingHandler.halt();
-        }
         outgoingHandler = new OutgoingHandler(out);
-        outgoingHandler.start();
     }
 
     public boolean isVerified() {

@@ -8,6 +8,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import ioio.lib.IOIO;
+import ioio.lib.IOIOException;
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
@@ -82,7 +83,7 @@ public class SelfTest extends Activity {
     				testHardReset();
      			    testSoftReset();
 
-    			    // testDisconnectReconnect();
+    			    testDisconnectReconnect();
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
@@ -186,7 +187,7 @@ public class SelfTest extends Activity {
     			sleep(500);
     			assertFalse(output.getLastWrittenValue());
     		}
-    	} catch (ConnectionLostException e) {
+    	} catch (IOIOException e) {
     		status("Exception", Color.BLUE);
     		msg(e.toString());
     		e.printStackTrace();
@@ -219,10 +220,8 @@ public class SelfTest extends Activity {
 				IOIOLogger.log("doing input compare"); // to get timing info in the log
 				assertEquals(output.getLastWrittenValue(), input.read());
 			}
-		} catch (ConnectionLostException e) {
+		} catch (IOIOException e) {
 			exception(e);
-		} catch (OperationAbortedException e) {
-		    exception(e);
 		}
     }
 
@@ -249,11 +248,9 @@ public class SelfTest extends Activity {
                 IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
-		} catch (ConnectionLostException e) {
-			exception(e);
-		} catch (OperationAbortedException e) {
-		    exception(e);
-		}
+        } catch (IOIOException e) {
+            exception(e);
+        }
     }
 
     public void testUart() throws FailException {
@@ -325,7 +322,7 @@ public class SelfTest extends Activity {
             status("stopped");
         } catch (OutOfResourceException e) {
             exception(e);
-        } catch (ConnectionLostException e) {
+        } catch (IOIOException e) {
             exception(e);
         } finally {
             if (pwmOutput != null) {

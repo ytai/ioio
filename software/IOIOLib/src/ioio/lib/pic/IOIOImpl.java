@@ -76,7 +76,7 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	// queue an outgoing packet
-	public void queuePacket(IOIOPacket pkt) {
+	public void queuePacket(IOIOPacket pkt) throws ConnectionLostException {
 		ioioConnection.sendToIOIO(pkt);
 	}
 
@@ -124,7 +124,7 @@ public class IOIOImpl extends Service implements IOIO {
 	@Override
 	public void softReset() throws ConnectionLostException {
 		ioioConnection.sendToIOIO(Constants.SOFT_RESET_PACKET);
-		listeners.resetListeners();
+		listeners.disconnectListeners();
 	}
 
 	@Override

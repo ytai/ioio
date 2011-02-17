@@ -2,6 +2,8 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.Input;
 
 /**
@@ -19,14 +21,14 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	boolean active = false;
 	private int reportPin = 0;
 
-	public AnalogInput(IOIOImpl ioio, int pin) {
+	public AnalogInput(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(pin);
 		this.ioio = ioio;
 		ioio.registerListener(this);
         init();
 	}
 
-	private void init() {
+	private void init() throws ConnectionLostException {
 		ioio.queuePacket(new IOIOPacket(
 				Constants.SET_ANALOG_INPUT,
 				new byte[]{(byte)pin}
@@ -35,7 +37,10 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 
 	// TODO(TF): decide on units, mV? let the user set them?
 	@Override
-    public Float read() {
+    public Float read() throws InvalidStateException {
+	    if (isInvalid()) {
+	        throw Constants.INVALID_STATE_EXCEPTION;
+	    }
 		return value / 1023.0f;
 	}
 

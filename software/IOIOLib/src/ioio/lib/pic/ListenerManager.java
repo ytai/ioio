@@ -9,18 +9,21 @@ import java.util.List;
  * @author arshan
  * @author birmiwal
  */
-public class ListenerManager implements IOIOPacketListener {
-    List<IOIOPacketListener> listeners;
+public class ListenerManager {
+    List<IOIOPacketListener> listeners = new LinkedList<IOIOPacketListener>();
 
-    void resetListeners() {
+    void disconnectListeners() {
+        for (IOIOPacketListener listener : listeners) {
+            listener.disconnectNotification();
+        }
+
         IOIOLogger.log("resetting listeners");
-        listeners = new LinkedList<IOIOPacketListener>();
+        listeners.clear();
     }
 
     /**
      * Handle an incoming packet from the IOIO.
      */
-    @Override
     public void handlePacket(IOIOPacket packet) {
         // send to my listeners
         // IOIOLogger.log("handle packet : " + packet.toString() + " / " + listeners.size() + " listeners");

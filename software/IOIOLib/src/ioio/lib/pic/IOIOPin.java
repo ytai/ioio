@@ -9,11 +9,21 @@ import ioio.lib.Closeable;
  *
  * @author arshan
  */
-public abstract class IOIOPin implements Closeable {
+public abstract class IOIOPin implements IOIOPacketListener, Closeable {
 
+    private boolean isInvalid;
 	protected int pin;
 
 	public IOIOPin(int pin) {
 		this.pin = pin;
 	}
+
+	@Override
+	public void disconnectNotification() {
+	    isInvalid = true;
+	}
+
+	public boolean isInvalid() {
+        return isInvalid;
+    }
 }

@@ -1,6 +1,7 @@
 package ioio.lib.pic;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.PwmOutput;
 
@@ -45,7 +46,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		init();
 	}
 
-	private void init() {
+	private void init() throws ConnectionLostException {
 		setPwm = new IOIOPacket(
 				Constants.SET_PWM,
 				new byte[]{(byte)pin, (byte)(int)module}
@@ -79,9 +80,14 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
 	/**
 	 * @param dutyCycle the dutyCycle to set
+	 * @throws ConnectionLostException
+	 * @throws InvalidStateException
 	 */
 	@Override
-    public void setDutyCycle(float dutyCycle) {
+    public void setDutyCycle(float dutyCycle) throws ConnectionLostException, InvalidStateException {
+        if (isInvalid()) {
+            throw Constants.INVALID_STATE_EXCEPTION;
+        }
 		this.dutyCycle = dutyCycle;
 		byte fraction = 0;
 		dutyCyclePeriod = (int) (dutyCycle * period);
@@ -97,13 +103,6 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		        }));
 	}
 
-	/**
-	 * @return the dutyCycle
-	 */
-	public float getDutyCycle() {
-		return dutyCycle;
-	}
-
     @Override
     public void close() {
         digitalOutput.close();
@@ -112,8 +111,13 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
     }
 
     @Override
-    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
+    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException, InvalidStateException {
         float dutyCycle = ((float) pulseWidthUs) / periodUs;
         setDutyCycle(dutyCycle);
+    }
+
+    @Override
+    public void handlePacket(IOIOPacket packet) {
+        // do nothing
     }
 }

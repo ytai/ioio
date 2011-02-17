@@ -6,5 +6,5 @@ package ioio.lib.pic;
  * @author birmiwal
  */
 public enum ConnectionState {
-    CONNECTION_ESTABLISHED, CONNECTION_VERIFIED, SHUTTING_DOWN
+    CONNECTED, SHUTTING_DOWN
 }

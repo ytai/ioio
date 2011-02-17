@@ -2,6 +2,8 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.Output;
 
 /**
@@ -31,7 +33,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 
-	DigitalOutput(IOIOImpl ioio, int pin, boolean enableOpenDrain, boolean startValue) {
+	DigitalOutput(IOIOImpl ioio, int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
 		super(pin);
 		this.shadowState = startValue;
 		this.ioio = ioio;
@@ -43,7 +45,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 		init(enableOpenDrain);
 	}
 
-	private void init(boolean enableOpenDrain) {
+	private void init(boolean enableOpenDrain) throws ConnectionLostException {
 		// TODO(arshan): does this need a sanity check?
 		IOIOPacket request_output =
 			new IOIOPacket(
@@ -56,7 +58,11 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	}
 
 	@Override
-    public void write(Boolean val) {
+    public void write(Boolean val) throws ConnectionLostException, InvalidStateException {
+       if (isInvalid()) {
+            throw Constants.INVALID_STATE_EXCEPTION;
+        }
+
 		if (!active) {
 			// TODO(arshan): need a policy for this, not likely to come up, but ...
 			// throw new IOException("output not yet active");
@@ -79,7 +85,10 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	}
 
 	@Override
-    public Boolean getLastWrittenValue() {
+    public Boolean getLastWrittenValue() throws InvalidStateException {
+        if (isInvalid()) {
+            throw Constants.INVALID_STATE_EXCEPTION;
+        }
 		return shadowState;
 	}
 

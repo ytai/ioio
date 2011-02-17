@@ -15,10 +15,10 @@ public class IncomingHandler extends Thread {
     // Connection specific vars for analog status.
     int analogPinCount = 0;
     int analogPinBytes = 0;
-    private final IOIOPacketListener packetHandler;
+    private final ListenerManager packetHandler;
 
 
-    public IncomingHandler(InputStream in, ConnectionStateCallback stateCb, IOIOPacketListener packetHandler) {
+    public IncomingHandler(InputStream in, ConnectionStateCallback stateCb, ListenerManager packetHandler) {
         this.in = in;
         this.stateCb = stateCb;
         this.packetHandler = packetHandler;
@@ -41,7 +41,7 @@ public class IncomingHandler extends Thread {
 
 				case Constants.ESTABLISH_CONNECTION: // 13 byte payload
 					if (IncomingHandler.verifyEstablishPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 13)))) {
-					    stateCb.stateChanged(ConnectionState.CONNECTION_VERIFIED);
+					    stateCb.stateChanged(ConnectionState.CONNECTED);
 					} else {
 					    IOIOLogger.log("setting state to shutting down");
 					    return;

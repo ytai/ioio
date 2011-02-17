@@ -2,6 +2,8 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.Input;
 
 /**
@@ -20,7 +22,7 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 
 	IOIOImpl ioio;
 
-	DigitalInput(IOIOImpl ioio, int pin, int mode) {
+	DigitalInput(IOIOImpl ioio, int pin, int mode) throws ConnectionLostException {
 		super(pin);
 		this.ioio = ioio;
 		ioio.registerListener(this);
@@ -28,7 +30,7 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 		init(mode);
 	}
 
-	private void init(int mode) {
+	private void init(int mode) throws ConnectionLostException {
 		ioio.queuePacket(new IOIOPacket(
 			Constants.SET_INPUT,
 			new byte[]{ (byte)(pin << 2 | mode) }
@@ -42,7 +44,10 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 	}
 
 	@Override
-    public Boolean read() {
+    public Boolean read() throws InvalidStateException {
+       if (isInvalid()) {
+            throw Constants.INVALID_STATE_EXCEPTION;
+        }
 		return state;
 	}
 

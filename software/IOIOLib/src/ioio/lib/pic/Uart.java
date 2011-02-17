@@ -15,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  * @author arshan
  */
-public class Uart implements IOIOPacketListener {
+public class Uart extends IOIOPin implements IOIOPacketListener {
 
 	// Define some known good constants?
 	public static final int NO_PARITY = 0;
@@ -59,6 +59,8 @@ public class Uart implements IOIOPacketListener {
 	BlockingQueue<Byte> outgoing = new LinkedBlockingQueue<Byte>();
 
 	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop) throws ConnectionLostException {
+	    // TODO: get a pin number
+	    super(0);
 		this.stop_bits = stop;
 		this.parity = parity;
 		this.baud = baud;
@@ -69,7 +71,7 @@ public class Uart implements IOIOPacketListener {
 		init();
 	}
 
-	private void init() {
+	private void init() throws ConnectionLostException {
 		calculateRates();
 
 		configure = new IOIOPacket(
@@ -189,4 +191,10 @@ public class Uart implements IOIOPacketListener {
 		}
 
 	}
+
+    @Override
+    public void close() {
+        // TODO Auto-generated method stub
+
+    }
 }

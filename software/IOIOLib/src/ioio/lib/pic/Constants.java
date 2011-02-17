@@ -1,5 +1,7 @@
 package ioio.lib.pic;
 
+import ioio.lib.IOIOException.InvalidStateException;
+
 
 /**
  * Constants used in IOIO.
@@ -52,4 +54,6 @@ public class Constants {
 
     // number of PWMs on the IOIO board
     public static final int NUM_PWMS = 8;
+
+    public static final InvalidStateException INVALID_STATE_EXCEPTION = new InvalidStateException("This pin is stale as the board was disconnected");
 }
