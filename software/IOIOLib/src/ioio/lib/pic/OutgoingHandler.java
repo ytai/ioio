@@ -3,6 +3,7 @@ package ioio.lib.pic;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Handles outgoing packets.
@@ -10,11 +11,10 @@ import java.util.concurrent.BlockingQueue;
  * @author birmiwal
  */
 public class OutgoingHandler extends Thread {
-	private final BlockingQueue<IOIOPacket> outgoing;
+	private final BlockingQueue<IOIOPacket> outgoing = new LinkedBlockingQueue<IOIOPacket>();
     private final OutputStream out;
 
-	public OutgoingHandler(BlockingQueue<IOIOPacket> outgoing, OutputStream out) {
-        this.outgoing = outgoing;
+	public OutgoingHandler(OutputStream out) {
         this.out = out;
 	}
 
@@ -39,6 +39,11 @@ public class OutgoingHandler extends Thread {
 		}
         IOIOLogger.log("outgoing thread exiting");
         return;
+	}
+
+	public void addToQueue(IOIOPacket packet) {
+        IOIOLogger.log("offering packet for send: " + packet.toString());
+	    outgoing.offer(packet);
 	}
 
 	public synchronized void halt() {

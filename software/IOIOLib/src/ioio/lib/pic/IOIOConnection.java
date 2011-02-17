@@ -8,8 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Simple thread to maintain connection to IOIO, buffers all IO
@@ -17,8 +15,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  */
 public class IOIOConnection implements ConnectionStateCallback {
-	BlockingQueue<IOIOPacket> outgoing = new LinkedBlockingQueue<IOIOPacket>();
-
 	OutgoingHandler outgoingHandler;
 	IncomingHandler incomingHandler;
 	private final ListenerManager listeners;
@@ -171,8 +167,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	 * @param packet
 	 */
 	public void sendToIOIO(IOIOPacket packet) {
-	    IOIOLogger.log("offering packet for send: " + packet.toString());
-		outgoing.offer(packet);
+		outgoingHandler.addToQueue(packet);
 	}
 
     public void disconnect() {
@@ -246,12 +241,8 @@ public class IOIOConnection implements ConnectionStateCallback {
         if (outgoingHandler != null) {
             outgoingHandler.halt();
         }
-        // clear any pending ...
-        synchronized (outgoing) {
-            outgoing.clear();
-            outgoingHandler = new OutgoingHandler(outgoing, out);
-            outgoingHandler.start();
-        }
+        outgoingHandler = new OutgoingHandler(out);
+        outgoingHandler.start();
     }
 
     public boolean isVerified() {

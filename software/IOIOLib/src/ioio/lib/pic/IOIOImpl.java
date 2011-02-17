@@ -122,13 +122,13 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-	public void softReset() {
+	public void softReset() throws ConnectionLostException {
 		ioioConnection.sendToIOIO(Constants.SOFT_RESET_PACKET);
 		listeners.resetListeners();
 	}
 
 	@Override
-    public void hardReset() {
+    public void hardReset() throws ConnectionLostException {
 		// request a reset
 		ioioConnection.sendToIOIO(Constants.HARD_RESET_PACKET);
 	}

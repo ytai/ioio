@@ -21,9 +21,9 @@ public interface IOIO {
 
 	public boolean isConnected();
 
-	public void softReset();
+	public void softReset() throws ConnectionLostException;
 
-	public void hardReset();
+	public void hardReset() throws ConnectionLostException;
 
 	public Input<Boolean> openDigitalInput(int pin) throws ConnectionLostException;
 

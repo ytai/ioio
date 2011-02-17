@@ -125,18 +125,20 @@ public class SelfTest extends Activity {
     public void testHardReset() throws FailException {
     	msg("Starting Hard Reset Test");
     	for (int x = 0; x < REPETITIONS; x++) {
-			ioio.hardReset();
+			try {
+                ioio.hardReset();
+            } catch (ConnectionLostException e) {
+                exception(e);
+            }
 			IOIOLogger.log("hard reset complete");
 			sleep(500);
 			try {
                 ioio.waitForConnect();
             } catch (OperationAbortedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 IOIOLogger.log("exception in hard reset");
-                assertTrue(false);
+                exception(e);
             }
-//			sleep(1100); // experimentally this is taking a little more then 1000mS
 			assertTrue(ioio.isConnected());
 		}
     }
@@ -148,7 +150,12 @@ public class SelfTest extends Activity {
     public void testSoftReset() throws FailException {
     	msg("Starting Soft Reset Test");
 		for (int x = 0; x < REPETITIONS; x++) {
-			ioio.softReset();
+			try {
+                ioio.softReset();
+            } catch (ConnectionLostException e) {
+                e.printStackTrace();
+                exception(e);
+            }
 			sleep(500);
 			try {
                 ioio.waitForConnect();
@@ -195,7 +202,12 @@ public class SelfTest extends Activity {
      */
     public void testDigitalIO() throws FailException {
     	msg("Starting Digital I/O Test");
-    	ioio.softReset();
+    	try {
+            ioio.softReset();
+        } catch (ConnectionLostException e) {
+            e.printStackTrace();
+            exception(e);
+        }
     	sleep(1000); // wait for soft reset? debugging
         try {
         	ioio.waitForConnect();
@@ -216,7 +228,12 @@ public class SelfTest extends Activity {
 
     public void testAnalogInput() throws FailException {
     	msg("Starting Analog Input Test");
-        ioio.softReset();
+        try {
+            ioio.softReset();
+        } catch (ConnectionLostException e) {
+            e.printStackTrace();
+            exception(e);
+        }
         sleep(1000); // wait for soft reset? debugging
         try {
             ioio.waitForConnect();

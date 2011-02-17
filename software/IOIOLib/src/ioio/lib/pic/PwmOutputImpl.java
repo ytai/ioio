@@ -30,16 +30,13 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
 	private IOIOPacket setPwm;
 	private IOIOPacket setPeriod;
-	private IOIOPacket setDutyCycle;
+
 	private static final ModuleAllocator PWM_ID_ALLOCATOR = new ModuleAllocator(Constants.NUM_PWMS);
     private DigitalOutput digitalOutput;
-    private final int freqHz;
-
-	PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain) throws OutOfResourceException, ConnectionLostException {
+    PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain) throws OutOfResourceException, ConnectionLostException {
 		super(pin);
 		this.ioio = ioio;
-        this.freqHz = freqHz;
-		this.module = PWM_ID_ALLOCATOR.allocateModule();
+        this.module = PWM_ID_ALLOCATOR.allocateModule();
 		if (module == null) {
 		    throw new OutOfResourceException("all PWMs have been allocated");
 		}
