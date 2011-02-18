@@ -16,12 +16,16 @@ public class IncomingHandler extends Thread {
     int analogPinCount = 0;
     int analogPinBytes = 0;
     private final ListenerManager packetHandler;
+    private final PacketFramerRegistry framerRegistry;
 
-
-    public IncomingHandler(InputStream in, ConnectionStateCallback stateCb, ListenerManager packetHandler) {
+    public IncomingHandler(InputStream in,
+            ConnectionStateCallback stateCb,
+            ListenerManager packetHandler,
+            PacketFramerRegistry framerRegistry) {
         this.in = in;
         this.stateCb = stateCb;
         this.packetHandler = packetHandler;
+        this.framerRegistry = framerRegistry;
     }
 
     @Override
@@ -37,18 +41,27 @@ public class IncomingHandler extends Thread {
 				// TODO(arshan): how do we re-sync if things have gone bad.
 				// ytai: it is in the protocol spec: you close the socket (or i/o streams),
 				// reset your internal state, and wait for ioio to reconnect.
-				switch (message_type) {
-
-				case Constants.ESTABLISH_CONNECTION: // 13 byte payload
+/*
+				if (message_type == Constants.ESTABLISH_CONNECTION) {
+				     // 13 byte payload
 					if (IncomingHandler.verifyEstablishPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 13)))) {
 					    stateCb.stateChanged(ConnectionState.CONNECTED);
 					} else {
 					    IOIOLogger.log("setting state to shutting down");
 					    return;
 					}
-					// TODO(arshan): pass on to listeners?
-					break;
-
+					continue;
+				}
+*/
+				IOIOPacket packet = framerRegistry.frame((byte) message_type, in);
+				if (packet == null) {
+                    IOIOLogger.log("Unknown message type : " + message_type);
+				    break;
+				}
+				packetHandler.handlePacket(packet);
+				continue;
+/*
+                switch (message_type) {
 				case Constants.REPORT_ANALOG_FORMAT: // variable
 					analogPinCount = Bytes.readByte(in);
 					int groups = (analogPinCount+3)/4;
@@ -99,7 +112,9 @@ public class IncomingHandler extends Thread {
 					IOIOLogger.log("Unknown message type : " + message_type);
 					return;
 				}
+				*/
 			}
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

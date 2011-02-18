@@ -22,11 +22,13 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 
 	IOIOImpl ioio;
 
-	DigitalInput(IOIOImpl ioio, int pin, int mode) throws ConnectionLostException {
+	DigitalInput(IOIOImpl ioio, PacketFramerRegistry registry, int pin, int mode) throws ConnectionLostException {
 		super(pin);
 		this.ioio = ioio;
 		ioio.registerListener(this);
-
+		registry.registerFramer(Constants.SET_INPUT, SET_DIGITAL_INPUT_PACKET_FRAMER);
+		registry.registerFramer(Constants.REPORT_DIGITAL_STATUS, REPORT_DIGITAL_STATUS_PACKET_FRAMER);
+		registry.registerFramer(Constants.SET_CHANGE_NOTIFY, CHANGE_NOTIFY_HANDLER);
 		init(mode);
 	}
 
@@ -35,12 +37,10 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 			Constants.SET_INPUT,
 			new byte[]{ (byte)(pin << 2 | mode) }
 			));
-
 		ioio.queuePacket(new IOIOPacket(
 			Constants.SET_CHANGE_NOTIFY,
 			new byte[]{(byte)(pin<<2 | 1)}
 		));
-
 	}
 
 	@Override
@@ -73,4 +73,12 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
     public void close() {
         // TODO(TF)
     }
+
+    private static final PacketFramer CHANGE_NOTIFY_HANDLER = PacketFramers.getNBytePacketFramerFor(Constants.SET_CHANGE_NOTIFY, 1);
+
+    private static final PacketFramer SET_DIGITAL_INPUT_PACKET_FRAMER =
+        PacketFramers.getNBytePacketFramerFor(Constants.SET_INPUT, 1);
+
+    private static final PacketFramer REPORT_DIGITAL_STATUS_PACKET_FRAMER =
+        PacketFramers.getNBytePacketFramerFor(Constants.REPORT_DIGITAL_STATUS, 1);
 }

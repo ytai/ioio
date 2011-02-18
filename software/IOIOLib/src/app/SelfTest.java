@@ -83,7 +83,7 @@ public class SelfTest extends Activity {
     				testHardReset();
      			    testSoftReset();
 
-    			    testDisconnectReconnect();
+    			    // testDisconnectReconnect();
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter

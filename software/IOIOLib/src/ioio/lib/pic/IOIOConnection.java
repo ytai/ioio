@@ -31,7 +31,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	// and any blocking calls in the api throw exceptions
 	public static final int IOIO_TIMEOUT = 3000;
 
-	public static final int EOF = -1;
+	public static final byte EOF = -1;
 
 	ServerSocket ssocket;
 	Socket socket;
@@ -47,6 +47,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	public static final int VERIFIED = 2;
 
 	private boolean disconnectionRequested;
+    private PacketFramerRegistry framerRegistry;
 
 	public IOIOConnection(ListenerManager listener) {
 		this(Constants.IOIO_PORT, listener);
@@ -86,6 +87,8 @@ public class IOIOConnection implements ConnectionStateCallback {
             safeJoin(incomingHandler);
             incomingHandler = null;
         }
+
+        framerRegistry.reset();
 
         if (in != null) {
             in.close();
@@ -184,7 +187,8 @@ public class IOIOConnection implements ConnectionStateCallback {
         }
     }
 
-    public void start() throws BindException, IOException {
+    public void start(PacketFramerRegistry framerRegistry) throws BindException, IOException {
+        this.framerRegistry = framerRegistry;
         listeners.disconnectListeners();
         disconnectionRequested = false;
         bindOnPortForIOIOBoard();
@@ -200,7 +204,10 @@ public class IOIOConnection implements ConnectionStateCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        incomingHandler = new IncomingHandler(in, this, listeners);
+        framerRegistry.registerFramer(Constants.ESTABLISH_CONNECTION, ESTABLISH_CONNECTION_FRAMER);
+        framerRegistry.registerFramer(Constants.SOFT_RESET, SOFT_RESET_OR_EOF);
+        framerRegistry.registerFramer(IOIOConnection.EOF, SOFT_RESET_OR_EOF);
+        incomingHandler = new IncomingHandler(in, this, listeners, framerRegistry);
         incomingHandler.start();
     }
 
@@ -230,4 +237,34 @@ public class IOIOConnection implements ConnectionStateCallback {
     public boolean isVerified() {
         return state == VERIFIED;
     }
+
+    private PacketFramer SOFT_RESET_OR_EOF =
+        new PacketFramer() {
+            @Override
+            public IOIOPacket frame(byte message, InputStream in) throws IOException {
+                if (message == IOIOConnection.EOF) {
+                    IOIOLogger.log("Connection broken by EOF");
+                    stateChanged(ConnectionState.SHUTTING_DOWN);
+                    return null;
+                }
+                assert(message == Constants.SOFT_RESET);
+                return new IOIOPacket(message, null);
+            }
+        };
+
+    private PacketFramer ESTABLISH_CONNECTION_FRAMER =
+        new PacketFramer() {
+            @Override
+            public IOIOPacket frame(byte message, InputStream in) throws IOException {
+                assert(message == Constants.ESTABLISH_CONNECTION);
+                IOIOPacket packet = new IOIOPacket(message, Bytes.readBytes(in, 13));
+                if (IncomingHandler.verifyEstablishPacket(packet)) {
+                    stateChanged(ConnectionState.CONNECTED);
+                    return packet;
+                } else {
+                    stateChanged(ConnectionState.SHUTTING_DOWN);
+                }
+                return null;
+            }
+        };
 }

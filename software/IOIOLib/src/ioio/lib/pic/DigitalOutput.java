@@ -33,10 +33,11 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 
-	DigitalOutput(IOIOImpl ioio, int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
+	DigitalOutput(IOIOImpl ioio, PacketFramerRegistry framerRegistry, int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
 		super(pin);
 		this.shadowState = startValue;
 		this.ioio = ioio;
+		framerRegistry.registerFramer(Constants.SET_OUTPUT, SET_DIGITAL_OUTPUT_PACKET_FRAMER);
 
 		setHi = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2|1)});
 		setLo = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2)});
@@ -105,4 +106,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
     public void close() {
         // TODO(TF): Implement this
     }
+
+    private static final PacketFramer SET_DIGITAL_OUTPUT_PACKET_FRAMER =
+        PacketFramers.getNBytePacketFramerFor(Constants.SET_OUTPUT, 1);
 }

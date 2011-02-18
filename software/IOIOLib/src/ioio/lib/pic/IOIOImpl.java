@@ -27,8 +27,9 @@ import java.net.BindException;
  * @author arshan
  */
 public class IOIOImpl extends Service implements IOIO {
+    private final PacketFramerRegistry framerRegistry = new PacketFramerRegistry();
 
-	private static final int CONNECT_WAIT_TIME_MS = 100;
+    private static final int CONNECT_WAIT_TIME_MS = 100;
 
     // for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
@@ -94,7 +95,7 @@ public class IOIOImpl extends Service implements IOIO {
 	    // TODO(birmiwal): throw exception if already connected?
 	    if (!isConnected()) {
 	        try {
-                ioioConnection.start();
+                ioioConnection.start(framerRegistry);
             } catch (BindException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -154,7 +155,7 @@ public class IOIOImpl extends Service implements IOIO {
 	// TODO(TF): support other modes.
 	@Override
     public DigitalInput openDigitalInput(int pin) throws ConnectionLostException {
-		return new DigitalInput(this, pin, DigitalInput.PULL_DOWN);
+		return new DigitalInput(this, framerRegistry, pin, DigitalInput.PULL_DOWN);
 	}
 
     @Override
@@ -164,12 +165,12 @@ public class IOIOImpl extends Service implements IOIO {
 
     @Override
     public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
-        return new DigitalOutput(this, pin, enableOpenDrain, startValue);
+        return new DigitalOutput(this, framerRegistry, pin, enableOpenDrain, startValue);
     }
 
 	@Override
     public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
-		return new AnalogInput(this, pin);
+		return new AnalogInput(this, pin, framerRegistry);
 	}
 
 	@Override
