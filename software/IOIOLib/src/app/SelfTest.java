@@ -186,6 +186,7 @@ public class SelfTest extends Activity {
     			sleep(500);
     			assertFalse(output.getLastWrittenValue());
     		}
+    		output.close();
     	} catch (IOIOException e) {
     		status("Exception", Color.BLUE);
     		msg(e.toString());
@@ -219,6 +220,8 @@ public class SelfTest extends Activity {
 				IOIOLogger.log("doing input compare"); // to get timing info in the log
 				assertEquals(output.getLastWrittenValue(), input.read());
 			}
+			input.close();
+			output.close();
 		} catch (IOIOException e) {
 			exception(e);
 		}
@@ -247,6 +250,8 @@ public class SelfTest extends Activity {
                 IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
+			output.close();
+			input.close();
         } catch (IOIOException e) {
             exception(e);
         }
@@ -266,6 +271,8 @@ public class SelfTest extends Activity {
     			out.write(TEST.charAt(x));
     			assertTrue(in.read() == TEST.charAt(x));
         	}
+        	in.close();
+        	out.close();
     	} catch (Exception e) {
     	    e.printStackTrace();
     	    exception(e);
