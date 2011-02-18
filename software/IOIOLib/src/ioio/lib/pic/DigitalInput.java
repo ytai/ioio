@@ -3,6 +3,7 @@ package ioio.lib.pic;
 import android.util.Log;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.Input;
 
@@ -22,9 +23,11 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 
 	IOIOImpl ioio;
 
-	DigitalInput(IOIOImpl ioio, PacketFramerRegistry registry, int pin, int mode) throws ConnectionLostException {
+	DigitalInput(IOIOImpl ioio, PacketFramerRegistry registry, int pin, int mode)
+	throws ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
+		ioio.reservePin(pin);
 		ioio.registerListener(this);
 		registry.registerFramer(Constants.SET_INPUT, SET_DIGITAL_INPUT_PACKET_FRAMER);
 		registry.registerFramer(Constants.REPORT_DIGITAL_STATUS, REPORT_DIGITAL_STATUS_PACKET_FRAMER);
@@ -71,6 +74,7 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 
     @Override
     public void close() {
+        ioio.releasePin(pin);
         // TODO(TF)
     }
 

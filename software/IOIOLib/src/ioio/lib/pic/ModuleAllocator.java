@@ -64,4 +64,20 @@ public class ModuleAllocator {
             allocatedModuleIds.remove(moduleId);
         }
     }
+
+    /**
+     * Requests a moduleId to be allocated.
+     * @param moduleId the module id to reserve
+     * @return true if the module was reserved, false if it wasn't
+     */
+    public boolean requestAllocate(int moduleId) {
+        synchronized (availableModuleIds) {
+            if (!availableModuleIds.contains(moduleId)) {
+                return false;
+            }
+            availableModuleIds.remove(moduleId);
+            allocatedModuleIds.add(moduleId);
+        }
+        return true;
+    }
 }

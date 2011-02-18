@@ -10,6 +10,7 @@ import android.os.IBinder;
 
 import ioio.lib.IOIO;
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 
@@ -27,6 +28,9 @@ import java.net.BindException;
  * @author arshan
  */
 public class IOIOImpl extends Service implements IOIO {
+    // pin 0 - onboard LED; pins 1-48 physical external pins
+    private ModuleAllocator PINS = new ModuleAllocator(49);
+
     private final PacketFramerRegistry framerRegistry = new PacketFramerRegistry();
 
     private static final int CONNECT_WAIT_TIME_MS = 100;
@@ -154,32 +158,34 @@ public class IOIOImpl extends Service implements IOIO {
 
 	// TODO(TF): support other modes.
 	@Override
-    public DigitalInput openDigitalInput(int pin) throws ConnectionLostException {
+    public DigitalInput openDigitalInput(int pin) throws ConnectionLostException, InvalidOperationException {
 		return new DigitalInput(this, framerRegistry, pin, DigitalInput.PULL_DOWN);
 	}
 
     @Override
-    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException {
+    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException, InvalidOperationException {
         return openDigitalOutput(pin, enableOpenDrain, false);
     }
 
     @Override
-    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException {
+    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException, InvalidOperationException {
         return new DigitalOutput(this, framerRegistry, pin, enableOpenDrain, startValue);
     }
 
 	@Override
-    public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
+    public AnalogInput openAnalogInput(int pin) throws ConnectionLostException, InvalidOperationException {
 		return new AnalogInput(this, pin, framerRegistry);
 	}
 
 	@Override
-    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException, ConnectionLostException {
+    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz)
+	throws OutOfResourceException, ConnectionLostException, InvalidOperationException {
 		return new PwmOutputImpl(this, pin, freqHz, enableOpenDrain);
 	}
 
 	@Override
-    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) throws ConnectionLostException {
+    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits)
+	throws ConnectionLostException, InvalidOperationException {
 		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
 	}
 
@@ -189,4 +195,15 @@ public class IOIOImpl extends Service implements IOIO {
 	private int nextAvailableUart() {
 		return 0; // support just the one for now.
 	}
+
+    public void reservePin(int pin) throws InvalidOperationException {
+        boolean allocated = PINS.requestAllocate(pin);
+        if (!allocated) {
+            throw new InvalidOperationException("Pin " + pin + " already open?");
+        }
+    }
+
+    public void releasePin(int pin) {
+        PINS.releaseModule(pin);
+    }
 }

@@ -1,6 +1,7 @@
 package ioio.lib.pic;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -58,7 +59,8 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 	BlockingQueue<Byte> incoming = new LinkedBlockingQueue<Byte>();
 	BlockingQueue<Byte> outgoing = new LinkedBlockingQueue<Byte>();
 
-	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop) throws ConnectionLostException {
+	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop)
+	throws ConnectionLostException, InvalidOperationException {
 	    // TODO: get a pin number
 	    super(0);
 		this.stop_bits = stop;

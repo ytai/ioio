@@ -1,6 +1,7 @@
 package ioio.lib;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.pic.Uart;
@@ -78,8 +79,10 @@ public interface IOIO {
 	 * @param pin The number of pin to assign as appears on the board.
 	 * @return Object of the assigned pin.
 	 * @throws ConnectionLostException in case connection was lost before running this method.
+	 * @throws InvalidOperationException
 	 */
-	public Input<Boolean> openDigitalInput(int pin) throws ConnectionLostException;
+	public Input<Boolean> openDigitalInput(int pin)
+	throws ConnectionLostException, InvalidOperationException;
 
     /**
      * Assign a pin for digital output, and set its initial state to LOW.
@@ -90,8 +93,10 @@ public interface IOIO {
      * @param enableOpenDrain true for opening pin in open drain mode (digital HIGH will put pin in tri-state).
      * @return Object of the assigned pin.
      * @throws ConnectionLostException in case connection was lost before running this method.
+     * @throws InvalidOperationException
      */
-    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException;
+    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain)
+    throws ConnectionLostException, InvalidOperationException;
 
     /**
      * Assign a pin for digital output.
@@ -103,8 +108,10 @@ public interface IOIO {
      * @param startValue the initial value of that pin.
      * @return Object of the assigned pin.
      * @throws ConnectionLostException in case connection was lost before running this method.
+     * @throws InvalidOperationException
      */
-    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException;
+    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue)
+    throws ConnectionLostException, InvalidOperationException;
 
 	/**
 	 * Assign a pin for analog input.
@@ -114,8 +121,10 @@ public interface IOIO {
 	 * @param pin The number of pin to assign as appears on the board.
 	 * @return Object of the assigned pin.
 	 * @throws ConnectionLostException in case connection was lost before running this method.
+	 * @throws InvalidOperationException
 	 */
-	public Input<Float> openAnalogInput(int pin) throws ConnectionLostException;
+	public Input<Float> openAnalogInput(int pin)
+	throws ConnectionLostException, InvalidOperationException;
 
 	/**
 	 * Assign a pin for PWM output.
@@ -129,8 +138,10 @@ public interface IOIO {
 	 * @return Object of the assigned pin.
 	 * @throws OutOfResourceException in case maximum concurrent PWM outputs are already in use.
 	 * @throws ConnectionLostException in case connection was lost before running this method.
+	 * @throws InvalidOperationException
 	 */
-	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz) throws OutOfResourceException, ConnectionLostException;
+	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz)
+	throws OutOfResourceException, ConnectionLostException, InvalidOperationException;
 
 	// TODO: test support for this
 	/**
@@ -146,6 +157,8 @@ public interface IOIO {
 	 * @param stopbits Number of stop bits.
 	 * @return Object of the assigned UART module.
 	 * @throws ConnectionLostException in case connection was lost before running this method.
+	 * @throws InvalidOperationException
 	 */
-	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits) throws ConnectionLostException;
+	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits)
+	throws ConnectionLostException, InvalidOperationException;
 }

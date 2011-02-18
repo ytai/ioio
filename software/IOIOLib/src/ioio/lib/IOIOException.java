@@ -49,4 +49,10 @@ public class IOIOException extends Exception {
             super(msg);
         }
     }
+
+    public static class InvalidOperationException extends IOIOException {
+        public InvalidOperationException(String msg) {
+            super(msg);
+        }
+    }
 }

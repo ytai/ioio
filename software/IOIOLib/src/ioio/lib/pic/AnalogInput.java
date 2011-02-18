@@ -3,6 +3,7 @@ package ioio.lib.pic;
 import android.util.Log;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.Input;
 
@@ -24,9 +25,12 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	boolean active = false;
 	private int reportPin = 0;
 
-	public AnalogInput(IOIOImpl ioio, int pin, PacketFramerRegistry framerRegistry) throws ConnectionLostException {
+	public AnalogInput(IOIOImpl ioio, int pin, PacketFramerRegistry framerRegistry)
+	throws ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
+		ioio.reservePin(pin);
+
 		// note: the first analog pin that gets registered with register it's framer
 		// all other pins will call this unsuccessfully. The first registered framer
 		// should handle this correctly for any analog pin thereafter
@@ -93,6 +97,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 
     @Override
     public void close() {
+        ioio.releasePin(pin);
         // TODO(TF): Implement this
     }
 
