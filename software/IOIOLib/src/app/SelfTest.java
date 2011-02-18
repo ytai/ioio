@@ -10,7 +10,6 @@ import android.widget.TextView;
 import ioio.lib.IOIO;
 import ioio.lib.IOIOException;
 import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.Input;
 import ioio.lib.Output;
@@ -135,7 +134,7 @@ public class SelfTest extends Activity {
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (OperationAbortedException e) {
+            } catch (IOIOException e) {
                 e.printStackTrace();
                 IOIOLogger.log("exception in hard reset");
                 exception(e);
@@ -160,7 +159,7 @@ public class SelfTest extends Activity {
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (OperationAbortedException e) {
+            } catch (IOIOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 IOIOLogger.log("soft reset failed");
@@ -282,21 +281,21 @@ public class SelfTest extends Activity {
         try {
             ioio.waitForConnect();
             IOIOLogger.log("connected");
-        } catch (OperationAbortedException e) {
+        } catch (IOIOException e) {
             e.printStackTrace();
             IOIOLogger.log("operation aborted");
         }
         assertTrue(ioio.isConnected());
     }
 
-    private void testPWM() throws OperationAbortedException {
+    private void testPWM() throws FailException {
         msg("Starting PWM tests");
-        ioio.waitForConnect();
         PwmOutput pwmOutput = null;
         final int SLEEP_TIME = 500;
         try {
+            ioio.waitForConnect();
             // 10ms / 100Hz for the servo.
-             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, true, 100);
+             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, false, 100);
             msg("Moving right");
             for (int i = 0; i <= 5; i++) {
                 pwmOutput.setDutyCycle((15 + i) / 100.f);

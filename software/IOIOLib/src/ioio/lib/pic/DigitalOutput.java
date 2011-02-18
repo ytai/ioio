@@ -2,6 +2,7 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+import ioio.lib.DigitalOutputMode;
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
@@ -34,7 +35,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 	public final IOIOPacket setHi;
 	public final IOIOPacket setLo;
 
-	DigitalOutput(IOIOImpl ioio, PacketFramerRegistry framerRegistry, int pin, boolean enableOpenDrain, boolean startValue)
+	DigitalOutput(IOIOImpl ioio, PacketFramerRegistry framerRegistry, int pin, DigitalOutputMode mode, boolean startValue)
 	throws ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.shadowState = startValue;
@@ -46,17 +47,17 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 		setLo = new IOIOPacket(Constants.SET_VALUE, new byte[]{(byte)(pin<<2)});
 
 		ioio.registerListener(this);
-		init(enableOpenDrain);
+		init(mode);
 	}
 
-	private void init(boolean enableOpenDrain) throws ConnectionLostException {
+	private void init(DigitalOutputMode mode) throws ConnectionLostException {
 		// TODO(arshan): does this need a sanity check?
 		IOIOPacket request_output =
 			new IOIOPacket(
 			  Constants.SET_OUTPUT,
 			  new byte[]{(byte) (pin << 2
 					  | (shadowState?1:0) << 1
-					  | (enableOpenDrain?1:0))}
+					  | (DigitalOutputMode.OPEN_DRAIN.equals(mode) ? 1:0))}
 			);
 		ioio.queuePacket(request_output);
 	}

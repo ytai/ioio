@@ -8,15 +8,20 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import ioio.lib.DigitalInputMode;
+import ioio.lib.DigitalOutputMode;
 import ioio.lib.IOIO;
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
+import ioio.lib.IOIOException.SocketException;
+import ioio.lib.Input;
+import ioio.lib.Output;
+import ioio.lib.PwmOutput;
 
 import java.io.IOException;
 import java.net.BindException;
-
 
 /**
  * High level interface and vars to the IOIO.
@@ -34,6 +39,8 @@ public class IOIOImpl extends Service implements IOIO {
     private final PacketFramerRegistry framerRegistry = new PacketFramerRegistry();
 
     private static final int CONNECT_WAIT_TIME_MS = 100;
+
+    private static final DigitalInputMode DEFAULT_DIGITAL_INPUT_MODE = DigitalInputMode.PULL_DOWN;
 
     // for convenience, might not stay long
 	// ytai: why singleton? i think there should be:
@@ -88,12 +95,11 @@ public class IOIOImpl extends Service implements IOIO {
 	/**
 	 * Blocking call that will not return until connected.
 	 * hmm. this must throw an exception at some point, else very un-androidy
-	 * @throws IOException
-	 * @throws BindException
+	 * @throws SocketException
 	 * @throws OperationCanceledException if {@link #abortConnection()} is called
 	 */
 	@Override
-    public void waitForConnect() throws OperationAbortedException {
+    public void waitForConnect() throws OperationAbortedException, SocketException {
 	    abortConnection = false;
 
 	    // TODO(birmiwal): throw exception if already connected?
@@ -101,11 +107,11 @@ public class IOIOImpl extends Service implements IOIO {
 	        try {
                 ioioConnection.start(framerRegistry);
             } catch (BindException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+                throw new SocketException("BindException: " + e.getMessage());
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+                throw new SocketException("IOException: " + e.getMessage());
             }
 	    }
 	    // TODO(birmiwal): make this better
@@ -158,27 +164,27 @@ public class IOIOImpl extends Service implements IOIO {
 
 	// TODO(TF): support other modes.
 	@Override
-    public DigitalInput openDigitalInput(int pin) throws ConnectionLostException, InvalidOperationException {
-		return new DigitalInput(this, framerRegistry, pin, DigitalInput.PULL_DOWN);
+    public Input<Boolean> openDigitalInput(int pin) throws ConnectionLostException, InvalidOperationException {
+		return openDigitalInput(pin, DEFAULT_DIGITAL_INPUT_MODE);
 	}
 
     @Override
-    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain) throws ConnectionLostException, InvalidOperationException {
-        return openDigitalOutput(pin, enableOpenDrain, false);
+    public Output<Boolean> openDigitalOutput(int pin, boolean startValue) throws ConnectionLostException, InvalidOperationException {
+        return openDigitalOutput(pin, startValue, DigitalOutputMode.NORMAL);
     }
 
     @Override
-    public DigitalOutput openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue) throws ConnectionLostException, InvalidOperationException {
-        return new DigitalOutput(this, framerRegistry, pin, enableOpenDrain, startValue);
+    public Output<Boolean> openDigitalOutput(int pin, boolean startValue, DigitalOutputMode mode) throws ConnectionLostException, InvalidOperationException {
+        return new DigitalOutput(this, framerRegistry, pin, mode, startValue);
     }
 
 	@Override
-    public AnalogInput openAnalogInput(int pin) throws ConnectionLostException, InvalidOperationException {
+    public Input<Float> openAnalogInput(int pin) throws ConnectionLostException, InvalidOperationException {
 		return new AnalogInput(this, pin, framerRegistry);
 	}
 
 	@Override
-    public PwmOutputImpl openPwmOutput(int pin, boolean enableOpenDrain, int freqHz)
+    public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz)
 	throws OutOfResourceException, ConnectionLostException, InvalidOperationException {
 		return new PwmOutputImpl(this, pin, freqHz, enableOpenDrain);
 	}
@@ -205,5 +211,11 @@ public class IOIOImpl extends Service implements IOIO {
 
     public void releasePin(int pin) {
         PINS.releaseModule(pin);
+    }
+
+    @Override
+    public Input<Boolean> openDigitalInput(int pin, DigitalInputMode mode)
+            throws ConnectionLostException, InvalidOperationException {
+        return new DigitalInput(this, framerRegistry, pin, mode);
     }
 }

@@ -2,6 +2,8 @@ package ioio.lib.pic;
 
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
+import ioio.lib.Input;
+import ioio.lib.Output;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -39,8 +41,8 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 	private int parity = 0; // even/odd/no
 	private float stop_bits = 0; // 1/1.5/2
 	private int data_bits = 8;	// 7/8/9
-	private DigitalInput rx;
-	private DigitalOutput tx;
+	private Input<Boolean> rx;
+	private Output<Boolean> tx;
 
 	private IOIOImpl ioio;
 
@@ -58,6 +60,8 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 	// Java buffers, how much buffer do we have on the device?
 	BlockingQueue<Byte> incoming = new LinkedBlockingQueue<Byte>();
 	BlockingQueue<Byte> outgoing = new LinkedBlockingQueue<Byte>();
+    private int txPin;
+    private int rxPin;
 
 	Uart(IOIOImpl ioio, int module, int rx, int tx, int baud, int parity, float stop)
 	throws ConnectionLostException, InvalidOperationException {
@@ -68,6 +72,8 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 		this.baud = baud;
 		this.rx = ioio.openDigitalInput(rx);
 		this.tx = ioio.openDigitalOutput(tx, false);
+		this.rxPin = rx;
+		this.txPin = tx;
 		this.ioio = ioio;
 		uartNum = module;
 		init();
@@ -89,10 +95,10 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 		);
 
 		setRx = new IOIOPacket(Constants.UART_SET_RX,
-				new byte[]{(byte)rx.pin, (byte)(0x80|uartNum)});
+				new byte[]{(byte)rxPin, (byte)(0x80|uartNum)});
 
 		setTx = new IOIOPacket(Constants.UART_SET_TX,
-				new byte[]{(byte)tx.pin, (byte)(0x80|uartNum)});
+				new byte[]{(byte)txPin, (byte)(0x80|uartNum)});
 
 		// Since the rx and tx pins are initialized as DigitalI/O pins we already have
 		// them setup to be used as rx/tx here.

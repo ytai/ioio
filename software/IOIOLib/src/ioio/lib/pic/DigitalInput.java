@@ -2,6 +2,7 @@ package ioio.lib.pic;
 
 import android.util.Log;
 
+import ioio.lib.DigitalInputMode;
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
@@ -23,7 +24,7 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 
 	IOIOImpl ioio;
 
-	DigitalInput(IOIOImpl ioio, PacketFramerRegistry registry, int pin, int mode)
+	DigitalInput(IOIOImpl ioio, PacketFramerRegistry registry, int pin, DigitalInputMode inputMode)
 	throws ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
@@ -32,13 +33,13 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 		registry.registerFramer(Constants.SET_INPUT, SET_DIGITAL_INPUT_PACKET_FRAMER);
 		registry.registerFramer(Constants.REPORT_DIGITAL_STATUS, REPORT_DIGITAL_STATUS_PACKET_FRAMER);
 		registry.registerFramer(Constants.SET_CHANGE_NOTIFY, CHANGE_NOTIFY_HANDLER);
-		init(mode);
+		init(inputMode);
 	}
 
-	private void init(int mode) throws ConnectionLostException {
+	private void init(DigitalInputMode mode) throws ConnectionLostException {
 		ioio.queuePacket(new IOIOPacket(
 			Constants.SET_INPUT,
-			new byte[]{ (byte)(pin << 2 | mode) }
+			new byte[]{ (byte)(pin << 2 | mode.getBitValue()) }
 			));
 		ioio.queuePacket(new IOIOPacket(
 			Constants.SET_CHANGE_NOTIFY,

@@ -4,6 +4,7 @@ import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
+import ioio.lib.IOIOException.SocketException;
 import ioio.lib.pic.Uart;
 
 /**
@@ -23,7 +24,7 @@ import ioio.lib.pic.Uart;
  */
 public interface IOIO {
 
-	/**
+    /**
 	 * Establishes connection with a IOIO board.
 	 *
 	 * This method is blocking until connection is established.
@@ -31,7 +32,7 @@ public interface IOIO {
 	 *
 	 * @throws OperationAbortedException if abortConnection() got called.
 	 */
-	public void waitForConnect() throws OperationAbortedException;
+	public void waitForConnect() throws OperationAbortedException, SocketException;
 
 	/**
 	 * Closes a connection to the IOIO board, and returns it to the initial state.
@@ -84,18 +85,21 @@ public interface IOIO {
 	public Input<Boolean> openDigitalInput(int pin)
 	throws ConnectionLostException, InvalidOperationException;
 
+    public Input<Boolean> openDigitalInput(int pin, DigitalInputMode mode)
+    throws ConnectionLostException, InvalidOperationException;
+
     /**
      * Assign a pin for digital output, and set its initial state to LOW.
      *
      * See board documentation for a complete list of functions supported by each physical pin.
      *
      * @param pin The number of pin to assign as appears on the board.
-     * @param enableOpenDrain true for opening pin in open drain mode (digital HIGH will put pin in tri-state).
+     * @param startValue the initial value of that pin.
      * @return Object of the assigned pin.
      * @throws ConnectionLostException in case connection was lost before running this method.
      * @throws InvalidOperationException
      */
-    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain)
+    public Output<Boolean> openDigitalOutput(int pin, boolean startValue)
     throws ConnectionLostException, InvalidOperationException;
 
     /**
@@ -104,13 +108,13 @@ public interface IOIO {
      * See board documentation for a complete list of functions supported by each physical pin.
      *
      * @param pin The number of pin to assign as appears on the board.
-     * @param enableOpenDrain true for opening pin in open drain mode (digital HIGH will put pin in tri-state).
      * @param startValue the initial value of that pin.
+     * @param mode mode for opening the output; can be used for setting in open-drain mode where an external pullup is required.
      * @return Object of the assigned pin.
      * @throws ConnectionLostException in case connection was lost before running this method.
      * @throws InvalidOperationException
      */
-    public Output<Boolean> openDigitalOutput(int pin, boolean enableOpenDrain, boolean startValue)
+    public Output<Boolean> openDigitalOutput(int pin, boolean startValue, DigitalOutputMode mode)
     throws ConnectionLostException, InvalidOperationException;
 
 	/**
