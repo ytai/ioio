@@ -80,10 +80,10 @@ public class IOIOConnection implements ConnectionStateCallback {
 
     private void handleShutdown() throws IOException {
         IOIOLogger.log("Connection is shutting down");
+        listeners.disconnectListeners();
         outgoingHandler = null;
         if (incomingHandler != null) {
             incomingHandler.halt();
-            IOIOLogger.log("Waiting for incoming thread to join");
             safeJoin(incomingHandler);
             incomingHandler = null;
         }
@@ -104,6 +104,7 @@ public class IOIOConnection implements ConnectionStateCallback {
             socket.close();
             socket = null;
         }
+        IOIOLogger.log("shutdown complete");
     }
 
 	private void safeJoin(Thread thread) {
@@ -214,7 +215,6 @@ public class IOIOConnection implements ConnectionStateCallback {
     @Override
     public void stateChanged(ConnectionState state) {
         IOIOLogger.log("State changed to " + state);
-        IOIOLogger.log("Out is : " + out);
         if (ConnectionState.CONNECTED.equals(state)) {
             startOutgoingHandler();
             this.state = VERIFIED;
@@ -244,7 +244,7 @@ public class IOIOConnection implements ConnectionStateCallback {
             public IOIOPacket frame(byte message, InputStream in) throws IOException {
                 if (message == IOIOConnection.EOF) {
                     IOIOLogger.log("Connection broken by EOF");
-                    stateChanged(ConnectionState.SHUTTING_DOWN);
+//                    stateChanged(ConnectionState.SHUTTING_DOWN);
                     return null;
                 }
                 assert(message == Constants.SOFT_RESET);

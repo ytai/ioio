@@ -1,8 +1,10 @@
 package ioio.lib.pic;
 
 import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
 import ioio.lib.IOIOException.OutOfResourceException;
+import ioio.lib.Output;
 import ioio.lib.PwmOutput;
 
 /**
@@ -33,8 +35,9 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 	private IOIOPacket setPeriod;
 
 	private static final ModuleAllocator PWM_ID_ALLOCATOR = new ModuleAllocator(Constants.NUM_PWMS);
-    private DigitalOutput digitalOutput;
-    PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain) throws OutOfResourceException, ConnectionLostException {
+    private Output<Boolean> digitalOutput;
+    PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain)
+    throws OutOfResourceException, ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
         this.module = PWM_ID_ALLOCATOR.allocateModule();

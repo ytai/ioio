@@ -49,4 +49,16 @@ public class IOIOException extends Exception {
             super(msg);
         }
     }
+
+    public static class InvalidOperationException extends IOIOException {
+        public InvalidOperationException(String msg) {
+            super(msg);
+        }
+    }
+
+    public static class SocketException extends IOIOException {
+        public SocketException(String msg) {
+            super(msg);
+        }
+    }
 }

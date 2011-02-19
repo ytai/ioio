@@ -10,7 +10,6 @@ import android.widget.TextView;
 import ioio.lib.IOIO;
 import ioio.lib.IOIOException;
 import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.OperationAbortedException;
 import ioio.lib.IOIOException.OutOfResourceException;
 import ioio.lib.Input;
 import ioio.lib.Output;
@@ -80,7 +79,7 @@ public class SelfTest extends Activity {
 
                     status("Testing");
 
-    				testHardReset();
+    				// testHardReset();
      			    testSoftReset();
 
     			    // testDisconnectReconnect();
@@ -111,7 +110,7 @@ public class SelfTest extends Activity {
     				exception(e);
     				e.printStackTrace();
     			} finally {
-    			    ioio.disconnect();
+//    			    ioio.disconnect();
     			}
 			}
 		}.start();
@@ -135,7 +134,7 @@ public class SelfTest extends Activity {
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (OperationAbortedException e) {
+            } catch (IOIOException e) {
                 e.printStackTrace();
                 IOIOLogger.log("exception in hard reset");
                 exception(e);
@@ -160,7 +159,7 @@ public class SelfTest extends Activity {
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (OperationAbortedException e) {
+            } catch (IOIOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 IOIOLogger.log("soft reset failed");
@@ -187,13 +186,12 @@ public class SelfTest extends Activity {
     			sleep(500);
     			assertFalse(output.getLastWrittenValue());
     		}
+    		output.close();
     	} catch (IOIOException e) {
     		status("Exception", Color.BLUE);
     		msg(e.toString());
     		e.printStackTrace();
     		throw new FailException();
-    	} finally {
-	        output.close();
     	}
     }
 
@@ -214,12 +212,15 @@ public class SelfTest extends Activity {
         	ioio.waitForConnect();
         	Input<Boolean> input = ioio.openDigitalInput(INPUT_PIN);
         	Output<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+        	sleep(100);
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.getLastWrittenValue());
 				sleep(100); // experimentally seems to take a bit more then 75mS
 				IOIOLogger.log("doing input compare"); // to get timing info in the log
 				assertEquals(output.getLastWrittenValue(), input.read());
 			}
+			input.close();
+			output.close();
 		} catch (IOIOException e) {
 			exception(e);
 		}
@@ -236,10 +237,10 @@ public class SelfTest extends Activity {
         sleep(1000); // wait for soft reset? debugging
         try {
             ioio.waitForConnect();
-            Output<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, false);
+            boolean bit = false;
+            Output<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, bit);
             Input<Float> input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
-    	    boolean bit = false;
-    	    output.write(false);
+            sleep(100);
 			for (int x = 0; x < REPETITIONS; x++) {
 				sleep(100);
 				bit = !output.getLastWrittenValue();
@@ -248,6 +249,8 @@ public class SelfTest extends Activity {
                 IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
+			output.close();
+			input.close();
         } catch (IOIOException e) {
             exception(e);
         }
@@ -267,6 +270,8 @@ public class SelfTest extends Activity {
     			out.write(TEST.charAt(x));
     			assertTrue(in.read() == TEST.charAt(x));
         	}
+        	in.close();
+        	out.close();
     	} catch (Exception e) {
     	    e.printStackTrace();
     	    exception(e);
@@ -282,21 +287,21 @@ public class SelfTest extends Activity {
         try {
             ioio.waitForConnect();
             IOIOLogger.log("connected");
-        } catch (OperationAbortedException e) {
+        } catch (IOIOException e) {
             e.printStackTrace();
             IOIOLogger.log("operation aborted");
         }
         assertTrue(ioio.isConnected());
     }
 
-    private void testPWM() throws OperationAbortedException {
+    private void testPWM() throws FailException {
         msg("Starting PWM tests");
-        ioio.waitForConnect();
         PwmOutput pwmOutput = null;
         final int SLEEP_TIME = 500;
         try {
+            ioio.waitForConnect();
             // 10ms / 100Hz for the servo.
-             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, true, 100);
+             pwmOutput = ioio.openPwmOutput(PWM_OUT_PIN, false, 100);
             msg("Moving right");
             for (int i = 0; i <= 5; i++) {
                 pwmOutput.setDutyCycle((15 + i) / 100.f);
