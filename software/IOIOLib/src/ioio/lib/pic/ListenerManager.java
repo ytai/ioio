@@ -12,7 +12,7 @@ import java.util.List;
 public class ListenerManager {
     List<IOIOPacketListener> listeners = new LinkedList<IOIOPacketListener>();
 
-    void disconnectListeners() {
+    public void disconnectListeners() {
         for (IOIOPacketListener listener : listeners) {
             listener.disconnectNotification();
         }

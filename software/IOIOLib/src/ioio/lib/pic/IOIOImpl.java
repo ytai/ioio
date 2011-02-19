@@ -34,7 +34,11 @@ import java.net.BindException;
  */
 public class IOIOImpl extends Service implements IOIO {
     // pin 0 - onboard LED; pins 1-48 physical external pins
-    private ModuleAllocator PINS = new ModuleAllocator(49);
+    private ModuleAllocator PINS = getNewPinAllocation();
+
+    private ModuleAllocator getNewPinAllocation() {
+        return new ModuleAllocator(49);
+    }
 
     private final PacketFramerRegistry framerRegistry = new PacketFramerRegistry();
 
@@ -106,6 +110,7 @@ public class IOIOImpl extends Service implements IOIO {
 	    if (!isConnected()) {
 	        try {
                 ioioConnection.start(framerRegistry);
+                PINS = getNewPinAllocation();
             } catch (BindException e) {
                 e.printStackTrace();
                 throw new SocketException("BindException: " + e.getMessage());

@@ -79,7 +79,7 @@ public class SelfTest extends Activity {
 
                     status("Testing");
 
-    				testHardReset();
+    				// testHardReset();
      			    testSoftReset();
 
     			    // testDisconnectReconnect();
@@ -110,7 +110,7 @@ public class SelfTest extends Activity {
     				exception(e);
     				e.printStackTrace();
     			} finally {
-    			    ioio.disconnect();
+//    			    ioio.disconnect();
     			}
 			}
 		}.start();
@@ -192,8 +192,6 @@ public class SelfTest extends Activity {
     		msg(e.toString());
     		e.printStackTrace();
     		throw new FailException();
-    	} finally {
-	        output.close();
     	}
     }
 
@@ -214,6 +212,7 @@ public class SelfTest extends Activity {
         	ioio.waitForConnect();
         	Input<Boolean> input = ioio.openDigitalInput(INPUT_PIN);
         	Output<Boolean> output = ioio.openDigitalOutput(OUTPUT_PIN, false);
+        	sleep(100);
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.getLastWrittenValue());
 				sleep(100); // experimentally seems to take a bit more then 75mS
@@ -238,10 +237,10 @@ public class SelfTest extends Activity {
         sleep(1000); // wait for soft reset? debugging
         try {
             ioio.waitForConnect();
-            Output<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, false);
+            boolean bit = false;
+            Output<Boolean> output = ioio.openDigitalOutput(ANALOG_OUTPUT_PIN, bit);
             Input<Float> input = ioio.openAnalogInput(ANALOG_INPUT_PIN);
-    	    boolean bit = false;
-    	    output.write(false);
+            sleep(100);
 			for (int x = 0; x < REPETITIONS; x++) {
 				sleep(100);
 				bit = !output.getLastWrittenValue();
