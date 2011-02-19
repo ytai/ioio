@@ -64,6 +64,7 @@ void ADCInit() {
   AD1CON2 = 0x0400;  // Avdd Avss ref, scan inputs, single buffer, interrupt on every sample 
   AD1CON3 = 0x1F01;  // system clock, 31 Tad acquisition time, ADC clock @8MHz
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
+  AD1CSSL = 0x0000;  // reset scan mask.
 
   _AD1IF = 0;
   _AD1IP = 6;        // high priority to stop automatic sampling

@@ -23,6 +23,7 @@ typedef struct {
 #define ByteQueueLock(lock, level) do { lock = SRbits.IPL; SRbits.IPL = level; } while (0)
 #define ByteQueueUnlock(lock) do { SRbits.IPL = lock; } while (0)
 
+#define ByteQueueClear(q) do { (q)->size = 0; (q)->read_cursor = 0; (q)->write_cursor = 0; } while(0)
 #define ByteQueueInit(q, b, cap) do { (q)->buf = b; (q)->capacity = cap; (q)->size = 0; (q)->read_cursor = 0; (q)->write_cursor = 0; } while(0)
 
 void ByteQueuePushBuffer(ByteQueue* q, const void* buf, int len);
