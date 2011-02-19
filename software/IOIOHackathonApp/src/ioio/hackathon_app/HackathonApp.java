@@ -227,7 +227,6 @@ public class HackathonApp extends Activity {
 							Log.w(LOG_TAG, e.getMessage());
 						}
 					}
-					Log.e(LOG_TAG, "OUT!");
 				}
 			};
 			servoThread.start();
