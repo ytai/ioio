@@ -36,23 +36,6 @@ public class IncomingHandler extends Thread {
 			// Handle any incoming packets
 			while (!Thread.currentThread().isInterrupted()) {
 				int message_type = Bytes.readByte(in);
-				// IOIOLogger.log("read message of type: " + message_type);
-
-				// TODO(arshan): how do we re-sync if things have gone bad.
-				// ytai: it is in the protocol spec: you close the socket (or i/o streams),
-				// reset your internal state, and wait for ioio to reconnect.
-/*
-				if (message_type == Constants.ESTABLISH_CONNECTION) {
-				     // 13 byte payload
-					if (IncomingHandler.verifyEstablishPacket(new IOIOPacket(message_type, Bytes.readBytes(in, 13)))) {
-					    stateCb.stateChanged(ConnectionState.CONNECTED);
-					} else {
-					    IOIOLogger.log("setting state to shutting down");
-					    return;
-					}
-					continue;
-				}
-*/
 				IOIOPacket packet = framerRegistry.frame((byte) message_type, in);
 				if (packet == null) {
                     IOIOLogger.log("Unknown message type : " + message_type);

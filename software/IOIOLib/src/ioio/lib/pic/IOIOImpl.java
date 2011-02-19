@@ -92,7 +92,7 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	// queue an outgoing packet
-	public void queuePacket(IOIOPacket pkt) throws ConnectionLostException {
+	public void sendPacket(IOIOPacket pkt) throws ConnectionLostException {
 		ioioConnection.sendToIOIO(pkt);
 	}
 

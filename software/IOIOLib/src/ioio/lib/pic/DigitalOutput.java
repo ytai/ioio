@@ -59,7 +59,7 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 					  | (shadowState?1:0) << 1
 					  | (DigitalOutputMode.OPEN_DRAIN.equals(mode) ? 1:0))}
 			);
-		ioio.queuePacket(request_output);
+		ioio.sendPacket(request_output);
 	}
 
 	@Override
@@ -79,11 +79,11 @@ public class DigitalOutput extends IOIOPin implements IOIOPacketListener, Output
 			shadowState = val;
 			if (val) {
 				Log.i("IOIO output", "pin " + pin + " is set high");
-				ioio.queuePacket(setHi);
+				ioio.sendPacket(setHi);
 			}
 			else {
 				Log.i("IOIO output", "pin " + pin + " is set low");
-				ioio.queuePacket(setLo);
+				ioio.sendPacket(setLo);
 			}
 
 		}

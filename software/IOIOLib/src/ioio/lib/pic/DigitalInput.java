@@ -37,11 +37,11 @@ public class DigitalInput extends IOIOPin implements IOIOPacketListener, Input<B
 	}
 
 	private void init(DigitalInputMode mode) throws ConnectionLostException {
-		ioio.queuePacket(new IOIOPacket(
+		ioio.sendPacket(new IOIOPacket(
 			Constants.SET_INPUT,
 			new byte[]{ (byte)(pin << 2 | mode.getBitValue()) }
 			));
-		ioio.queuePacket(new IOIOPacket(
+		ioio.sendPacket(new IOIOPacket(
 			Constants.SET_CHANGE_NOTIFY,
 			new byte[]{(byte)(pin<<2 | 1)}
 		));

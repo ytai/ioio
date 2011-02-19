@@ -1,7 +1,5 @@
 package ioio.lib.pic;
 
-import android.util.Log;
-
 import ioio.lib.IOIOException.ConnectionLostException;
 import ioio.lib.IOIOException.InvalidOperationException;
 import ioio.lib.IOIOException.InvalidStateException;
@@ -9,6 +7,8 @@ import ioio.lib.Input;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import android.util.Log;
 
 /**
  * Represent and manage analog input pins on the IOIO.
@@ -42,7 +42,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	}
 
 	private void init() throws ConnectionLostException {
-		ioio.queuePacket(new IOIOPacket(
+		ioio.sendPacket(new IOIOPacket(
 				Constants.SET_ANALOG_INPUT,
 				new byte[]{(byte)pin}
 		));

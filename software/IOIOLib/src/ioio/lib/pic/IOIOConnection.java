@@ -16,7 +16,6 @@ import java.net.SocketException;
  *
  */
 public class IOIOConnection implements ConnectionStateCallback {
-	OutgoingHandler outgoingHandler;
 	IncomingHandler incomingHandler;
 	private final ListenerManager listeners;
 
@@ -81,7 +80,6 @@ public class IOIOConnection implements ConnectionStateCallback {
     private void handleShutdown() throws IOException {
         IOIOLogger.log("Connection is shutting down");
         listeners.disconnectListeners();
-        outgoingHandler = null;
         if (incomingHandler != null) {
             incomingHandler.halt();
             safeJoin(incomingHandler);
@@ -97,7 +95,6 @@ public class IOIOConnection implements ConnectionStateCallback {
 
         if (out != null) {
             out.close();
-            out = null;
         }
 
         if (socket != null) {
@@ -152,15 +149,16 @@ public class IOIOConnection implements ConnectionStateCallback {
 		return state == VERIFIED;
 	}
 
-	/**
-	 * queue a packet to be sent to the IOIO at the next
-	 * opportunity.
-	 * NOTE: this is not necessarily immediate.
-	 * @param packet
-	 * @throws ConnectionLostException
-	 */
 	public void sendToIOIO(IOIOPacket packet) throws ConnectionLostException {
-		outgoingHandler.sendPacket(packet);
+	    IOIOLogger.log("Sending message: " + packet.toString());
+        try {
+            out.write(packet.message);
+            if (packet.payload != null) {
+                out.write(packet.payload);
+            }
+        } catch (IOException e) {
+            throw new ConnectionLostException("IO Exception sending packet: " + e.getMessage());
+        }
 	}
 
     public void disconnect() {
@@ -179,7 +177,6 @@ public class IOIOConnection implements ConnectionStateCallback {
 
     public void join() throws InterruptedException {
         IOIOLogger.log("Waiting for threads to join");
-        outgoingHandler = null;
 
         if (incomingHandler != null) {
             incomingHandler.join();
@@ -193,7 +190,6 @@ public class IOIOConnection implements ConnectionStateCallback {
         listeners.disconnectListeners();
         disconnectionRequested = false;
         bindOnPortForIOIOBoard();
-        IOIOLogger.log("waiting for connection");
         while (!disconnectionRequested && !waitForBoardToConnect());
         if (disconnectionRequested) {
             return;
@@ -216,7 +212,6 @@ public class IOIOConnection implements ConnectionStateCallback {
     public void stateChanged(ConnectionState state) {
         IOIOLogger.log("State changed to " + state);
         if (ConnectionState.CONNECTED.equals(state)) {
-            startOutgoingHandler();
             this.state = VERIFIED;
         }
 
@@ -228,10 +223,6 @@ public class IOIOConnection implements ConnectionStateCallback {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void startOutgoingHandler() {
-        outgoingHandler = new OutgoingHandler(out);
     }
 
     public boolean isVerified() {

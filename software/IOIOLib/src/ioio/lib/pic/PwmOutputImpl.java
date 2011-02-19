@@ -75,9 +75,9 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 					}
 		);
 
-		ioio.queuePacket(setPwm);
+		ioio.sendPacket(setPwm);
 		// Must always set period before duty cycle.
-		ioio.queuePacket(setPeriod);
+		ioio.sendPacket(setPeriod);
 		// setDutyCycle(0); // disable at init if its not by default.  This is done automatially by IOIO
 	}
 
@@ -97,7 +97,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		if (period != 0 && !scale256) {
 		    fraction = (byte)((byte)(dutyCycle * 4 * period) & 0x03);
 		}
-        ioio.queuePacket(new IOIOPacket(
+        ioio.sendPacket(new IOIOPacket(
 		        Constants.SET_DUTYCYCLE,
 		        new byte[] {
 		            (byte) ((module << 2) | fraction),

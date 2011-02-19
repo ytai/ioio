@@ -102,9 +102,9 @@ public class Uart extends IOIOPin implements IOIOPacketListener {
 
 		// Since the rx and tx pins are initialized as DigitalI/O pins we already have
 		// them setup to be used as rx/tx here.
-		ioio.queuePacket(configure);
-		ioio.queuePacket(setRx);
-		ioio.queuePacket(setTx);
+		ioio.sendPacket(configure);
+		ioio.sendPacket(setRx);
+		ioio.sendPacket(setTx);
 	}
 
 	private void calculateRates() {
