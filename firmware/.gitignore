@@ -1,9 +1,3 @@
-*.cof
-*.hex
-*.map
-*.mcs
-*.mcw
-*.o
 *.mk
 *.inc
 *.bash
