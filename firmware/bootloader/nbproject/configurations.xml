@@ -5,43 +5,43 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="ADB" displayName="ADB" projectFiles="true">
-        <itemPath>../adb_file_private.h</itemPath>
-        <itemPath>../adb_packet.h</itemPath>
-        <itemPath>../adb_private.h</itemPath>
-        <itemPath>../adb_types.h</itemPath>
+        <itemPath>adb_file_private.h</itemPath>
+        <itemPath>adb_packet.h</itemPath>
+        <itemPath>adb_private.h</itemPath>
+        <itemPath>adb_types.h</itemPath>
       </logicalFolder>
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
-        <itemPath>../../blapi/adb.h</itemPath>
-        <itemPath>../../blapi/adb_file.h</itemPath>
-        <itemPath>../../blapi/bootloader.h</itemPath>
-        <itemPath>../../blapi/flash.h</itemPath>
+        <itemPath>../blapi/adb.h</itemPath>
+        <itemPath>../blapi/adb_file.h</itemPath>
+        <itemPath>../blapi/bootloader.h</itemPath>
+        <itemPath>../blapi/flash.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
-        <itemPath>../bootloader_defs.h</itemPath>
-        <itemPath>../bootloader_private.h</itemPath>
-        <itemPath>../ioio_file.h</itemPath>
+        <itemPath>bootloader_defs.h</itemPath>
+        <itemPath>bootloader_private.h</itemPath>
+        <itemPath>ioio_file.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
-        <itemPath>../microchip/include/Compiler.h</itemPath>
-        <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
-        <itemPath>../microchip/include/struct_queue.h</itemPath>
-        <itemPath>../microchip/include/timer.h</itemPath>
-        <itemPath>../microchip/include/uart2.h</itemPath>
+        <itemPath>microchip/include/Compiler.h</itemPath>
+        <itemPath>microchip/include/GenericTypeDefs.h</itemPath>
+        <itemPath>microchip/include/struct_queue.h</itemPath>
+        <itemPath>microchip/include/timer.h</itemPath>
+        <itemPath>microchip/include/uart2.h</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
-        <itemPath>../microchip/include/USB/usb.h</itemPath>
-        <itemPath>../microchip/include/USB/usb_ch9.h</itemPath>
-        <itemPath>../microchip/include/USB/usb_common.h</itemPath>
-        <itemPath>../usb_config.h</itemPath>
-        <itemPath>../microchip/include/USB/usb_hal.h</itemPath>
-        <itemPath>../microchip/usb/usb_hal_local.h</itemPath>
-        <itemPath>../microchip/include/USB/usb_hal_pic24.h</itemPath>
-        <itemPath>../microchip/include/USB/usb_host.h</itemPath>
-        <itemPath>../usb_host_android.h</itemPath>
-        <itemPath>../microchip/usb/usb_host_local.h</itemPath>
+        <itemPath>microchip/include/USB/usb.h</itemPath>
+        <itemPath>microchip/include/USB/usb_ch9.h</itemPath>
+        <itemPath>microchip/include/USB/usb_common.h</itemPath>
+        <itemPath>usb_config.h</itemPath>
+        <itemPath>microchip/include/USB/usb_hal.h</itemPath>
+        <itemPath>microchip/usb/usb_hal_local.h</itemPath>
+        <itemPath>microchip/include/USB/usb_hal_pic24.h</itemPath>
+        <itemPath>microchip/include/USB/usb_host.h</itemPath>
+        <itemPath>usb_host_android.h</itemPath>
+        <itemPath>microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
-      <itemPath>../HardwareProfile.h</itemPath>
-      <itemPath>../logging.h</itemPath>
+      <itemPath>HardwareProfile.h</itemPath>
+      <itemPath>logging.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -50,7 +50,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>../boot_p24FJ128DA106.gld</itemPath>
+      <itemPath>boot_p24FJ128DA106.gld</itemPath>
     </logicalFolder>
     <logicalFolder name="ObjectFiles"
                    displayName="Object Files"
@@ -60,25 +60,25 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="ADB" displayName="ADB" projectFiles="true">
-        <itemPath>../adb.c</itemPath>
-        <itemPath>../adb_file.c</itemPath>
-        <itemPath>../adb_packet.c</itemPath>
+        <itemPath>adb.c</itemPath>
+        <itemPath>adb_file.c</itemPath>
+        <itemPath>adb_packet.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
-        <itemPath>../bootloader.c</itemPath>
-        <itemPath>../flash.c</itemPath>
-        <itemPath>../ioio_file.c</itemPath>
+        <itemPath>bootloader.c</itemPath>
+        <itemPath>flash.c</itemPath>
+        <itemPath>ioio_file.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
-        <itemPath>../../microchip/common/uart2.c</itemPath>
+        <itemPath>../microchip/common/uart2.c</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
-        <itemPath>../usb_config.c</itemPath>
-        <itemPath>../../microchip/usb/usb_host.c</itemPath>
-        <itemPath>../usb_host_android.c</itemPath>
+        <itemPath>usb_config.c</itemPath>
+        <itemPath>../microchip/usb/usb_host.c</itemPath>
+        <itemPath>usb_host_android.c</itemPath>
       </logicalFolder>
-      <itemPath>../logging.c</itemPath>
-      <itemPath>../main.c</itemPath>
+      <itemPath>logging.c</itemPath>
+      <itemPath>main.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -107,15 +107,15 @@
       <C30>
         <property key="scalar-model" value="large-scalar"/>
         <property key="extra-include-directories"
-                  value="..;../..;../../microchip/include;../../blapi;../../microchip/USB;../../microchip/include/USB"/>
+                  value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB"/>
         <property key="preprocessor-macros" value=""/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="s"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="optimization-level" value="s"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -132,8 +132,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -158,18 +158,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="extra-lib-directories" value=".."/>
         <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="extra-lib-directories" value=".."/>
       </C30-LD>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
@@ -206,21 +206,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="UCNFG1" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>

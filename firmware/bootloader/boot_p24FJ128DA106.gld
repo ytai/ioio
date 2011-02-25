@@ -32,7 +32,7 @@ __CONFIG3 = 0x157FA;
 __CONFIG2 = 0x157FC;
 __CONFIG1 = 0x157FE;
 
-INCLUDE ../boot_common.gld
+INCLUDE boot_common.gld
 
 /*
 ** ============== Equates for SFR Addresses =============

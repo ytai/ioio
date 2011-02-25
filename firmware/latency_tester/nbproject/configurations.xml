@@ -5,13 +5,12 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
-        <itemPath>../../blapi/adb.h</itemPath>
-        <itemPath>../../blapi/adb_file.h</itemPath>
-        <itemPath>../../blapi/bootloader.h</itemPath>
-        <itemPath>../../blapi/flash.h</itemPath>
+        <itemPath>../blapi/adb.h</itemPath>
+        <itemPath>../blapi/adb_file.h</itemPath>
+        <itemPath>../blapi/bootloader.h</itemPath>
+        <itemPath>../blapi/flash.h</itemPath>
       </logicalFolder>
-      <itemPath>../HardwareProfile.h</itemPath>
-      <itemPath>../../bootloader/microchip/include/uart2.h</itemPath>
+      <itemPath>HardwareProfile.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -20,7 +19,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>../../blapi/app_p24FJ128DA106.gld</itemPath>
+      <itemPath>../blapi/app_p24FJ128DA106.gld</itemPath>
     </logicalFolder>
     <logicalFolder name="ObjectFiles"
                    displayName="Object Files"
@@ -29,8 +28,8 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>../main.c</itemPath>
-      <itemPath>../../microchip/common/uart2.c</itemPath>
+      <itemPath>main.c</itemPath>
+      <itemPath>../microchip/common/uart2.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -38,9 +37,6 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
-  <sourceRootList>
-    <Elem>../..</Elem>
-  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -61,8 +57,7 @@
       </compileType>
       <C30>
         <property key="scalar-model" value="default"/>
-        <property key="extra-include-directories"
-                  value="..;../..;../../microchip/include"/>
+        <property key="extra-include-directories" value=".;..;../microchip/include"/>
         <property key="preprocessor-macros" value=""/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
@@ -81,7 +76,7 @@
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
-        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-assembler" value=".."/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
         <property key="list-source" value="false"/>
@@ -123,7 +118,7 @@
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="extra-lib-directories" value="../../blapi;"/>
+        <property key="extra-lib-directories" value=""/>
         <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <PICkit3PlatformTool>
@@ -161,21 +156,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER5" value="true"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="UCNFG1" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
