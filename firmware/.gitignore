@@ -4,6 +4,9 @@
 *.mcs
 *.mcw
 *.o
+*.mk
+*.inc
+*.bash
 build
 dist
 
