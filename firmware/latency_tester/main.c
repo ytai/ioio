@@ -1,6 +1,6 @@
 #include <uart2.h>
-#include <p24fxxxx.h>
-#include <pps.h>
+#include <p24Fxxxx.h>
+#include <PPS.h>
 #include <string.h>
 
 #include "blapi/adb_file.h"

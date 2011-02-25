@@ -70,11 +70,11 @@
         <itemPath>../ioio_file.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
-        <itemPath>../microchip/common/uart2.c</itemPath>
+        <itemPath>../../microchip/common/uart2.c</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
         <itemPath>../usb_config.c</itemPath>
-        <itemPath>../microchip/usb/usb_host.c</itemPath>
+        <itemPath>../../microchip/usb/usb_host.c</itemPath>
         <itemPath>../usb_host_android.c</itemPath>
       </logicalFolder>
       <itemPath>../logging.c</itemPath>
@@ -96,7 +96,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <compilerSet>C30</compilerSet>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -107,7 +107,7 @@
       <C30>
         <property key="scalar-model" value="large-scalar"/>
         <property key="extra-include-directories"
-                  value="..;../..;../microchip/include;../../blapi;../microchip/USB;../microchip/include/USB"/>
+                  value="..;../..;../../microchip/include;../../blapi;../../microchip/USB;../../microchip/include/USB"/>
         <property key="preprocessor-macros" value=""/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
@@ -132,8 +132,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -158,18 +158,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
         <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=".."/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
@@ -188,8 +188,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="ADC 1" value="true"/>
         <property key="OUTPUT COMPARE 9" value="true"/>
@@ -206,21 +206,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
