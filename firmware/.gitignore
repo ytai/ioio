@@ -1,6 +1,7 @@
 *.mk
 *.inc
 *.bash
+.map
 build
 dist
 
