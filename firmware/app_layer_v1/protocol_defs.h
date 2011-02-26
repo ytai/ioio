@@ -168,6 +168,28 @@ typedef struct PACKED {
   BYTE data[0];
 } SPI_DATA_ARGS;
 
+// spi configure master
+typedef struct PACKED {
+  BYTE div : 3;
+  BYTE scale : 2;
+  BYTE spi_num : 2;
+  BYTE : 1;
+  BYTE clk_pol : 1;
+  BYTE clk_edge : 1;
+  BYTE smp_end : 1;
+  BYTE : 5;
+} SPI_CONFIGURE_MASTER_ARGS;
+
+// set pin spi
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 2;
+  BYTE spi_num : 2;
+  BYTE mode : 2;
+  BYTE enable : 1;
+  BYTE : 3;
+} SET_PIN_SPI_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -189,6 +211,9 @@ typedef struct PACKED {
     UART_CONFIG_ARGS                         uart_config;
     SET_PIN_UART_RX_ARGS                     set_pin_uart_rx;
     SET_PIN_UART_TX_ARGS                     set_pin_uart_tx;
+    SPI_DATA_ARGS                            spi_data;
+    SPI_CONFIGURE_MASTER_ARGS                spi_configure_master;
+    SET_PIN_SPI_ARGS                         set_pin_spi;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -235,6 +260,8 @@ typedef enum {
   SET_PIN_UART_TX                   = 0x0F,
   SPI_DATA                          = 0x10,
   SPI_REPORT_TX_STATUS              = 0x11,
+  SPI_CONFIGURE_MASTER              = 0x12,
+  SET_PIN_SPI                       = 0x13,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

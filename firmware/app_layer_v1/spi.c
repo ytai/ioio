@@ -60,15 +60,16 @@ ALL_SPI_FLAG_FUNC(IP)
 void SPIInit() {
   int i;
   for (i = 0; i < NUM_SPI_MODULES; ++i) {
-    SPIConfig(i, 0, 0, 0, 0, 0);
+    SPIConfigMaster(i, 0, 0, 0, 0, 0);
     SetIP[i](4);  // int. priority 4
   }
 }
 
-void SPIConfig(int spi, int scale, int div, int smp_end, int clk_edge,
+void SPIConfigMaster(int spi, int scale, int div, int smp_end, int clk_edge,
                int clk_pol) {
   volatile SPI* regs = spi_reg[spi];
-  log_printf("SPIConfig(%d, %d, %d)", spi, scale, div);
+  log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi, scale, div,
+             smp_end, clk_edge, clk_pol);
   SetIE[spi](0);  // disable int.
   regs->spixstat = 0x0000;  // disable SPI
   // clear SW buffers

@@ -11,6 +11,7 @@
 #include "logging.h"
 #include "board.h"
 #include "uart.h"
+#include "spi.h"
 #include "sync.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
@@ -35,7 +36,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_UART_RX_ARGS),
   sizeof(SET_PIN_UART_TX_ARGS),
   sizeof(SPI_DATA_ARGS),
-  sizeof(RESERVED_ARGS)
+  sizeof(RESERVED_ARGS),
+  sizeof(SPI_CONFIGURE_MASTER_ARGS),
+  sizeof(SET_PIN_SPI_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -58,7 +61,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_UART_RX_ARGS),
   sizeof(SET_PIN_UART_TX_ARGS),
   sizeof(SPI_DATA_ARGS),
-  sizeof(SPI_REPORT_TX_STATUS_ARGS)
+  sizeof(SPI_REPORT_TX_STATUS_ARGS),
+  sizeof(SPI_CONFIGURE_MASTER_ARGS),
+  sizeof(SET_PIN_SPI_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -259,6 +264,42 @@ static BOOL MessageDone() {
       SetPinUartTx(rx_msg.args.set_pin_uart_tx.pin,
                    rx_msg.args.set_pin_uart_tx.uart_num,
                    rx_msg.args.set_pin_uart_tx.enable);
+      Echo();
+      break;
+
+    case SPI_DATA:
+      CHECK(rx_msg.args.spi_data.spi_num < NUM_SPI_MODULES);
+      CHECK(rx_msg.args.spi_data.ss_pin < NUM_PINS);
+      SPITransmit(rx_msg.args.spi_data.spi_num,
+                  rx_msg.args.spi_data.ss_pin,
+                  rx_msg.args.spi_data.data,
+                  rx_msg.args.spi_data.size + 1);
+      break;
+
+    case SPI_CONFIGURE_MASTER:
+      CHECK(rx_msg.args.spi_configure_master.spi_num < NUM_SPI_MODULES);
+      SPIConfigMaster(rx_msg.args.spi_configure_master.spi_num,
+                      rx_msg.args.spi_configure_master.scale,
+                      rx_msg.args.spi_configure_master.div,
+                      rx_msg.args.spi_configure_master.smp_end,
+                      rx_msg.args.spi_configure_master.clk_edge,
+                      rx_msg.args.spi_configure_master.clk_pol);
+      Echo();
+      SPIReportTxStatus(rx_msg.args.spi_configure_master.spi_num);
+      break;
+
+    case SET_PIN_SPI:
+      CHECK(rx_msg.args.set_pin_spi.mode < 3);
+      CHECK((!rx_msg.args.set_pin_spi.enable
+            && rx_msg.args.set_pin_spi.mode == 1)
+            ||  rx_msg.args.set_pin_spi.pin < NUM_PINS);
+      CHECK((!rx_msg.args.set_pin_spi.enable
+            && rx_msg.args.set_pin_spi.mode != 1)
+            || rx_msg.args.set_pin_spi.spi_num < NUM_SPI_MODULES);
+      SetPinSpi(rx_msg.args.set_pin_spi.pin,
+                rx_msg.args.set_pin_spi.spi_num,
+                rx_msg.args.set_pin_spi.mode,
+                rx_msg.args.set_pin_spi.enable);
       Echo();
       break;
 

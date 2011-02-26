@@ -117,6 +117,44 @@ void SetPinAnalogIn(int pin) {
   ADCSetScan(pin);
 }
 
+void SetPinSpi(int pin, int spi_num, int mode, int enable) {
+  log_printf("SetPinSpi(%d, %d, %d, %d)", pin, spi_num, mode, enable);
+  SAVE_PIN4_FOR_LOG();
+  switch (mode) {
+    case 0:  // data out
+      {
+        const BYTE rp[] = { 7, 10, 32 };
+        PinSetRpor(pin, enable ? rp[spi_num] : 0);
+      }
+      break;
+
+      case 1:  // data in
+      {
+        int rpin = enable ? PinToRpin(pin) : 0x3F;
+        switch (spi_num) {
+          case 0:
+            _SDI1R = rpin;
+            break;
+
+          case 1:
+            _SDI2R = rpin;
+            break;
+
+          case 2:
+            _SDI3R = rpin;
+            break;
+        }
+      }
+      break;
+
+      case 2:  // clk out
+      {
+        const BYTE rp[] = { 8, 11, 33 };
+        PinSetRpor(pin, enable ? rp[spi_num] : 0);
+      }
+      break;
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Reset

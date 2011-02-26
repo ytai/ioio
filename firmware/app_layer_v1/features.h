@@ -9,6 +9,7 @@ void SetPinAnalogIn(int pin);
 void SetPinPwm(int pin, int pwm_num);
 void SetPinUartRx(int pin, int uart_num, int enable);
 void SetPinUartTx(int pin, int uart_num, int enable);
+void SetPinSpi(int pin, int spi_num, int mode, int enable);
 void HardReset();
 void SoftReset();
 
