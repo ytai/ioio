@@ -91,6 +91,9 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
     case UART_DATA:
       return msg->args.uart_data.size + 1;
 
+    case SPI_DATA:
+      return msg->args.spi_data.size + 1;
+
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
       return 0;
@@ -139,6 +142,7 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
 
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
+  SPITasks();
   if (ADBChannelReady(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
@@ -292,7 +296,7 @@ static BOOL MessageDone() {
       CHECK(rx_msg.args.set_pin_spi.mode < 3);
       CHECK((!rx_msg.args.set_pin_spi.enable
             && rx_msg.args.set_pin_spi.mode == 1)
-            ||  rx_msg.args.set_pin_spi.pin < NUM_PINS);
+            || rx_msg.args.set_pin_spi.pin < NUM_PINS);
       CHECK((!rx_msg.args.set_pin_spi.enable
             && rx_msg.args.set_pin_spi.mode != 1)
             || rx_msg.args.set_pin_spi.spi_num < NUM_SPI_MODULES);

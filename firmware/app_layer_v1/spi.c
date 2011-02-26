@@ -24,10 +24,18 @@ static PACKET_STATE packet_state[NUM_SPI_MODULES];
 
 static int num_tx_since_last_report[NUM_SPI_MODULES];
 
-volatile SPI* spi_reg[NUM_SPI_MODULES] = {
-  (volatile SPI*) 0x240,
-  (volatile SPI*) 0x260,
-  (volatile SPI*) 0x280
+typedef struct {
+        unsigned int spixstat;
+        unsigned int spixcon1;
+        unsigned int spixcon2;
+        unsigned int reserved;
+        unsigned int spixbuf;
+} SPIREG;
+
+volatile SPIREG* spi_reg[NUM_SPI_MODULES] = {
+  (volatile SPIREG*) 0x240,
+  (volatile SPIREG*) 0x260,
+  (volatile SPIREG*) 0x280
 };
 
 // The macro magic below generates for each type of flag from
@@ -67,7 +75,7 @@ void SPIInit() {
 
 void SPIConfigMaster(int spi, int scale, int div, int smp_end, int clk_edge,
                int clk_pol) {
-  volatile SPI* regs = spi_reg[spi];
+  volatile SPIREG* regs = spi_reg[spi];
   log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi, scale, div,
              smp_end, clk_edge, clk_pol);
   SetIE[spi](0);  // disable int.
@@ -86,7 +94,9 @@ void SPIConfigMaster(int spi, int scale, int div, int smp_end, int clk_edge,
                      | ((3 - scale));
     regs->spixcon2 = 0x0001;  // enhanced buffer mode
     regs->spixstat = (1 << 15)  // enable
-                     | (6 << 2);  // int. when TX FIFO is empty
+                     | (5 << 2);  // int. when TX FIFO is empty
+    SetIF[spi](1);  // set int. flag, so int. will occur as soon as data is
+                    // written
   }
 }
 
@@ -134,7 +144,7 @@ void SPIReportTxStatus(int spi) {
 }
 
 static void SPIInterrupt(int spi) {
-  volatile SPI* reg = spi_reg[spi];
+  volatile SPIREG* reg = spi_reg[spi];
   PACKET_QUEUE* tx_queue = tx_queues + spi;
   PACKET_QUEUE* rx_queue = rx_queues + spi;
   int bytes_to_write;
@@ -183,8 +193,9 @@ static void SPIInterrupt(int spi) {
       
     case PACKET_STATE_DONE:
       PinSetLat(PacketQueueCurrentDest(tx_queue), 0);  // clear SS
+      PacketQueuePacketWriteDone(rx_queue);
       reg->spixstat = (1 << 15)  // enable
-                      | (5 << 2);  // int. when TX FIFO empty
+                      | (6 << 2);  // int. when TX FIFO empty
       SetIE[spi](PacketQueueHasData(tx_queue));
       packet_state[spi] = PACKET_STATE_IDLE;
       break;

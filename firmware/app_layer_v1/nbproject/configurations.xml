@@ -134,18 +134,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <PM3PlatformTool>
       </PM3PlatformTool>
