@@ -11,6 +11,7 @@
 #include "logging.h"
 #include "board.h"
 #include "uart.h"
+#include "sync.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
@@ -105,25 +106,22 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
 }
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
-  BYTE lock;
-  ByteQueueLock(lock, 1);
+  BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  ByteQueueUnlock(lock);
+  SyncInterruptLevel(prev);
 }
 
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
-  BYTE lock;
-  ByteQueueLock(lock, 1);
+  BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data, size);
-  ByteQueueUnlock(lock);
+  SyncInterruptLevel(prev);
 }
 
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   if (ADBChannelReady(h)) {
-    BYTE lock;
-    ByteQueueLock(lock, 1);
+    BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
     int size;
     if (bytes_transmitted) {
@@ -135,7 +133,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
       ADBWrite(h, data, size);
       bytes_transmitted = size;
     }
-    ByteQueueUnlock(lock);
+    SyncInterruptLevel(prev);
   }
 }
 

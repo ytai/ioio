@@ -6,14 +6,15 @@
 #include "board.h"
 #include "byte_queue.h"
 #include "protocol.h"
+#include "sync.h"
 
 #define RX_BUF_SIZE 128
 #define TX_BUF_SIZE 256
 
 static BYTE rx_buffer[NUM_UARTS][RX_BUF_SIZE];
 static BYTE tx_buffer[NUM_UARTS][TX_BUF_SIZE];
-static ByteQueue rx_queues[NUM_UARTS];
-static ByteQueue tx_queues[NUM_UARTS];
+static BYTE_QUEUE rx_queues[NUM_UARTS];
+static BYTE_QUEUE tx_queues[NUM_UARTS];
 
 static int num_tx_since_last_report[NUM_UARTS];
 
@@ -88,8 +89,8 @@ void UARTTasks() {
   for (i = 0; i < NUM_UARTS; ++i) {
     int size;
     const BYTE* data;
-    ByteQueue* q = rx_queues + i;
-    BYTE lock;
+    BYTE_QUEUE* q = rx_queues + i;
+    BYTE prev;
     ByteQueuePeek(q, &data, &size);
     if (size > 64) size = 64;  // truncate
     if (size) {
@@ -99,9 +100,9 @@ void UARTTasks() {
       msg.args.uart_data.uart_num = i;
       msg.args.uart_data.size = size - 1;
       AppProtocolSendMessageWithVarArg(&msg, data, size);
-      ByteQueueLock(lock, 4);
+      prev = SyncInterruptLevel(4);
       ByteQueuePull(q, size);
-      ByteQueueUnlock(lock);
+      SyncInterruptLevel(prev);
     }
     if (num_tx_since_last_report[i] > TX_BUF_SIZE / 2) {
       UARTReportTxStatus(i);
@@ -111,12 +112,11 @@ void UARTTasks() {
 
 void UARTReportTxStatus(int uart) {
   int remaining;
-  ByteQueue* q = tx_queues + uart;
-  BYTE lock;
-  ByteQueueLock(lock, 4);
+  BYTE_QUEUE* q = tx_queues + uart;
+  BYTE prev = SyncInterruptLevel(4);
   remaining = ByteQueueRemaining(q);
   num_tx_since_last_report[uart] = 0;
-  ByteQueueUnlock(lock);
+  SyncInterruptLevel(prev);
   OUTGOING_MESSAGE msg;
   msg.type = UART_REPORT_TX_STATUS;
   msg.args.uart_report_tx_status.uart_num = uart;
@@ -126,7 +126,7 @@ void UARTReportTxStatus(int uart) {
 
 static void TXInterrupt(int uart) {
   volatile UART* reg = uart_reg[uart];
-  ByteQueue* q = tx_queues + uart;
+  BYTE_QUEUE* q = tx_queues + uart;
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
     SetTXIF[uart](0);
     reg->uxtxreg = ByteQueuePullByte(q);
@@ -137,7 +137,7 @@ static void TXInterrupt(int uart) {
 
 static void RXInterrupt(int uart) {
   volatile UART* reg = uart_reg[uart];
-  ByteQueue* q = rx_queues + uart;
+  BYTE_QUEUE* q = rx_queues + uart;
   // TODO: handle error
   while (reg->uxsta & 0x0001) {
     ByteQueuePushByte(q, reg->uxrxreg);
@@ -147,12 +147,11 @@ static void RXInterrupt(int uart) {
 void UARTTransmit(int uart, const void* data, int size) {
   log_printf("UARTTransmit(%d, %p, %d)", uart, data, size);
   SAVE_UART1_FOR_LOG();
-  BYTE lock;
-  ByteQueue* q = tx_queues + uart;
-  ByteQueueLock(lock, 4);
+  BYTE_QUEUE* q = tx_queues + uart;
+  BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(q, data, size);
   SetTXIE[uart](1);  // enable TX int.
-  ByteQueueUnlock(lock);
+  SyncInterruptLevel(prev);
 }
 
 #define DEFINE_INTERRUPT_HANDLERS(uart)                                   \
