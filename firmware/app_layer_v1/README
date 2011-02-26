@@ -36,3 +36,17 @@ The module pins.{h,c} contains all the information on mapping pin numbers as
 appear on the board to/from respective pin-related registers in the MCU.
 
 The file board.h contains information on specific boards.
+
+Interrupts and Priorities
+-------------------------
+Many of the modules facilitate interrupts. For that purpose it is important to
+protect resources shared between different priority levels.
+This is done by assigning to every resource a "resource priority level".
+This resource should never be accessed from an interrupt with priority greater
+than the resource priority level, and whenever it is accessed from an interrupt
+with lower priority (or from non-interrupt context), the priority should be
+raised accordingly.
+
+Resource priority assignment:
+1 - writing to outgoing ADB channel
+4 - writing to UART, SPI buffers, setting a digital output pin level

@@ -17,7 +17,7 @@ static int analog_scan_num_channels;
 // is achieved by making sure it is only written to by priority 1 code.
 // however, in the case of ADC, we must service the "done" interrupt quickly
 // to stop the ADC before our buffer gets overwritten, so this would be a
-// priority 7 interrupt. then, in order to write to the output buffer, it would
+// priority 6 interrupt. then, in order to write to the output buffer, it would
 // trigger the priority 1 interrupt using timer 2, that will read the ADC data
 // and write to the buffer.
 static inline void Timer2Init() {

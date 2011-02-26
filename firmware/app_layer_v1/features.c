@@ -20,7 +20,7 @@ static void PinsInit() {
   for (i = 1; i < NUM_PINS; ++i) {
     SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
   }
-  for (i = 0; i < NUM_UARTS; ++i) {
+  for (i = 0; i < NUM_UART_MODULES; ++i) {
     SetPinUartRx(0, i, 0);
   }
   // clear and enable global CN interrupts

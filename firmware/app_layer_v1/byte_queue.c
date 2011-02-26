@@ -33,6 +33,7 @@ BYTE ByteQueuePullByte(BYTE_QUEUE* q) {
 }
 
 void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len) {
+  if (!len) return;
   if (q->size + len > q->capacity) {
     ByteQueueOverflow();
     return;
@@ -58,6 +59,19 @@ void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size) {
     *size = q->capacity - q->read_cursor;
   } else {
     *size = q->write_cursor - q->read_cursor;
+  }
+}
+
+void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
+                      const BYTE** data2, int* size2) {
+  *data1 = q->buf + q->read_cursor;
+  if (q->write_cursor < q->read_cursor) {
+    *size1 = q->capacity - q->read_cursor;
+    *data2 = q->buf;
+    *size2 = q->write_cursor;
+  } else {
+    *size1 = q->write_cursor - q->read_cursor;
+    *size2 = 0;
   }
 }
 

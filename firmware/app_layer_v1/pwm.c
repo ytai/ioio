@@ -27,7 +27,7 @@ static void Timer1Init() {
 void PWMInit() {
   int i;
   // disable PWMs
-  for (i = 0; i < NUM_PWMS; ++i) {
+  for (i = 0; i < NUM_PWM_MODULES; ++i) {
     SetPwmPeriod(i, 0, 0);
   }
   Timer1Init();  // constantly running, feeds low-speed PWM

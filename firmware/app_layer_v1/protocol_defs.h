@@ -153,6 +153,21 @@ typedef struct PACKED {
   BYTE enable : 1;
 } SET_PIN_UART_TX_ARGS;
 
+// spi report tx status
+typedef struct PACKED {
+  BYTE spi_num : 2;
+  WORD bytes_remaining : 14;
+} SPI_REPORT_TX_STATUS_ARGS;
+
+// spi data
+typedef struct PACKED {
+  BYTE size : 6;
+  BYTE spi_num : 2;
+  BYTE ss_pin : 6;
+  BYTE : 2;
+  BYTE data[0];
+} SPI_DATA_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -189,6 +204,8 @@ typedef struct PACKED {
     REPORT_ANALOG_IN_STATUS_ARGS            report_analog_in_status;
     UART_REPORT_TX_STATUS_ARGS              uart_report_tx_status;
     UART_DATA_ARGS                          uart_data;
+    SPI_REPORT_TX_STATUS_ARGS               spi_report_tx_status;
+    SPI_DATA_ARGS                           spi_data;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -216,6 +233,8 @@ typedef enum {
   UART_CONFIG                       = 0x0D,
   SET_PIN_UART_RX                   = 0x0E,
   SET_PIN_UART_TX                   = 0x0F,
+  SPI_DATA                          = 0x10,
+  SPI_REPORT_TX_STATUS              = 0x11,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

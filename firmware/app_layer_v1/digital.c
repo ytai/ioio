@@ -4,11 +4,14 @@
 #include "logging.h"
 #include "pins.h"
 #include "protocol.h"
+#include "sync.h"
 
 void SetDigitalOutLevel(int pin, int value) {
   log_printf("SetDigitalOutLevel(%d, %d)", pin, value);
   SAVE_PIN4_FOR_LOG();
+  BYTE prev = SyncInterruptLevel(4);
   PinSetLat(pin, value);
+  SyncInterruptLevel(prev);
 }
 
 void SetChangeNotify(int pin, int changeNotify) {

@@ -11,18 +11,18 @@
 #define RX_BUF_SIZE 128
 #define TX_BUF_SIZE 256
 
-static BYTE rx_buffer[NUM_UARTS][RX_BUF_SIZE];
-static BYTE tx_buffer[NUM_UARTS][TX_BUF_SIZE];
-static BYTE_QUEUE rx_queues[NUM_UARTS];
-static BYTE_QUEUE tx_queues[NUM_UARTS];
+static BYTE rx_buffer[NUM_UART_MODULES][RX_BUF_SIZE];
+static BYTE tx_buffer[NUM_UART_MODULES][TX_BUF_SIZE];
+static BYTE_QUEUE rx_queues[NUM_UART_MODULES];
+static BYTE_QUEUE tx_queues[NUM_UART_MODULES];
 
-static int num_tx_since_last_report[NUM_UARTS];
+static int num_tx_since_last_report[NUM_UART_MODULES];
 
-volatile UART* uart_reg[NUM_UARTS] = {
+volatile UART* uart_reg[NUM_UART_MODULES] = {
   (volatile UART*) 0x220,
   (volatile UART*) 0x230,
   (volatile UART*) 0x250,
-  (volatile UART*) 0x280
+  (volatile UART*) 0x2B0
 };
 
 // The macro magic below generates for each type of flag from
@@ -36,16 +36,19 @@ volatile UART* uart_reg[NUM_UARTS] = {
 
 typedef void (*UARTFlagFunc)(int val);
 
-#if NUM_UARTS != 4
+#if NUM_UART_MODULES != 4
   #error Currently only devices with 4 UARTs are supported. Please fix below.
 #endif
 
-#define ALL_UART_FLAG_FUNC(flag) \
-  UART_FLAG_FUNC(1, flag)        \
-  UART_FLAG_FUNC(2, flag)        \
-  UART_FLAG_FUNC(3, flag)        \
-  UART_FLAG_FUNC(4, flag)        \
-  UARTFlagFunc Set##flag[NUM_UARTS] = { &Set##flag##1, &Set##flag##2, &Set##flag##3, &Set##flag##4 };
+#define ALL_UART_FLAG_FUNC(flag)                                \
+  UART_FLAG_FUNC(1, flag)                                       \
+  UART_FLAG_FUNC(2, flag)                                       \
+  UART_FLAG_FUNC(3, flag)                                       \
+  UART_FLAG_FUNC(4, flag)                                       \
+  UARTFlagFunc Set##flag[NUM_UART_MODULES] = { &Set##flag##1,   \
+                                               &Set##flag##2,   \
+                                               &Set##flag##3,   \
+                                               &Set##flag##4 };
 
 ALL_UART_FLAG_FUNC(RXIE)
 ALL_UART_FLAG_FUNC(RXIF)
@@ -56,7 +59,7 @@ ALL_UART_FLAG_FUNC(TXIP)
 
 void UARTInit() {
   int i;
-  for (i = 0; i < NUM_UARTS; ++i) {
+  for (i = 0; i < NUM_UART_MODULES; ++i) {
     UARTConfig(i, 0, 0, 0, 0);
     SetRXIP[i](4);  // RX int. priority 4
     SetTXIP[i](4);  // TX int. priority 4
@@ -86,7 +89,7 @@ void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity) 
 
 void UARTTasks() {
   int i;
-  for (i = 0; i < NUM_UARTS; ++i) {
+  for (i = 0; i < NUM_UART_MODULES; ++i) {
     int size;
     const BYTE* data;
     BYTE_QUEUE* q = rx_queues + i;
@@ -164,23 +167,23 @@ void UARTTransmit(int uart, const void* data, int size) {
    TXInterrupt(uart - 1);                                                 \
  }
 
-#if NUM_UARTS > 4
+#if NUM_UART_MODULES > 4
   #error Currently only devices with 4 or less UARTs are supported. Please fix below.
 #endif
 
-#if NUM_UARTS >= 1
+#if NUM_UART_MODULES >= 1
   DEFINE_INTERRUPT_HANDLERS(1)
 #endif
 
-#if NUM_UARTS >= 2 && !ENABLE_LOGGING
+#if NUM_UART_MODULES >= 2 && !ENABLE_LOGGING
   DEFINE_INTERRUPT_HANDLERS(2)
 #endif
 
-#if NUM_UARTS >= 3
+#if NUM_UART_MODULES >= 3
   DEFINE_INTERRUPT_HANDLERS(3)
 #endif
 
-#if NUM_UARTS >= 4
+#if NUM_UART_MODULES >= 4
   DEFINE_INTERRUPT_HANDLERS(4)
 #endif
 

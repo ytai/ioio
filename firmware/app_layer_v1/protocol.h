@@ -48,4 +48,10 @@ void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg);
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg,
                                       const void* data, int size);
 
+// The same as AppProtocolSendMessageWithVarArg(), but with the argument split
+// in two.
+void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
+                                          const void* data1, int size1,
+                                          const void* data2, int size2);
+
 #endif  // __PROTOCOL_H__

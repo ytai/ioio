@@ -22,6 +22,7 @@
       <itemPath>protocol.h</itemPath>
       <itemPath>protocol_defs.h</itemPath>
       <itemPath>pwm.h</itemPath>
+      <itemPath>spi.h</itemPath>
       <itemPath>sync.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>../microchip/include/uart2.h</itemPath>
@@ -51,6 +52,7 @@
       <itemPath>pins.c</itemPath>
       <itemPath>protocol.c</itemPath>
       <itemPath>pwm.c</itemPath>
+      <itemPath>spi.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>../microchip/common/uart2.c</itemPath>
     </logicalFolder>

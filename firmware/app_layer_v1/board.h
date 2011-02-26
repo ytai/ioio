@@ -1,10 +1,10 @@
 // Capabilities and features of specific board versions.
 //
 // Provides:
-// NUM_PINS - The number of physical pins on the board, including the on-board
-//            LED.
-// NUM_PWMS - The number of available PWM modules.
-// NUM_UARTS - The number of available UART modules.
+// NUM_PIN_MODULES - The number of physical pins on the board, including the on-
+//                   board LED.
+// NUM_PWM_MODULES - The number of available PWM modules.
+// NUM_UART_MODULES - The number of available UART modules.
 
 #ifndef __BOARD_H__
 #define __BOARD_H__
@@ -21,8 +21,9 @@
 #endif
 
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
-  #define NUM_PWMS 9
-  #define NUM_UARTS 4
+  #define NUM_PWM_MODULES 9
+  #define NUM_UART_MODULES 4
+  #define NUM_SPI_MODULES 3
 #else
   #error Unknown MCU
 #endif

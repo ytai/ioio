@@ -33,7 +33,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
   sizeof(SET_PIN_UART_RX_ARGS),
-  sizeof(SET_PIN_UART_TX_ARGS)
+  sizeof(SET_PIN_UART_TX_ARGS),
+  sizeof(SPI_DATA_ARGS),
+  sizeof(RESERVED_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -49,12 +51,14 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
-  sizeof(UART_REPORT_TX_STATUS),
+  sizeof(UART_REPORT_TX_STATUS_ARGS),
   sizeof(SET_PIN_ANALOG_IN_ARGS),
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
   sizeof(SET_PIN_UART_RX_ARGS),
-  sizeof(SET_PIN_UART_TX_ARGS)
+  sizeof(SET_PIN_UART_TX_ARGS),
+  sizeof(SPI_DATA_ARGS),
+  sizeof(SPI_REPORT_TX_STATUS_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -115,6 +119,16 @@ void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* d
   BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data, size);
+  SyncInterruptLevel(prev);
+}
+
+void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
+                                           const void* data1, int size1,
+                                           const void* data2, int size2) {
+  BYTE prev = SyncInterruptLevel(1);
+  ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
+  ByteQueuePushBuffer(&tx_queue, data1, size1);
+  ByteQueuePushBuffer(&tx_queue, data2, size2);
   SyncInterruptLevel(prev);
 }
 
@@ -186,20 +200,20 @@ static BOOL MessageDone() {
 
     case SET_PIN_PWM:
       CHECK(rx_msg.args.set_pin_pwm.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWMS
+      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWM_MODULES
             || rx_msg.args.set_pin_pwm.pwm_num == 0xF);
       SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwm_num);
       break;
 
     case SET_PWM_DUTY_CYCLE:
-      CHECK(rx_msg.args.set_pwm_duty_cycle.pwm_num < NUM_PWMS);
+      CHECK(rx_msg.args.set_pwm_duty_cycle.pwm_num < NUM_PWM_MODULES);
       SetPwmDutyCycle(rx_msg.args.set_pwm_duty_cycle.pwm_num,
                       rx_msg.args.set_pwm_duty_cycle.dc,
                       rx_msg.args.set_pwm_duty_cycle.fraction);
       break;
 
     case SET_PWM_PERIOD:
-      CHECK(rx_msg.args.set_pwm_period.pwm_num < NUM_PWMS);
+      CHECK(rx_msg.args.set_pwm_period.pwm_num < NUM_PWM_MODULES);
       SetPwmPeriod(rx_msg.args.set_pwm_period.pwm_num,
                    rx_msg.args.set_pwm_period.period,
                    rx_msg.args.set_pwm_period.scale256);
@@ -212,14 +226,14 @@ static BOOL MessageDone() {
       break;
 
     case UART_DATA:
-      CHECK(rx_msg.args.uart_data.uart_num < NUM_UARTS);
+      CHECK(rx_msg.args.uart_data.uart_num < NUM_UART_MODULES);
       UARTTransmit(rx_msg.args.uart_data.uart_num,
                    rx_msg.args.uart_data.data,
                    rx_msg.args.uart_data.size + 1);
       break;
 
     case UART_CONFIG:
-      CHECK(rx_msg.args.uart_config.uart_num < NUM_UARTS);
+      CHECK(rx_msg.args.uart_config.uart_num < NUM_UART_MODULES);
       CHECK(rx_msg.args.uart_config.parity < 3);
       UARTConfig(rx_msg.args.uart_config.uart_num,
                  rx_msg.args.uart_config.rate,
@@ -232,7 +246,7 @@ static BOOL MessageDone() {
 
     case SET_PIN_UART_RX:
       CHECK(rx_msg.args.set_pin_uart_rx.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_uart_rx.uart_num < NUM_UARTS);
+      CHECK(rx_msg.args.set_pin_uart_rx.uart_num < NUM_UART_MODULES);
       SetPinUartRx(rx_msg.args.set_pin_uart_rx.pin,
                    rx_msg.args.set_pin_uart_rx.uart_num,
                    rx_msg.args.set_pin_uart_rx.enable);
@@ -241,7 +255,7 @@ static BOOL MessageDone() {
 
     case SET_PIN_UART_TX:
       CHECK(rx_msg.args.set_pin_uart_tx.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_uart_tx.uart_num < NUM_UARTS);
+      CHECK(rx_msg.args.set_pin_uart_tx.uart_num < NUM_UART_MODULES);
       SetPinUartTx(rx_msg.args.set_pin_uart_tx.pin,
                    rx_msg.args.set_pin_uart_tx.uart_num,
                    rx_msg.args.set_pin_uart_tx.enable);

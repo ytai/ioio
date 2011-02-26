@@ -33,6 +33,8 @@ static inline void ByteQueueInit(BYTE_QUEUE* q, BYTE* buf, int capacity) {
 
 void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len);
 void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size);
+void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
+                      const BYTE** data2, int* size2);
 void ByteQueuePull(BYTE_QUEUE* q, int size);
 
 void ByteQueuePushByte(BYTE_QUEUE* q, BYTE b);
