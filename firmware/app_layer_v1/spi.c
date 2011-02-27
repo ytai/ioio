@@ -167,7 +167,7 @@ static void SPIInterrupt(int spi) {
       PacketQueuePushByte(rx_queue, PacketQueueCurrentDest(tx_queue));
       PacketQueuePushByte(rx_queue, PacketQueueReadRemaining(tx_queue));
       
-      PinSetLat(PacketQueueCurrentDest(tx_queue), 1);  // assert SS
+      PinSetLat(PacketQueueCurrentDest(tx_queue), 0);  // activate SS
       ++max_bytes_to_write;  // we can write 8 bytes the first time, since the
                              // shift register is empty.
       packet_state[spi] = PACKET_STATE_IN_PROGRESS;
@@ -192,7 +192,7 @@ static void SPIInterrupt(int spi) {
       break;
       
     case PACKET_STATE_DONE:
-      PinSetLat(PacketQueueCurrentDest(tx_queue), 0);  // clear SS
+      PinSetLat(PacketQueueCurrentDest(tx_queue), 1);  // deactivate SS
       PacketQueuePacketWriteDone(rx_queue);
       reg->spixstat = (1 << 15)  // enable
                       | (6 << 2);  // int. when TX FIFO empty
