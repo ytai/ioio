@@ -1,20 +1,18 @@
 package ioio.lib.pic;
 
-import ioio.lib.Closeable;
+import java.io.Closeable;
 
 /**
  * Base class for the IOIOPins.
- *
- * TODO(TF): account for the pin usage, restrict illegal use and already claimed pins.
- *
+ * 
  * @author arshan
  */
-public abstract class IOIOPin implements IOIOPacketListener, Closeable {
+public abstract class IoioPin implements IoioPacketListener, Closeable {
 
     private boolean isInvalid;
 	protected int pin;
 
-	public IOIOPin(int pin) {
+	public IoioPin(int pin) {
 		this.pin = pin;
 	}
 

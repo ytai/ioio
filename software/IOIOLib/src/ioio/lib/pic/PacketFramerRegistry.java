@@ -9,7 +9,7 @@ public class PacketFramerRegistry implements PacketFramer {
     Map<Byte, PacketFramer> framers = new HashMap<Byte, PacketFramer>();
 
     @Override
-    public IOIOPacket frame(byte message, InputStream in) throws IOException {
+    public IoioPacket frame(byte message, InputStream in) throws IOException {
         return framers.containsKey(message) ? framers.get(message).frame(message, in) : null;
     }
 

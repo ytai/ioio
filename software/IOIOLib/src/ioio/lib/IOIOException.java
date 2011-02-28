@@ -1,62 +1,58 @@
 package ioio.lib;
 
 /**
- * Interface for the IOIO proto.
- *
- * ytai: probably want a few of those: disconnection, abortion, unsupported board.
- * arshan: agreed, will add as needed, wanted to get basic functions in first.
- *
- * TODO(TF): flesh out exceptions
+ * Simple set of exceptions to be used by the Ioio interface.
  *
  * @author arshan
  */
-public class IOIOException extends Exception {
+public class IoioException extends Exception {
 
-	public IOIOException() {
+	public IoioException() {
 		super("IOIOException");
 	}
 
-	public IOIOException(String msg) {
+	public IoioException(String msg) {
 		super(msg);
 	}
 
-	public static class ConnectionLostException extends IOIOException {
+	public static class ConnectionLostException extends IoioException {
 	    public ConnectionLostException(String msg) {
 	        super(msg);
         }
 	}
 
-    public static class OperationAbortedException extends IOIOException {
+    public static class OperationAbortedException extends IoioException {
         public OperationAbortedException(String msg) {
             super(msg);
         }
     }
 
-    public static class UnsupportedBoardException extends IOIOException {
+    public static class UnsupportedBoardException extends IoioException {
         public UnsupportedBoardException(String msg) {
             super(msg);
         }
     }
 
-    public static class InvalidStateException extends IOIOException {
+    public static class InvalidStateException extends IoioException {
         public InvalidStateException(String msg) {
             super(msg);
         }
     }
 
-    public static class OutOfResourceException extends IOIOException {
+    public static class OutOfResourceException extends IoioException {
         public OutOfResourceException(String msg) {
             super(msg);
         }
     }
 
-    public static class InvalidOperationException extends IOIOException {
+    public static class InvalidOperationException extends IoioException {
         public InvalidOperationException(String msg) {
             super(msg);
         }
     }
 
-    public static class SocketException extends IOIOException {
+    // TODO(arshan): why arent we using java's socketexception? 
+    public static class SocketException extends IoioException {
         public SocketException(String msg) {
             super(msg);
         }

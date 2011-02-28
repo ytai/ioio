@@ -1,7 +1,9 @@
 package ioio.lib;
 
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidStateException;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidStateException;
+
+import java.io.Closeable;
 
 /**
  * An interface to control the PWM output on a IOIO board.
@@ -33,6 +35,7 @@ public interface PwmOutput extends Closeable {
      * If the pulseWidthUs is greater than the cycle-time, then an IllegalArgumentException is thrown.
      *
      * @param pulseWidthUs time in micro seconds.
+     * 
      * @throws ConnectionLostException in case connection was lost before running this method.
      * @throws InvalidStateException In case the pin has been closed.
      */

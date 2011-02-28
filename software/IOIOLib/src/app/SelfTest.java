@@ -1,25 +1,26 @@
 package app;
 
+import ioio.lib.Input;
+import ioio.lib.Ioio;
+import ioio.lib.IoioException;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.OutOfResourceException;
+import ioio.lib.IoioFactory;
+import ioio.lib.Output;
+import ioio.lib.PwmOutput;
+import ioio.lib.pic.IoioLogger;
+import ioio.lib.pic.Uart;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import ioio.lib.IOIO;
-import ioio.lib.IOIOException;
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.OutOfResourceException;
-import ioio.lib.Input;
-import ioio.lib.Output;
-import ioio.lib.PwmOutput;
-import ioio.lib.pic.IOIOImpl;
-import ioio.lib.pic.IOIOLogger;
-import ioio.lib.pic.Uart;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * High level tests and example of usage for the IOIOLib
@@ -52,14 +53,14 @@ public class SelfTest extends Activity {
 	private TextView statusText;
 	private TextView titleText;
 
-    IOIO ioio;
+    Ioio ioio;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setupViews();
-    	ioio = IOIOImpl.getInstance();
+    	ioio = IoioFactory.makeIoio();
     	// TODO(arshan): intercept Log.i output and put to screen
     	// TODO(arshan): buttons for restart/pause/nextTest
     }
@@ -73,23 +74,26 @@ public class SelfTest extends Activity {
     		@Override
             public void run() {
     			try {
+    			    
     				status("Connecting");
                     ioio.waitForConnect();
     				testConnection();
 
                     status("Testing");
 
-    				// testHardReset();
+    				testHardReset();
      			    testSoftReset();
 
-    			    // testDisconnectReconnect();
+    			    testDisconnectReconnect();
 
     				// should test hard reset too.
     				// testDigitalOutput(); // for probing output with meter
      				testDigitalIO();
                     testAnalogInput();
-                    testPWM(); // TODO(TF)
-    				// testUart(); // needs a loopback
+                    // testPWM();
+                    // testServo();
+     				testUart(); 
+     				
     				msg("Tests Finished");
 
     				if (FORCE_ALL_TESTS) {
@@ -100,7 +104,7 @@ public class SelfTest extends Activity {
     				}
 
     			} catch (FailException fail) {
-    				IOIOLogger.log("failed"); // to get timing info in logs
+    				IoioLogger.log("failed"); // to get timing info in logs
     				fail.printStackTrace();
     				status("FAILED", Color.RED);
     				for (StackTraceElement line : fail.getStackTrace()) {
@@ -130,13 +134,13 @@ public class SelfTest extends Activity {
             } catch (ConnectionLostException e) {
                 exception(e);
             }
-			IOIOLogger.log("hard reset complete");
+			IoioLogger.log("hard reset complete");
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (IOIOException e) {
+            } catch (IoioException e) {
                 e.printStackTrace();
-                IOIOLogger.log("exception in hard reset");
+                IoioLogger.log("exception in hard reset");
                 exception(e);
             }
 			assertTrue(ioio.isConnected());
@@ -159,10 +163,10 @@ public class SelfTest extends Activity {
 			sleep(500);
 			try {
                 ioio.waitForConnect();
-            } catch (IOIOException e) {
+            } catch (IoioException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                IOIOLogger.log("soft reset failed");
+                IoioLogger.log("soft reset failed");
                 assertFalse(true);
             }
 			assertTrue(ioio.isConnected());
@@ -187,11 +191,10 @@ public class SelfTest extends Activity {
     			assertFalse(output.getLastWrittenValue());
     		}
     		output.close();
-    	} catch (IOIOException e) {
-    		status("Exception", Color.BLUE);
-    		msg(e.toString());
-    		e.printStackTrace();
-    		throw new FailException();
+    	} catch (IoioException e) {
+    		exception(e);
+    	} catch (IOException ioe) {
+    	    exception(ioe);
     	}
     }
 
@@ -216,14 +219,16 @@ public class SelfTest extends Activity {
 			for (int x = 0; x < REPETITIONS; x++) {
 				output.write(!output.getLastWrittenValue());
 				sleep(100); // experimentally seems to take a bit more then 75mS
-				IOIOLogger.log("doing input compare"); // to get timing info in the log
+				IoioLogger.log("doing input compare"); // to get timing info in the log
 				assertEquals(output.getLastWrittenValue(), input.read());
 			}
 			input.close();
 			output.close();
-		} catch (IOIOException e) {
-			exception(e);
-		}
+		} catch (IoioException e) {
+            exception(e);
+        } catch (IOException e) {
+            exception(e);
+        }
     }
 
     public void testAnalogInput() throws FailException {
@@ -246,29 +251,45 @@ public class SelfTest extends Activity {
 				bit = !output.getLastWrittenValue();
                 output.write(bit);
 				sleep(200);
-                IOIOLogger.log("analog pins : [" + bit + "] " + input.read());
+                IoioLogger.log("analog pins : [" + bit + "] " + input.read());
 				assertTrue(bit ? input.read() > 0.9f : input.read() < 0.1f);
 			}
 			output.close();
 			input.close();
-        } catch (IOIOException e) {
+        } catch (IoioException e) {
+            exception(e);
+        } catch (IOException e) {
             exception(e);
         }
     }
 
+    public void testServo() throws FailException {
+        msg("Starting Servo Test");
+        
+        
+    }
+    
     public void testUart() throws FailException {
     	msg("Starting UART Test");
+    
     	try {
-        	// TODO(TF): try this at different settings?
+    	    ioio.softReset();
+            sleep(100);
+            
+        	// TODO(arshan): try this at different settings?
         	Uart uart = ioio.openUart(UART_RX, UART_TX,
-        			Uart.BAUD_9600, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
+        			Uart.BAUD_38400, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
         	InputStream in = uart.openInputStream();
         	OutputStream out = uart.openOutputStream();
-        	// TODO(TF): do the corner case chars too
+        	// TODO(arshan): do the corner case chars too
+        	sleep(500);
         	String TEST = "IOIOabcdefghijklmnopqrstuvqzyzIOIOABCDEFGHIJKLMNOPQRSTUVWXYZIOIO";
         	for (int x = 0; x < TEST.length(); x++) {
+        	    msg("sending on tx : " + TEST.charAt(x));
     			out.write(TEST.charAt(x));
-    			assertTrue(in.read() == TEST.charAt(x));
+    			int c = in.read();
+    			msg("got back a " + (char)c);
+    			assertTrue(c == TEST.charAt(x));
         	}
         	in.close();
         	out.close();
@@ -281,15 +302,15 @@ public class SelfTest extends Activity {
     private void testDisconnectReconnect() throws FailException {
         msg("Starting disconnect/connect test");
         ioio.disconnect();
-        IOIOLogger.log("disconnected");
+        IoioLogger.log("disconnected");
         assertFalse(ioio.isConnected());
         sleep(1000);
         try {
             ioio.waitForConnect();
-            IOIOLogger.log("connected");
-        } catch (IOIOException e) {
+            IoioLogger.log("connected");
+        } catch (IoioException e) {
             e.printStackTrace();
-            IOIOLogger.log("operation aborted");
+            IoioLogger.log("operation aborted");
         }
         assertTrue(ioio.isConnected());
     }
@@ -327,11 +348,15 @@ public class SelfTest extends Activity {
             status("stopped");
         } catch (OutOfResourceException e) {
             exception(e);
-        } catch (IOIOException e) {
+        } catch (IoioException e) {
             exception(e);
         } finally {
             if (pwmOutput != null) {
-                pwmOutput.close();
+                try {
+                    pwmOutput.close();
+                } catch (IOException e) {
+                   exception(e);
+                }
             }
         }
     }
@@ -377,7 +402,7 @@ public class SelfTest extends Activity {
 
 
     private void msg(final String txt) {
-        IOIOLogger.log(txt);
+        IoioLogger.log(txt);
     	runOnUiThread(
     			new Runnable() {
     				@Override

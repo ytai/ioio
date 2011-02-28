@@ -30,15 +30,15 @@ public class IncomingHandler extends Thread {
 
     @Override
     public void run() {
-        IOIOLogger.log("starting incoming handler");
+        IoioLogger.log("starting incoming handler");
 		// state here must be CONNECTED
 		try {
 			// Handle any incoming packets
 			while (!Thread.currentThread().isInterrupted()) {
 				int message_type = Bytes.readByte(in);
-				IOIOPacket packet = framerRegistry.frame((byte) message_type, in);
+				IoioPacket packet = framerRegistry.frame((byte) message_type, in);
 				if (packet == null) {
-                    IOIOLogger.log("Unknown message type : " + message_type);
+                    IoioLogger.log("Unknown message type : " + message_type);
 				    break;
 				}
 				packetHandler.handlePacket(packet);
@@ -124,8 +124,7 @@ public class IncomingHandler extends Thread {
         }
     }
 
-    // Will formalize once we have a working hello world.
-    static boolean verifyEstablishPacket(IOIOPacket packet) {
+    static boolean verifyEstablishPacket(IoioPacket packet) {
     	byte[] contents = packet.payload;
 
     	if (packet.message != Constants.ESTABLISH_CONNECTION ||
@@ -138,11 +137,11 @@ public class IncomingHandler extends Thread {
     	// TODO(arshan): verify that the hardware/firmware/bootloader versions are ones
     	// this library supports, for forward compatibility.
 
-    	IOIOLogger.log("Hardware ID : " + Bytes.asInt(contents, 3, 4));
-    	IOIOLogger.log("Bootload ID : " + Bytes.asInt(contents, 3, 7));
-    	IOIOLogger.log("Firmware ID : " + Bytes.asInt(contents, 3, 10));
+    	IoioLogger.log("Hardware ID : " + Bytes.asInt(contents, 3, 4));
+    	IoioLogger.log("Bootload ID : " + Bytes.asInt(contents, 3, 7));
+    	IoioLogger.log("Firmware ID : " + Bytes.asInt(contents, 3, 10));
 
-    	IOIOLogger.log("ESTABLISH packet verified");
+    	IoioLogger.log("ESTABLISH packet verified");
     	return true;
     }
 }

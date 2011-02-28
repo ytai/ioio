@@ -1,7 +1,9 @@
 package ioio.lib;
 
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidStateException;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidStateException;
+
+import java.io.Closeable;
 
 /**
  * An interface for reading from an input pin.

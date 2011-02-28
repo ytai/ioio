@@ -6,7 +6,7 @@ package ioio.lib.pic;
  * @author arshan
  * @author birmiwal
  */
-public interface IOIOPacketListener {
-    public void handlePacket(IOIOPacket packet);
+public interface IoioPacketListener {
+    public void handlePacket(IoioPacket packet);
     public void disconnectNotification();
 }

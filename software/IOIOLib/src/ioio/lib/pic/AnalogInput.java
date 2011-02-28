@@ -1,8 +1,8 @@
 package ioio.lib.pic;
 
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidOperationException;
-import ioio.lib.IOIOException.InvalidStateException;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidOperationException;
+import ioio.lib.IoioException.InvalidStateException;
 import ioio.lib.Input;
 
 import java.io.IOException;
@@ -15,9 +15,9 @@ import android.util.Log;
  *
  * @author arshan
  */
-public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Float> {
+public class AnalogInput extends IoioPin implements IoioPacketListener, Input<Float> {
 
-	IOIOImpl ioio;
+	IoioImpl ioio;
 	int value = 0;
 
 	int counter = 0;
@@ -25,7 +25,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	boolean active = false;
 	private int reportPin = 0;
 
-	public AnalogInput(IOIOImpl ioio, int pin, PacketFramerRegistry framerRegistry)
+	public AnalogInput(IoioImpl ioio, int pin, PacketFramerRegistry framerRegistry)
 	throws ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
@@ -42,7 +42,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	}
 
 	private void init() throws ConnectionLostException {
-		ioio.sendPacket(new IOIOPacket(
+		ioio.sendPacket(new IoioPacket(
 				Constants.SET_ANALOG_INPUT,
 				new byte[]{(byte)pin}
 		));
@@ -58,7 +58,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
 	}
 
 	@Override
-    public void handlePacket(IOIOPacket packet) {
+    public void handlePacket(IoioPacket packet) {
 		switch (packet.message){
 		case Constants.SET_ANALOG_INPUT:
 			if (packet.payload[0] == pin) {
@@ -105,7 +105,7 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
         int analogPinCount = 0;
         private int analogPinBytes = 0;
         @Override
-        public IOIOPacket frame(byte message, InputStream in) throws IOException {
+        public IoioPacket frame(byte message, InputStream in) throws IOException {
             switch (message) {
                 case Constants.REPORT_ANALOG_FORMAT:
                     analogPinCount = Bytes.readByte(in);
@@ -114,13 +114,13 @@ public class AnalogInput extends IOIOPin implements IOIOPacketListener, Input<Fl
                     byte[] payload = new byte[analogPinCount+1];
                     payload[0] = (byte)analogPinCount;
                     Bytes.readFully(in, payload, 1);
-                    return new IOIOPacket(message, payload);
+                    return new IoioPacket(message, payload);
 
                 case Constants.REPORT_ANALOG_STATUS:
-                    return new IOIOPacket(message, Bytes.readBytes(in, analogPinBytes));
+                    return new IoioPacket(message, Bytes.readBytes(in, analogPinBytes));
 
                 case Constants.SET_ANALOG_INPUT:
-                    return new IOIOPacket(message, Bytes.readBytes(in, 1));
+                    return new IoioPacket(message, Bytes.readBytes(in, 1));
             }
             return null;
         }

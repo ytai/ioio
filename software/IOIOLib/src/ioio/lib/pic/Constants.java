@@ -1,6 +1,6 @@
 package ioio.lib.pic;
 
-import ioio.lib.IOIOException.InvalidStateException;
+import ioio.lib.IoioException.InvalidStateException;
 
 
 /**
@@ -43,11 +43,11 @@ public class Constants {
     public static final int IOIO_PORT = 4545;
 
     // Cache some packets that are static
-    static final IOIOPacket HARD_RESET_PACKET = new IOIOPacket(HARD_RESET, IOIO_MAGIC);
+    static final IoioPacket HARD_RESET_PACKET = new IoioPacket(HARD_RESET, IOIO_MAGIC);
 
-    static final IOIOPacket SOFT_RESET_PACKET = new IOIOPacket(SOFT_RESET, null);
+    static final IoioPacket SOFT_RESET_PACKET = new IoioPacket(SOFT_RESET, null);
 
-    static final IOIOPacket ESTABLISH_CONNECTION_PACKET = new IOIOPacket(ESTABLISH_CONNECTION, IOIO_MAGIC);
+    static final IoioPacket ESTABLISH_CONNECTION_PACKET = new IoioPacket(ESTABLISH_CONNECTION, IOIO_MAGIC);
 
     // Where the onboard LED is connected.
     public static final int LED_PIN = 0;

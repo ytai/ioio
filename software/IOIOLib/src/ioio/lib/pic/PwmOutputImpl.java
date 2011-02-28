@@ -1,9 +1,11 @@
 package ioio.lib.pic;
 
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidOperationException;
-import ioio.lib.IOIOException.InvalidStateException;
-import ioio.lib.IOIOException.OutOfResourceException;
+import java.io.IOException;
+
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidOperationException;
+import ioio.lib.IoioException.InvalidStateException;
+import ioio.lib.IoioException.OutOfResourceException;
 import ioio.lib.Output;
 import ioio.lib.PwmOutput;
 
@@ -16,7 +18,7 @@ import ioio.lib.PwmOutput;
 // ytai: for "analog" output, float is nicer. for servo control, absolute time in
 // ms may be more intuitive, or maybe even a different float that represents the angle.
 // why not expose both ways, commenting that they are different accessors to the same value?
-public class PwmOutputImpl extends IOIOPin implements PwmOutput {
+public class PwmOutputImpl extends IoioPin implements PwmOutput {
 
 	/**
 	 * percent duty cycle from 0 to 1
@@ -28,15 +30,15 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
 	private boolean scale256 = true;
 
-	private IOIOImpl ioio;
+	private IoioImpl ioio;
 	private Integer module;
 
-	private IOIOPacket setPwm;
-	private IOIOPacket setPeriod;
+	private IoioPacket setPwm;
+	private IoioPacket setPeriod;
 
 	private static final ModuleAllocator PWM_ID_ALLOCATOR = new ModuleAllocator(Constants.NUM_PWMS);
     private Output<Boolean> digitalOutput;
-    PwmOutputImpl(IOIOImpl ioio, int pin, int freqHz, boolean enableOpenDrain)
+    PwmOutputImpl(IoioImpl ioio, int pin, int freqHz, boolean enableOpenDrain)
     throws OutOfResourceException, ConnectionLostException, InvalidOperationException {
 		super(pin);
 		this.ioio = ioio;
@@ -50,7 +52,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 	}
 
 	private void init() throws ConnectionLostException {
-		setPwm = new IOIOPacket(
+		setPwm = new IoioPacket(
 				Constants.SET_PWM,
 				new byte[]{(byte)pin, (byte)(int)module}
 		);
@@ -66,7 +68,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		  period = (periodUs / 16) - 1;
 		}
 
-		setPeriod = new IOIOPacket(
+		setPeriod = new IoioPacket(
 				Constants.SET_PERIOD,
 				new byte[]{
 						(byte)(module << 1 | (scale256?1:0)),
@@ -97,7 +99,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 		if (period != 0 && !scale256) {
 		    fraction = (byte)((byte)(dutyCycle * 4 * period) & 0x03);
 		}
-        ioio.sendPacket(new IOIOPacket(
+        ioio.sendPacket(new IoioPacket(
 		        Constants.SET_DUTYCYCLE,
 		        new byte[] {
 		            (byte) ((module << 2) | fraction),
@@ -108,9 +110,12 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
 
     @Override
     public void close() {
-        digitalOutput.close();
+        try {
+            digitalOutput.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         PWM_ID_ALLOCATOR.releaseModule(module);
-        // TODO(TF): Implement this
     }
 
     @Override
@@ -120,7 +125,7 @@ public class PwmOutputImpl extends IOIOPin implements PwmOutput {
     }
 
     @Override
-    public void handlePacket(IOIOPacket packet) {
+    public void handlePacket(IoioPacket packet) {
         // do nothing
     }
 }
