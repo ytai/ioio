@@ -16,13 +16,16 @@ typedef enum {
   PACKET_STATE_DONE
 } PACKET_STATE;
 
-static BYTE rx_buffer[NUM_SPI_MODULES][RX_BUF_SIZE];
-static BYTE tx_buffer[NUM_SPI_MODULES][TX_BUF_SIZE];
-static PACKET_QUEUE rx_queues[NUM_SPI_MODULES];
-static PACKET_QUEUE tx_queues[NUM_SPI_MODULES];
-static PACKET_STATE packet_state[NUM_SPI_MODULES];
+typedef struct {
+  PACKET_STATE packet_state;
+  int num_tx_since_last_report;
+  PACKET_QUEUE rx_queue;
+  PACKET_QUEUE tx_queue;
+  BYTE rx_buffer[RX_BUF_SIZE];
+  BYTE tx_buffer[TX_BUF_SIZE];
+} SPI_STATE;
 
-static int num_tx_since_last_report[NUM_SPI_MODULES];
+static SPI_STATE spis[NUM_SPI_MODULES];
 
 typedef struct {
         unsigned int spixstat;
@@ -73,18 +76,18 @@ void SPIInit() {
   }
 }
 
-void SPIConfigMaster(int spi, int scale, int div, int smp_end, int clk_edge,
+void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
                int clk_pol) {
-  volatile SPIREG* regs = spi_reg[spi];
+  volatile SPIREG* regs = spi_reg[spi_num];
+  SPI_STATE* spi = &spis[spi_num];
   log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi, scale, div,
              smp_end, clk_edge, clk_pol);
-  SetIE[spi](0);  // disable int.
+  SetIE[spi_num](0);  // disable int.
   regs->spixstat = 0x0000;  // disable SPI
   // clear SW buffers
-  PacketQueueInit(rx_queues + spi, rx_buffer[spi], RX_BUF_SIZE);
-  PacketQueueInit(tx_queues + spi, tx_buffer[spi], TX_BUF_SIZE);
-  // TODO: configure
-  num_tx_since_last_report[spi] = 0;
+  PacketQueueInit(&spi->rx_queue, spi->rx_buffer, RX_BUF_SIZE);
+  PacketQueueInit(&spi->tx_queue, spi->tx_buffer, TX_BUF_SIZE);
+  spi->num_tx_since_last_report = 0;
   if (scale && div) {
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)
@@ -95,8 +98,8 @@ void SPIConfigMaster(int spi, int scale, int div, int smp_end, int clk_edge,
     regs->spixcon2 = 0x0001;  // enhanced buffer mode
     regs->spixstat = (1 << 15)  // enable
                      | (5 << 2);  // int. when TX FIFO is empty
-    SetIF[spi](1);  // set int. flag, so int. will occur as soon as data is
-                    // written
+    SetIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
+                        // written
   }
 }
 
@@ -105,7 +108,8 @@ void SPITasks() {
   for (i = 0; i < NUM_SPI_MODULES; ++i) {
     int size1, size2, size;
     const BYTE *data1, *data2;
-    PACKET_QUEUE* q = rx_queues + i;
+    SPI_STATE* spi = &spis[i];
+    PACKET_QUEUE* q = &spi->rx_queue;
     BYTE prev;
     while (PacketQueueHasData(q)) {
       OUTGOING_MESSAGE msg;
@@ -123,35 +127,37 @@ void SPITasks() {
       PacketQueuePull(q, size);
       SyncInterruptLevel(prev);
     }
-    if (num_tx_since_last_report[i] > TX_BUF_SIZE / 2) {
+    if (spi->num_tx_since_last_report > TX_BUF_SIZE / 2) {
       SPIReportTxStatus(i);
     }
   }
 }
 
-void SPIReportTxStatus(int spi) {
+void SPIReportTxStatus(int spi_num) {
   int remaining;
-  PACKET_QUEUE* q = tx_queues + spi;
+  SPI_STATE* spi = &spis[spi_num];
+  PACKET_QUEUE* q = &spi->tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   remaining = PacketQueueRemaining(q);
-  num_tx_since_last_report[spi] = 0;
+  spi->num_tx_since_last_report = 0;
   SyncInterruptLevel(prev);
   OUTGOING_MESSAGE msg;
   msg.type = SPI_REPORT_TX_STATUS;
-  msg.args.spi_report_tx_status.spi_num = spi;
+  msg.args.spi_report_tx_status.spi_num = spi_num;
   msg.args.spi_report_tx_status.bytes_remaining = remaining;
   AppProtocolSendMessage(&msg);
 }
 
-static void SPIInterrupt(int spi) {
-  volatile SPIREG* reg = spi_reg[spi];
-  PACKET_QUEUE* tx_queue = tx_queues + spi;
-  PACKET_QUEUE* rx_queue = rx_queues + spi;
+static void SPIInterrupt(int spi_num) {
+  volatile SPIREG* reg = spi_reg[spi_num];
+  SPI_STATE* spi = &spis[spi_num];
+  PACKET_QUEUE* tx_queue = &spi->tx_queue;
+  PACKET_QUEUE* rx_queue = &spi->rx_queue;
   int bytes_to_write;
   int max_bytes_to_write = 7;
 
   // can't have incoming data on idle state. if we do - it's a bug
-  assert(packet_state[spi] != PACKET_STATE_IDLE
+  assert(spi->packet_state != PACKET_STATE_IDLE
          || reg->spixstat & (1 << 5));
   
   // read incoming data into rx_queue
@@ -159,7 +165,7 @@ static void SPIInterrupt(int spi) {
     PacketQueuePushByte(rx_queue, reg->spixbuf);
   }
   
-  switch (packet_state[spi]) {
+  switch (spi->packet_state) {
     case PACKET_STATE_IDLE:
       assert(PacketQueueHasData(tx_queue));
       PacketQueueStartRead(tx_queue);
@@ -170,7 +176,7 @@ static void SPIInterrupt(int spi) {
       PinSetLat(PacketQueueCurrentDest(tx_queue), 0);  // activate SS
       ++max_bytes_to_write;  // we can write 8 bytes the first time, since the
                              // shift register is empty.
-      packet_state[spi] = PACKET_STATE_IN_PROGRESS;
+      spi->packet_state = PACKET_STATE_IN_PROGRESS;
       // fall-through on purpose
       
     case PACKET_STATE_IN_PROGRESS:
@@ -182,12 +188,12 @@ static void SPIInterrupt(int spi) {
         // last byte finished sending.
         reg->spixstat = (1 << 15)  // enable
                         | (5 << 2);  // int. when last byte shifted
-        packet_state[spi] = PACKET_STATE_DONE;
+          spi->packet_state = PACKET_STATE_DONE;
       }
-      SetIF[spi](0);
+      SetIF[spi_num](0);
       while (bytes_to_write-- > 0) {
         reg->spixbuf = PacketQueueRead(tx_queue);
-        ++num_tx_since_last_report[spi];
+        ++spi->num_tx_since_last_report;
       }
       break;
       
@@ -196,24 +202,24 @@ static void SPIInterrupt(int spi) {
       PacketQueuePacketWriteDone(rx_queue);
       reg->spixstat = (1 << 15)  // enable
                       | (6 << 2);  // int. when TX FIFO empty
-      SetIE[spi](PacketQueueHasData(tx_queue));
-      packet_state[spi] = PACKET_STATE_IDLE;
+      SetIE[spi_num](PacketQueueHasData(tx_queue));
+      spi->packet_state = PACKET_STATE_IDLE;
       break;
   }
 }
 
-void SPITransmit(int spi, int dest, const void* data, int size) {
-  log_printf("SPITransmit(%d, %d, %p, %d)", spi, dest, data, size);
-  PACKET_QUEUE* q = tx_queues + spi;
+void SPITransmit(int spi_num, int dest, const void* data, int size) {
+  log_printf("SPITransmit(%d, %d, %p, %d)", spi_num, dest, data, size);
+  PACKET_QUEUE* q = &spis[spi_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   PacketQueuePush(q, dest, size, data);
-  SetIE[spi](1);  // enable int.
+  SetIE[spi_num](1);  // enable int.
   SyncInterruptLevel(prev);
 }
 
-#define DEFINE_INTERRUPT_HANDLERS(spi)                                    \
- void __attribute__((__interrupt__, auto_psv)) _SPI##spi##Interrupt() {   \
-   SPIInterrupt(spi - 1);                                                 \
+#define DEFINE_INTERRUPT_HANDLERS(spi_num)                                   \
+ void __attribute__((__interrupt__, auto_psv)) _SPI##spi_num##Interrupt() {  \
+   SPIInterrupt(spi_num - 1);                                                \
  }
 
 #if NUM_SPI_MODULES > 3

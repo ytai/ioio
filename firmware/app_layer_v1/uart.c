@@ -11,12 +11,15 @@
 #define RX_BUF_SIZE 128
 #define TX_BUF_SIZE 256
 
-static BYTE rx_buffer[NUM_UART_MODULES][RX_BUF_SIZE];
-static BYTE tx_buffer[NUM_UART_MODULES][TX_BUF_SIZE];
-static BYTE_QUEUE rx_queues[NUM_UART_MODULES];
-static BYTE_QUEUE tx_queues[NUM_UART_MODULES];
+typedef struct {
+  int num_tx_since_last_report;
+  BYTE_QUEUE rx_queue;
+  BYTE_QUEUE tx_queue;
+  BYTE rx_buffer[RX_BUF_SIZE];
+  BYTE tx_buffer[TX_BUF_SIZE];
+} UART_STATE;
 
-static int num_tx_since_last_report[NUM_UART_MODULES];
+static UART_STATE uarts[NUM_UART_MODULES];
 
 volatile UART* uart_reg[NUM_UART_MODULES] = {
   (volatile UART*) 0x220,
@@ -32,7 +35,7 @@ volatile UART* uart_reg[NUM_UART_MODULES] = {
 //
 // For example, to set RXIE of UART2 to 1, call:
 // SetRXIE[1](1);
-#define UART_FLAG_FUNC(uart, flag) static void Set##flag##uart(int val) { _U##uart##flag = val; }
+#define UART_FLAG_FUNC(uart_num, flag) static void Set##flag##uart_num(int val) { _U##uart_num##flag = val; }
 
 typedef void (*UARTFlagFunc)(int val);
 
@@ -66,22 +69,23 @@ void UARTInit() {
   }
 }
 
-void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity) {
-  volatile UART* regs = uart_reg[uart];
+void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
+  volatile UART* regs = uart_reg[uart_num];
+  UART_STATE* uart = &uarts[uart_num];
   log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart, rate, speed4x, two_stop_bits, parity);
   SAVE_UART1_FOR_LOG();
-  SetRXIE[uart](0);  // disable RX int.
-  SetTXIE[uart](0);  // disable TX int.
+  SetRXIE[uart_num](0);  // disable RX int.
+  SetTXIE[uart_num](0);  // disable TX int.
   regs->uxmode = 0x0000;  // disable UART
   // clear SW buffers
-  ByteQueueInit(rx_queues + uart, rx_buffer[uart], RX_BUF_SIZE);
-  ByteQueueInit(tx_queues + uart, tx_buffer[uart], TX_BUF_SIZE);
-  num_tx_since_last_report[uart] = 0;
+  ByteQueueInit(&uart->rx_queue, uart->rx_buffer, RX_BUF_SIZE);
+  ByteQueueInit(&uart->tx_queue, uart->tx_buffer, TX_BUF_SIZE);
+  uart->num_tx_since_last_report = 0;
   if (rate) {
     regs->uxbrg = rate;
-    SetRXIF[uart](0);  // clear RX int.
-    SetTXIF[uart](0);  // clear TX int.
-    SetRXIE[uart](1);  // enable RX int.
+    SetRXIF[uart_num](0);  // clear RX int.
+    SetTXIF[uart_num](0);  // clear TX int.
+    SetRXIE[uart_num](1);  // enable RX int.
     regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
   }
@@ -92,7 +96,8 @@ void UARTTasks() {
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     int size;
     const BYTE* data;
-    BYTE_QUEUE* q = rx_queues + i;
+    UART_STATE* uart = &uarts[i];
+    BYTE_QUEUE* q = &uart->rx_queue;
     BYTE prev;
     ByteQueuePeek(q, &data, &size);
     if (size > 64) size = 64;  // truncate
@@ -107,64 +112,66 @@ void UARTTasks() {
       ByteQueuePull(q, size);
       SyncInterruptLevel(prev);
     }
-    if (num_tx_since_last_report[i] > TX_BUF_SIZE / 2) {
+    if (uart->num_tx_since_last_report > TX_BUF_SIZE / 2) {
       UARTReportTxStatus(i);
     }
   }
 }
 
-void UARTReportTxStatus(int uart) {
+void UARTReportTxStatus(int uart_num) {
   int remaining;
-  BYTE_QUEUE* q = tx_queues + uart;
+  UART_STATE* uart = &uarts[uart_num];
+  BYTE_QUEUE* q = &uart->tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   remaining = ByteQueueRemaining(q);
-  num_tx_since_last_report[uart] = 0;
+  uart->num_tx_since_last_report = 0;
   SyncInterruptLevel(prev);
   OUTGOING_MESSAGE msg;
   msg.type = UART_REPORT_TX_STATUS;
-  msg.args.uart_report_tx_status.uart_num = uart;
+  msg.args.uart_report_tx_status.uart_num = uart_num;
   msg.args.uart_report_tx_status.bytes_remaining = remaining;
   AppProtocolSendMessage(&msg);
 }
 
-static void TXInterrupt(int uart) {
-  volatile UART* reg = uart_reg[uart];
-  BYTE_QUEUE* q = tx_queues + uart;
+static void TXInterrupt(int uart_num) {
+  volatile UART* reg = uart_reg[uart_num];
+  UART_STATE* uart = &uarts[uart_num];
+  BYTE_QUEUE* q = &uart->tx_queue;
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
-    SetTXIF[uart](0);
+    SetTXIF[uart_num](0);
     reg->uxtxreg = ByteQueuePullByte(q);
-    ++num_tx_since_last_report[uart];
+    ++uart->num_tx_since_last_report;
   }
-  SetTXIE[uart](ByteQueueSize(q) != 0);
+  SetTXIE[uart_num](ByteQueueSize(q) != 0);
 }
 
-static void RXInterrupt(int uart) {
-  volatile UART* reg = uart_reg[uart];
-  BYTE_QUEUE* q = rx_queues + uart;
+static void RXInterrupt(int uart_num) {
+  volatile UART* reg = uart_reg[uart_num];
+  BYTE_QUEUE* q = &uarts[uart_num].rx_queue;
   // TODO: handle error
   while (reg->uxsta & 0x0001) {
     ByteQueuePushByte(q, reg->uxrxreg);
   }
 }
 
-void UARTTransmit(int uart, const void* data, int size) {
+void UARTTransmit(int uart_num, const void* data, int size) {
   log_printf("UARTTransmit(%d, %p, %d)", uart, data, size);
   SAVE_UART1_FOR_LOG();
-  BYTE_QUEUE* q = tx_queues + uart;
+  BYTE_QUEUE* q = &uarts[uart_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(q, data, size);
-  SetTXIE[uart](1);  // enable TX int.
+  SetTXIE[uart_num](1);  // enable TX int.
   SyncInterruptLevel(prev);
 }
 
-#define DEFINE_INTERRUPT_HANDLERS(uart)                                   \
- void __attribute__((__interrupt__, auto_psv)) _U##uart##RXInterrupt() {  \
-   RXInterrupt(uart - 1);                                                 \
-   _U##uart##RXIF = 0;                                                    \
- }                                                                        \
-                                                                          \
- void __attribute__((__interrupt__, auto_psv)) _U##uart##TXInterrupt() {  \
-   TXInterrupt(uart - 1);                                                 \
+#define DEFINE_INTERRUPT_HANDLERS(uart_num)                                   \
+ void __attribute__((__interrupt__, auto_psv)) _U##uart_num##RXInterrupt() {  \
+   RXInterrupt(uart_num - 1);                                                 \
+   _U##uart_num##RXIF = 0;                                                    \
+ }                                                                            \
+                                                                              \
+ void __attribute__((__interrupt__, auto_psv)) _U##uart_num##TXInterrupt() {  \
+   TXInterrupt(uart_num - 1);                                                 \
  }
 
 #if NUM_UART_MODULES > 4
