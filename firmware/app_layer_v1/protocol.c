@@ -277,7 +277,8 @@ static BOOL MessageDone() {
       SPITransmit(rx_msg.args.spi_data.spi_num,
                   rx_msg.args.spi_data.ss_pin,
                   rx_msg.args.spi_data.data,
-                  rx_msg.args.spi_data.size + 1);
+                  rx_msg.args.spi_data.size + 1,
+                  0, 0);  // TODO: pad & trim
       break;
 
     case SPI_CONFIGURE_MASTER:

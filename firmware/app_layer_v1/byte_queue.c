@@ -62,6 +62,7 @@ void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size) {
   }
 }
 
+/*
 void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
                       const BYTE** data2, int* size2) {
   *data1 = q->buf + q->read_cursor;
@@ -71,6 +72,21 @@ void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
     *size2 = q->write_cursor;
   } else {
     *size1 = q->write_cursor - q->read_cursor;
+    *size2 = 0;
+  }
+}
+*/
+
+void ByteQueuePeekMax(BYTE_QUEUE* q, int max_size, const BYTE** data1,
+                      int* size1, const BYTE** data2, int* size2) {
+  if (max_size > q->size) max_size = q->size;
+  *data1 = q->buf + q->read_cursor;
+  if (q->read_cursor + max_size > q->capacity) {
+    *size1 = q->capacity - q->read_cursor;
+    *data2 = q->buf;
+    *size2 = max_size - *size1;
+  } else {
+    *size1 = max_size;
     *size2 = 0;
   }
 }
