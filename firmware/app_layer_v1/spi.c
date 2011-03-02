@@ -138,12 +138,12 @@ void SPITasks() {
       msg.args.spi_data.spi_num = i;
       prev = SyncInterruptLevel(4);
       msg.args.spi_data.ss_pin = ByteQueuePullByte(q);
-      msg.args.spi_data.size = ByteQueuePullByte(q);
+      msg.args.spi_data.size = ByteQueuePullByte(q) - 1;
       SyncInterruptLevel(prev);
-      ByteQueuePeekMax(q, msg.args.spi_data.size, &data1, &size1, &data2,
+      ByteQueuePeekMax(q, msg.args.spi_data.size + 1, &data1, &size1, &data2,
                        &size2);
       size = size1 + size2;
-      assert(size == msg.args.spi_data.size);
+      assert(size == msg.args.spi_data.size + 1);
       log_printf("SPI %d received %d bytes", i, size);
       AppProtocolSendMessageWithVarArgSplit(&msg, data1, size1, data2, size2);
       prev = SyncInterruptLevel(4);
@@ -179,6 +179,7 @@ static void SPIInterrupt(int spi_num) {
   BYTE_QUEUE* rx_queue = &spi->rx_queue;
   int bytes_to_write;
   int max_bytes_to_write = 7;
+  int total_rx_bytes;
 
   // can't have incoming data on idle state. if we do - it's a bug
   assert(spi->packet_state != PACKET_STATE_IDLE
@@ -202,10 +203,12 @@ static void SPIInterrupt(int spi_num) {
       spi->cur_msg_data_size = ByteQueuePullByte(tx_queue);
       spi->cur_msg_trim_rx = ByteQueuePullByte(tx_queue);
 
-      // write packet header to rx_queue
-      ByteQueuePushByte(rx_queue, spi->cur_msg_dest);
-      ByteQueuePushByte(rx_queue,
-          spi->cur_msg_total_size - spi->cur_msg_trim_rx);
+      // write packet header to rx_queue, if non-empty
+      total_rx_bytes = spi->cur_msg_total_size - spi->cur_msg_trim_rx;
+      if (total_rx_bytes > 0) {
+        ByteQueuePushByte(rx_queue, spi->cur_msg_dest);
+        ByteQueuePushByte(rx_queue, total_rx_bytes);
+      }
       
       PinSetLat(spi->cur_msg_dest, 0);  // activate SS
       ++max_bytes_to_write;  // we can write 8 bytes the first time, since the

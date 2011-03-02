@@ -168,6 +168,19 @@ typedef struct PACKED {
   BYTE data[0];
 } SPI_DATA_ARGS;
 
+// spi master request
+typedef struct PACKED {
+  BYTE ss_pin : 6;
+  BYTE spi_num : 2;
+  BYTE total_size : 6;
+  BYTE res_size_neq_total : 1;
+  BYTE data_size_neq_total : 1;
+  union {
+    BYTE data_size;
+    BYTE vararg[0];
+  };
+} SPI_MASTER_REQUEST_ARGS;
+
 // spi configure master
 typedef struct PACKED {
   BYTE div : 3;
@@ -211,7 +224,7 @@ typedef struct PACKED {
     UART_CONFIG_ARGS                         uart_config;
     SET_PIN_UART_RX_ARGS                     set_pin_uart_rx;
     SET_PIN_UART_TX_ARGS                     set_pin_uart_tx;
-    SPI_DATA_ARGS                            spi_data;
+    SPI_MASTER_REQUEST_ARGS                  spi_master_request;
     SPI_CONFIGURE_MASTER_ARGS                spi_configure_master;
     SET_PIN_SPI_ARGS                         set_pin_spi;
     // BOOKMARK(add_feature): Add argument struct to the union.
@@ -258,6 +271,7 @@ typedef enum {
   UART_CONFIG                       = 0x0D,
   SET_PIN_UART_RX                   = 0x0E,
   SET_PIN_UART_TX                   = 0x0F,
+  SPI_MASTER_REQUEST                = 0x10,
   SPI_DATA                          = 0x10,
   SPI_REPORT_TX_STATUS              = 0x11,
   SPI_CONFIGURE_MASTER              = 0x12,
