@@ -72,11 +72,12 @@ void UARTInit() {
 void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
   volatile UART* regs = uart_reg[uart_num];
   UART_STATE* uart = &uarts[uart_num];
-  log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart, rate, speed4x, two_stop_bits, parity);
+  log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
+             two_stop_bits, parity);
   SAVE_UART1_FOR_LOG();
   SetRXIE[uart_num](0);  // disable RX int.
   SetTXIE[uart_num](0);  // disable TX int.
-  regs->uxmode = 0x0000;  // disable UART
+  regs->uxmode = 0x0000;  // disable UART.
   // clear SW buffers
   ByteQueueInit(&uart->rx_queue, uart->rx_buffer, RX_BUF_SIZE);
   ByteQueueInit(&uart->tx_queue, uart->tx_buffer, TX_BUF_SIZE);
@@ -148,14 +149,18 @@ static void TXInterrupt(int uart_num) {
 static void RXInterrupt(int uart_num) {
   volatile UART* reg = uart_reg[uart_num];
   BYTE_QUEUE* q = &uarts[uart_num].rx_queue;
-  // TODO: handle error
   while (reg->uxsta & 0x0001) {
+    if (reg->uxsta & 0x000C) {
+      // skip character with frame/parity err
+      (void) reg->uxrxreg;
+      continue;
+    }
     ByteQueuePushByte(q, reg->uxrxreg);
   }
 }
 
 void UARTTransmit(int uart_num, const void* data, int size) {
-  log_printf("UARTTransmit(%d, %p, %d)", uart, data, size);
+  log_printf("UARTTransmit(%d, %p, %d)", uart_num, data, size);
   SAVE_UART1_FOR_LOG();
   BYTE_QUEUE* q = &uarts[uart_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);

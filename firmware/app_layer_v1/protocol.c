@@ -278,7 +278,8 @@ static BOOL MessageDone() {
                   rx_msg.args.spi_data.ss_pin,
                   rx_msg.args.spi_data.data,
                   rx_msg.args.spi_data.size + 1,
-                  0, 0);  // TODO: pad & trim
+                  rx_msg.args.spi_data.size + 1,
+                  1);  // TODO: pad & trim
       break;
 
     case SPI_CONFIGURE_MASTER:

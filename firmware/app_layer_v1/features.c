@@ -75,12 +75,12 @@ void SetPinPwm(int pin, int pwm_num) {
   PinSetRpor(pin, pwm_num == 0x0F ? 0 : (pwm_num == 8 ? 35 : 18 + pwm_num));
 }
 
-void SetPinUartRx(int pin, int uart, int enable) {
-  log_printf("SetPinUartRx(%d, %d, %d)", pin, uart, enable);
+void SetPinUartRx(int pin, int uart_num, int enable) {
+  log_printf("SetPinUartRx(%d, %d, %d)", pin, uart_num, enable);
   SAVE_PIN4_FOR_LOG();
   SAVE_UART1_FOR_LOG();
   int rpin = enable ? PinToRpin(pin) : 0x3F;
-  switch (uart) {
+  switch (uart_num) {
     case 0:
       _U1RXR = rpin;
       break;
@@ -99,11 +99,11 @@ void SetPinUartRx(int pin, int uart, int enable) {
   }
 }
 
-void SetPinUartTx(int pin, int uart, int enable) {
-  log_printf("SetPinUartTx(%d, %d, %d)", pin, uart, enable);
+void SetPinUartTx(int pin, int uart_num, int enable) {
+  log_printf("SetPinUartTx(%d, %d, %d)", pin, uart_num, enable);
   SAVE_PIN4_FOR_LOG();
   const BYTE rp[] = { 3, 5, 28, 30 };
-  PinSetRpor(pin, enable ? rp[uart] : 0);
+  PinSetRpor(pin, enable ? rp[uart_num] : 0);
 }
 
 void SetPinAnalogIn(int pin) {

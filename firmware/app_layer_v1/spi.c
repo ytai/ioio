@@ -21,8 +21,8 @@ typedef struct {
   PACKET_STATE packet_state;
   int num_tx_since_last_report;
   BYTE cur_msg_dest;
-  BYTE cur_msg_size;
-  BYTE cur_msg_pad_tx;
+  BYTE cur_msg_total_size;
+  BYTE cur_msg_data_size;
   BYTE cur_msg_trim_rx;
 
   // message format:
@@ -35,8 +35,8 @@ typedef struct {
 
   // message format:
   // BYTE dest
-  // BYTE tx_size
-  // BYTE tx_pad
+  // BYTE total_size
+  // BYTE data_size
   // BYTE rx_trim
   // BYTE tx_data[tx_size]
   BYTE_QUEUE tx_queue;
@@ -100,7 +100,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
                int clk_pol) {
   volatile SPIREG* regs = spi_reg[spi_num];
   SPI_STATE* spi = &spis[spi_num];
-  log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi, scale, div,
+  log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi_num, scale, div,
              smp_end, clk_edge, clk_pol);
   SetIE[spi_num](0);  // disable int.
   regs->spixstat = 0x0000;  // disable SPI
@@ -186,21 +186,26 @@ static void SPIInterrupt(int spi_num) {
   
   // read incoming data into rx_queue
   while (!(reg->spixstat & (1 << 5))) {
-    ByteQueuePushByte(rx_queue, reg->spixbuf);
+    BYTE rx_byte = reg->spixbuf;
+    if (spi->cur_msg_trim_rx) {
+      --spi->cur_msg_trim_rx;
+    } else {
+      ByteQueuePushByte(rx_queue, rx_byte);
+    }
   }
   
   switch (spi->packet_state) {
     case PACKET_STATE_IDLE:
       assert(ByteQueueSize(tx_queue));
       spi->cur_msg_dest = ByteQueuePullByte(tx_queue);
-      spi->cur_msg_size = ByteQueuePullByte(tx_queue);
-      spi->cur_msg_pad_tx = ByteQueuePullByte(tx_queue);
+      spi->cur_msg_total_size = ByteQueuePullByte(tx_queue);
+      spi->cur_msg_data_size = ByteQueuePullByte(tx_queue);
       spi->cur_msg_trim_rx = ByteQueuePullByte(tx_queue);
 
       // write packet header to rx_queue
       ByteQueuePushByte(rx_queue, spi->cur_msg_dest);
       ByteQueuePushByte(rx_queue,
-          spi->cur_msg_size - spi->cur_msg_pad_tx - spi->cur_msg_trim_rx);
+          spi->cur_msg_total_size - spi->cur_msg_trim_rx);
       
       PinSetLat(spi->cur_msg_dest, 0);  // activate SS
       ++max_bytes_to_write;  // we can write 8 bytes the first time, since the
@@ -209,7 +214,7 @@ static void SPIInterrupt(int spi_num) {
       // fall-through on purpose
       
     case PACKET_STATE_IN_PROGRESS:
-      bytes_to_write = spi->cur_msg_size;
+      bytes_to_write = spi->cur_msg_total_size;
       if (bytes_to_write > max_bytes_to_write)  {
         bytes_to_write = max_bytes_to_write;
       } else {
@@ -221,8 +226,13 @@ static void SPIInterrupt(int spi_num) {
       }
       SetIF[spi_num](0);
       while (bytes_to_write-- > 0) {
-        reg->spixbuf = ByteQueuePullByte(tx_queue);
-        --spi->cur_msg_size;
+        BYTE tx_byte = 0xFF;
+        if (spi->cur_msg_data_size) {
+          tx_byte = ByteQueuePullByte(tx_queue);
+          --spi->cur_msg_data_size;
+        }
+        reg->spixbuf = tx_byte;
+        --spi->cur_msg_total_size;
         ++spi->num_tx_since_last_report;
       }
       break;
@@ -238,17 +248,17 @@ static void SPIInterrupt(int spi_num) {
   }
 }
 
-void SPITransmit(int spi_num, int dest, const void* data, int size, int pad_tx,
-                 int trim_rx) {
-  log_printf("SPITransmit(%d, %d, %p, %d, %d, %d)", spi_num, dest, data, size,
-             pad_tx, trim_rx);
+void SPITransmit(int spi_num, int dest, const void* data, int data_size,
+                 int total_size, int trim_rx) {
+  log_printf("SPITransmit(%d, %d, %p, %d, %d, %d)", spi_num, dest, data,
+             data_size, total_size, trim_rx);
   BYTE_QUEUE* q = &spis[spi_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushByte(q, dest);
-  ByteQueuePushByte(q, size);
-  ByteQueuePushByte(q, pad_tx);
+  ByteQueuePushByte(q, total_size);
+  ByteQueuePushByte(q, data_size);
   ByteQueuePushByte(q, trim_rx);
-  ByteQueuePushBuffer(q, data, size);
+  ByteQueuePushBuffer(q, data, data_size);
   SetIE[spi_num](1);  // enable int.
   SyncInterruptLevel(prev);
 }
