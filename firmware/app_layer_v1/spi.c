@@ -55,10 +55,13 @@ typedef struct {
   unsigned int spixbuf;
 } SPIREG;
 
+#if NUM_SPI_MODULES != 3
+  #error The code below assumes 3 SPI modules. Please fix.
+#endif
 volatile SPIREG* spi_reg[NUM_SPI_MODULES] = {
-  (volatile SPIREG*) 0x240,
-  (volatile SPIREG*) 0x260,
-  (volatile SPIREG*) 0x280
+  (volatile SPIREG*) &SPI1STAT,
+  (volatile SPIREG*) &SPI2STAT,
+  (volatile SPIREG*) &SPI3STAT
 };
 
 // The macro magic below generates for each type of flag from

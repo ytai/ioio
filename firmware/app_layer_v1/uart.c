@@ -21,11 +21,14 @@ typedef struct {
 
 static UART_STATE uarts[NUM_UART_MODULES];
 
+#if NUM_UART_MODULES != 4
+  #error The code below assumes 4 UART modules. Please fix.
+#endif
 volatile UART* uart_reg[NUM_UART_MODULES] = {
-  (volatile UART*) 0x220,
-  (volatile UART*) 0x230,
-  (volatile UART*) 0x250,
-  (volatile UART*) 0x2B0
+  (volatile UART*) &U1MODE,
+  (volatile UART*) &U2MODE,
+  (volatile UART*) &U3MODE,
+  (volatile UART*) &U4MODE
 };
 
 // The macro magic below generates for each type of flag from
