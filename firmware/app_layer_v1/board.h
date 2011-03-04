@@ -24,6 +24,7 @@
   #define NUM_PWM_MODULES 9
   #define NUM_UART_MODULES 4
   #define NUM_SPI_MODULES 3
+  #define NUM_I2C_MODULES 3
 #else
   #error Unknown MCU
 #endif
