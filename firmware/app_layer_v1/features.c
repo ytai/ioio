@@ -8,6 +8,7 @@
 #include "pwm.h"
 #include "uart.h"
 #include "spi.h"
+#include "i2c.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pin modes
@@ -176,6 +177,7 @@ void SoftReset() {
   ADCInit();
   UARTInit();
   SPIInit();
+  I2CInit();
   // TODO: reset all peripherals!
   SRbits.IPL = ipl_backup;  // enable interrupts
 }

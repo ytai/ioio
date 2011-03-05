@@ -12,6 +12,7 @@
 #include "board.h"
 #include "uart.h"
 #include "spi.h"
+#include "i2c.h"
 #include "sync.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
@@ -108,6 +109,9 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
             + msg->args.spi_master_request.res_size_neq_total;
       }
 
+    case I2C_WRITE_READ:
+      return msg->args.i2c_write_read.write_size;
+
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
       return 0;
@@ -157,6 +161,7 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   SPITasks();
+  I2CTasks();
   if (ADBChannelReady(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
@@ -335,6 +340,38 @@ static BOOL MessageDone() {
                 rx_msg.args.set_pin_spi.mode,
                 rx_msg.args.set_pin_spi.enable);
       Echo();
+      break;
+
+    case I2C_CONFIGURE_MASTER:
+      CHECK(rx_msg.args.i2c_configure_master.i2c_num < NUM_I2C_MODULES);
+      I2CConfigMaster(rx_msg.args.i2c_configure_master.i2c_num,
+                      rx_msg.args.i2c_configure_master.rate,
+                      rx_msg.args.i2c_configure_master.smbus_levels);
+      Echo();
+      I2CReportTxStatus(rx_msg.args.i2c_configure_master.i2c_num);
+      break;
+
+    case I2C_WRITE_READ:
+      CHECK(rx_msg.args.i2c_write_read.i2c_num < NUM_I2C_MODULES);
+      {
+        unsigned int addr;
+        if (rx_msg.args.i2c_write_read.ten_bit_addr) {
+          addr = rx_msg.args.i2c_write_read.addr_lsb;
+          addr = addr << 8
+                  | ((rx_msg.args.i2c_write_read.addr_msb << 1)
+                    | 0b11110000);
+        } else {
+          CHECK(rx_msg.args.i2c_write_read.addr_msb == 0
+                && rx_msg.args.i2c_write_read.addr_lsb >> 7 == 0
+                && rx_msg.args.i2c_write_read.addr_lsb >> 2 != 0b0011110);
+          addr = rx_msg.args.i2c_write_read.addr_lsb;
+        }
+        I2CWriteRead(rx_msg.args.i2c_write_read.i2c_num,
+                     addr,
+                     rx_msg.args.i2c_write_read.data,
+                     rx_msg.args.i2c_write_read.write_size,
+                     rx_msg.args.i2c_write_read.read_size);
+      }
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

@@ -205,10 +205,22 @@ typedef struct PACKED {
 
 // i2c configure master
 typedef struct PACKED {
+  BYTE i2c_num : 2;
+  BYTE : 3;
+  BYTE rate : 2;
+  BYTE smbus_levels : 1;
 } I2C_CONFIGURE_MASTER_ARGS;
 
 // i2c write read
 typedef struct PACKED {
+  BYTE i2c_num : 2;
+  BYTE ten_bit_addr : 1;
+  BYTE : 3;
+  BYTE addr_msb : 2;
+  BYTE addr_lsb;
+  BYTE write_size;
+  BYTE read_size;
+  BYTE data[0];
 } I2C_WRITE_READ_ARGS;
 
 // i2c result

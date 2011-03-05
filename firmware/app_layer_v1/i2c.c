@@ -34,9 +34,8 @@ typedef struct PACKED {
     };
     WORD addr;
   };
-  BYTE data_size;
-  BYTE nack_last_read : 1;
-  BYTE rx_size : 7;
+  BYTE write_size;
+  BYTE read_size;
 } TX_MESSAGE_HEADER;
 
 typedef struct {
@@ -170,18 +169,18 @@ void I2CTasks() {
 }
 
 void I2CWriteRead(int i2c_num, unsigned int addr, const void* data,
-                  int data_bytes, int read_bytes, int ack_last_read) {
+                  int write_bytes, int read_bytes) {
   I2C_STATE* i2c = i2c_states + i2c_num;
   TX_MESSAGE_HEADER hdr;
   BYTE prev;
   log_printf("I2CWriteRead(%d, 0x%x, %p, %d, %d, %d)", i2c_num, addr,
              data, data_bytes, read_bytes, ack_last_read);
   hdr.addr = addr;
-  hdr.data_size = data_bytes;
-  hdr.rx_size = read_bytes;
+  hdr.write_size = write_bytes;
+  hdr.read_size = read_bytes;
   prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(&i2c->tx_queue, &hdr, sizeof hdr);
-  ByteQueuePushBuffer(&i2c->tx_queue, data, data_bytes);
+  ByteQueuePushBuffer(&i2c->tx_queue, data, write_bytes);
   SetMIE[i2c_num](1);
   SyncInterruptLevel(prev);
 }
@@ -210,9 +209,13 @@ static void MI2CInterrupt(int i2c_num) {
       ByteQueuePullToBuffer(&i2c->tx_queue, &i2c->cur_tx_header,
                             sizeof(TX_MESSAGE_HEADER));
       i2c->num_tx_since_last_report += sizeof(TX_MESSAGE_HEADER);
-      i2c->bytes_remaining = i2c->cur_tx_header.data_size;
+      i2c->bytes_remaining = i2c->cur_tx_header.write_size;
       reg->con |= 0x0001;  // send start bit
-      i2c->message_state = STATE_ADDR1_WRITE;
+      if (i2c->bytes_remaining) {
+        i2c->message_state = STATE_ADDR1_WRITE;
+      } else {
+        i2c->message_state = STATE_ADDR_READ;
+      }
       break;
       
     case STATE_ADDR1_WRITE:
@@ -235,7 +238,9 @@ static void MI2CInterrupt(int i2c_num) {
       reg->trn = ByteQueuePullByte(&i2c->tx_queue);
       ++i2c->num_tx_since_last_report;
       if (--i2c->bytes_remaining == 0) {
-        i2c->message_state = i2c->cur_tx_header.rx_size ? STATE_RESTART : STATE_STOP_WRITE_ONLY;
+        i2c->message_state = i2c->cur_tx_header.read_size
+                             ? STATE_RESTART
+                             : STATE_STOP_WRITE_ONLY;
       }
       break;
 
@@ -257,16 +262,15 @@ static void MI2CInterrupt(int i2c_num) {
     case STATE_ACK_ADDR_READ:
       if (reg->stat >> 15) goto error;
       // from now on, we can no longer fail.
-      i2c->bytes_remaining = i2c->cur_tx_header.rx_size;
-      ByteQueuePushByte(&i2c->rx_queue, i2c->cur_tx_header.rx_size);
+      i2c->bytes_remaining = i2c->cur_tx_header.read_size;
+      ByteQueuePushByte(&i2c->rx_queue, i2c->cur_tx_header.read_size);
       i2c->message_state = STATE_READ_DATA;
       break;
 
     case STATE_READ_DATA:
       ByteQueuePushByte(&i2c->rx_queue, reg->rcv);
       reg->con |= (1 << 4)
-                  | (i2c->cur_tx_header.nack_last_read
-                      && i2c->bytes_remaining == 1) << 5;  // send ack / nack
+                  | (i2c->bytes_remaining == 1) << 5;  // nack last byte
       if (--i2c->bytes_remaining == 0) {
         i2c->message_state = STATE_STOP;
       }
