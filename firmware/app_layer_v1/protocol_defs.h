@@ -203,6 +203,32 @@ typedef struct PACKED {
   BYTE : 3;
 } SET_PIN_SPI_ARGS;
 
+// i2c configure master
+typedef struct PACKED {
+} I2C_CONFIGURE_MASTER_ARGS;
+
+// i2c write read
+typedef struct PACKED {
+} I2C_WRITE_READ_ARGS;
+
+// i2c result
+typedef struct PACKED {
+  BYTE i2c_num : 2;
+  BYTE : 6;
+  BYTE size;
+} I2C_RESULT_ARGS;
+
+// i2c report tx status
+typedef struct PACKED {
+  BYTE i2c_num : 2;
+  WORD bytes_remaining : 14;
+} I2C_REPORT_TX_STATUS_ARGS;
+
+// set pin i2c
+// set pin spi
+typedef struct PACKED {
+} SET_PIN_I2C_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -227,6 +253,9 @@ typedef struct PACKED {
     SPI_MASTER_REQUEST_ARGS                  spi_master_request;
     SPI_CONFIGURE_MASTER_ARGS                spi_configure_master;
     SET_PIN_SPI_ARGS                         set_pin_spi;
+    I2C_CONFIGURE_MASTER_ARGS                i2c_configure_master;
+    I2C_WRITE_READ_ARGS                      i2c_write_read;
+    SET_PIN_I2C_ARGS                         set_pin_i2c;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -244,6 +273,8 @@ typedef struct PACKED {
     UART_DATA_ARGS                          uart_data;
     SPI_REPORT_TX_STATUS_ARGS               spi_report_tx_status;
     SPI_DATA_ARGS                           spi_data;
+    I2C_RESULT_ARGS                         i2c_result;
+    I2C_REPORT_TX_STATUS_ARGS               i2c_report_tx_status;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -276,6 +307,11 @@ typedef enum {
   SPI_REPORT_TX_STATUS              = 0x11,
   SPI_CONFIGURE_MASTER              = 0x12,
   SET_PIN_SPI                       = 0x13,
+  I2C_CONFIGURE_MASTER              = 0x14,
+  I2C_WRITE_READ                    = 0x15,
+  I2C_RESULT                        = 0x15,
+  I2C_REPORT_TX_STATUS              = 0x16,
+  SET_PIN_I2C                       = 0x17,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
