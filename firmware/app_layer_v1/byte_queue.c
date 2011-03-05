@@ -32,6 +32,16 @@ BYTE ByteQueuePullByte(BYTE_QUEUE* q) {
   return ret;
 }
 
+void ByteQueuePullToBuffer(BYTE_QUEUE* q, void* buffer, int size) {
+  const BYTE *data1, *data2;
+  int size1, size2;
+  assert(q->size >= size);
+  ByteQueuePeekMax(q, size, &data1, &size1, &data2, &size2);
+  if (size1) memcpy(buffer, data1, size1);
+  if (size2) memcpy(((BYTE *) buffer) + size1, data2, size2);
+  ByteQueuePull(q, size);
+}
+
 void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len) {
   if (!len) return;
   if (q->size + len > q->capacity) {

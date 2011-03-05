@@ -38,6 +38,7 @@ void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size);
 void ByteQueuePeekMax(BYTE_QUEUE* q, int max_size, const BYTE** data1,
                       int* size1, const BYTE** data2, int* size2);
 void ByteQueuePull(BYTE_QUEUE* q, int size);
+void ByteQueuePullToBuffer(BYTE_QUEUE* q, void* buffer, int size);
 
 void ByteQueuePushByte(BYTE_QUEUE* q, BYTE b);
 BYTE ByteQueuePullByte(BYTE_QUEUE* q);
