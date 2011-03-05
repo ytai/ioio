@@ -112,6 +112,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   ByteQueueInit(&spi->tx_queue, spi->tx_buffer, TX_BUF_SIZE);
   spi->num_tx_since_last_report = 0;
   spi->num_messages_rx_queue = 0;
+  spi->packet_state = PACKET_STATE_IDLE;
   if (scale && div) {
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)
@@ -205,6 +206,7 @@ static void SPIInterrupt(int spi_num) {
       spi->cur_msg_total_size = ByteQueuePullByte(tx_queue);
       spi->cur_msg_data_size = ByteQueuePullByte(tx_queue);
       spi->cur_msg_trim_rx = ByteQueuePullByte(tx_queue);
+      spi->num_tx_since_last_report += 4;
 
       // write packet header to rx_queue, if non-empty
       total_rx_bytes = spi->cur_msg_total_size - spi->cur_msg_trim_rx;
@@ -236,10 +238,10 @@ static void SPIInterrupt(int spi_num) {
         if (spi->cur_msg_data_size) {
           tx_byte = ByteQueuePullByte(tx_queue);
           --spi->cur_msg_data_size;
+          ++spi->num_tx_since_last_report;
         }
         reg->spixbuf = tx_byte;
         --spi->cur_msg_total_size;
-        ++spi->num_tx_since_last_report;
       }
       break;
       
