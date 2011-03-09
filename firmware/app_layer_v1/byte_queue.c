@@ -32,6 +32,16 @@ BYTE ByteQueuePullByte(BYTE_QUEUE* q) {
   return ret;
 }
 
+void ByteQueuePullToBuffer(BYTE_QUEUE* q, void* buffer, int size) {
+  const BYTE *data1, *data2;
+  int size1, size2;
+  assert(q->size >= size);
+  ByteQueuePeekMax(q, size, &data1, &size1, &data2, &size2);
+  if (size1) memcpy(buffer, data1, size1);
+  if (size2) memcpy(((BYTE *) buffer) + size1, data2, size2);
+  ByteQueuePull(q, size);
+}
+
 void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len) {
   if (!len) return;
   if (q->size + len > q->capacity) {
@@ -62,6 +72,7 @@ void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size) {
   }
 }
 
+/*
 void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
                       const BYTE** data2, int* size2) {
   *data1 = q->buf + q->read_cursor;
@@ -71,6 +82,21 @@ void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
     *size2 = q->write_cursor;
   } else {
     *size1 = q->write_cursor - q->read_cursor;
+    *size2 = 0;
+  }
+}
+*/
+
+void ByteQueuePeekMax(BYTE_QUEUE* q, int max_size, const BYTE** data1,
+                      int* size1, const BYTE** data2, int* size2) {
+  if (max_size > q->size) max_size = q->size;
+  *data1 = q->buf + q->read_cursor;
+  if (q->read_cursor + max_size > q->capacity) {
+    *size1 = q->capacity - q->read_cursor;
+    *data2 = q->buf;
+    *size2 = max_size - *size1;
+  } else {
+    *size1 = max_size;
     *size2 = 0;
   }
 }

@@ -17,7 +17,7 @@
   void log_init();
 
   #define SAVE_PIN4_FOR_LOG() if (pin == 4) return
-  #define SAVE_UART1_FOR_LOG() if (uart == 1) return
+  #define SAVE_UART1_FOR_LOG() if (uart_num == 1) return
 #else
   #define log_print_buf(b,s)
   #define log_print_0(x)

@@ -2,8 +2,9 @@
 #define __UART_H__
 
 void UARTInit();
-void UARTConfig(int uart, int rate, int speed4x, int two_stop_bits, int parity);
-void UARTTransmit(int uart, const void* data, int size);
+void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits,
+                int parity);
+void UARTTransmit(int uart_num, const void* data, int size);
 void UARTTasks();
 void UARTReportTxStatus(int uart);
 

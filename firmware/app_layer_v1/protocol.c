@@ -12,6 +12,7 @@
 #include "board.h"
 #include "uart.h"
 #include "spi.h"
+#include "i2c.h"
 #include "sync.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
@@ -35,10 +36,14 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(UART_CONFIG_ARGS),
   sizeof(SET_PIN_UART_RX_ARGS),
   sizeof(SET_PIN_UART_TX_ARGS),
-  sizeof(SPI_DATA_ARGS),
+  sizeof(SPI_MASTER_REQUEST_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(SPI_CONFIGURE_MASTER_ARGS),
-  sizeof(SET_PIN_SPI_ARGS)
+  sizeof(SET_PIN_SPI_ARGS),
+  sizeof(I2C_CONFIGURE_MASTER_ARGS),
+  sizeof(I2C_WRITE_READ_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(SET_PIN_I2C_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -63,7 +68,11 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SPI_DATA_ARGS),
   sizeof(SPI_REPORT_TX_STATUS_ARGS),
   sizeof(SPI_CONFIGURE_MASTER_ARGS),
-  sizeof(SET_PIN_SPI_ARGS)
+  sizeof(SET_PIN_SPI_ARGS),
+  sizeof(I2C_CONFIGURE_MASTER_ARGS),
+  sizeof(I2C_RESULT_ARGS),
+  sizeof(I2C_REPORT_TX_STATUS_ARGS),
+  sizeof(SET_PIN_I2C_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -91,8 +100,17 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
     case UART_DATA:
       return msg->args.uart_data.size + 1;
 
-    case SPI_DATA:
-      return msg->args.spi_data.size + 1;
+    case SPI_MASTER_REQUEST:
+      if (msg->args.spi_master_request.data_size_neq_total) {
+        return msg->args.spi_master_request.data_size
+            + msg->args.spi_master_request.res_size_neq_total;
+      } else {
+        return msg->args.spi_master_request.total_size
+            + msg->args.spi_master_request.res_size_neq_total;
+      }
+
+    case I2C_WRITE_READ:
+      return msg->args.i2c_write_read.write_size;
 
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
@@ -143,6 +161,7 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
 void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   SPITasks();
+  I2CTasks();
   if (ADBChannelReady(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
@@ -271,13 +290,29 @@ static BOOL MessageDone() {
       Echo();
       break;
 
-    case SPI_DATA:
-      CHECK(rx_msg.args.spi_data.spi_num < NUM_SPI_MODULES);
-      CHECK(rx_msg.args.spi_data.ss_pin < NUM_PINS);
-      SPITransmit(rx_msg.args.spi_data.spi_num,
-                  rx_msg.args.spi_data.ss_pin,
-                  rx_msg.args.spi_data.data,
-                  rx_msg.args.spi_data.size + 1);
+    case SPI_MASTER_REQUEST:
+      CHECK(rx_msg.args.spi_master_request.spi_num < NUM_SPI_MODULES);
+      CHECK(rx_msg.args.spi_master_request.ss_pin < NUM_PINS);
+      {
+        const BYTE total_size = rx_msg.args.spi_master_request.total_size + 1;
+        const BYTE data_size = rx_msg.args.spi_master_request.data_size_neq_total
+            ? rx_msg.args.spi_master_request.data_size
+            : total_size;
+        const BYTE res_size = rx_msg.args.spi_master_request.res_size_neq_total
+            ? rx_msg.args.spi_master_request.vararg[
+                rx_msg.args.spi_master_request.data_size_neq_total]
+            : total_size;
+        const BYTE* const data = &rx_msg.args.spi_master_request.vararg[
+            rx_msg.args.spi_master_request.data_size_neq_total
+            + rx_msg.args.spi_master_request.res_size_neq_total];
+
+        SPITransmit(rx_msg.args.spi_master_request.spi_num,
+                    rx_msg.args.spi_master_request.ss_pin,
+                    data,
+                    data_size,
+                    total_size,
+                    total_size - res_size);
+      }
       break;
 
     case SPI_CONFIGURE_MASTER:
@@ -305,6 +340,38 @@ static BOOL MessageDone() {
                 rx_msg.args.set_pin_spi.mode,
                 rx_msg.args.set_pin_spi.enable);
       Echo();
+      break;
+
+    case I2C_CONFIGURE_MASTER:
+      CHECK(rx_msg.args.i2c_configure_master.i2c_num < NUM_I2C_MODULES);
+      I2CConfigMaster(rx_msg.args.i2c_configure_master.i2c_num,
+                      rx_msg.args.i2c_configure_master.rate,
+                      rx_msg.args.i2c_configure_master.smbus_levels);
+      Echo();
+      I2CReportTxStatus(rx_msg.args.i2c_configure_master.i2c_num);
+      break;
+
+    case I2C_WRITE_READ:
+      CHECK(rx_msg.args.i2c_write_read.i2c_num < NUM_I2C_MODULES);
+      {
+        unsigned int addr;
+        if (rx_msg.args.i2c_write_read.ten_bit_addr) {
+          addr = rx_msg.args.i2c_write_read.addr_lsb;
+          addr = addr << 8
+                  | ((rx_msg.args.i2c_write_read.addr_msb << 1)
+                    | 0b11110000);
+        } else {
+          CHECK(rx_msg.args.i2c_write_read.addr_msb == 0
+                && rx_msg.args.i2c_write_read.addr_lsb >> 7 == 0
+                && rx_msg.args.i2c_write_read.addr_lsb >> 2 != 0b0011110);
+          addr = rx_msg.args.i2c_write_read.addr_lsb;
+        }
+        I2CWriteRead(rx_msg.args.i2c_write_read.i2c_num,
+                     addr,
+                     rx_msg.args.i2c_write_read.data,
+                     rx_msg.args.i2c_write_read.write_size,
+                     rx_msg.args.i2c_write_read.read_size);
+      }
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

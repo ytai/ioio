@@ -3,6 +3,8 @@
 #ifndef __SYNC_H__
 #define __SYNC_H__
 
+#include "GenericTypeDefs.h"
+
 // Disable interrupts at or below a certain level.
 // Returns the previous interrupt state. Call again with the returned value in
 // order to return to the previous state.
