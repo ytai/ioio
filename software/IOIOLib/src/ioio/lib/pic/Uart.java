@@ -126,6 +126,15 @@ public class Uart implements IoioPacketListener {
         ioio.sendPacket(configure);
         ioio.sendPacket(setRx);
         ioio.sendPacket(setTx);       
+        
+        // We get back a packet of nonsense on init of rx.
+        // might be better to fix in firmware? 
+        try {
+            this.openInputStream().read();
+        } catch (IOException e) {
+            // 
+            e.printStackTrace();
+        }
     }
 
     private void calculateRates() {
@@ -185,15 +194,8 @@ public class Uart implements IoioPacketListener {
                 case Constants.UART_RX:
                     int firstbyte = Bytes.readByte(in); 
                     int length = firstbyte & 0x3F;
-                    IoioLogger.log("reading rx len : " + length);
-                    byte[] payload = new byte[length+1];
+                    byte[] payload = new byte[length+2];
                     payload[0] = (byte) firstbyte;
-                    // TODO(arshan/ytai): fix this
-                    if (payload.length == 1) {
-                        IoioLogger.log("pop a byte?");
-                        Bytes.readByte(in); // when there are zero bytes, there are actually 1
-                        // unless its actually sending us a establish packet again? ... (doesnt appear so)
-                    }
                     Bytes.readFully(in, payload, 1);    
                     return new IoioPacket(message, payload);
                     
@@ -215,14 +217,11 @@ public class Uart implements IoioPacketListener {
         switch (packet.message) {
             case Constants.UART_RX:
                 // received bytes from ioio.
-                packet.log("<< ");
                 if ((packet.payload[0] >> 6) == uartNum) {
                     // TODO(arshan): consider our own buffer implementation for
                     // perf. ie. circular byte[]
                     // lets us use System.arrayCopy() ...
-                    IoioLogger.log("Woot I've got bytes ... " + packet.payload.length);
                     for (int x = 1; x < packet.payload.length; x++) {
-                        IoioLogger.log("pushing : " + (char) packet.payload[x]);
                         incoming.offer((int) packet.payload[x]);
                     }
                 }
@@ -232,11 +231,9 @@ public class Uart implements IoioPacketListener {
             case Constants.UART_SET_TX:
             case Constants.UART_CONFIGURE:
                 // consider catching these to get the confirmations.
-                packet.log("<< ");             
                 break;
 
             case Constants.UART_TX_STATUS:
-                packet.log("<< ");
                 // tells us how many bytes remain in the tx buffer on IOIO
                 if ((packet.payload[0] & 0x3) == uartNum) {
                     onIoioTxBuffer = (( packet.payload[0] >> 2 ) | (packet.payload[1] << 8));
@@ -246,6 +243,24 @@ public class Uart implements IoioPacketListener {
         }
     }
 
+    
+    public void close() throws IOException {
+       IoioPacket deconfigure = new IoioPacket(Constants.UART_CONFIGURE, new byte[] {
+                (byte) (uartNum << 6 | (fourX ? 0x08 : 0x00)
+                        | (stop_bits == TWO_STOP_BITS ? 0x40 : 0) | (parity & 0x3)),
+                (byte) ((rate >> 8) & 0xFF)
+        });
+
+        try {
+            ioio.sendPacket(deconfigure);
+            rx.close();
+            tx.close();
+            ioio.unregisterListener(this);
+        } catch (ConnectionLostException e) {
+            // If we lose connection here, well mission accomplished.
+        }   
+    }
+    
     public int getUartNum() {
         return uartNum;
     }
@@ -280,8 +295,9 @@ public class Uart implements IoioPacketListener {
                         // The limit of onIoioTxBuffer should keep this from
                         // overflowing.
                         payload[0] = (byte) (getUartNum() << 6 | (byte_cnt - 1));
-
-                    //    payload[0] = (byte) (getUartNum() << 6 | (byte_cnt));
+                        
+                        // trying to ferret out the issue
+                        //payload[0] = (byte) (getUartNum() << 6 | (byte_cnt));
                         for (x = 0; x < byte_cnt; x++) {
                             payload[x + 1] = outgoing.poll();
                             IoioLogger.log("loaded char " + (char)payload[x+1]);

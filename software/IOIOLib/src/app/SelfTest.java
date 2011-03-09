@@ -30,17 +30,17 @@ import android.widget.TextView;
 public class SelfTest extends Activity {
 
 	// Dont stop testing if there is a failure, try them all.
-	private static final boolean FORCE_ALL_TESTS = true;
+	private static final boolean FORCE_ALL_TESTS = false;
 
 	// Some setup for the tests, this pins should be shorted to each other
-	public static final int OUTPUT_PIN = 26;
-	public static final int INPUT_PIN = 23;
+	public static final int OUTPUT_PIN = 10;
+	public static final int INPUT_PIN = 11;
 	public static final int ANALOG_INPUT_PIN = 33;
 	public static final int ANALOG_OUTPUT_PIN = 14;
 
 	// note that these overload the above digital i/o connections, but input/output reversed
-	public static final int UART_RX = 26;
-	public static final int UART_TX = 23;
+	public static final int UART_RX = 10;
+	public static final int UART_TX = 11;
 
 	// for repetitive tests, do this many
 	public static final int REPETITIONS = 5;
@@ -81,17 +81,21 @@ public class SelfTest extends Activity {
 
                     status("Testing");
 
+                    /*
     				testHardReset();
      			    testSoftReset();
 
     			    testDisconnectReconnect();
 
     				// should test hard reset too.
-    				// testDigitalOutput(); // for probing output with meter
+    			    //testDigitalOutput(); // for probing output with meter
      				testDigitalIO();
                     testAnalogInput();
                     // testPWM();
                     // testServo();
+                      
+                     
+                     */
      				testUart(); 
      				
     				msg("Tests Finished");
@@ -271,28 +275,56 @@ public class SelfTest extends Activity {
     
     public void testUart() throws FailException {
     	msg("Starting UART Test");
+    	testUartAtBaud(Uart.BAUD_9600);
+    	softReset(); // BUG? is this cause SW doesnt tear down or FW? 
+    	testUartAtBaud(Uart.BAUD_19200);
+    	softReset();
+    	testUartAtBaud(Uart.BAUD_38400);    	  
+    }
+
+    public void softReset() {
+        try {
+            ioio.softReset();
+        } catch (ConnectionLostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } 
+        sleep(100);
+    }
+    protected void testUartAtBaud(int baud) {
     
-    	try {
-    	    ioio.softReset();
-            sleep(100);
-            
+        boolean cache_test = false;
+        msg("Testing UART at " + baud);
+        try {
         	// TODO(arshan): try this at different settings?
         	Uart uart = ioio.openUart(UART_RX, UART_TX,
-        			Uart.BAUD_38400, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
+        			baud, Uart.NO_PARITY, Uart.ONE_STOP_BIT );
         	InputStream in = uart.openInputStream();
         	OutputStream out = uart.openOutputStream();
         	// TODO(arshan): do the corner case chars too
-        	sleep(500);
-        	String TEST = "IOIOabcdefghijklmnopqrstuvqzyzIOIOABCDEFGHIJKLMNOPQRSTUVWXYZIOIO";
+        	int c;
+        	String TEST = "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}";
         	for (int x = 0; x < TEST.length(); x++) {
-        	    msg("sending on tx : " + TEST.charAt(x));
     			out.write(TEST.charAt(x));
-    			int c = in.read();
-    			msg("got back a " + (char)c);
+    			c = in.read();
     			assertTrue(c == TEST.charAt(x));
         	}
-        	in.close();
-        	out.close();
+        	msg("passed inline test");
+        	
+        	if (cache_test) {
+        	// now without blocking ... tests the caching
+        	for (int x = 0; x < TEST.length(); x++) {
+                out.write(TEST.charAt(x));
+            }
+        	msg("all bytes in cache");
+        	for (int x = 0; x < TEST.length(); x++) {
+                c = in.read();
+                assertTrue(c == TEST.charAt(x));
+            }
+        	msg("passed cached test");
+        	}
+        	
+        	uart.close();
     	} catch (Exception e) {
     	    e.printStackTrace();
     	    exception(e);

@@ -81,7 +81,7 @@ public class DigitalInput extends IoioPin implements IoioPacketListener, Input<B
     @Override
     public void close() {
         ioio.releasePin(pin);
-        // TODO(TF)
+        ioio.unregisterListener(this);
     }
 
     private static final PacketFramer CHANGE_NOTIFY_HANDLER = PacketFramers.getNBytePacketFramerFor(Constants.SET_CHANGE_NOTIFY, 1);

@@ -33,9 +33,13 @@ public class ListenerManager {
     }
 
     public void registerListener(IoioPacketListener listener) {
-        IoioLogger.log("registering listener");
+        IoioLogger.log("registering listener " + listener.toString());
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
+    }
+    
+    public void unregisterListener(IoioPacketListener listener) {
+        listeners.remove(listener);
     }
 }

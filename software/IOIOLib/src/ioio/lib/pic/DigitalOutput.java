@@ -108,7 +108,7 @@ public class DigitalOutput extends IoioPin implements IoioPacketListener, Output
     @Override
     public void close() {
         ioio.releasePin(pin);
-        // TODO(TF): Implement this
+        ioio.unregisterListener(this);
     }
 
     private static final PacketFramer SET_DIGITAL_OUTPUT_PACKET_FRAMER =

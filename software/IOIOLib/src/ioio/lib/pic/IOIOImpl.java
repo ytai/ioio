@@ -34,7 +34,7 @@ import java.net.BindException;
  */
 public class IoioImpl extends Service implements Ioio {
     // pin 0 - onboard LED; pins 1-48 physical external pins
-    private ModuleAllocator PINS = getNewPinAllocation();
+    private ModuleAllocator myPins = getNewPinAllocation();
 
     private ModuleAllocator getNewPinAllocation() {
         return new ModuleAllocator(49);
@@ -99,7 +99,7 @@ public class IoioImpl extends Service implements Ioio {
 	    if (!isConnected()) {
 	        try {
                 ioioConnection.start(framerRegistry);
-                PINS = getNewPinAllocation();
+                myPins = getNewPinAllocation();
             } catch (BindException e) {
                 e.printStackTrace();
                 throw new SocketException("BindException: " + e.getMessage());
@@ -139,8 +139,12 @@ public class IoioImpl extends Service implements Ioio {
 	}
 
 	public void registerListener(IoioPacketListener listener){
-	    listeners.registerListener(listener);
-	}
+        listeners.registerListener(listener);
+    }
+	
+	public void unregisterListener(IoioPacketListener listener){
+        listeners.unregisterListener(listener);
+    }
 
 	@Override
     public void disconnect() {
@@ -189,14 +193,14 @@ public class IoioImpl extends Service implements Ioio {
 	}
 
     public void reservePin(int pin) throws InvalidOperationException {
-        boolean allocated = PINS.requestAllocate(pin);
+        boolean allocated = myPins.requestAllocate(pin);
         if (!allocated) {
             throw new InvalidOperationException("Pin " + pin + " already open?");
         }
     }
 
     public void releasePin(int pin) {
-        PINS.releaseModule(pin);
+        myPins.releaseModule(pin);
     }
 
     @Override
