@@ -10,12 +10,12 @@ import android.os.IBinder;
 
 import ioio.lib.DigitalInputMode;
 import ioio.lib.DigitalOutputMode;
-import ioio.lib.IOIO;
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidOperationException;
-import ioio.lib.IOIOException.OperationAbortedException;
-import ioio.lib.IOIOException.OutOfResourceException;
-import ioio.lib.IOIOException.SocketException;
+import ioio.lib.Ioio;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidOperationException;
+import ioio.lib.IoioException.OperationAbortedException;
+import ioio.lib.IoioException.OutOfResourceException;
+import ioio.lib.IoioException.SocketException;
 import ioio.lib.Input;
 import ioio.lib.Output;
 import ioio.lib.PwmOutput;
@@ -32,9 +32,9 @@ import java.net.BindException;
  *
  * @author arshan
  */
-public class IOIOImpl extends Service implements IOIO {
+public class IoioImpl extends Service implements Ioio {
     // pin 0 - onboard LED; pins 1-48 physical external pins
-    private ModuleAllocator PINS = getNewPinAllocation();
+    private ModuleAllocator myPins = getNewPinAllocation();
 
     private ModuleAllocator getNewPinAllocation() {
         return new ModuleAllocator(49);
@@ -44,40 +44,29 @@ public class IOIOImpl extends Service implements IOIO {
 
     private static final int CONNECT_WAIT_TIME_MS = 100;
 
-    private static final DigitalInputMode DEFAULT_DIGITAL_INPUT_MODE = DigitalInputMode.PULL_DOWN;
+    // TODO(arshan): lets move this into something like IoioConfig
+    private static final DigitalInputMode DEFAULT_DIGITAL_INPUT_MODE = DigitalInputMode.FLOATING;
 
-    // for convenience, might not stay long
-	// ytai: why singleton? i think there should be:
-	// a. one class (this one) that implements the protocol and exposes IOIOApi.
-	//    has a non-public (package scope) ctor that gets a InputStream and OutputStream
-	//    for the connection.
-	// b. a factory/glue/bootstrap class that listens on TCP and instantiates the IOIO class with
-	//    its input and output streams when a connection comes in.
-	// the upside is that this class become independent from the physical connection.
-	// for testing purposes we can give it mock input and output stream.
-	// for development we can stick a protocol logger between this layer and the TCP socket, etc.
-	static private IOIOImpl singleton = null;
-
-	private final IOIOConnection ioioConnection;
+	private final IoioConnection ioioConnection;
 
 	private boolean abortConnection = false;
 
 	ListenerManager listeners;
 
-	public IOIOImpl(IOIOConnection ioio_connection, ListenerManager listeners) {
+	public IoioImpl(IoioConnection ioio_connection, ListenerManager listeners) {
 	    this.ioioConnection = ioio_connection;
 	    this.listeners = listeners;
 	}
 
-	public IOIOImpl(ListenerManager listeners) {
-	    this(new IOIOConnection(listeners), listeners);
+	public IoioImpl(ListenerManager listeners) {
+	    this(new IoioConnection(listeners), listeners);
 	}
 
 	/**
 	 * Strict singleton? or just for convenience
 	 * @param iostream
 	 */
-	public IOIOImpl() {
+	public IoioImpl() {
 	    this(new ListenerManager());
 	}
 
@@ -92,7 +81,7 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	// queue an outgoing packet
-	public void sendPacket(IOIOPacket pkt) throws ConnectionLostException {
+	public void sendPacket(IoioPacket pkt) throws ConnectionLostException {
 		ioioConnection.sendToIOIO(pkt);
 	}
 
@@ -110,7 +99,7 @@ public class IOIOImpl extends Service implements IOIO {
 	    if (!isConnected()) {
 	        try {
                 ioioConnection.start(framerRegistry);
-                PINS = getNewPinAllocation();
+                myPins = getNewPinAllocation();
             } catch (BindException e) {
                 e.printStackTrace();
                 throw new SocketException("BindException: " + e.getMessage());
@@ -149,17 +138,13 @@ public class IOIOImpl extends Service implements IOIO {
 		ioioConnection.sendToIOIO(Constants.HARD_RESET_PACKET);
 	}
 
-	// Singleton? TBD
-    public static IOIO getInstance() {
-		if (singleton == null) {
-			singleton = new IOIOImpl();
-		}
-		return singleton;
-	}
-
-	public void registerListener(IOIOPacketListener listener){
-	    listeners.registerListener(listener);
-	}
+	public void registerListener(IoioPacketListener listener){
+        listeners.registerListener(listener);
+    }
+	
+	public void unregisterListener(IoioPacketListener listener){
+        listeners.unregisterListener(listener);
+    }
 
 	@Override
     public void disconnect() {
@@ -195,7 +180,7 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
 	@Override
-    public Uart openUart(int rx, int tx, int baud, int parity, float stopbits)
+    public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
 	throws ConnectionLostException, InvalidOperationException {
 		return new Uart(this, nextAvailableUart(), rx, tx, baud, parity, stopbits);
 	}
@@ -208,19 +193,26 @@ public class IOIOImpl extends Service implements IOIO {
 	}
 
     public void reservePin(int pin) throws InvalidOperationException {
-        boolean allocated = PINS.requestAllocate(pin);
+        boolean allocated = myPins.requestAllocate(pin);
         if (!allocated) {
             throw new InvalidOperationException("Pin " + pin + " already open?");
         }
     }
 
     public void releasePin(int pin) {
-        PINS.releaseModule(pin);
+        myPins.releaseModule(pin);
     }
 
     @Override
     public Input<Boolean> openDigitalInput(int pin, DigitalInputMode mode)
             throws ConnectionLostException, InvalidOperationException {
         return new DigitalInput(this, framerRegistry, pin, mode);
+    }
+
+    // This is getting weird, every interested party registers a framer and listener
+    // for the same packets. I think we should strip the complexity, consider 
+    // more extensibility when things are more in place.
+    public PacketFramerRegistry getFramerRegistry() {
+        return this.framerRegistry;
     }
 }

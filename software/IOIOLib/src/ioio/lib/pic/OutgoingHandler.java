@@ -1,6 +1,6 @@
 package ioio.lib.pic;
 
-import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IoioException.ConnectionLostException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,8 +17,8 @@ public class OutgoingHandler {
         this.out = out;
 	}
 
-	public void sendPacket(IOIOPacket packet) throws ConnectionLostException {
-        IOIOLogger.log("outgoing thread Sending message: " + packet.toString());
+	public void sendPacket(IoioPacket packet) throws ConnectionLostException {
+        IoioLogger.log("outgoing thread Sending message: " + packet.toString());
 	    try {
             out.write(packet.message);
             if (packet.payload != null) {

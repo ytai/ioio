@@ -4,12 +4,15 @@ package ioio.lib.pic;
  *
  * @author arshan
  */
-public class IOIOPacket {
+public class IoioPacket {
 
 	public final int message;
+	
+	// TODO(arshan): change all byte[] for ByteBuffer?
+	// dont know what the trade off is performance/convenience
 	public final byte[] payload;
 
-	public IOIOPacket(int message, byte[] payload) {
+	public IoioPacket(int message, byte[] payload) {
 		this.message = message;
 		if (payload == null ) {
 			// better as 0 length array?
@@ -23,11 +26,11 @@ public class IOIOPacket {
 
 	@Override
 	public boolean equals(Object obj) {
-	    if (!(obj instanceof IOIOPacket)) {
+	    if (!(obj instanceof IoioPacket)) {
 	        return false;
 	    }
 
-	    IOIOPacket other = (IOIOPacket) obj;
+	    IoioPacket other = (IoioPacket) obj;
 
 	    return (other.message == message) && arrEq(other.payload, payload);
 	}
@@ -51,7 +54,7 @@ public class IOIOPacket {
 
     @Override
     public String toString() {
-        return "IOIO Packet(" + message + ") : " + toString(payload);
+        return "IOIO Packet(0x" + Integer.toHexString(message&0xFF) + ") : "+ toString(payload);
     }
 
     private String toString(byte[] arr) {
@@ -59,9 +62,20 @@ public class IOIOPacket {
             return "null";
         }
         String msg = "";
+        
         for (byte val : arr) {
-            msg += " " + val;
+            msg += " " + Integer.toHexString(val&0xFF);
         }
         return msg;
+    }
+
+ // utility method to log the packet
+    public void log() {
+       log("");
+    }
+    
+    // utility method to log the packet
+    public void log(String prefix) {
+        IoioLogger.log(prefix + toString());
     }
 }

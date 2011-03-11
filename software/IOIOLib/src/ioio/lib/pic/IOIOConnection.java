@@ -1,6 +1,6 @@
 package ioio.lib.pic;
 
-import ioio.lib.IOIOException.ConnectionLostException;
+import ioio.lib.IoioException.ConnectionLostException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,23 +11,14 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Simple thread to maintain connection to IOIO, buffers all IO
- * independent of the rest of operations.
+ * Socket based connection to
  *
  */
-public class IOIOConnection implements ConnectionStateCallback {
+public class IoioConnection implements ConnectionStateCallback {
 	IncomingHandler incomingHandler;
 	private final ListenerManager listeners;
 
-	// mS timeout in which we consider the ioio not connected if no response.
-	// ytai: i would just leave it to the client to abort(). from a GUI perspective
-	// it might more sense to leave it to the human user to press "cancel" when he
-	// gives up. he might be in the process of connecting the ioio and will be annoyed
-	// with automatic timeout. if a certain app does want this behaviour, they can always
-	// setup a thread that sleeps for 3 seconds, then fires abort() unless stopped.
-	// arshan: not sure that 3seconds is the right time, but think we should have some
-	// upper bound where if no connection is made we eject any pending requests of IOIO,
-	// and any blocking calls in the api throw exceptions
+	// TODO(arshan): remove this.
 	public static final int IOIO_TIMEOUT = 3000;
 
 	public static final byte EOF = -1;
@@ -48,29 +39,29 @@ public class IOIOConnection implements ConnectionStateCallback {
 	private boolean disconnectionRequested;
     private PacketFramerRegistry framerRegistry;
 
-	public IOIOConnection(ListenerManager listener) {
+	public IoioConnection(ListenerManager listener) {
 		this(Constants.IOIO_PORT, listener);
 	}
 
-	public IOIOConnection(int port, ListenerManager listeners) {
+	public IoioConnection(int port, ListenerManager listeners) {
 		this.port = port;
 		this.listeners = listeners;
 	}
 
-	IOIOConnection(InputStream in, OutputStream out, ListenerManager listeners) {
+	IoioConnection(InputStream in, OutputStream out, ListenerManager listeners) {
 		this.in = in;
 		this.out = out;
 		this.listeners = listeners;
 	}
 
-    IOIOConnection(ServerSocket ssocket, ListenerManager listeners) {
+    IoioConnection(ServerSocket ssocket, ListenerManager listeners) {
 		this.ssocket = ssocket;
 		this.listeners = listeners;
 	}
 
 	private boolean bindOnPortForIOIOBoard() throws IOException, BindException {
 	    if (ssocket == null) {
-	        IOIOLogger.log("binding on port : " + port);
+	        IoioLogger.log("binding on port : " + port);
 	        ssocket = new ServerSocket(port);
 	        setTimeout(IOIO_TIMEOUT);
 	    }
@@ -78,7 +69,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	}
 
     private void handleShutdown() throws IOException {
-        IOIOLogger.log("Connection is shutting down");
+        IoioLogger.log("Connection is shutting down");
         listeners.disconnectListeners();
         if (incomingHandler != null) {
             incomingHandler.halt();
@@ -101,7 +92,7 @@ public class IOIOConnection implements ConnectionStateCallback {
             socket.close();
             socket = null;
         }
-        IOIOLogger.log("shutdown complete");
+        IoioLogger.log("shutdown complete");
     }
 
 	private void safeJoin(Thread thread) {
@@ -111,7 +102,7 @@ public class IOIOConnection implements ConnectionStateCallback {
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                IOIOLogger.log("Yikes! error in join");
+                IoioLogger.log("Yikes! error in join");
             }
 	    }
     }
@@ -132,7 +123,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	 * @return true if successful
 	 */
 	public boolean waitForBoardToConnect() {
-	    IOIOLogger.log("waiting for connection...");
+	    IoioLogger.log("waiting for connection...");
 		try {
 			if (socket != null) {
 				socket.close();
@@ -149,8 +140,8 @@ public class IOIOConnection implements ConnectionStateCallback {
 		return state == VERIFIED;
 	}
 
-	public void sendToIOIO(IOIOPacket packet) throws ConnectionLostException {
-	    IOIOLogger.log("Sending message: " + packet.toString());
+	public void sendToIOIO(IoioPacket packet) throws ConnectionLostException {
+	    packet.log(">> ");
         try {
             out.write(packet.message);
             if (packet.payload != null) {
@@ -176,11 +167,11 @@ public class IOIOConnection implements ConnectionStateCallback {
     }
 
     public void join() throws InterruptedException {
-        IOIOLogger.log("Waiting for threads to join");
+        IoioLogger.log("Waiting for threads to join");
 
         if (incomingHandler != null) {
             incomingHandler.join();
-            IOIOLogger.log("Incoming handler joined");
+            IoioLogger.log("Incoming handler joined");
             incomingHandler = null;
         }
     }
@@ -194,7 +185,7 @@ public class IOIOConnection implements ConnectionStateCallback {
         if (disconnectionRequested) {
             return;
         }
-        IOIOLogger.log("initial connection");
+        IoioLogger.log("initial connection");
         try {
             in = socket.getInputStream();
             out = socket.getOutputStream();
@@ -203,14 +194,14 @@ public class IOIOConnection implements ConnectionStateCallback {
         }
         framerRegistry.registerFramer(Constants.ESTABLISH_CONNECTION, ESTABLISH_CONNECTION_FRAMER);
         framerRegistry.registerFramer(Constants.SOFT_RESET, SOFT_RESET_OR_EOF);
-        framerRegistry.registerFramer(IOIOConnection.EOF, SOFT_RESET_OR_EOF);
+        framerRegistry.registerFramer(IoioConnection.EOF, SOFT_RESET_OR_EOF);
         incomingHandler = new IncomingHandler(in, this, listeners, framerRegistry);
         incomingHandler.start();
     }
 
     @Override
     public void stateChanged(ConnectionState state) {
-        IOIOLogger.log("State changed to " + state);
+        IoioLogger.log("State changed to " + state);
         if (ConnectionState.CONNECTED.equals(state)) {
             this.state = VERIFIED;
         }
@@ -232,23 +223,23 @@ public class IOIOConnection implements ConnectionStateCallback {
     private PacketFramer SOFT_RESET_OR_EOF =
         new PacketFramer() {
             @Override
-            public IOIOPacket frame(byte message, InputStream in) throws IOException {
-                if (message == IOIOConnection.EOF) {
-                    IOIOLogger.log("Connection broken by EOF");
+            public IoioPacket frame(byte message, InputStream in) throws IOException {
+                if (message == IoioConnection.EOF) {
+                    IoioLogger.log("Connection broken by EOF");
 //                    stateChanged(ConnectionState.SHUTTING_DOWN);
                     return null;
                 }
                 assert(message == Constants.SOFT_RESET);
-                return new IOIOPacket(message, null);
+                return new IoioPacket(message, null);
             }
         };
 
     private PacketFramer ESTABLISH_CONNECTION_FRAMER =
         new PacketFramer() {
             @Override
-            public IOIOPacket frame(byte message, InputStream in) throws IOException {
+            public IoioPacket frame(byte message, InputStream in) throws IOException {
                 assert(message == Constants.ESTABLISH_CONNECTION);
-                IOIOPacket packet = new IOIOPacket(message, Bytes.readBytes(in, 13));
+                IoioPacket packet = new IoioPacket(message, Bytes.readBytes(in, 13));
                 if (IncomingHandler.verifyEstablishPacket(packet)) {
                     stateChanged(ConnectionState.CONNECTED);
                     return packet;

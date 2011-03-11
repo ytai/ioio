@@ -10,33 +10,36 @@ import java.util.List;
  * @author birmiwal
  */
 public class ListenerManager {
-    List<IOIOPacketListener> listeners = new LinkedList<IOIOPacketListener>();
+    List<IoioPacketListener> listeners = new LinkedList<IoioPacketListener>();
 
     public void disconnectListeners() {
-        for (IOIOPacketListener listener : listeners) {
+        for (IoioPacketListener listener : listeners) {
             listener.disconnectNotification();
         }
 
-        IOIOLogger.log("resetting listeners");
+        IoioLogger.log("resetting listeners");
         listeners.clear();
     }
 
     /**
      * Handle an incoming packet from the IOIO.
      */
-    public void handlePacket(IOIOPacket packet) {
+    public void handlePacket(IoioPacket packet) {
         // send to my listeners
         // IOIOLogger.log("handle packet : " + packet.toString() + " / " + listeners.size() + " listeners");
-        // TODO(arshan): add some filters for message types? we've already case'd it above
-        for (IOIOPacketListener listener: listeners) {
+        for (IoioPacketListener listener: listeners) {
             listener.handlePacket(packet);
         }
     }
 
-    public void registerListener(IOIOPacketListener listener) {
-        IOIOLogger.log("registering listener");
+    public void registerListener(IoioPacketListener listener) {
+        IoioLogger.log("registering listener " + listener.toString());
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
+    }
+    
+    public void unregisterListener(IoioPacketListener listener) {
+        listeners.remove(listener);
     }
 }

@@ -1,10 +1,10 @@
 package ioio.lib;
 
-import ioio.lib.IOIOException.ConnectionLostException;
-import ioio.lib.IOIOException.InvalidOperationException;
-import ioio.lib.IOIOException.OperationAbortedException;
-import ioio.lib.IOIOException.OutOfResourceException;
-import ioio.lib.IOIOException.SocketException;
+import ioio.lib.IoioException.ConnectionLostException;
+import ioio.lib.IoioException.InvalidOperationException;
+import ioio.lib.IoioException.OperationAbortedException;
+import ioio.lib.IoioException.OutOfResourceException;
+import ioio.lib.IoioException.SocketException;
 import ioio.lib.pic.Uart;
 
 /**
@@ -22,7 +22,7 @@ import ioio.lib.pic.Uart;
  * @author arshan
  * @author birmiwal
  */
-public interface IOIO {
+public interface Ioio {
 
     /**
 	 * Establishes connection with a IOIO board.
@@ -147,7 +147,6 @@ public interface IOIO {
 	public PwmOutput openPwmOutput(int pin, boolean enableOpenDrain, int freqHz)
 	throws OutOfResourceException, ConnectionLostException, InvalidOperationException;
 
-	// TODO: test support for this
 	/**
 	 * Open a UART module, enabling a bulk transfer of byte buffers.
 	 *
@@ -163,6 +162,6 @@ public interface IOIO {
 	 * @throws ConnectionLostException in case connection was lost before running this method.
 	 * @throws InvalidOperationException
 	 */
-	public Uart openUart(int rx, int tx, int baud, int parity, float stopbits)
+	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
 	throws ConnectionLostException, InvalidOperationException;
 }
