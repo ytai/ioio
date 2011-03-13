@@ -43,7 +43,6 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_WRITE_READ_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(SET_PIN_I2C_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -72,7 +71,6 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
-  sizeof(SET_PIN_I2C_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };

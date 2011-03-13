@@ -141,7 +141,6 @@ void I2CTasks() {
     BYTE_QUEUE* q = &i2c->rx_queue;
     BYTE prev;
     while (i2c->num_messages_rx_queue) {
-//      log_printf("msg");
       OUTGOING_MESSAGE msg;
       msg.type = I2C_RESULT;
       msg.args.i2c_result.i2c_num = i;
@@ -205,7 +204,6 @@ static void MI2CInterrupt(int i2c_num) {
   I2C_STATE* i2c = i2c_states + i2c_num;
   volatile I2CREG* reg = i2c_reg[i2c_num];
 
-  log_printf("int state = %d", i2c->message_state);
   SetMIF[i2c_num](0);  // clear interrupt
   switch (i2c->message_state) {
     case STATE_START:
@@ -222,10 +220,7 @@ static void MI2CInterrupt(int i2c_num) {
       break;
       
     case STATE_ADDR1_WRITE:
-//      log_printf("writing: 0x%x", i2c->cur_tx_header.addr1);
-//      log_printf("stat=0x%x", reg->stat);
       reg->trn = i2c->cur_tx_header.addr1;
-//      log_printf("stat=0x%x", reg->stat);
       if (i2c->cur_tx_header.addr1 >> 3 == 0b00011110) {
         i2c->message_state = STATE_ADDR2_WRITE;
       } else {
@@ -235,7 +230,6 @@ static void MI2CInterrupt(int i2c_num) {
       
     case STATE_ADDR2_WRITE:
       if (reg->stat >> 15) goto error;
-//      log_printf("writing: 0x%x", i2c->cur_tx_header.addr2);
       reg->trn = i2c->cur_tx_header.addr2;
       i2c->message_state = STATE_WRITE_DATA;
       break;
@@ -244,7 +238,6 @@ static void MI2CInterrupt(int i2c_num) {
       if (reg->stat >> 15) goto error;
       {
         BYTE b = ByteQueuePullByte(&i2c->tx_queue);
-//        log_printf("writing: 0x%x", b);
         reg->trn = b;
       }
       ++i2c->num_tx_since_last_report;
@@ -266,7 +259,6 @@ static void MI2CInterrupt(int i2c_num) {
       break;
       
     case STATE_ADDR_READ:
-//      log_printf("writing: 0x%x", i2c->cur_tx_header.addr1 | 0x01);
       reg->trn = i2c->cur_tx_header.addr1 | 0x01;  // read address
       i2c->message_state = STATE_ACK_ADDR_READ;
       break;
@@ -282,6 +274,7 @@ static void MI2CInterrupt(int i2c_num) {
 
     case STATE_READ_DATA:
       ByteQueuePushByte(&i2c->rx_queue, reg->rcv);
+      reg->con &= ~(1 << 5);  // reset ack state
       reg->con |= (1 << 4)
                   | (i2c->bytes_remaining == 1) << 5;  // nack last byte
       i2c->message_state = STATE_ACK_READ_DATA;
@@ -299,14 +292,13 @@ static void MI2CInterrupt(int i2c_num) {
   return;
   
 error:
-  log_printf("error");
+  log_printf("I2C error");
   // pull remainder of tx message
   ByteQueuePull(&i2c->tx_queue, i2c->bytes_remaining);
   i2c->num_tx_since_last_report += i2c->bytes_remaining;
   ByteQueuePushByte(&i2c->rx_queue, 0xFF);
 
 done:
-  log_printf("done");
   ++i2c->num_messages_rx_queue;
   reg->con |= (1 << 2);  // send stop bit
   i2c->message_state = STATE_START;

@@ -236,11 +236,6 @@ typedef struct PACKED {
   WORD bytes_remaining : 14;
 } I2C_REPORT_TX_STATUS_ARGS;
 
-// set pin i2c
-// set pin spi
-typedef struct PACKED {
-} SET_PIN_I2C_ARGS;
-
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -267,7 +262,6 @@ typedef struct PACKED {
     SET_PIN_SPI_ARGS                         set_pin_spi;
     I2C_CONFIGURE_MASTER_ARGS                i2c_configure_master;
     I2C_WRITE_READ_ARGS                      i2c_write_read;
-    SET_PIN_I2C_ARGS                         set_pin_i2c;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -323,7 +317,6 @@ typedef enum {
   I2C_WRITE_READ                    = 0x15,
   I2C_RESULT                        = 0x15,
   I2C_REPORT_TX_STATUS              = 0x16,
-  SET_PIN_I2C                       = 0x17,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

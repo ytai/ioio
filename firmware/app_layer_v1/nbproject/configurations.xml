@@ -90,9 +90,9 @@
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-procedural-abstraction" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
