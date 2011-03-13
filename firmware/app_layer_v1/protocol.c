@@ -364,7 +364,7 @@ static BOOL MessageDone() {
           CHECK(rx_msg.args.i2c_write_read.addr_msb == 0
                 && rx_msg.args.i2c_write_read.addr_lsb >> 7 == 0
                 && rx_msg.args.i2c_write_read.addr_lsb >> 2 != 0b0011110);
-          addr = rx_msg.args.i2c_write_read.addr_lsb;
+          addr = rx_msg.args.i2c_write_read.addr_lsb << 1;
         }
         I2CWriteRead(rx_msg.args.i2c_write_read.i2c_num,
                      addr,
