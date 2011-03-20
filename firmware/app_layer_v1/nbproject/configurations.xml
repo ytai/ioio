@@ -24,6 +24,7 @@
       <itemPath>pwm.h</itemPath>
       <itemPath>spi.h</itemPath>
       <itemPath>sync.h</itemPath>
+      <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>../microchip/include/uart2.h</itemPath>
     </logicalFolder>
@@ -54,6 +55,7 @@
       <itemPath>protocol.c</itemPath>
       <itemPath>pwm.c</itemPath>
       <itemPath>spi.c</itemPath>
+      <itemPath>timers.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>../microchip/common/uart2.c</itemPath>
     </logicalFolder>

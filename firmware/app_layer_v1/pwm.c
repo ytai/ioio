@@ -12,16 +12,6 @@ typedef struct {
   unsigned int tmr;
 } OC_REGS;
 
-// timer 1 is clocked @16MHz
-// we use a 256x presclaer to achieve 62.5KHz
-// used for low frequency PWM
-static void Timer1Init() {
-  T1CON = 0x0000;  // Timer off
-  TMR1 = 0x0000;
-  PR1 = 0xFFFF;
-  T1CON = 0x8030;
-}
-
 #define OC_REG(num) (((volatile OC_REGS *) &OC1CON1) + num)
 
 void PWMInit() {
@@ -30,7 +20,6 @@ void PWMInit() {
   for (i = 0; i < NUM_PWM_MODULES; ++i) {
     SetPwmPeriod(i, 0, 0);
   }
-  Timer1Init();  // constantly running, feeds low-speed PWM
 }
 
 void SetPwmDutyCycle(int pwm_num, int dc, int fraction) {
