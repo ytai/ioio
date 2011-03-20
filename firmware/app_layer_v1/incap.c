@@ -3,6 +3,11 @@
 #include "Compiler.h"
 #include "board.h"
 #include "logging.h"
+#include "pp_util.h"
+
+DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IF)
+DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IE)
+DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IP)
 
 typedef struct {
   unsigned int con1;
@@ -23,5 +28,7 @@ void InCapInit() {
 
 void InCapConfig(int incap_num, int mode, int continouos, int clock_scale,
                  int input_scale) {
-
+  log_printf("InCapConfig(%d, %d, %d, %d, %d)", incap_num, mode, continouos,
+             clock_scale, input_scale);
+  Set_ICIF[2](0);
 }

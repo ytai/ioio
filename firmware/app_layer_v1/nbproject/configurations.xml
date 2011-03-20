@@ -20,6 +20,7 @@
       <itemPath>incap.h</itemPath>
       <itemPath>logging.h</itemPath>
       <itemPath>pins.h</itemPath>
+      <itemPath>pp_util.h</itemPath>
       <itemPath>protocol.h</itemPath>
       <itemPath>protocol_defs.h</itemPath>
       <itemPath>pwm.h</itemPath>
