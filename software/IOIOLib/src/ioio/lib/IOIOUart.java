@@ -54,7 +54,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
 
     OutgoingSpooler outgoingSpooler;
     
-    IOIOUart(IOIOImpl ioio, int module, DigitalInput rx, DigitalOutput tx, int baud, int parity, int stop)
+    IOIOUart(IOIOImpl ioio, DigitalInput rx, DigitalOutput tx, int baud, int parity, int stop)
             throws ConnectionLostException, InvalidOperationException {
 
         this.stop_bits = stop;
@@ -63,7 +63,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
         this.rx = rx;
         this.tx = tx;
         this.ioio = ioio;
-        uartNum = module;
+        uartNum = ioio.allocateUart();
         init();
     }
 
@@ -224,8 +224,10 @@ public class IOIOUart implements IOIOPacketListener, Uart {
             rx.close();
             tx.close();
             ioio.unregisterListener(this);
+            ioio.deallocateUart(uartNum);
         } catch (ConnectionLostException e) {
-            // If we lose connection here, well mission accomplished.
+            // Disconnected, all state will be reset when next connected so
+            // safe to ignore sequence above.
         }   
     }
     

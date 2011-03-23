@@ -60,7 +60,6 @@ public class IOIOSpi implements SpiChannel, IOIOPacketListener{
         return writeRead(buf, buf, 0);
     }
     
-
     @Override
     public void close() throws IOException {
         // release select pin?
@@ -70,7 +69,6 @@ public class IOIOSpi implements SpiChannel, IOIOPacketListener{
     public boolean isOpen() {       
         return master.isOpen();
     }
-
     
     @Override
     public int writeRead(ByteBuffer send, ByteBuffer receive, int rxOffset) 
@@ -78,12 +76,8 @@ public class IOIOSpi implements SpiChannel, IOIOPacketListener{
         // prepare for the return bytes
         incoming = receive;
         // send bytes via master
-        master.send(selectPin.getPinNumber(), send, rxOffset);
-      
-        return 0;
+        return master.send(selectPin.getPinNumber(), send, receive, rxOffset);
     }
-
-    
     
     @Override
     public void handlePacket(IOIOPacket packet) {
@@ -99,8 +93,11 @@ public class IOIOSpi implements SpiChannel, IOIOPacketListener{
 
     @Override
     public void disconnectNotification() {
-        // TODO Auto-generated method stub
-        
+        try {
+            close();
+        } catch (IOException e) {
+            // ignore
+        }          
     }
     
     private static final PacketFramer SPI_PACKET_FRAMER = new PacketFramer() {
@@ -118,9 +115,5 @@ public class IOIOSpi implements SpiChannel, IOIOPacketListener{
            }
            return null;
         }
-    };
-
-  
-    
-    
+    };  
 }

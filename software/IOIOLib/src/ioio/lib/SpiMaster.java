@@ -141,7 +141,7 @@ public class SpiMaster {
         isOpen = true;
     }
     
-    public void send(
+    public int send(
             int select, 
             ByteBuffer send, 
             ByteBuffer receive, 
@@ -171,6 +171,7 @@ public class SpiMaster {
         );
         
         controller.sendPacket(pkt);
+        return total;
     }
     
     public boolean isOpen() {
