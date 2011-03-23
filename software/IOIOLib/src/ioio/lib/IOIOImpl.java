@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketException;
 
-import android.accounts.OperationCanceledException;
-
 /**
  * High level controller and vars to the IOIO.
  * 
@@ -38,6 +36,8 @@ public class IOIOImpl implements IOIOLib {
     private ModuleAllocator getNewPinAllocation() {
         return new ModuleAllocator(49);
     }
+    
+    private ModuleAllocator uartModules = new ModuleAllocator(4);
     
     private final PacketFramerRegistry framerRegistry = new PacketFramerRegistry();
 
@@ -155,12 +155,6 @@ public class IOIOImpl implements IOIOLib {
 		return new IOIOAnalogInput(this, pin, framerRegistry);
 	}
 
-	/**
-	 * @return the next available uart module
-	 */
-	private int nextAvailableUart() {
-		return 0; // support just the one for now.
-	}
 
     public void reservePin(int pin) throws InvalidOperationException {
         boolean allocated = myPins.requestAllocate(pin);
@@ -183,28 +177,29 @@ public class IOIOImpl implements IOIOLib {
     @Override
     public PwmOutput openPwmOutput(int pin, int freqHz) throws OutOfResourceException,
             ConnectionLostException, InvalidOperationException {
-        return new IOIOPwmOutput(this, openDigitalOutput(pin, false), freqHz);
+        return openPwmOutput(openDigitalOutput(pin,false), freqHz);
     }
 
     @Override
     public PwmOutput openPwmOutput(DigitalOutput pin, int freqHz) throws OutOfResourceException,
             ConnectionLostException, InvalidOperationException {
-        // TODO Auto-generated method stub
-        return null;
+        return new IOIOPwmOutput(this, pin, freqHz);
     }
 
     @Override
     public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
             throws ConnectionLostException, InvalidOperationException {
-        return null;
+        return openUart(
+                openDigitalInput(rx), openDigitalOutput(tx, false),
+                baud, parity, stopbits
+                );
     }
 
     
     @Override
     public Uart openUart(DigitalInput rx, DigitalOutput tx, int baud, int parity, int stopbits)
             throws ConnectionLostException, InvalidOperationException {
-        // TODO Auto-generated method stub
-        return null;
+        return new IOIOUart(this, rx, tx, baud, parity, stopbits);
     }
 
    
@@ -237,6 +232,14 @@ public class IOIOImpl implements IOIOLib {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public int allocateUart() {
+        return uartModules.allocateModule();        
+    }
+    
+    public void deallocateUart(int moduleId) {
+        uartModules.releaseModule(moduleId);
     }
 
   
