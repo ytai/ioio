@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketException;
 
-import android.accounts.OperationCanceledException;
-
 /**
  * High level controller and vars to the IOIO.
  * 
