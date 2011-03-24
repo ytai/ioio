@@ -1,18 +1,17 @@
 package ioio.hackathon_app;
 
-import ioio.lib.DigitalOutputMode;
-import ioio.lib.IOIO;
-import ioio.lib.IOIOException;
-import ioio.lib.IOIOException.OperationAbortedException;
-import ioio.lib.IOIOException.SocketException;
-import ioio.lib.Input;
-import ioio.lib.Output;
-import ioio.lib.PwmOutput;
-import ioio.lib.pic.Constants;
-import ioio.lib.pic.IOIOImpl;
-
+import java.net.SocketException;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import ioio.api.AnalogInput;
+import ioio.api.DigitalOutput;
+import ioio.api.DigitalOutputMode;
+import ioio.api.IOIOLib;
+import ioio.api.PeripheralException;
+import ioio.api.PeripheralInterface;
+import ioio.api.PwmOutput;
+import ioio.lib.Constants;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -31,7 +30,7 @@ public class HackathonApp extends Activity {
 	private SeekBar seekBar;
 	private ToggleButton toggleButton;
 
-	private IOIO ioio = IOIOImpl.getInstance();
+	private IOIOLib ioio;
 
 	private Timer timer;
 	private Thread servoThread;
@@ -135,7 +134,7 @@ public class HackathonApp extends Activity {
 			super.run();
 
 			try {
-				ioio.waitForConnect();
+				ioio = PeripheralInterface.waitForController();
 				Log.i(LOG_TAG, "Connection to IOIO aquired");
 				runOnUiThread(new Runnable() {
 					@Override
@@ -144,7 +143,7 @@ public class HackathonApp extends Activity {
 						toggleButton.setEnabled(true);
 					}
 				});
-			} catch (OperationAbortedException e) {
+			} catch (PeripheralException.OperationAbortedException e) {
 				Log.e(LOG_TAG, e.getMessage());
 				return;
 			} catch (SocketException e) {
@@ -153,10 +152,10 @@ public class HackathonApp extends Activity {
 			}
 
 			// Setting pin 40 for picking up analog signals.
-			final Input<Float> input;
+			final AnalogInput input;
 			try {
 				input = ioio.openAnalogInput(40);
-			} catch (IOIOException e) {
+			} catch (PeripheralException e) {
 				Log.e(LOG_TAG, e.getMessage());
 				boardDisconnected(true);
 				return;
@@ -170,7 +169,7 @@ public class HackathonApp extends Activity {
 					final float potentiometerPosition;
 					try {
 						potentiometerPosition = input.read();
-					} catch (IOIOException e) {
+					} catch (PeripheralException e) {
 						Log.e(LOG_TAG, e.getMessage());
 						boardDisconnected(true);
 						return;
@@ -188,8 +187,8 @@ public class HackathonApp extends Activity {
 			// Setting pin 12 for PWM output.
 			final PwmOutput pwmOutput;
 			try {
-				pwmOutput = ioio.openPwmOutput(12, false, 100);
-			} catch (IOIOException e) {
+				pwmOutput = ioio.openPwmOutput(12, 100);
+			} catch (PeripheralException e) {
 				Log.e(LOG_TAG, e.getMessage());
 				boardDisconnected(true);
 				return;
@@ -215,7 +214,7 @@ public class HackathonApp extends Activity {
 						// Setting the new position of the servo.
 						try {
 							pwmOutput.setDutyCycle(pos);
-						} catch (IOIOException e) {
+						} catch (PeripheralException e) {
 							Log.e(LOG_TAG, e.getMessage());
 							boardDisconnected(true);
 							return;
@@ -231,10 +230,10 @@ public class HackathonApp extends Activity {
 			};
 			servoThread.start();
 
-	        final Output<Boolean> led;
+	        final DigitalOutput led;
 			try {
 				led = ioio.openDigitalOutput(Constants.LED_PIN, true, DigitalOutputMode.OPEN_DRAIN);
-			} catch (IOIOException e) {
+			} catch (PeripheralException e) {
 				Log.e(LOG_TAG, e.getMessage());
 				boardDisconnected(true);
 				return;
@@ -246,7 +245,7 @@ public class HackathonApp extends Activity {
 					// The led is connected in a way, where 0 is light, 1 is off.
 					try {
 						led.write(!isChecked);
-					} catch (IOIOException e) {
+					} catch (PeripheralException e) {
 						Log.e(LOG_TAG, e.getMessage());
 						boardDisconnected(true);
 						return;
