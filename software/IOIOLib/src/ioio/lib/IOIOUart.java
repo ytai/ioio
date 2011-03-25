@@ -71,8 +71,10 @@ public class IOIOUart implements IOIOPacketListener, Uart {
         calculateRates();
 
         configure = new IOIOPacket(Constants.UART_CONFIGURE, new byte[] {
-                (byte) (uartNum << 6 | (fourX ? 0x08 : 0x00)
-                        | (stop_bits == TWO_STOP_BITS ? 0x40 : 0) | (parity & 0x3)),
+                (byte) (uartNum << 6 
+                        | (fourX ? 0x08 : 0x00)
+                        | (stop_bits == TWO_STOP_BITS ? 0x04 : 0x00) 
+                        | (parity & 0x03)),
                 (byte) (rate & 0xFF), 
                 (byte) ((rate >> 8) & 0xFF)
         });
@@ -215,7 +217,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
     public void close() throws IOException {
        IOIOPacket deconfigure = new IOIOPacket(Constants.UART_CONFIGURE, new byte[] {
                 (byte) (uartNum << 6 | (fourX ? 0x08 : 0x00)
-                        | (stop_bits == TWO_STOP_BITS ? 0x40 : 0) | (parity & 0x3)),
+                        | (stop_bits == TWO_STOP_BITS ? 0x04 : 0) | (parity & 0x3)),
                 (byte) ((rate >> 8) & 0xFF)
         });
 
@@ -226,8 +228,8 @@ public class IOIOUart implements IOIOPacketListener, Uart {
             ioio.unregisterListener(this);
             ioio.deallocateUart(uartNum);
         } catch (ConnectionLostException e) {
-            // Disconnected, all state will be reset when next connected so
-            // safe to ignore sequence above.
+            // disconnected, all state will be reset when next connected so
+            // safe to ignore sequence 
         }   
     }
     
