@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "spi.h"
 #include "i2c.h"
+#include "timers.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pin modes
@@ -172,6 +173,7 @@ void SoftReset() {
   BYTE ipl_backup = SRbits.IPL;
   SRbits.IPL = 7;  // disable interrupts
   log_printf("SoftReset()");
+  TimersInit();
   PinsInit();
   PWMInit();
   ADCInit();
