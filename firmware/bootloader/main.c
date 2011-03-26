@@ -78,6 +78,7 @@ static BYTE fingerprint[FINGERPRINT_SIZE];
 static const char* manager_path;
 char filepath[MAX_PATH];
 static AUTH_RESULT auth_result;
+static int led_counter = 0;
 
 BOOL ValidateFingerprint() {
   int i;
@@ -203,7 +204,7 @@ int main() {
 
   while (1) {
     BOOL connected = BootloaderTasks();
-    mLED_0 = !connected;
+    mLED_0 = (state == MAIN_STATE_ERROR) ? (led_counter++ >> 13) : !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }
