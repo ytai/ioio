@@ -9,6 +9,12 @@
 #include "usb_host_android.h"
 #include "logging.h"
 
+#define CHANGE_CHANNEL_STATE(ch,st)                          \
+  do {                                                       \
+    log_print_2("Channel %d state changed to %s", ch, #st);  \
+    adb_channels[ch].state = st;                             \
+  } while(0)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +54,7 @@ typedef struct {
   const void* data;
   UINT32 data_len;
   char name[ADB_CHANNEL_NAME_MAX_LENGTH];
+  UINT32 local_id;
   UINT32 remote_id;
   BOOL pending_ack;
   ADBChannelRecvFunc recv_func;
@@ -61,6 +68,7 @@ static ADB_CHANNEL adb_channels[ADB_MAX_CHANNELS];
 static char ADB_HOSTNAME_STRING[] = "host::";  // Leave non-const. USB stack
                                                // doesn't work from ROM.
 static unsigned int adb_buffer_refcount;
+static UINT32 local_id_counter = 1;  // used for allocating unique local ids.
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions & Macros
@@ -109,30 +117,31 @@ static void ADBChannelTasks() {
       continue;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_START) {
-      ADBPacketSend(ADB_OPEN, current_channel + 1, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
-      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_OPEN);
+      ADBPacketSend(ADB_OPEN, adb_channels[current_channel].local_id, 0, adb_channels[current_channel].name, strlen(adb_channels[current_channel].name) + 1);
+      CHANGE_CHANNEL_STATE(current_channel, ADB_CHAN_STATE_WAIT_OPEN);
       return;
     }
     if (adb_channels[current_channel].pending_ack) {
-      ADBPacketSend(ADB_OKAY, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
+      ADBPacketSend(ADB_OKAY, adb_channels[current_channel].local_id, adb_channels[current_channel].remote_id, NULL, 0);
       adb_channels[current_channel].pending_ack = FALSE;
       return;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
-      ADBPacketSend(ADB_CLSE, current_channel + 1, adb_channels[current_channel].remote_id, NULL, 0);
-      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_CLOSE);
+      ADBPacketSend(ADB_CLSE, adb_channels[current_channel].local_id, adb_channels[current_channel].remote_id, NULL, 0);
+      CHANGE_CHANNEL_STATE(current_channel, ADB_CHAN_STATE_WAIT_CLOSE);
       return;
     }
     if (adb_channels[current_channel].state == ADB_CHAN_STATE_IDLE
         && adb_channels[current_channel].data != NULL) {
-      ADBPacketSend(ADB_WRTE, current_channel + 1, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
-      LOG_CHANGE_STATE(adb_channels[current_channel].state, ADB_CHAN_STATE_WAIT_READY);
+      ADBPacketSend(ADB_WRTE, adb_channels[current_channel].local_id, adb_channels[current_channel].remote_id, adb_channels[current_channel].data, adb_channels[current_channel].data_len);
+      CHANGE_CHANNEL_STATE(current_channel, ADB_CHAN_STATE_WAIT_READY);
       return;
     }
   }
 }
 
 static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* recv_data, UINT32 data_len) {
+  int h = arg1 & 0xFF;
   switch(cmd) {
    case ADB_CNXN:
     log_print_1("ADB established connection with [%s]", (const char*) recv_data);
@@ -145,60 +154,58 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     break;
 
    case ADB_OKAY:
-    --arg1;
-    if (arg1 >= 0 && arg1 < ADB_MAX_CHANNELS) {
-      if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        log_print_3("Channel %ld is open. Remote ID: 0x%lx. Name: %s", arg1, arg0, adb_channels[arg1].name);
-        adb_channels[arg1].remote_id = arg0;
-        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
-      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
-        && adb_channels[arg1].remote_id == arg0) {
-        adb_channels[arg1].data = NULL;
-        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_IDLE);
+    if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1) {
+      if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_OPEN) {
+        log_print_3("Channel %d is open. Remote ID: 0x%lx. Name: %s", h, arg0, adb_channels[h].name);
+        adb_channels[h].remote_id = arg0;
+        CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_IDLE);
+      } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
+        && adb_channels[h].remote_id == arg0) {
+        adb_channels[h].data = NULL;
+        CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_IDLE);
       }
     } else {
-      log_print_1("Remote side sent an OK on an unexpected channel: %ld", arg1);
-      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      log_print_1("Remote side sent an OK on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
    case ADB_CLSE:
-    --arg1;
-    if (arg1 < ADB_MAX_CHANNELS) {
-      if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        log_print_2("Channel %ld open failed. Name: %s", arg1, adb_channels[arg1].name);
-        adb_channels[arg1].recv_func(arg1, NULL, 0);
-        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
-      } else if (adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_CLOSE) {
-        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
-      } else if ((adb_channels[arg1].state == ADB_CHAN_STATE_WAIT_READY
-                  || adb_channels[arg1].state == ADB_CHAN_STATE_IDLE)
+    if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1) {
+      if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_OPEN) {
+        log_print_2("Channel %d open failed. Name: %s", h, adb_channels[h].name);
+        adb_channels[h].recv_func(h, NULL, 0);
+        CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
+      } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_CLOSE
+          || adb_channels[h].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
+        log_print_2("Channel %d closed. Name: %s", h, adb_channels[h].name);
+        CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
+      } else if ((adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
+                  || adb_channels[h].state == ADB_CHAN_STATE_IDLE)
         // in the ADB documentation it says that only failed attempts to open
         // will result in CLSE with local-id (arg0) of 0, and that in any other
         // case we should ignore the message if it is not equal to our remote
         // ID. In practice, however, we do get CLSE(0, ...) as result of a
         // legitimate closure on the server-side, so this check is disabled.
                  /*&& adb_channels[arg1].remote_id == arg0*/) {
-        log_print_2("Channel %ld closed by remote side. Name: %s", arg1, adb_channels[arg1].name);
-        adb_channels[arg1].recv_func(arg1, NULL, 0);
-        LOG_CHANGE_STATE(adb_channels[arg1].state, ADB_CHAN_STATE_FREE);
+        log_print_2("Channel %d closed by remote side. Name: %s", h, adb_channels[h].name);
+        adb_channels[h].recv_func(h, NULL, 0);
+        CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       }
     } else {
-      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      log_print_1("Remote side sent a CLSE on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
    case ADB_WRTE:
-    --arg1;
-    if (arg1 < ADB_MAX_CHANNELS) {
-      if (adb_channels[arg1].remote_id == arg0) {
-        if (data_len > 0) {
-          adb_channels[arg1].recv_func(arg1, recv_data, data_len);
-        }
-        adb_channels[arg1].pending_ack = TRUE;
+    if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1
+        && adb_channels[h].remote_id == arg0) {
+      if (adb_channels[h].state < ADB_CHAN_STATE_CLOSE_REQUESTED
+          && data_len > 0) {
+        adb_channels[h].recv_func(h, recv_data, data_len);
       }
+      adb_channels[h].pending_ack = TRUE;
     } else {
-      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+      log_print_1("Remote side sent a WRTE on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
@@ -215,12 +222,14 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (adb_channels[h].state == ADB_CHAN_STATE_FREE) {
-      LOG_CHANGE_STATE(adb_channels[h].state, ADB_CHAN_STATE_START);
+      CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_START);
       strncpy(adb_channels[h].name, name, ADB_CHANNEL_NAME_MAX_LENGTH);
       adb_channels[h].pending_ack = FALSE;
       adb_channels[h].data = NULL;
       adb_channels[h].recv_func = recv_func;
-      log_print_2("Trying to open channel %d with name: %s", h, name);
+      adb_channels[h].local_id = (local_id_counter++) << 8 | h;
+      log_print_3("Trying to open channel %d with local ID 0x%lx, name: %s", h,
+                  adb_channels[h].local_id, name);
       return h;
     }
   }
@@ -230,7 +239,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
 void ADBClose(ADB_CHANNEL_HANDLE handle) {
   assert(handle >= 0 && handle < ADB_MAX_CHANNELS);
   if (adb_channels[handle].state > ADB_CHAN_STATE_FREE) {
-    adb_channels[handle].state = ADB_CHAN_STATE_CLOSE_REQUESTED;
+    CHANGE_CHANNEL_STATE(handle, ADB_CHAN_STATE_CLOSE_REQUESTED);
   }
 }
 

@@ -14,13 +14,13 @@ OPTIONAL(-lpPIC24Fxxx)
 MEMORY
 {
   data  (a!xr) : ORIGIN = 0x2000,        LENGTH = 0x2000
-  bldata(a!xr) : ORIGIN = 0x4000,        LENGTH = 0x1800
+  bldata(a!xr) : ORIGIN = 0x4000,        LENGTH = 0x2000
   reset        : ORIGIN = 0x0,           LENGTH = 0x4
   ivt          : ORIGIN = 0x4,           LENGTH = 0xFC
   aivt         : ORIGIN = 0x104,         LENGTH = 0xFC
-  program (xr) : ORIGIN = 0x200,         LENGTH = 0x3C80
-  blapi:       : ORIGIN = 0x3F80,        LENGTH = 0x80
-  app_ivt      : ORIGIN = 0x4000,        LENGTH = 0x10C
+  program (xr) : ORIGIN = 0x200,         LENGTH = 0x4C80
+  blapi:       : ORIGIN = 0x4F80,        LENGTH = 0x80
+  app_ivt      : ORIGIN = 0x5000,        LENGTH = 0x10C
   CONFIG4      : ORIGIN = 0x157F8,       LENGTH = 0x2
   CONFIG3      : ORIGIN = 0x157FA,       LENGTH = 0x2
   CONFIG2      : ORIGIN = 0x157FC,       LENGTH = 0x2

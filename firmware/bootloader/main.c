@@ -10,6 +10,8 @@
 #include "HardwareProfile.h"
 #include "logging.h"
 #include "ioio_file.h"
+#include "dumpsys.h"
+#include "auth.h"
 
 #ifdef ENABLE_LOGGING
 #include "uart2.h"
@@ -39,12 +41,13 @@
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
   _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
   _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_OFF & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
-  _CONFIG3(WPDIS_WPEN | WPFP_WPFP31 | WPCFG_WPCFGEN | WPEND_WPSTARTMEM)
+  _CONFIG3(WPDIS_WPEN & WPFP_WPFP19 & WPCFG_WPCFGEN & WPEND_WPSTARTMEM)
 #else
   #error Unsupported target
 #endif
 
 #define FINGERPRINT_SIZE 16
+#define MAX_PATH 64
 
 void InitializeSystem() {
 #ifdef ENABLE_LOGGING
@@ -57,6 +60,10 @@ void InitializeSystem() {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
+  MAIN_STATE_FIND_PATH,
+  MAIN_STATE_FIND_PATH_DONE,
+  MAIN_STATE_AUTH_MANAGER,
+  MAIN_STATE_AUTH_PASSED,
   MAIN_STATE_WAIT_RECV_FP,
   MAIN_STATE_FP_FAILED,
   MAIN_STATE_WAIT_RECV_IMAGE,
@@ -68,6 +75,9 @@ typedef enum {
 static MAIN_STATE state = MAIN_STATE_WAIT_CONNECT;
 static int fingerprint_size;
 static BYTE fingerprint[FINGERPRINT_SIZE];
+static const char* manager_path;
+char filepath[MAX_PATH];
+static AUTH_RESULT auth_result;
 
 BOOL ValidateFingerprint() {
   int i;
@@ -145,8 +155,49 @@ void FileRecvImage(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
+void FileRecvPackages(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+  if (data) {
+    if (auth_result == AUTH_BUSY) {
+      auth_result = AuthProcess(data, data_len);
+      if (auth_result == AUTH_BUSY) {
+        return;
+      } else {
+        ADBFileClose(h);
+      }
+    }
+  }
+  if (auth_result == AUTH_DONE_PASS) {
+    log_print_0("IOIO manager is authentic.");
+    state = MAIN_STATE_AUTH_PASSED;
+  } else {
+    log_print_0("IOIO manager authentication failed. Skipping download.");
+    state = MAIN_STATE_RUN_APP;
+  }
+}
+
+void RecvDumpsys(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
+  if (data) {
+    if (manager_path == DUMPSYS_BUSY) {
+      manager_path = DumpsysProcess(data, data_len);
+      if (manager_path == DUMPSYS_BUSY) {
+        return;
+      } else {
+        ADBClose(h);
+      }
+    }
+  }
+  if (manager_path != DUMPSYS_BUSY && manager_path != DUMPSYS_ERROR) {
+    log_print_1("IOIO manager found with path %s", manager_path);
+    state = MAIN_STATE_FIND_PATH_DONE;
+  } else {
+    log_print_0("IOIO manager not found, skipping download");
+    state = MAIN_STATE_RUN_APP;
+  }
+}
+
 int main() {
-  ADB_FILE_HANDLE h;
+  ADB_FILE_HANDLE f;
+  ADB_CHANNEL_HANDLE h;
   InitializeSystem();
   BootloaderInit();
 
@@ -158,43 +209,71 @@ int main() {
     }
     
     switch(state) {
-     case MAIN_STATE_WAIT_CONNECT:
-      if (connected) {
-        log_print_0("ADB connected!");
+      case MAIN_STATE_WAIT_CONNECT:
+        if (connected) {
+          log_print_0("ADB connected!");
+          manager_path = DUMPSYS_BUSY;
+          DumpsysInit();
+          h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
+          state = MAIN_STATE_FIND_PATH;
+        }
+        break;
+
+      case MAIN_STATE_FIND_PATH:
+        break;
+
+      case MAIN_STATE_FIND_PATH_DONE:
+#ifdef ENABLE_UNSIGNED_MANAGER
+        state = MAIN_STATE_AUTH_PASSED;
+        break;
+#endif
+        auth_result = AUTH_BUSY;
+        AuthInit();
+        f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages);
+        state = MAIN_STATE_AUTH_MANAGER;
+        break;
+
+      case MAIN_STATE_AUTH_MANAGER:
+        break;
+
+      case MAIN_STATE_AUTH_PASSED:
         fingerprint_size = 0;
-        h = ADBFileRead("/data/data/ioio.manager/files/image.fp", &FileRecvFingerprint);
+        strcpy(filepath, manager_path);
+        strcat(filepath, "/files/image.fp");
+        f = ADBFileRead(filepath, &FileRecvFingerprint);
         state = MAIN_STATE_WAIT_RECV_FP;
-      }
-      break;
+        break;
 
-     case MAIN_STATE_FP_FAILED:
-      if (!EraseFingerprint()) {
-        state = MAIN_STATE_ERROR;
-      } else {
-        IOIOFileInit();
-        h = ADBFileRead("/data/data/ioio.manager/files/image.ioio", &FileRecvImage);
-        state = MAIN_STATE_WAIT_RECV_IMAGE;
-      }
-      break;
+      case MAIN_STATE_FP_FAILED:
+        if (!EraseFingerprint()) {
+          state = MAIN_STATE_ERROR;
+        } else {
+          IOIOFileInit();
+          strcpy(filepath, manager_path);
+          strcat(filepath, "/files/image.ioio");
+          f = ADBFileRead(filepath, &FileRecvImage);
+          state = MAIN_STATE_WAIT_RECV_IMAGE;
+        }
+        break;
 
-     case MAIN_STATE_WAIT_RECV_FP:
-     case MAIN_STATE_WAIT_RECV_IMAGE:
-      break;
+      case MAIN_STATE_WAIT_RECV_FP:
+      case MAIN_STATE_WAIT_RECV_IMAGE:
+        break;
 
-     case MAIN_STATE_RECV_IMAGE_DONE:
-      if (WriteFingerprint()) {
-        state = MAIN_STATE_RUN_APP;
-      } else {
-        state = MAIN_STATE_ERROR;
-      }
-      break;
+      case MAIN_STATE_RECV_IMAGE_DONE:
+        if (WriteFingerprint()) {
+          state = MAIN_STATE_RUN_APP;
+        } else {
+          state = MAIN_STATE_ERROR;
+        }
+        break;
 
-     case MAIN_STATE_RUN_APP:
-      __asm__("goto __APP_RESET");
-      break;
+      case MAIN_STATE_RUN_APP:
+        log_print_0("Running app...");
+        __asm__("goto __APP_RESET");
 
-     case MAIN_STATE_ERROR:
-      break;
+      case MAIN_STATE_ERROR:
+        break;
     }
   }
   return 0;

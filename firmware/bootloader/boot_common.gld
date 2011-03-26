@@ -3,9 +3,9 @@ __AIVT_BASE = 0x104;
 __DATA_BASE = 0x2000;
 __CODE_BASE = 0x200;
 __BOOTDATA_BASE = 0x4000;
-__APP_RESET = 0x4000;
-__BLAPI_BASE = 0x3F80;
-__APP_IVT_BASE = 0x4000;
+__APP_RESET = 0x5000;
+__BLAPI_BASE = 0x4F80;
+__APP_IVT_BASE = 0x5000;
 
 /*
 ** ==================== Section Map ======================
