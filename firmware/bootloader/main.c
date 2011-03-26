@@ -220,24 +220,7 @@ int main() {
         }
         break;
 
-      case MAIN_STATE_FIND_PATH:
-        break;
-
       case MAIN_STATE_FIND_PATH_DONE:
-#ifdef ENABLE_UNSIGNED_MANAGER
-        state = MAIN_STATE_AUTH_PASSED;
-        break;
-#endif
-        auth_result = AUTH_BUSY;
-        AuthInit();
-        f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages);
-        state = MAIN_STATE_AUTH_MANAGER;
-        break;
-
-      case MAIN_STATE_AUTH_MANAGER:
-        break;
-
-      case MAIN_STATE_AUTH_PASSED:
         fingerprint_size = 0;
         strcpy(filepath, manager_path);
         strcat(filepath, "/files/image.fp");
@@ -246,6 +229,17 @@ int main() {
         break;
 
       case MAIN_STATE_FP_FAILED:
+#ifdef BYPASS_SECURITY
+        state = MAIN_STATE_AUTH_PASSED;
+        break;
+#endif
+        auth_result = AUTH_BUSY;
+        AuthInit();
+        f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages);
+        state = MAIN_STATE_AUTH_MANAGER;
+        break;
+        
+      case MAIN_STATE_AUTH_PASSED:
         if (!EraseFingerprint()) {
           state = MAIN_STATE_ERROR;
         } else {
@@ -255,10 +249,6 @@ int main() {
           f = ADBFileRead(filepath, &FileRecvImage);
           state = MAIN_STATE_WAIT_RECV_IMAGE;
         }
-        break;
-
-      case MAIN_STATE_WAIT_RECV_FP:
-      case MAIN_STATE_WAIT_RECV_IMAGE:
         break;
 
       case MAIN_STATE_RECV_IMAGE_DONE:
@@ -273,8 +263,8 @@ int main() {
         log_print_0("Running app...");
         __asm__("goto __APP_RESET");
 
-      case MAIN_STATE_ERROR:
-        break;
+      default:
+        break;  // do nothing
     }
   }
   return 0;
