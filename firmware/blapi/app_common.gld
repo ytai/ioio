@@ -1,8 +1,8 @@
 __DATA_BASE = 0x800;
-__CODE_BASE = 0x410C;
-__APP_IVT_BASE = 0x4000;
+__CODE_BASE = 0x510C;
+__APP_IVT_BASE = 0x5000;
 
-__BLAPI_BASE = 0x3F80;
+__BLAPI_BASE = 0x4F80;
 _BootloaderVer   = __BLAPI_BASE + 0x00;
 _HardwareVer     = __BLAPI_BASE + 0x02;
 _BootloaderTasks = __BLAPI_BASE + 0x04;
