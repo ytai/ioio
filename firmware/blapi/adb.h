@@ -68,7 +68,7 @@ typedef int ADB_CHANNEL_HANDLE;
 #define ADB_INVALID_CHANNEL_HANDLE (-1)
 
 // The maximum amount of concurrent open channels allowed.
-#define ADB_MAX_CHANNELS 4
+#define ADB_MAX_CHANNELS 8
 
 // The maximum length of a channel name (include the trailing zero.
 #define ADB_CHANNEL_NAME_MAX_LENGTH 64
