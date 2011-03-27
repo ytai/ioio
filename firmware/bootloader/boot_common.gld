@@ -65,7 +65,7 @@ SECTIONS
   blapi __BLAPI_BASE :
   {
         LONG(1);
-        LONG(0);
+        LONG(1);
         SHORT(ABSOLUTE(_BootloaderTasks));  SHORT(0x04);  SHORT((ABSOLUTE(_BootloaderTasks) >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_ADBOpen));          SHORT(0x04);  SHORT((ABSOLUTE(_ADBOpen)         >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_ADBBufferRef));     SHORT(0x04);  SHORT((ABSOLUTE(_ADBBufferRef)    >> 16) & 0x7F);  SHORT(0);

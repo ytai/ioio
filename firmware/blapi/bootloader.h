@@ -8,11 +8,16 @@
 
 #include "GenericTypeDefs.h"
 
-// The bootloader version.
-extern const DWORD BootloaderVer;
+// The bootloader (BLAPI) version.
+// TODO: top 8 bits are lost with this reading method.
+extern __prog__ const WORD BootloaderVer;
+#define BLAPI_VER_1 1
 
 // The hardware version.
-extern const DWORD HardwareVer;
+// TODO: top 8 bits are lost with this reading method.
+extern __prog__ const WORD HardwareVer;
+#define HARDWARE_VER_IOIO_V12 0
+#define HARDWARE_VER_IOIO_V13 1
 
 
 // Needs to be called by the application periodically in order to provide

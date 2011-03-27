@@ -126,9 +126,8 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  // TODO: read those from ROM somehow
-  msg.args.establish_connection.hardware = 0;  // HardwareVer
-  msg.args.establish_connection.bootloader = 1;  // BootloaderVer
+  msg.args.establish_connection.hardware = HardwareVer;
+  msg.args.establish_connection.bootloader = BootloaderVer;
   msg.args.establish_connection.firmware = FIRMWARE_ID;
   AppProtocolSendMessage(&msg);
 }
