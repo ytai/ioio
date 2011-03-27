@@ -20,7 +20,8 @@
 #define _REPEAT_1B_15(macro, ...) _REPEAT_1B_14(macro, __VA_ARGS__) macro(15, __VA_ARGS__)
 #define _REPEAT_1B_16(macro, ...) _REPEAT_1B_15(macro, __VA_ARGS__) macro(16, __VA_ARGS__)
 
-#define REPEAT_1B(macro, times, ...) _REPEAT_1B_##times(macro, __VA_ARGS__)
+#define _REPEAT_1B(macro, times, ...) _REPEAT_1B_##times(macro, __VA_ARGS__)
+#define REPEAT_1B(macro, times, ...) _REPEAT_1B(macro, times, __VA_ARGS__)
 
 // repetition macros - 0-based
 #define _REPEAT_0B_1(macro, ...) macro(0, __VA_ARGS__)
@@ -40,7 +41,8 @@
 #define _REPEAT_0B_15(macro, ...) _REPEAT_1B_14(macro, __VA_ARGS__) macro(14, __VA_ARGS__)
 #define _REPEAT_0B_16(macro, ...) _REPEAT_1B_15(macro, __VA_ARGS__) macro(15, __VA_ARGS__)
 
-#define REPEAT_0B(macro, times, ...) _REPEAT_0B_##times##(macro, __VA_ARGS__)
+#define _REPEAT_0B(macro, times, ...) _REPEAT_0B_##times##(macro, __VA_ARGS__)
+#define REPEAT_0B(macro, times, ...) _REPEAT_0B(macro, times, __VA_ARGS__)
 
 typedef void (*SetterFunc) (int value);
 
@@ -53,11 +55,11 @@ typedef void (*SetterFunc) (int value);
 
 #define _SETTER_REF_COMMA(num, prefix, suffix) &_SETTER_NAME(num, prefix, suffix),
 
-#define _DEFINE_ALL_SETTERS_1B(count, prefix, suffix) REPEAT_1B(_DEFINE_SETTER, count, prefix, suffix)
+#define _DEFINE_ALL_SETTERS_1B(count, prefix, suffix) _REPEAT_1B(_DEFINE_SETTER, count, prefix, suffix)
 
 #define _DEFINE_SETTER_TABLE_1B(count, prefix, suffix)    \
   static SetterFunc Set##prefix##suffix[count] = {        \
-    REPEAT_1B(_SETTER_REF_COMMA, count, prefix, suffix)  \
+    _REPEAT_1B(_SETTER_REF_COMMA, count, prefix, suffix)  \
   };
 
 #define DEFINE_REG_SETTERS_1B(count, prefix, suffix)  \

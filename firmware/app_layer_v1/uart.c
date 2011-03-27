@@ -5,6 +5,7 @@
 #include "logging.h"
 #include "board.h"
 #include "byte_queue.h"
+#include "pp_util.h"
 #include "protocol.h"
 #include "sync.h"
 
@@ -21,54 +22,25 @@ typedef struct {
 
 static UART_STATE uarts[NUM_UART_MODULES];
 
-#if NUM_UART_MODULES != 4
-  #error The code below assumes 4 UART modules. Please fix.
-#endif
+#define _UARTREG_REF_COMMA(num, dummy) (volatile UART*) &U##num##MODE,
+
 volatile UART* uart_reg[NUM_UART_MODULES] = {
-  (volatile UART*) &U1MODE,
-  (volatile UART*) &U2MODE,
-  (volatile UART*) &U3MODE,
-  (volatile UART*) &U4MODE
+  REPEAT_1B(_UARTREG_REF_COMMA, NUM_UART_MODULES, 0)
 };
 
-// The macro magic below generates for each type of flag from
-// {RXIE, TXIE, RXIF, TXIF, RXIP, TXIP}
-// an array of function pointers for setting this flag, where each element in
-// the array corresponds to a single UART.
-//
-// For example, to set RXIE of UART2 to 1, call:
-// SetRXIE[1](1);
-#define UART_FLAG_FUNC(uart_num, flag) static void Set##flag##uart_num(int val) { _U##uart_num##flag = val; }
-
-typedef void (*UARTFlagFunc)(int val);
-
-#if NUM_UART_MODULES != 4
-  #error Currently only devices with 4 UARTs are supported. Please fix below.
-#endif
-
-#define ALL_UART_FLAG_FUNC(flag)                                \
-  UART_FLAG_FUNC(1, flag)                                       \
-  UART_FLAG_FUNC(2, flag)                                       \
-  UART_FLAG_FUNC(3, flag)                                       \
-  UART_FLAG_FUNC(4, flag)                                       \
-  UARTFlagFunc Set##flag[NUM_UART_MODULES] = { &Set##flag##1,   \
-                                               &Set##flag##2,   \
-                                               &Set##flag##3,   \
-                                               &Set##flag##4 };
-
-ALL_UART_FLAG_FUNC(RXIE)
-ALL_UART_FLAG_FUNC(RXIF)
-ALL_UART_FLAG_FUNC(RXIP)
-ALL_UART_FLAG_FUNC(TXIE)
-ALL_UART_FLAG_FUNC(TXIF)
-ALL_UART_FLAG_FUNC(TXIP)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, RXIE)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, RXIF)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, RXIP)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIE)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIF)
+DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIP)
 
 void UARTInit() {
   int i;
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     UARTConfig(i, 0, 0, 0, 0);
-    SetRXIP[i](4);  // RX int. priority 4
-    SetTXIP[i](4);  // TX int. priority 4
+    Set_URXIP[i](4);  // RX int. priority 4
+    Set_UTXIP[i](4);  // TX int. priority 4
   }
 }
 
@@ -78,8 +50,8 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
   log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
              two_stop_bits, parity);
   SAVE_UART1_FOR_LOG();
-  SetRXIE[uart_num](0);  // disable RX int.
-  SetTXIE[uart_num](0);  // disable TX int.
+  Set_URXIE[uart_num](0);  // disable RX int.
+  Set_UTXIE[uart_num](0);  // disable TX int.
   regs->uxmode = 0x0000;  // disable UART.
   // clear SW buffers
   ByteQueueInit(&uart->rx_queue, uart->rx_buffer, RX_BUF_SIZE);
@@ -87,9 +59,9 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
   uart->num_tx_since_last_report = 0;
   if (rate) {
     regs->uxbrg = rate;
-    SetRXIF[uart_num](0);  // clear RX int.
-    SetTXIF[uart_num](0);  // clear TX int.
-    SetRXIE[uart_num](1);  // enable RX int.
+    Set_URXIF[uart_num](0);  // clear RX int.
+    Set_UTXIF[uart_num](0);  // clear TX int.
+    Set_URXIE[uart_num](1);  // enable RX int.
     regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
   }
@@ -142,11 +114,11 @@ static void TXInterrupt(int uart_num) {
   UART_STATE* uart = &uarts[uart_num];
   BYTE_QUEUE* q = &uart->tx_queue;
   while (ByteQueueSize(q) && !(reg->uxsta & 0x0200)) {
-    SetTXIF[uart_num](0);
+    Set_UTXIF[uart_num](0);
     reg->uxtxreg = ByteQueuePullByte(q);
     ++uart->num_tx_since_last_report;
   }
-  SetTXIE[uart_num](ByteQueueSize(q) != 0);
+  Set_UTXIE[uart_num](ByteQueueSize(q) != 0);
 }
 
 static void RXInterrupt(int uart_num) {
@@ -168,7 +140,7 @@ void UARTTransmit(int uart_num, const void* data, int size) {
   BYTE_QUEUE* q = &uarts[uart_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(q, data, size);
-  SetTXIE[uart_num](1);  // enable TX int.
+  Set_UTXIE[uart_num](1);  // enable TX int.
   SyncInterruptLevel(prev);
 }
 

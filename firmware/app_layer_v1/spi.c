@@ -5,6 +5,7 @@
 #include "board.h"
 #include "logging.h"
 #include "pins.h"
+#include "pp_util.h"
 #include "protocol.h"
 #include "sync.h"
 
@@ -55,47 +56,21 @@ typedef struct {
   unsigned int spixbuf;
 } SPIREG;
 
-#if NUM_SPI_MODULES != 3
-  #error The code below assumes 3 SPI modules. Please fix.
-#endif
+#define _SPIREG_REF_COMMA(num, dummy) (volatile SPIREG*) &SPI##num##STAT,
+
 volatile SPIREG* spi_reg[NUM_SPI_MODULES] = {
-  (volatile SPIREG*) &SPI1STAT,
-  (volatile SPIREG*) &SPI2STAT,
-  (volatile SPIREG*) &SPI3STAT
+  REPEAT_1B(_SPIREG_REF_COMMA, NUM_SPI_MODULES, 0)
 };
 
-// The macro magic below generates for each type of flag from
-// {IE, IF, IP}
-// an array of function pointers for setting this flag, where each element in
-// the array corresponds to a single SPI module.
-//
-// For example, to set IE of SPI2 to 1, call:
-// SetIE[1](1);
-#define SPI_FLAG_FUNC(spi, flag) static void Set##flag##spi(int val) { _SPI##spi##flag = val; }
-
-typedef void (*SPIFlagFunc)(int val);
-
-#if NUM_SPI_MODULES != 3
-  #error Currently only devices with 3 SPI modules are supported. Please fix below.
-#endif
-
-#define ALL_SPI_FLAG_FUNC(flag)                              \
-  SPI_FLAG_FUNC(1, flag)                                     \
-  SPI_FLAG_FUNC(2, flag)                                     \
-  SPI_FLAG_FUNC(3, flag)                                     \
-  SPIFlagFunc Set##flag[NUM_SPI_MODULES] = { &Set##flag##1,  \
-                                             &Set##flag##2,  \
-                                             &Set##flag##3 };
-
-ALL_SPI_FLAG_FUNC(IE)
-ALL_SPI_FLAG_FUNC(IF)
-ALL_SPI_FLAG_FUNC(IP)
+DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IF)
+DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IE)
+DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IP)
 
 void SPIInit() {
   int i;
   for (i = 0; i < NUM_SPI_MODULES; ++i) {
     SPIConfigMaster(i, 0, 0, 0, 0, 0);
-    SetIP[i](4);  // int. priority 4
+    Set_SPIIP[i](4);  // int. priority 4
   }
 }
 
@@ -105,7 +80,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   SPI_STATE* spi = &spis[spi_num];
   log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi_num, scale, div,
              smp_end, clk_edge, clk_pol);
-  SetIE[spi_num](0);  // disable int.
+  Set_SPIIE[spi_num](0);  // disable int.
   regs->spixstat = 0x0000;  // disable SPI
   // clear SW buffers
   ByteQueueInit(&spi->rx_queue, spi->rx_buffer, RX_BUF_SIZE);
@@ -123,7 +98,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
     regs->spixcon2 = 0x0001;  // enhanced buffer mode
     regs->spixstat = (1 << 15)  // enable
                      | (5 << 2);  // int. when TX FIFO is empty
-    SetIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
+    Set_SPIIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
                         // written
   }
 }
@@ -232,7 +207,7 @@ static void SPIInterrupt(int spi_num) {
                         | (5 << 2);  // int. when last byte shifted
           spi->packet_state = PACKET_STATE_DONE;
       }
-      SetIF[spi_num](0);
+      Set_SPIIF[spi_num](0);
       while (bytes_to_write-- > 0) {
         BYTE tx_byte = 0xFF;
         if (spi->cur_msg_data_size) {
@@ -250,7 +225,7 @@ static void SPIInterrupt(int spi_num) {
       ++spi->num_messages_rx_queue;
       reg->spixstat = (1 << 15)  // enable
                       | (6 << 2);  // int. when TX FIFO empty
-      SetIE[spi_num](ByteQueueSize(tx_queue));
+      Set_SPIIE[spi_num](ByteQueueSize(tx_queue));
       spi->packet_state = PACKET_STATE_IDLE;
       break;
   }
@@ -267,7 +242,7 @@ void SPITransmit(int spi_num, int dest, const void* data, int data_size,
   ByteQueuePushByte(q, data_size);
   ByteQueuePushByte(q, trim_rx);
   ByteQueuePushBuffer(q, data, data_size);
-  SetIE[spi_num](1);  // enable int.
+  Set_SPIIE[spi_num](1);  // enable int.
   SyncInterruptLevel(prev);
 }
 

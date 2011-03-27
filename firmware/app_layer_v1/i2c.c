@@ -6,6 +6,7 @@
 #include "sync.h"
 #include "byte_queue.h"
 #include "logging.h"
+#include "pp_util.h"
 #include "protocol.h"
 
 #define PACKED __attribute__ ((packed))
@@ -64,48 +65,21 @@ typedef struct {
   unsigned int mask;
 } I2CREG;
 
-#if NUM_I2C_MODULES != 3
-  #error The code below assumes 3 I2C modules. Please fix.
-#endif
+#define _I2CREG_REF_COMMA(num, dummy) (volatile I2CREG*) &I2C##num##RCV,
+
 volatile I2CREG* i2c_reg[NUM_I2C_MODULES] = {
-  (volatile I2CREG*) &I2C1RCV,
-  (volatile I2CREG*) &I2C2RCV,
-  (volatile I2CREG*) &I2C3RCV
+  REPEAT_1B(_I2CREG_REF_COMMA, NUM_I2C_MODULES, 0)
 };
 
-// The macro magic below generates for each type of flag from
-// {IE, IF, IP}
-// an array of function pointers for setting this flag, where each element in
-// the array corresponds to a single I2C module, in master mode.
-//
-// For example, to set IE of I2C2 as master to 1, call:
-// SetMIE[1](1);
-#define MI2C_FLAG_FUNC(i2c, flag) static void SetM##flag##i2c(int val) { _MI2C##i2c##flag = val; }
-
-typedef void (*I2CFlagFunc)(int val);
-
-#if NUM_I2C_MODULES != 3
-  #error Currently only devices with 3 I2C modules are supported. Please fix below.
-#endif
-
-#define ALL_I2C_FLAG_FUNC(flag)                                 \
-  MI2C_FLAG_FUNC(1, flag)                                       \
-  MI2C_FLAG_FUNC(2, flag)                                       \
-  MI2C_FLAG_FUNC(3, flag)                                       \
-  I2CFlagFunc SetM##flag[NUM_I2C_MODULES] = { &SetM##flag##1,   \
-                                              &SetM##flag##2,   \
-                                              &SetM##flag##3 };
-
-ALL_I2C_FLAG_FUNC(IE)
-ALL_I2C_FLAG_FUNC(IF)
-ALL_I2C_FLAG_FUNC(IP)
-
+DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IF)
+DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IE)
+DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IP)
 
 void I2CInit() {
   log_printf("I2CInit()");
   int i;
   for (i = 0; i < NUM_I2C_MODULES; ++i) {
-    SetMIP[i](4);  // interrupt priority 4
+    Set_MI2CIP[i](4);  // interrupt priority 4
     I2CConfigMaster(i, 0, 0);
   }
 }
@@ -116,9 +90,9 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
   static const unsigned int brg_values[] = { 0x9D, 0x25, 0x0D };
   
   log_printf("I2CConfigMaster(%d, %d, %d)", i2c_num, rate, smbus_levels);
-  SetMIE[i2c_num](0);  // disable interrupt
+  Set_MI2CIE[i2c_num](0);  // disable interrupt
   regs->con = 0x0000;  // disable module
-  SetMIF[i2c_num](0);  // clear interrupt
+  Set_MI2CIF[i2c_num](0);  // clear interrupt
   ByteQueueInit(&i2c->tx_queue, i2c->tx_buffer, TX_BUF_SIZE);
   ByteQueueInit(&i2c->rx_queue, i2c->rx_buffer, RX_BUF_SIZE);
   i2c->num_messages_rx_queue = 0;
@@ -128,7 +102,7 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
     regs->con = (1 << 15)               // enable
                 | ((rate != 2) << 9)    // disable slew rate unless 400KHz mode
                 | (smbus_levels << 8);  // use SMBus levels
-    SetMIF[i2c_num](1);  // signal interrupt
+    Set_MI2CIF[i2c_num](1);  // signal interrupt
   }
 }
 
@@ -181,7 +155,7 @@ void I2CWriteRead(int i2c_num, unsigned int addr, const void* data,
   prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(&i2c->tx_queue, &hdr, sizeof hdr);
   ByteQueuePushBuffer(&i2c->tx_queue, data, write_bytes);
-  SetMIE[i2c_num](1);
+  Set_MI2CIE[i2c_num](1);
   SyncInterruptLevel(prev);
 }
 
@@ -204,7 +178,7 @@ static void MI2CInterrupt(int i2c_num) {
   I2C_STATE* i2c = i2c_states + i2c_num;
   volatile I2CREG* reg = i2c_reg[i2c_num];
 
-  SetMIF[i2c_num](0);  // clear interrupt
+  Set_MI2CIF[i2c_num](0);  // clear interrupt
   switch (i2c->message_state) {
     case STATE_START:
       ByteQueuePullToBuffer(&i2c->tx_queue, &i2c->cur_tx_header,
@@ -302,7 +276,7 @@ done:
   ++i2c->num_messages_rx_queue;
   reg->con |= (1 << 2);  // send stop bit
   i2c->message_state = STATE_START;
-  SetMIE[i2c_num](ByteQueueSize(&i2c->tx_queue) > 0);
+  Set_MI2CIE[i2c_num](ByteQueueSize(&i2c->tx_queue) > 0);
 }
 
 #define DEFINE_INTERRUPT_HANDLERS(i2c_num)                                     \
