@@ -42,6 +42,9 @@ public class IncomingHandler extends Thread {
                     IOIOLogger.log("Unknown message type : " + message_type);
 				    break;
 				}
+
+				if (packet.message != Constants.REPORT_DIGITAL_STATUS) packet.log("# <<");
+				
 				packetHandler.handlePacket(packet);
 				continue;
 /*

@@ -46,6 +46,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
     // Cached IOIOPackets
     private IOIOPacket configure;
     private IOIOPacket setRx;
+    private IOIOPacket clearChangeNotify;
     private IOIOPacket setTx;
 
     // TODO(arshan): these should be bounded
@@ -83,10 +84,17 @@ public class IOIOUart implements IOIOPacketListener, Uart {
                 (byte) rx.getPinNumber(), (byte) (0x80 | uartNum)
         });
 
+        clearChangeNotify = new IOIOPacket( Constants.SET_CHANGE_NOTIFY,
+                new byte[]{
+                       (byte) (rx.getPinNumber() << 2)
+                }
+        );
         setTx = new IOIOPacket(Constants.UART_SET_TX, new byte[] {
                 (byte) tx.getPinNumber(), (byte) (0x80 | uartNum)
         });
 
+        
+        
         outgoingSpooler = new OutgoingSpooler();
         outgoingSpooler.start();
        
@@ -101,6 +109,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
         // already have
         // them setup to be used as rx/tx here.
         ioio.sendPacket(configure);
+        ioio.sendPacket(clearChangeNotify);
         ioio.sendPacket(setRx);
         ioio.sendPacket(setTx);       
         
@@ -132,7 +141,6 @@ public class IOIOUart implements IOIOPacketListener, Uart {
     public InputStream openInputStream() {
         return new UARTInputStream();
     }
-
    
     public class UARTOutputStream extends OutputStream {
         @Override
@@ -148,7 +156,11 @@ public class IOIOUart implements IOIOPacketListener, Uart {
         @Override
         public int read() throws IOException {
             try {
-                return incoming.take();
+                int x = 0;
+                IOIOLogger.log("attempting to read a char, size = " + incoming.size());
+                x = incoming.take();
+                IOIOLogger.log("got back a char : " + (char)x);
+                return x;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -206,7 +218,7 @@ public class IOIOUart implements IOIOPacketListener, Uart {
             case Constants.UART_TX_STATUS:
                 // tells us how many bytes remain in the tx buffer on IOIO
                 if ((packet.payload[0] & 0x3) == uartNum) {
-                    onIoioTxBuffer = (( packet.payload[0] >> 2 ) | (packet.payload[1] << 8));
+                    onIoioTxBuffer = ((((packet.payload[1] & 0xFF) << 6) | (packet.payload[0] & 0xFF) >> 2 ) );
                     IOIOLogger.log("set tx buffer remaining to: " + onIoioTxBuffer);
                 }
                 break;
@@ -251,14 +263,25 @@ public class IOIOUart implements IOIOPacketListener, Uart {
                 // TODO(arshan): could throttle a little so that we send more
                 // bytes per send
                 synchronized (outgoing) {
-                    try {
-                        outgoing.wait();
-                    } catch (InterruptedException e) {
-                    }
+                   
+                    if (outgoing.size() == 0) {
+                        try {
+                            outgoing.wait();
+                        } catch (InterruptedException e) {
+                        }   
+                    }   
+                    
                     int byte_cnt = outgoing.size();
+                    
                     if (onIoioTxBuffer < byte_cnt) {
                         byte_cnt = onIoioTxBuffer;
                     }
+                    
+                    // op code allows for a maximum
+                    if (64 < byte_cnt) {
+                        byte_cnt = 64;
+                    }
+                    
                     // Abort if there is nothing to do
                     if (byte_cnt > 0) {
                         IOIOLogger.log("want to send " + byte_cnt + " bytes to UART");
@@ -268,8 +291,6 @@ public class IOIOUart implements IOIOPacketListener, Uart {
                         // overflowing.
                         payload[0] = (byte) (getUartNum() << 6 | (byte_cnt - 1));
                         
-                        // trying to ferret out the issue
-                        //payload[0] = (byte) (getUartNum() << 6 | (byte_cnt));
                         for (x = 0; x < byte_cnt; x++) {
                             payload[x + 1] = outgoing.poll();
                             IOIOLogger.log("loaded char " + (char)payload[x+1]);
@@ -278,10 +299,10 @@ public class IOIOUart implements IOIOPacketListener, Uart {
                         // TODO(arshan): how serious is this race condition?
                         // remember this is set by packet handler (ie. different
                         // thread) we could just let that thread handle it.
-                        // onIoioTxBuffer -= byte_cnt;
+                        onIoioTxBuffer -= byte_cnt;
                         
                         try {
-                            IOIOPacket pkt =new IOIOPacket(Constants.UART_TX, payload);
+                            IOIOPacket pkt = new IOIOPacket(Constants.UART_TX, payload);
                             pkt.log();
                             ioio.sendPacket(pkt);
                         } catch (ConnectionLostException e) {

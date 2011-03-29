@@ -44,8 +44,8 @@ public class SelfTest extends Activity {
 	public static final int ANALOG_OUTPUT_PIN = 14;
 
 	// note that these overload the above digital i/o connections, but input/output reversed
-	public static final int UART_RX = 10; 
-	public static final int UART_TX = 11;
+	public static final int UART_RX = 7; 
+	public static final int UART_TX = 6;
 
 	// for repetitive tests, do this many
 	public static final int REPETITIONS = 5;
@@ -101,7 +101,7 @@ public class SelfTest extends Activity {
                       
                      
                      */
-     				// testUart(); 
+     				testUart(); 
      				
     				msg("Tests Finished");
 
@@ -279,7 +279,9 @@ public class SelfTest extends Activity {
     	softReset(); // BUG? is this cause SW doesnt tear down or FW? 
     	testUartAtBaud(IOIOUart.BAUD_19200);
     	softReset();
-    	testUartAtBaud(IOIOUart.BAUD_38400);    	  
+        testUartAtBaud(IOIOUart.BAUD_38400);          
+        softReset();
+        testUartAtBaud(IOIOUart.BAUD_115200);          
     }
 
     public void softReset() {
@@ -293,7 +295,7 @@ public class SelfTest extends Activity {
     }
     protected void testUartAtBaud(int baud) {
     
-        boolean cache_test = false;
+        boolean cache_test = true;
         msg("Testing UART at " + baud);
         try {
         	// TODO(arshan): try this at different settings?
@@ -303,7 +305,9 @@ public class SelfTest extends Activity {
         	OutputStream out = uart.openOutputStream();
         	
         	int c;
-        	String TEST = "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}";
+        	
+        	String TEST = "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" ;
+        	
         	for (int x = 0; x < TEST.length(); x++) {
     			out.write(TEST.charAt(x));
     			c = in.read();
@@ -311,14 +315,27 @@ public class SelfTest extends Activity {
         	}
         	msg("passed inline test");
         	
+        	// TEST = "Short";
+        	TEST = 
+        	    "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" +
+        	    "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" +
+        	    "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" +
+        	    "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" +
+        	    "The quick red fox jumped over the lazy grey dog; Also !@#$%^*()_+=-`~\\|][{}" ;
         	if (cache_test) {
         	// now without blocking ... tests the caching
         	for (int x = 0; x < TEST.length(); x++) {
                 out.write(TEST.charAt(x));
             }
+        	
+       
         	msg("all bytes in cache");
+        	c = 'a';
         	for (int x = 0; x < TEST.length(); x++) {
-                c = in.read();
+//                out.write(c);
+        	    c = in.read();
+        	    sleep(50);
+               //  msg("got back : " + (char)c);              
                 assertTrue(c == TEST.charAt(x));
             }
         	msg("passed cached test");

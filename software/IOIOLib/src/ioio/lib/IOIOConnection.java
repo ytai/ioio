@@ -130,7 +130,7 @@ public class IOIOConnection implements ConnectionStateCallback {
 	}
 
 	public void sendToIOIO(IOIOPacket packet) throws ConnectionLostException {
-	    packet.log(">> ");
+	    packet.log(">>");
         try {
             out.write(packet.message);
             if (packet.payload != null) {
