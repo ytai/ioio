@@ -3,6 +3,12 @@
 #include "logging.h"
 #include "adb_file_private.h"
 
+#define CHANGE_STATE(var,state)              \
+do {                                         \
+  log_printf("%s set to %s", #var, #state);  \
+  var = state;                               \
+} while (0)
+
 #define MKID(a,b,c,d) (((UINT32) (a)) | (((UINT32) (b)) << 8) | (((UINT32) (c)) << 16) | (((UINT32) (d)) << 24))
 
 #define ID_STAT MKID('S','T','A','T')
@@ -96,9 +102,9 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
         data_len -= f->read_remain;
         f->read_remain = f->msg.data.size;
         if (f->msg.data.id == ID_DATA || f->msg.data.id == ID_DONE) {
-          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_DATA);
+          CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_DATA);
         } else if (f->msg.data.id == ID_FAIL) {
-          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_FAIL_DATA);
+          CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_FAIL_DATA);
         } else {
           goto close_and_error;
         }
@@ -125,7 +131,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
           data = ((const BYTE*) data) + f->read_remain;
           data_len -= f->read_remain;
           f->read_remain = sizeof f->msg.data;
-          LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
+          CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
         }
       } else {
         if (data_len > 0) {
@@ -151,7 +157,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
 close_and_error:
   ADBClose(f->handle);
 error:
-  log_print_1("Failed to open or read file %s", f->path);
+  log_printf("Failed to open or read file %s", f->path);
   f->func(i, NULL, 1);
   memset(f, 0, sizeof(ADB_FILE));
 }
@@ -162,7 +168,7 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
   assert(strlen(path) < ADB_FILE_MAX_PATH_LENGTH);
   for (i = 0; i < ADB_FILE_MAX_FILES && adb_files[i].state != ADB_FILE_STATE_FREE; ++i);
   if (i == ADB_FILE_MAX_FILES) {
-    log_print_1("Exceeded maximum number of open files: %d", ADB_FILE_MAX_FILES);
+    log_printf("Exceeded maximum number of open files: %d", ADB_FILE_MAX_FILES);
     return ADB_FILE_INVALID_HANDLE;
   }
   if ((adb_files[i].handle = ADBOpen("sync:", &ADBFileCallback)) == ADB_INVALID_CHANNEL_HANDLE) {
@@ -171,7 +177,7 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
   }
   adb_files[i].func = recv_func;
   strncpy(adb_files[i].path, path, ADB_FILE_MAX_PATH_LENGTH);
-  LOG_CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
+  CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
   return i;
 }
 
@@ -198,7 +204,7 @@ void ADBFileTasks() {
       f->req.namelen = strlen(f->path);
       ADBWrite(f->handle, &f->req, sizeof f->req + f->req.namelen);
       f->read_remain = sizeof f->msg.data;
-      LOG_CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
+      CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_HEADER);
     }
   }
 }

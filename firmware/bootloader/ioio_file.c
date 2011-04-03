@@ -35,24 +35,24 @@ static BOOL IOIOFileBlockDone() {
     case IOIO_FILE_STATE_WAIT_BLOCK:
       address = *((const DWORD *) ioio_file_buf);
       if (address & 0x7F) {
-        log_print_1("Misaligned block: 0x%lx", address);
+        log_printf("Misaligned block: 0x%lx", address);
         return FALSE;
       }
       if (address < BOOTLOADER_MIN_APP_ADDRESS || address >= BOOTLOADER_MAX_APP_ADDRESS) {
-        log_print_1("Adderess outside of permitted range: 0x%lx", address);
+        log_printf("Adderess outside of permitted range: 0x%lx", address);
         return FALSE;
       }
       if (ioio_file_last_page != BOOTLOADER_INVALID_ADDRESS && address < ioio_file_last_page) {
-        log_print_1("Out-of-order address: 0x%lx", address);
+        log_printf("Out-of-order address: 0x%lx", address);
         return FALSE;
       }
       page_address = address & 0xFFFFFFC00ull;
       if (page_address != ioio_file_last_page) {
-        log_print_1("Erasing Flash page: 0x%lx", address);
+        log_printf("Erasing Flash page: 0x%lx", address);
         if (!FlashErasePage(page_address)) return FALSE;
         ioio_file_last_page = page_address;
       }
-      log_print_1("Writing Flash block: 0x%lx", address);
+      log_printf("Writing Flash block: 0x%lx", address);
       if (!FlashWriteBlock(address, ioio_file_buf + 4)) return FALSE;
       ioio_file_buf_pos = 0;
       ioio_file_field_remaining = 196;

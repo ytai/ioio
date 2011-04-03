@@ -45,7 +45,7 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
       gc_DevData.outEndpoint = pFirstEpInfo->bEndpointAddress;
   }
   
-  log_print_6("Android Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x IN_EP=0x%x OUT_EP=0x%x",
+  log_printf("Android Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x IN_EP=0x%x OUT_EP=0x%x",
               flags, address, gc_DevData.ID.vid, gc_DevData.ID.pid, gc_DevData.inEndpoint, gc_DevData.outEndpoint);
   
   // Android Driver Init Complete.
@@ -65,7 +65,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
     gc_DevData.flags.val        = 0;
     gc_DevData.ID.deviceAddress = 0;
 
-    log_print_1("Android Client Device Detached: address=0x%x", address);
+    log_printf("Android Client Device Detached: address=0x%x", address);
     break;
 
 #ifdef USB_ENABLE_TRANSFER_EVENT
@@ -78,7 +78,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
         gc_DevData.flags.rxBusy = 0;
         gc_DevData.rxLength = dataCount;
         gc_DevData.rxErrorCode = ((HOST_TRANSFER_DATA *)data)->bErrorCode;
-        log_print_1("Received message with %ld bytes: ", ((HOST_TRANSFER_DATA *)data)->dataCount);
+        log_printf("Received message with %ld bytes: ", ((HOST_TRANSFER_DATA *)data)->dataCount);
         log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, ((HOST_TRANSFER_DATA *)data)->dataCount);
       } else if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_DevData.outEndpoint) {
         gc_DevData.flags.txBusy = 0;
@@ -122,7 +122,7 @@ BYTE USBHostAndroidRead(void *buffer, DWORD length) {
   assert(USBHostAndroidIsDeviceAttached());
   if (gc_DevData.flags.rxBusy) return USB_BUSY;
 
-  log_print_1("Requested read of %u bytes", (unsigned) length);
+  log_printf("Requested read of %u bytes", (unsigned) length);
 
   // Set the busy flag, clear the count and start a new IN transfer.
   gc_DevData.flags.rxBusy = 1;
@@ -186,7 +186,7 @@ BYTE USBHostAndroidWrite(const void *buffer, DWORD length) {
   assert(USBHostAndroidIsDeviceAttached());
   if (gc_DevData.flags.txBusy) return USB_BUSY;
 
-  log_print_1("Sending message with %u bytes: ", (unsigned) length);
+  log_printf("Sending message with %u bytes: ", (unsigned) length);
   log_print_buf(buffer, length);
 
   // Set the busy flag and start a new OUT transfer.

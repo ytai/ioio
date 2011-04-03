@@ -11,9 +11,16 @@
 
 #define CHANGE_CHANNEL_STATE(ch,st)                          \
   do {                                                       \
-    log_print_2("Channel %d state changed to %s", ch, #st);  \
+    log_printf("Channel %d state changed to %s", ch, #st);  \
     adb_channels[ch].state = st;                             \
-  } while(0)
+  } while (0)
+
+#define CHANGE_STATE(var,state)              \
+do {                                         \
+  log_printf("%s set to %s", #var, #state);  \
+  var = state;                               \
+} while (0)
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
@@ -85,7 +92,7 @@ static void ADBReset() {
   }
   memset(adb_channels, 0, sizeof adb_channels);
   adb_buffer_refcount = 0;
-  LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+  CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
 void ADBBufferRef() {
@@ -108,7 +115,7 @@ static void ADBChannelTasks() {
   ADB_CHANNEL_HANDLE h;
   if ((adb_res = ADBPacketSendStatus()) == ADB_RESULT_BUSY) return;
   if (adb_res == ADB_RESULT_ERROR) {
-    LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+    CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
     return;
   }
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
@@ -144,9 +151,9 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
   int h = arg1 & 0xFF;
   switch(cmd) {
    case ADB_CNXN:
-    log_print_1("ADB established connection with [%s]", (const char*) recv_data);
+    log_printf("ADB established connection with [%s]", (const char*) recv_data);
     // TODO: arg1 contains max_data - handle
-    LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
+    CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_CONNECTED);
     break;
 
    case ADB_OPEN:
@@ -156,7 +163,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
    case ADB_OKAY:
     if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1) {
       if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        log_print_3("Channel %d is open. Remote ID: 0x%lx. Name: %s", h, arg0, adb_channels[h].name);
+        log_printf("Channel %d is open. Remote ID: 0x%lx. Name: %s", h, arg0, adb_channels[h].name);
         adb_channels[h].remote_id = arg0;
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_IDLE);
       } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
@@ -165,19 +172,19 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_IDLE);
       }
     } else {
-      log_print_1("Remote side sent an OK on an unexpected ID: 0x%lx", arg1);
+      log_printf("Remote side sent an OK on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
    case ADB_CLSE:
     if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1) {
       if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_OPEN) {
-        log_print_2("Channel %d open failed. Name: %s", h, adb_channels[h].name);
+        log_printf("Channel %d open failed. Name: %s", h, adb_channels[h].name);
         adb_channels[h].recv_func(h, NULL, 0);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_CLOSE
           || adb_channels[h].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
-        log_print_2("Channel %d closed. Name: %s", h, adb_channels[h].name);
+        log_printf("Channel %d closed. Name: %s", h, adb_channels[h].name);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if ((adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
                   || adb_channels[h].state == ADB_CHAN_STATE_IDLE)
@@ -187,12 +194,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         // ID. In practice, however, we do get CLSE(0, ...) as result of a
         // legitimate closure on the server-side, so this check is disabled.
                  /*&& adb_channels[arg1].remote_id == arg0*/) {
-        log_print_2("Channel %d closed by remote side. Name: %s", h, adb_channels[h].name);
+        log_printf("Channel %d closed by remote side. Name: %s", h, adb_channels[h].name);
         adb_channels[h].recv_func(h, NULL, 0);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       }
     } else {
-      log_print_1("Remote side sent a CLSE on an unexpected ID: 0x%lx", arg1);
+      log_printf("Remote side sent a CLSE on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
@@ -205,12 +212,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       }
       adb_channels[h].pending_ack = TRUE;
     } else {
-      log_print_1("Remote side sent a WRTE on an unexpected ID: 0x%lx", arg1);
+      log_printf("Remote side sent a WRTE on an unexpected ID: 0x%lx", arg1);
     }
     break;
 
    default:
-    log_print_1("Unknown command 0x%lx. Ignoring.", cmd);
+    log_printf("Unknown command 0x%lx. Ignoring.", cmd);
   }
 }
 
@@ -228,7 +235,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
       adb_channels[h].data = NULL;
       adb_channels[h].recv_func = recv_func;
       adb_channels[h].local_id = (local_id_counter++) << 8 | h;
-      log_print_3("Trying to open channel %d with local ID 0x%lx, name: %s", h,
+      log_printf("Trying to open channel %d with local ID 0x%lx, name: %s", h,
                   adb_channels[h].local_id, name);
       return h;
     }
@@ -262,7 +269,7 @@ void ADBInit() {
   BOOL res = USBHostInit(0);
   assert(res);
   memset(adb_channels, 0, sizeof adb_channels);
-  LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
+  CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
 BOOL ADBTasks() {
@@ -284,7 +291,7 @@ BOOL ADBTasks() {
     if (adb_buffer_refcount > 0) {
       if ((adb_res = ADBPacketRecvStatus(&cmd, &arg0, &arg1, &recv_data, &data_len)) != ADB_RESULT_BUSY) {
         if (adb_res == ADB_RESULT_ERROR) {
-          LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
+          CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_ERROR);
         } else {
           ADBHandlePacket(cmd, arg0, arg1, recv_data, data_len);
         }
@@ -301,7 +308,7 @@ BOOL ADBTasks() {
       adb_buffer_refcount = 1;
       ADBPacketRecv();  // start receiving
       ADBPacketSend(ADB_CNXN, ADB_VERSION, ADB_PACKET_MAX_RECV_DATA_BYTES, ADB_HOSTNAME_STRING, strlen(ADB_HOSTNAME_STRING) + 1);
-      LOG_CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_CONNECT);
+      CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_CONNECT);
     }
     break;
 

@@ -188,10 +188,10 @@ void RecvDumpsys(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     }
   }
   if (manager_path != DUMPSYS_BUSY && manager_path != DUMPSYS_ERROR) {
-    log_print_1("IOIO manager found with path %s", manager_path);
+    log_printf("IOIO manager found with path %s", manager_path);
     state = MAIN_STATE_FIND_PATH_DONE;
   } else {
-    log_print_0("IOIO manager not found, skipping download");
+    log_printf("IOIO manager not found, skipping download");
     state = MAIN_STATE_RUN_APP;
   }
 }
