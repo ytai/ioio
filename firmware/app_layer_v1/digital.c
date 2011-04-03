@@ -8,7 +8,7 @@
 
 void SetDigitalOutLevel(int pin, int value) {
   log_printf("SetDigitalOutLevel(%d, %d)", pin, value);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   BYTE prev = SyncInterruptLevel(4);
   PinSetLat(pin, value);
   SyncInterruptLevel(prev);
@@ -16,13 +16,13 @@ void SetDigitalOutLevel(int pin, int value) {
 
 void SetChangeNotify(int pin, int changeNotify) {
   log_printf("SetChangeNotify(%d, %d)", pin, changeNotify);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   PinSetCnen(pin, changeNotify);
 }
 
 void ReportDigitalInStatus(int pin) {
   log_printf("ReportDigitalInStatus(%d)", pin);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_DIGITAL_IN_STATUS;
   msg.args.report_digital_in_status.pin = pin;

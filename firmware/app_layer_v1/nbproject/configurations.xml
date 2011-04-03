@@ -18,7 +18,7 @@
       <itemPath>features.h</itemPath>
       <itemPath>i2c.h</itemPath>
       <itemPath>incap.h</itemPath>
-      <itemPath>logging.h</itemPath>
+      <itemPath>../common/logging.h</itemPath>
       <itemPath>pins.h</itemPath>
       <itemPath>pp_util.h</itemPath>
       <itemPath>protocol.h</itemPath>
@@ -52,7 +52,7 @@
       <itemPath>features.c</itemPath>
       <itemPath>i2c.c</itemPath>
       <itemPath>incap.c</itemPath>
-      <itemPath>logging.c</itemPath>
+      <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>pins.c</itemPath>
       <itemPath>protocol.c</itemPath>
@@ -89,7 +89,8 @@
       </compileType>
       <C30>
         <property key="scalar-model" value="default"/>
-        <property key="extra-include-directories" value=".;..;../microchip/include"/>
+        <property key="extra-include-directories"
+                  value=".;..;../microchip/include;../common"/>
         <property key="preprocessor-macros" value=""/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
@@ -114,8 +115,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -140,18 +141,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <PM3PlatformTool>
       </PM3PlatformTool>

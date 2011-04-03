@@ -34,7 +34,7 @@ static void PinsInit() {
 
 void SetPinDigitalOut(int pin, int value, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   ADCClrScan(pin);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
@@ -48,7 +48,7 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
 
 void SetPinDigitalIn(int pin, int pull) {
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   ADCClrScan(pin);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
@@ -73,14 +73,14 @@ void SetPinDigitalIn(int pin, int pull) {
 
 void SetPinPwm(int pin, int pwm_num) {
   log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   PinSetRpor(pin, pwm_num == 0x0F ? 0 : (pwm_num == 8 ? 35 : 18 + pwm_num));
 }
 
 void SetPinUartRx(int pin, int uart_num, int enable) {
   log_printf("SetPinUartRx(%d, %d, %d)", pin, uart_num, enable);
-  SAVE_PIN4_FOR_LOG();
-  SAVE_UART1_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
+  SAVE_UART_FOR_LOG(uart_num);
   int rpin = enable ? PinToRpin(pin) : 0x3F;
   switch (uart_num) {
     case 0:
@@ -103,14 +103,14 @@ void SetPinUartRx(int pin, int uart_num, int enable) {
 
 void SetPinUartTx(int pin, int uart_num, int enable) {
   log_printf("SetPinUartTx(%d, %d, %d)", pin, uart_num, enable);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   const BYTE rp[] = { 3, 5, 28, 30 };
   PinSetRpor(pin, enable ? rp[uart_num] : 0);
 }
 
 void SetPinAnalogIn(int pin) {
   log_printf("SetPinAnalogIn(%d)", pin);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
   PinSetCnpu(pin, 0);
@@ -122,7 +122,7 @@ void SetPinAnalogIn(int pin) {
 
 void SetPinSpi(int pin, int spi_num, int mode, int enable) {
   log_printf("SetPinSpi(%d, %d, %d, %d)", pin, spi_num, mode, enable);
-  SAVE_PIN4_FOR_LOG();
+  SAVE_PIN_FOR_LOG(pin);
   switch (mode) {
     case 0:  // data out
       {

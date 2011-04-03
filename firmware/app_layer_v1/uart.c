@@ -49,7 +49,7 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
   UART_STATE* uart = &uarts[uart_num];
   log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
              two_stop_bits, parity);
-  SAVE_UART1_FOR_LOG();
+  SAVE_UART_FOR_LOG(uart_num);
   Set_URXIE[uart_num](0);  // disable RX int.
   Set_UTXIE[uart_num](0);  // disable TX int.
   regs->uxmode = 0x0000;  // disable UART.
@@ -136,7 +136,7 @@ static void RXInterrupt(int uart_num) {
 
 void UARTTransmit(int uart_num, const void* data, int size) {
   log_printf("UARTTransmit(%d, %p, %d)", uart_num, data, size);
-  SAVE_UART1_FOR_LOG();
+  SAVE_UART_FOR_LOG(uart_num);
   BYTE_QUEUE* q = &uarts[uart_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushBuffer(q, data, size);
