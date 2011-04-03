@@ -1,5 +1,6 @@
 package ioio.manager;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,8 +19,9 @@ public class BTThread extends Thread {
 	public static final String EXTRA_CONNECTED = "connected";
 	public static final String ACTION_BT_GOT_IMAGE = "ioio.manager.ACTION_BT_GOT_IMAGE";
 
-	private static final String IMAGE_FILENAME = "image.ioio";
-	private static final String FINGERPRINT_FILENAME = "image.fp";
+	private static final String FILENAME = "image";
+	private static final String IMAGE_SUFFIX = "ioio";
+	private static final String FINGERPRINT_SUFFIX = "fp";
 
 	public Handler mHandler;
 	private Context mContext;
@@ -35,21 +37,22 @@ public class BTThread extends Thread {
 		Intent intent = new Intent(ACTION_BT_CONNECTION);
 		intent.putExtra(EXTRA_CONNECTED, true);
 		mContext.sendStickyBroadcast(intent);
-		try {
-			while (true) {
+		while (true) {
+			try {
 				Log.i("BTThread", "Accepting");
 				BluetoothSocket socket = mServer.accept();
 				Log.i("BTThread", "Accepted");
 				copyToFile(socket);
 				createFingerprint();
+				renameFilesByVariant();
 				Log.i("BTThread", "Done");
 				mContext.sendBroadcast(new Intent(ACTION_BT_GOT_IMAGE));
-			}
-		} catch (Exception e) {
-			if (!e.getMessage().equals("Operation Canceled")) {
-				Log.e("BTThread", "Exception caught", e);
-				mContext.deleteFile(IMAGE_FILENAME);
-				mContext.deleteFile(FINGERPRINT_FILENAME);
+			} catch (Exception e) {
+				if (e.getMessage().equals("Operation Canceled")) {
+					break;
+				} else {
+					Log.e("BTThread", "Exception caught", e);
+				}
 			}
 		}
 		intent = new Intent(ACTION_BT_CONNECTION);
@@ -66,7 +69,7 @@ public class BTThread extends Thread {
 
 	private void copyToFile(BluetoothSocket socket) throws IOException {
 		InputStream input = socket.getInputStream();
-		OutputStream output = mContext.openFileOutput(IMAGE_FILENAME,
+		OutputStream output = mContext.openFileOutput(FILENAME + "." + IMAGE_SUFFIX,
 				Context.MODE_WORLD_READABLE);
 		byte[] b = new byte[1024];
 		try {
@@ -83,9 +86,10 @@ public class BTThread extends Thread {
 		}
 	}
 
-	private void createFingerprint() throws IOException, NoSuchAlgorithmException {
-		InputStream in = mContext.openFileInput(IMAGE_FILENAME);
-		OutputStream out = mContext.openFileOutput(FINGERPRINT_FILENAME,
+	private void createFingerprint() throws IOException,
+			NoSuchAlgorithmException {
+		InputStream in = mContext.openFileInput(FILENAME + "." + IMAGE_SUFFIX);
+		OutputStream out = mContext.openFileOutput(FILENAME + "." + FINGERPRINT_SUFFIX,
 				Context.MODE_WORLD_READABLE);
 		try {
 			MessageDigest digester = MessageDigest.getInstance("MD5");
@@ -100,5 +104,29 @@ public class BTThread extends Thread {
 			in.close();
 			out.close();
 		}
+	}
+
+	private void renameFilesByVariant() throws IOException {
+		InputStream in = mContext.openFileInput(FILENAME + "." + IMAGE_SUFFIX);;
+		byte[] buf = new byte[12];
+		String variantName;
+		try {
+			if (in.read(buf) != 12) {
+				throw new IOException("IOIO file is corrupt");
+			}
+			int variant = buf[11];
+			variant = variant << 8 | buf[10];
+			variant = variant << 8 | buf[9];
+			variant = variant << 8 | buf[8];
+			variantName = Integer.toString(variant);
+		} finally {
+			in.close();
+		}
+		final File newImageFile = mContext.getFileStreamPath(FILENAME + "." + variantName + "." + IMAGE_SUFFIX);
+		final File newFingerprintFile = mContext.getFileStreamPath(FILENAME + "." + variantName + "." + FINGERPRINT_SUFFIX);
+		Log.i("BTThread", "Renaming files - start");
+		new File(mContext.getFilesDir(), FILENAME + "." + IMAGE_SUFFIX).renameTo(newImageFile);
+		new File(mContext.getFilesDir(), FILENAME + "." + FINGERPRINT_SUFFIX).renameTo(newFingerprintFile);
+		Log.i("BTThread", "Renaming files - done");
 	}
 }

@@ -63,7 +63,7 @@ static BOOL IOIOFileBlockDone() {
 
 void IOIOFileInit() {
   ioio_file_buf_pos = 0;
-  ioio_file_field_remaining = 8;
+  ioio_file_field_remaining = 12;
   ioio_file_last_page = BOOTLOADER_INVALID_ADDRESS;
   ioio_file_state = IOIO_FILE_STATE_WAIT_HEADER;
 }

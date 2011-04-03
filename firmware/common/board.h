@@ -12,6 +12,7 @@
 #define __BOARD_H__
 
 #define _STRINGIFY(x) #x
+#define _TOSTRING(x) _STRINGIFY(x)
 
 // TODO: move to a project flag.
 #define IOIO_VER 12
@@ -47,7 +48,7 @@
   #define BOARD_VARIANT 1
 #endif
 
-#define BOARD_VARIANT_STRING _STRINGIFY(BOARD_VARIANT)
+#define BOARD_VARIANT_STRING _TOSTRING(BOARD_VARIANT)
 
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
   #define NUM_PWM_MODULES 9
