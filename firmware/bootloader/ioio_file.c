@@ -24,7 +24,7 @@ static BOOL IOIOFileBlockDone() {
   switch (ioio_file_state) {
     case IOIO_FILE_STATE_WAIT_HEADER:
       if (memcmp(ioio_file_buf, IOIO_FILE_HEADER, 8) != 0) {
-        log_print_0("Unexpected IOIO file header or version");
+        log_printf("Unexpected IOIO file header or version");
         return FALSE;
       }
       ioio_file_buf_pos = 0;
@@ -88,6 +88,6 @@ BOOL IOIOFileHandleBuffer(const void * buffer, size_t size) {
 BOOL IOIOFileDone() {
   if (ioio_file_state == IOIO_FILE_STATE_WAIT_BLOCK
       && ioio_file_field_remaining == 196) return TRUE;
-  log_print_0("Unexpected EOF");
+  log_printf("Unexpected EOF");
   return FALSE;
 }

@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include "GenericTypeDefs.h"
+#include "board.h"
 #include "bootloader_private.h"
 #include "bootloader_defs.h"
 #include "blapi/adb.h"
@@ -21,15 +22,18 @@
 //
 // Desired behavior:
 // 1. Wait for ADB connection.
-// 2. Attempt to read fingerprint file.
+// 2. Find directory of manager app. If not found, skip to step 8.
+// 3. Attempt to read fingerprint file.
 //    If read failed OR fingerprint is identical to the one we have, skip to
-//    step 6.
-// 3. Erase fingerprint.
-// 4. Read application image file and program Flash.
-// 5. Program new fingerprint.
-// 6. Run the application.
+//    step 8.
+// 4. Authenticate manager app. If failed, skip to step 8.
+// 5. Erase fingerprint. If failed, signal error.
+// 6. Read application image file and program Flash. If failed, signal error.
+// 7. Program new fingerprint. If failed, signal error.
+// 8. Run the application.
 //
-// If anything goes wrong on the way, go back to step 1.
+// When signaling error, only a reset gets us out of there.
+// A lost connection at any point gets us back to step 1.
 
 
 // *****************************************************************************
@@ -125,17 +129,17 @@ void FileRecvFingerprint(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     if (data_len == 0 && fingerprint_size == FINGERPRINT_SIZE) {
       if (ValidateFingerprint()) {
         // if all went OK and the fingerprint matches, skip download and run app
-        log_print_0("Fingerprint match - skipping download");
+        log_printf("Fingerprint match - skipping download");
         state = MAIN_STATE_RUN_APP;
       } else {
         // if anything went wrong or fingerprint is different, force download
-        log_print_0("Fingerprint mismatch - downloading image");
+        log_printf("Fingerprint mismatch - downloading image");
         state = MAIN_STATE_FP_FAILED;
       }
     } else {
       // failed to read fingerprint file, probably doesn't exist, run whatever we have
       // if all went OK and the fingerprint matches, skip download and run app
-      log_print_0("Couldn't find firmware to install");
+      log_printf("Couldn't find firmware to install");
       state = MAIN_STATE_RUN_APP;
     }
   }
@@ -148,7 +152,7 @@ void FileRecvImage(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     }
   } else {
     if (data_len == 0 && IOIOFileDone()) {
-      log_print_0("Successfully wrote application firmware image!");
+      log_printf("Successfully wrote application firmware image!");
       state = MAIN_STATE_RECV_IMAGE_DONE;
     } else {
       state = MAIN_STATE_ERROR;
@@ -168,10 +172,10 @@ void FileRecvPackages(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
     }
   }
   if (auth_result == AUTH_DONE_PASS) {
-    log_print_0("IOIO manager is authentic.");
+    log_printf("IOIO manager is authentic.");
     state = MAIN_STATE_AUTH_PASSED;
   } else {
-    log_print_0("IOIO manager authentication failed. Skipping download.");
+    log_printf("IOIO manager authentication failed. Skipping download.");
     state = MAIN_STATE_RUN_APP;
   }
 }
@@ -212,7 +216,7 @@ int main() {
     switch(state) {
       case MAIN_STATE_WAIT_CONNECT:
         if (connected) {
-          log_print_0("ADB connected!");
+          log_printf("ADB connected!");
           manager_path = DUMPSYS_BUSY;
           DumpsysInit();
           h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
@@ -223,7 +227,7 @@ int main() {
       case MAIN_STATE_FIND_PATH_DONE:
         fingerprint_size = 0;
         strcpy(filepath, manager_path);
-        strcat(filepath, "/files/image.fp");
+        strcat(filepath, "/files/image." BOARD_VARIANT_STRING ".fp");
         f = ADBFileRead(filepath, &FileRecvFingerprint);
         state = MAIN_STATE_WAIT_RECV_FP;
         break;
@@ -245,7 +249,7 @@ int main() {
         } else {
           IOIOFileInit();
           strcpy(filepath, manager_path);
-          strcat(filepath, "/files/image.ioio");
+          strcat(filepath, "/files/image." BOARD_VARIANT_STRING ".ioio");
           f = ADBFileRead(filepath, &FileRecvImage);
           state = MAIN_STATE_WAIT_RECV_IMAGE;
         }
@@ -260,7 +264,7 @@ int main() {
         break;
 
       case MAIN_STATE_RUN_APP:
-        log_print_0("Running app...");
+        log_printf("Running app...");
         __asm__("goto __APP_RESET");
 
       default:

@@ -303,7 +303,7 @@ BOOL ADBTasks() {
   switch (adb_conn_state) {
    case ADB_CONN_STATE_WAIT_ATTACH:
     if (USBHostAndroidIsDeviceAttached()) {
-      log_print_0("Device attached.");
+      log_printf("Device attached.");
       ADBPacketReset();
       adb_buffer_refcount = 1;
       ADBPacketRecv();  // start receiving
@@ -320,7 +320,7 @@ BOOL ADBTasks() {
     break;
 
    case ADB_CONN_STATE_ERROR:
-    log_print_0("Error occured. Resetting.");
+    log_printf("Error occured. Resetting.");
     USBHostAndroidReset();
     ADBReset();
     // TODO: send app notification
@@ -342,27 +342,27 @@ BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWOR
     return TRUE;
 
    case EVENT_HUB_ATTACH:
-    log_print_0("***** USB Error - hubs are not supported *****");
+    log_printf("***** USB Error - hubs are not supported *****");
     return TRUE;
 
    case EVENT_UNSUPPORTED_DEVICE:
-    log_print_0("***** USB Error - device is not supported *****");
+    log_printf("***** USB Error - device is not supported *****");
     return TRUE;
 
    case EVENT_CANNOT_ENUMERATE:
-    log_print_0("***** USB Error - cannot enumerate device *****");
+    log_printf("***** USB Error - cannot enumerate device *****");
     return TRUE;
 
    case EVENT_CLIENT_INIT_ERROR:
-    log_print_0("***** USB Error - client driver initialization error *****");
+    log_printf("***** USB Error - client driver initialization error *****");
     return TRUE;
 
    case EVENT_OUT_OF_MEMORY:
-    log_print_0("***** USB Error - out of heap memory *****");
+    log_printf("***** USB Error - out of heap memory *****");
     return TRUE;
 
    case EVENT_UNSPECIFIED_ERROR:   // This should never be generated.
-    log_print_0("***** USB Error - unspecified *****");
+    log_printf("***** USB Error - unspecified *****");
     return TRUE;
 
    default:

@@ -12,7 +12,7 @@
       </logicalFolder>
       <itemPath>HardwareProfile.h</itemPath>
       <itemPath>adc.h</itemPath>
-      <itemPath>board.h</itemPath>
+      <itemPath>../common/board.h</itemPath>
       <itemPath>byte_queue.h</itemPath>
       <itemPath>digital.h</itemPath>
       <itemPath>features.h</itemPath>

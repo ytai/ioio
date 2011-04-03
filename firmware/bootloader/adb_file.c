@@ -172,7 +172,7 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
     return ADB_FILE_INVALID_HANDLE;
   }
   if ((adb_files[i].handle = ADBOpen("sync:", &ADBFileCallback)) == ADB_INVALID_CHANNEL_HANDLE) {
-    log_print_0("Failed to open ADB channel to sync:");
+    log_printf("Failed to open ADB channel to sync:");
     return ADB_FILE_INVALID_HANDLE;
   }
   adb_files[i].func = recv_func;
