@@ -1,5 +1,7 @@
 #include "incap.h"
 
+#include <assert.h>
+
 #include "Compiler.h"
 #include "board.h"
 #include "logging.h"
@@ -32,10 +34,14 @@ void InCapConfig(int incap_num, int mode, int continouos, int clock_scale,
   log_printf("InCapConfig(%d, %d, %d, %d, %d)", incap_num, mode, continouos,
              clock_scale, input_scale);
   Set_ICIE[incap_num](0);  // disable interrupts
-  reg->con1 = 0x0000;  // disable module
+  reg->con1 = 0x0000;      // disable module
   Set_ICIF[incap_num](0);  // clear interrupts
   Set_ICIP[incap_num](1);  // interrupt priority 1
-  if (mode) {
+  if (clock_scale) {
+    static const int clkbits[3] = { 7 << 10, 0, 4 << 10 };
+    static const int modebits[6] = { 3, 2, 3, 4, 5, 2 };
     
+    reg->con2 = 0x0000;
+    reg->con1 = clkbits[clock_scale - 1] | modebits[mode];
   }
 }
