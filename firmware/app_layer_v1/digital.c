@@ -21,7 +21,7 @@ void SetChangeNotify(int pin, int changeNotify) {
 }
 
 void ReportDigitalInStatus(int pin) {
-  log_printf("ReportDigitalInStatus(%d)", pin);
+  log_printf("ReportDigitalInStatus(%d, %d)", pin, PinGetPort(pin));
   SAVE_PIN_FOR_LOG(pin);
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_DIGITAL_IN_STATUS;
@@ -49,6 +49,7 @@ void __attribute__((__interrupt__, auto_psv)) _CNInterrupt() {
   unsigned int changed;
   int i;
   log_printf("_CNInterrupt()");
+  _CNIF = 0;
 
   CHECK_PORT_CHANGE(B);
   CHECK_PORT_CHANGE(C);
@@ -56,6 +57,4 @@ void __attribute__((__interrupt__, auto_psv)) _CNInterrupt() {
   CHECK_PORT_CHANGE(E);
   CHECK_PORT_CHANGE(F);
   CHECK_PORT_CHANGE(G);
-
-  _CNIF = 0;
 }
