@@ -1,9 +1,0 @@
-<?eclipse.ant.import?>
-<project >
-<target name="jar" depends="build">
-    <jar destfile="IOIOLib.jar"
-         basedir="bin/"
-         includes="**/*.class"
-         />
-</target></project>
-
