@@ -16,7 +16,7 @@
   #define log_printf(...) do { sprintf(char_buf, __VA_ARGS__); log_print_0(char_buf); } while(0)
   void log_init();
 
-  #define SAVE_PIN_FOR_LOG(pin) if (pin == 4) return
+  #define SAVE_PIN_FOR_LOG(pin) if (pin == 32) return
   #define SAVE_UART_FOR_LOG(uart) if (uart == 1) return
 #else
   #define log_print_buf(b,s)

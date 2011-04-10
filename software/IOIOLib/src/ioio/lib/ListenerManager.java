@@ -1,7 +1,7 @@
 package ioio.lib;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Manages listeners.
@@ -10,7 +10,7 @@ import java.util.List;
  * @author birmiwal
  */
 public class ListenerManager {
-    List<IOIOPacketListener> listeners = new LinkedList<IOIOPacketListener>();
+    Set<IOIOPacketListener> listeners = new HashSet<IOIOPacketListener>();
 
     public void disconnectListeners() {
         for (IOIOPacketListener listener : listeners) {

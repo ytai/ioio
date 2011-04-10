@@ -26,8 +26,7 @@ void log_print_buf(const void* buf, int size) {
 }
 
 void log_init() {
-  iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-  iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
+  iPPSOutput(OUT_PIN_PPS_RP28,OUT_FN_PPS_U2TX);  // U2TX to pin 32
   UART2Init();
 }
 
