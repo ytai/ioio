@@ -1,35 +1,50 @@
+/*
+ * Copyright 2011. All rights reserved.
+ *  
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied.
+ */
 package ioio.api;
 
+import ioio.api.exception.ConnectionLostException;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.InterruptibleChannel;
 
-public interface SpiChannel extends SynchronousByteChannel, InterruptibleChannel {
+public interface SpiChannel extends InterruptibleChannel {
  
-    // Warning, anti-pattern
-    public static final int SPI_OFF = 0;
-    public static final int SPI_31K = 31250;
-    public static final int SPI_35K = 35714;
-    public static final int SPI_41K = 41667;
-    public static final int SPI_50K = 50000;
-    public static final int SPI_62K = 62500;
-    public static final int SPI_83K = 83333;
-    public static final int SPI_125K = 125000;
-    public static final int SPI_142K = 142857;
-    public static final int SPI_166K = 166667;
-    public static final int SPI_200K = 200000;
-    public static final int SPI_250K = 250000;
-    public static final int SPI_333K = 333333;
-    public static final int SPI_500K = 500000;
-    public static final int SPI_571K = 571429;
-    public static final int SPI_666K = 666667;
-    public static final int SPI_800K = 800000;
-    public static final int SPI_1M = 1000000;
-    public static final int SPI_1_3M = 1333333;
-    public static final int SPI_2M = 2000000;
-    public static final int SPI_2_2M = 2285714;
-    public static final int SPI_2_6M = 2666667;
-    public static final int SPI_3_2M = 3200000;
-    public static final int SPI_4M = 4000000;
-    public static final int SPI_5_3M = 5333333;
-    public static final int SPI_8M = 8000000;
-    
+    /**
+     * Writes the remaining bytes from the send buffer, and fills any remaining space
+     * in the read buffer. The beginning of the read is offset by @rxOffset number of 
+     * bytes.
+     * @param send Bytes to send
+     * @param receive Bytes received
+     * @param rxOffset Number of bytes to offset the beginning of read from write
+     * @return number of bytes transacted
+     */
+    public int writeRead(ByteBuffer send, ByteBuffer receive, int rxOffset)
+    throws IOException, ConnectionLostException;
 }

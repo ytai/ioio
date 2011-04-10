@@ -1,9 +1,9 @@
 package ioio.lib;
 
 import ioio.api.AnalogInput;
-import ioio.api.PeripheralException.ConnectionLostException;
-import ioio.api.PeripheralException.InvalidOperationException;
-import ioio.api.PeripheralException.InvalidStateException;
+import ioio.api.exception.ConnectionLostException;
+import ioio.api.exception.InvalidOperationException;
+import ioio.api.exception.InvalidStateException;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -9,12 +9,12 @@ import ioio.api.DigitalInputMode;
 import ioio.api.DigitalOutput;
 import ioio.api.DigitalOutputMode;
 import ioio.api.IOIOLib;
-import ioio.api.PeripheralException.ConnectionLostException;
-import ioio.api.PeripheralException.InvalidOperationException;
-import ioio.api.PeripheralException.OperationAbortedException;
-import ioio.api.PeripheralException.OutOfResourceException;
 import ioio.api.PwmOutput;
 import ioio.api.Uart;
+import ioio.api.exception.ConnectionLostException;
+import ioio.api.exception.InvalidOperationException;
+import ioio.api.exception.OperationAbortedException;
+import ioio.api.exception.OutOfResourceException;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -76,7 +76,7 @@ public class IOIOImpl implements IOIOLib {
 
 	/**
 	 * Blocking call that will not return until connected.
-	 * hmm. this must throw an exception at some point, else very un-androidy
+	 * 
 	 * @throws SocketException
 	 * @throws OperationCanceledException if {@link #abortConnection()} is called
 	 */
@@ -96,6 +96,7 @@ public class IOIOImpl implements IOIOLib {
                 throw new SocketException("IOException: " + e.getMessage());
             }
 	    }
+	    
 	    // TODO(birmiwal): make this better
 	    while (!isConnected() && !abortConnection) {
 	        sleep(CONNECT_WAIT_TIME_MS);
@@ -240,6 +241,14 @@ public class IOIOImpl implements IOIOLib {
     
     public void deallocateUart(int moduleId) {
         uartModules.releaseModule(moduleId);
+    }
+
+    
+    @Override
+    public IOIOTwi openTwi(int speed)
+            throws ConnectionLostException, InvalidOperationException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
   

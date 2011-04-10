@@ -1,6 +1,6 @@
 package ioio.lib;
 
-import ioio.api.PeripheralException.ConnectionLostException;
+import ioio.api.exception.ConnectionLostException;
 
 import java.io.IOException;
 import java.io.InputStream;

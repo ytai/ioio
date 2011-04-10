@@ -28,25 +28,26 @@
  */
 package ioio.api;
 
+import ioio.api.exception.OperationAbortedException;
+import ioio.lib.IOIOImpl;
+
+import java.net.SocketException;
+
 /**
- * 
- * @author birmiwal
+ * Factory class for getting a handle to the IOIO
  *
+ * @author arshan
  */
-public enum DigitalInputMode {
-    // We shouldnt be keeping wire-protocol values here. -arshan
-    FLOATING(0),
-    PULL_UP(1),
-    PULL_DOWN(2)
-    ;
+public class IOIOSingleton {
 
-    private final int bitValue;
+    private static IOIOLib singleton = null;
 
-    private DigitalInputMode(int bitValue) {
-        this.bitValue = bitValue;
+    public static IOIOLib waitForController() throws OperationAbortedException, SocketException {
+        if (singleton == null) {
+            singleton = new IOIOImpl();
+        }
+        singleton.waitForConnect();
+        return singleton;
     }
-
-    public int getBitValue() {
-        return bitValue;
-    }
+    
 }

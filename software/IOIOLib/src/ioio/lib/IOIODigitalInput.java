@@ -2,9 +2,9 @@ package ioio.lib;
 
 import ioio.api.DigitalInput;
 import ioio.api.DigitalInputMode;
-import ioio.api.PeripheralException.ConnectionLostException;
-import ioio.api.PeripheralException.InvalidOperationException;
-import ioio.api.PeripheralException.InvalidStateException;
+import ioio.api.exception.ConnectionLostException;
+import ioio.api.exception.InvalidOperationException;
+import ioio.api.exception.InvalidStateException;
 
 /**
  * Represent and manage digital input pins on the IOIO.

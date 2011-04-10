@@ -1,12 +1,12 @@
 package ioio.lib;
 
-import ioio.api.PeripheralException.InvalidStateException;
 
 
 /**
  * Constants used in IOIO.
  *
  * @author birmiwal
+ * @author arshan
  */
 public class Constants {
   // Magic bytes for the IOIO, spells 'IOIO'
@@ -32,6 +32,8 @@ public class Constants {
   public static final int SPI_MASTER_REQUEST = 0x10;
   public static final int SPI_CONFIGURE_MASTER = 0x12;
   public static final int SPI_SET_PIN = 0x13;
+  public static final int TWI_CONFIGURE_MASTER = 0x14;
+  public static final int TWI_WRITE_READ = 0x15;
   
   // Incoming messages (where different)
   public static final byte ESTABLISH_CONNECTION = 0x00;
@@ -43,8 +45,9 @@ public class Constants {
   public static final int UART_RX = 0x0C;
   public static final int SPI_DATA = 0x10;
   public static final int SPI_REPORT_TX_STATUS = 0x11;
-  
-
+  public static final int TWI_RESULT = 0x15;
+  public static final int TWI_REPORT_TX_STATUS = 0x16;
+ 
     // Didnt find documentation but looking at firmware this seems right.
     public static final int IOIO_PORT = 4545;
 

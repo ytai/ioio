@@ -2,10 +2,10 @@ package ioio.lib;
 
 import ioio.api.DigitalOutput;
 import ioio.api.PwmOutput;
-import ioio.api.PeripheralException.ConnectionLostException;
-import ioio.api.PeripheralException.InvalidOperationException;
-import ioio.api.PeripheralException.InvalidStateException;
-import ioio.api.PeripheralException.OutOfResourceException;
+import ioio.api.exception.ConnectionLostException;
+import ioio.api.exception.InvalidOperationException;
+import ioio.api.exception.InvalidStateException;
+import ioio.api.exception.OutOfResourceException;
 
 import java.io.IOException;
 
