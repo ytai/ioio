@@ -29,6 +29,7 @@
 
 package ioio.lib.api;
 
+import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.InvalidStateException;
 
 
@@ -41,7 +42,7 @@ import ioio.lib.api.exception.InvalidStateException;
  * @author arshan
  */
 public interface AnalogInput extends Pin {
-    public Float getVoltage() throws InvalidStateException;
-    public Float getReference() throws InvalidStateException;
-    public Float read() throws InvalidStateException;
+    public float getVoltage() throws InvalidStateException, InterruptedException, ConnectionLostException;
+    public float getReference() throws InvalidStateException;
+    public float read() throws InvalidStateException, InterruptedException, ConnectionLostException;
 }

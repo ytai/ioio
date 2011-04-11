@@ -22,7 +22,7 @@ public class PwmImpl extends AbstractPin implements PwmOutput {
 
 	@Override
 	synchronized public void opened(PinMode mode) {
-		assert(mode == PinMode.PWM);
+		assert(mode == PinMode.DIGITAL_OUT);
 		super.opened(mode);
 	}
 

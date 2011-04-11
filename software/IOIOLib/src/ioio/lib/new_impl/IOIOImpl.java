@@ -152,8 +152,18 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public AnalogInput openAnalogInput(int pin) throws ConnectionLostException,
 			InvalidOperationException {
-		// TODO Auto-generated method stub
-		return null;
+		if (openPins_[pin]) {
+			throw new InvalidOperationException("Pin number " + pin + " is already open.");
+		}
+		AnalogInputImpl result = new AnalogInputImpl(this, pin);
+		openPins_[pin] = true;
+		incomingState_.addPinListener(pin, result);
+		try {
+			protocol_.setPinAnalogIn(pin);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+		return result;
 	}
 
 	@Override

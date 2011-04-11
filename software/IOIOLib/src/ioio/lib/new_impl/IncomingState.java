@@ -13,7 +13,6 @@ public class IncomingState implements IncomingHandler {
 		DIGITAL_IN,
 		DIGITAL_OUT,
 		ANALOG_IN,
-		PWM,
 		UART,
 		SPI,
 		I2C
@@ -236,16 +235,11 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleReportAnalogInFormat(int numPins, int[] pins) {
-		logMethod("handleReportAnalogInFormat", numPins, pins);
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void handleReportAnalogInStatus(int[] values) {
-		logMethod("handleReportAnalogInStatus", values);
-		// TODO Auto-generated method stub
-		
+	public void handleReportAnalogInStatus(int pins[], int values[]) {
+		logMethod("handleReportAnalogInStatus", pins, values);
+		for (int i = 0; i < pins.length; ++i) {
+			pinStates_[pins[i]].setValue(values[i]);
+		}		
 	}
 
 	@Override

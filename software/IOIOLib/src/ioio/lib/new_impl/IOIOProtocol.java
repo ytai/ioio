@@ -49,7 +49,7 @@ public class IOIOProtocol {
 		writeByte(i >> 8);
 	}
 	
-	public void hardReset() throws IOException {
+	synchronized public void hardReset() throws IOException {
 		writeByte(HARD_RESET);
 		writeByte('I');
 		writeByte('O');
@@ -57,74 +57,77 @@ public class IOIOProtocol {
 		writeByte('O');
 	}
 
-	public void softReset() throws IOException {
+	synchronized public void softReset() throws IOException {
 		writeByte(SOFT_RESET);
 	}
 	
-	public void setDigitalOutLevel(int pin, boolean level) throws IOException  {
+	synchronized public void setDigitalOutLevel(int pin, boolean level) throws IOException  {
 		writeByte(SET_DIGITAL_OUT_LEVEL);
 		writeByte(pin << 2 | (level ? 1 : 0));
 	}
 
-	public void setPinPwm(int pin, int pwmNum) throws IOException { 
+	synchronized public void setPinPwm(int pin, int pwmNum) throws IOException { 
 		writeByte(SET_PIN_PWM);
 		writeByte(pin);
 		writeByte(pwmNum);
 	}
 
-	public void setPwmDutyCycle(int pwmNum, int dutyCycle, int fraction) throws IOException { 
+	synchronized public void setPwmDutyCycle(int pwmNum, int dutyCycle, int fraction) throws IOException { 
 		writeByte(SET_PWM_DUTY_CYCLE);
 		writeByte(pwmNum << 2 | fraction);
 		writeTwoBytes(dutyCycle);
 	}
 
-	public void setPwmPeriod(int pwmNum, int period, boolean scale256) throws IOException {
+	synchronized public void setPwmPeriod(int pwmNum, int period, boolean scale256) throws IOException {
 		writeByte(SET_PWM_PERIOD);
 		writeByte((pwmNum << 1) | (scale256 ? 1 : 0));
 		writeTwoBytes(period);
 	}
 
-	public void spiMasterRequest(int spiNum, int ssPin, byte data[],
+	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[],
 			int dataBytes, int totalBytes, int responseBytes) throws IOException { assert(false); }
 
-	public void i2cWriteRead(int i2cNum, boolean tenBitAddr, int address,
+	synchronized public void i2cWriteRead(int i2cNum, boolean tenBitAddr, int address,
 			int writeSize, int readSize, byte[] writeData) throws IOException { assert(false); }
 
 
-	public void setPinDigitalOut(int pin, boolean value, boolean openDrain) throws IOException { 
+	synchronized public void setPinDigitalOut(int pin, boolean value, boolean openDrain) throws IOException { 
 		writeByte(SET_PIN_DIGITAL_OUT);
 		writeByte((pin << 2) | (openDrain ? 0x01 : 0x00) | (value ? 0x02 : 0x00));
 	}
 
-	public void setPinDigitalIn(int pin, int pull) throws IOException { 
+	synchronized public void setPinDigitalIn(int pin, int pull) throws IOException { 
 		writeByte(SET_PIN_DIGITAL_IN);
 		writeByte((pin << 2) | pull);
 	}
 
-	public void setChangeNotify(int pin, boolean changeNotify) throws IOException {
+	synchronized public void setChangeNotify(int pin, boolean changeNotify) throws IOException {
 		writeByte(SET_CHANGE_NOTIFY);
 		writeByte((pin << 2) | (changeNotify ? 0x01 : 0x00));
 	}
 
-	public void registerPeriodicDigitalSampling(int pin, int freqScale) throws IOException { assert(false); }
+	synchronized public void registerPeriodicDigitalSampling(int pin, int freqScale) throws IOException { assert(false); }
 
-	public void setPinAnalogIn(int pin) throws IOException { assert(false); }
+	synchronized public void setPinAnalogIn(int pin) throws IOException { 
+		writeByte(SET_PIN_ANALOG_IN);
+		writeByte(pin);
+	}
 
-	public void uartData(int uartNum, int numBytes, byte data[]) throws IOException { assert(false); }
+	synchronized public void uartData(int uartNum, int numBytes, byte data[]) throws IOException { assert(false); }
 
-	public void uartConfigure(int uartNum, int rate, boolean speed4x,
+	synchronized public void uartConfigure(int uartNum, int rate, boolean speed4x,
 			boolean twoStopBits, int parity) throws IOException { assert(false); }
 
-	public void setPinUartRx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
+	synchronized public void setPinUartRx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
 
-	public void setPinUartTx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
+	synchronized public void setPinUartTx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
 
-	public void spiConfigureMaster(int spiNum, int scale, int div,
+	synchronized public void spiConfigureMaster(int spiNum, int scale, int div,
 			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) throws IOException { assert(false); }
 
-	public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException { assert(false); }
+	synchronized public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException { assert(false); }
 
-	public void i2cConfigureMaster(int i2cNum, int rate, boolean smbusLevels) throws IOException { assert(false); }
+	synchronized public void i2cConfigureMaster(int i2cNum, int rate, boolean smbusLevels) throws IOException { assert(false); }
 	
 	public interface IncomingHandler {
 		public void handleConnectionLost();
@@ -169,9 +172,7 @@ public class IOIOProtocol {
 		public void handleReportPeriodicDigitalInStatus(int frameNum,
 				boolean values[]);
 
-		public void handleReportAnalogInFormat(int numPins, int pins[]);
-
-		public void handleReportAnalogInStatus(int values[]);
+		public void handleReportAnalogInStatus(int pins[], int values[]);
 
 		public void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
 
@@ -180,6 +181,8 @@ public class IOIOProtocol {
 	
 
 	class IncomingThread extends Thread {
+		private int[] analogFramePins_;
+		
 		private int readByte() throws IOException {
 			int b = in_.read();
 			if (b == -1) throw new IOException("Unexpected stream closure");
@@ -250,11 +253,25 @@ public class IOIOProtocol {
 						break;
 						
 					case REPORT_ANALOG_IN_FORMAT:
-						// TODO: implement
+						int numPins = readByte();
+						analogFramePins_ = new int[numPins];
+						for (int i = 0; i < numPins; ++i) {
+							analogFramePins_[i] = readByte();
+						}
 						break;
 						
 					case REPORT_ANALOG_IN_STATUS:
-						// TODO: implement
+						numPins = analogFramePins_.length;
+						int header = 0;
+						int[] values = new int[numPins];
+						for (int i = 0; i < numPins; ++i) {
+							if (i % 4 == 0) {
+								header = readByte();
+							}
+							values[i] = (readByte() << 2) | (header & 0x03);
+							header >>= 2;
+						}
+						handler_.handleReportAnalogInStatus(analogFramePins_, values);
 						break;
 						
 					case UART_REPORT_TX_STATUS:
@@ -262,7 +279,7 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_PIN_ANALOG_IN:
-						// TODO: implement
+						handler_.handleSetPinAnalogIn(readByte());
 						break;
 						
 					case UART_DATA:
