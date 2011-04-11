@@ -31,8 +31,6 @@ package ioio.lib.api;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.InvalidOperationException;
 import ioio.lib.api.exception.OutOfResourceException;
-import ioio.lib.impl.IOIOSpi;
-import ioio.lib.impl.IOIOTwi;
 
 /**
  * An interface for interacting with the IOIO board.
@@ -70,8 +68,9 @@ public interface IOIO {
 	 *
 	 * All objects obtained from this instance until now get invalidated,
 	 * and will throw an exception on every operation.
+	 * @throws InterruptedException 
 	 */
-	public void disconnect();
+	public void disconnect() throws InterruptedException;
 
 	/**
 	 * Aborts the currently running waitForConnect() method.
@@ -199,48 +198,43 @@ public interface IOIO {
 	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
     throws ConnectionLostException, InvalidOperationException;
     
-	public Uart openUart(DigitalInput rx, DigitalOutput tx, int baud, int parity, int stopbits)
-    throws ConnectionLostException, InvalidOperationException;
+	Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
+			int parity, int stopbits) throws ConnectionLostException,
+			InvalidOperationException;
     
 	
-	/**
-	 * Opens an spi channel using the indicated slave pin.
-	 * 
-	 * TODO(arshan): option to pass in an SpiMaster as well, so that one master can drive multiple devices
-	 * 
-	 * @param miso
-	 * @param mosi
-	 * @param clk
-	 * @param select
-	 * @param speed
-	 * @return
-	 */
-	public IOIOSpi openSpi(
-            int miso, 
-            int mosi, 
-            int clk, 
-            int select, 
-            int speed)
-	throws ConnectionLostException, InvalidOperationException;
-    
-	public IOIOSpi openSpi(
-            DigitalInput  miso, 
-            DigitalOutput mosi, 
-            DigitalOutput clk, 
-            DigitalOutput select, 
-            int speed)
-	throws ConnectionLostException, InvalidOperationException;
-
-	/**
-	 * The pins for Twi are static. 
-	 * 
-	 * @param speed
-	 * @return
-	 * @throws ConnectionLostException
-	 * @throws InvalidOperationException
-	 */
-	public IOIOTwi openTwi(int speed)
-	throws ConnectionLostException, InvalidOperationException;
-	
-	
+//	/**
+//	 * Opens an spi channel using the indicated slave pin.
+//	 * 
+//	 * TODO(arshan): option to pass in an SpiMaster as well, so that one master can drive multiple devices
+//	 * 
+//	 * @param miso
+//	 * @param mosi
+//	 * @param clk
+//	 * @param select
+//	 * @param speed
+//	 * @return
+//	 */
+//	public IOIOSpi openSpi(
+//            int miso, 
+//            int mosi, 
+//            int clk, 
+//            int select, 
+//            int speed)
+//	throws ConnectionLostException, InvalidOperationException;
+//    
+//	IOIOSpi openSpi(DigitalInputSpec miso, DigitalOutputSpec mosi,
+//			DigitalOutputSpec clk, DigitalOutputSpec select, int speed)
+//	throws ConnectionLostException, InvalidOperationException;
+//
+//	/**
+//	 * The pins for Twi are static. 
+//	 * 
+//	 * @param speed
+//	 * @return
+//	 * @throws ConnectionLostException
+//	 * @throws InvalidOperationException
+//	 */
+//	IOIOTwi openTwi(int twiNum, int speed) throws ConnectionLostException,
+//			InvalidOperationException;
 }

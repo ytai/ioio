@@ -28,7 +28,8 @@
  */
 package ioio.lib.api;
 
-import ioio.lib.api.exception.InvalidStateException;
+import ioio.lib.api.exception.ConnectionLostException;
+
 
 /**
  * Define the basic functions that must be supported by all Digital inputs.
@@ -40,5 +41,5 @@ import ioio.lib.api.exception.InvalidStateException;
  *
  */
 public interface DigitalInput extends Pin {
-    public Boolean read() throws InvalidStateException;
+    public boolean read() throws InterruptedException, ConnectionLostException;
 }

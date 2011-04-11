@@ -28,10 +28,6 @@
  */
 package ioio.lib.api;
 
-import ioio.lib.api.exception.OperationAbortedException;
-import ioio.lib.impl.IOIOImpl;
-
-import java.net.SocketException;
 
 /**
  * Factory class for getting a handle to the IOIO
@@ -39,15 +35,15 @@ import java.net.SocketException;
  * @author arshan
  */
 public class IOIOFactory {
-
-    private static IOIOImpl singleton = null;
-
-    public static IOIO connect() throws OperationAbortedException, SocketException {
-        if (singleton == null) {
-            singleton = new IOIOImpl();
-        }
-        singleton.waitForConnect();
-        return singleton;
-    }
-    
+//
+//    private static IOIOImpl singleton = null;
+//
+//    public static IOIO connect() throws OperationAbortedException, SocketException {
+//        if (singleton == null) {
+//            singleton = new IOIOImpl();
+//        }
+//        singleton.waitForConnect();
+//        return singleton;
+//    }
+//    
 }

@@ -6,7 +6,7 @@ package ioio.lib.api.exception;
  * @author arshan
  *
  */
-public class InvalidStateException extends  Exception {
+public class InvalidStateException extends  RuntimeException {
     private static final long serialVersionUID = 1L;
     public InvalidStateException(String msg) {
         super(msg);

@@ -10,4 +10,12 @@ public class ConnectionLostException extends Exception {
     public ConnectionLostException(String msg) {
         super(msg);
     }
+    
+    public ConnectionLostException(Exception e) {
+    	super(e);
+    }
+
+	public ConnectionLostException() {
+		super("Connection lost");
+	}
 }
