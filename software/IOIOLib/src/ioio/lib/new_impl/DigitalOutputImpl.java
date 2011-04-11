@@ -1,11 +1,10 @@
 package ioio.lib.new_impl;
 
-import java.io.IOException;
-
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
 import ioio.lib.new_impl.IncomingState.PinMode;
+
+import java.io.IOException;
 
 public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 	DigitalOutputImpl(IOIOImpl ioio, int pin) {

@@ -3,10 +3,10 @@ package ioio.lib.new_impl;
 import android.util.Log;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.InvalidStateException;
-import ioio.lib.new_impl.IncomingState.Listener;
+import ioio.lib.new_impl.IncomingState.PinListener;
 import ioio.lib.new_impl.IncomingState.PinMode;
 
-public abstract class AbstractPin implements Listener {
+public abstract class AbstractPin implements PinListener {
 	enum State {
 		INIT,
 		OPEN,

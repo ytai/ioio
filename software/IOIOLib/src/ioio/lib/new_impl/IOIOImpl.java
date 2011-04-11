@@ -23,6 +23,7 @@ public class IOIOImpl implements IOIO {
 	private IncomingState incomingState_ = new IncomingState();
 	private boolean openPins_[] = new boolean[Constants.NUM_PINS];
 	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(Constants.NUM_PWM_MODULES);
+	private ModuleAllocator uartAllocator_ = new ModuleAllocator(Constants.NUM_UART_MODULES);
 	
 	public IOIOImpl(InputStream in, OutputStream out) throws InterruptedException, ConnectionLostException {
 		protocol_ = new IOIOProtocol(in, out, incomingState_);
@@ -32,7 +33,7 @@ public class IOIOImpl implements IOIO {
 	synchronized void closePin(int pin) {
 		if (openPins_[pin]) {
 			try {
-				protocol_.setPinDigitalIn(pin, 0);
+				protocol_.setPinDigitalIn(pin, DigitalInputSpec.Mode.FLOATING);
 			} catch (IOException e) {
 			}
 			openPins_[pin] = false;
@@ -43,6 +44,14 @@ public class IOIOImpl implements IOIO {
 		pwmAllocator_.releaseModule(pwmNum);
 		try {
 			protocol_.setPwmPeriod(pwmNum, 0, false);
+		} catch (IOException e) {
+		}
+	}
+
+	synchronized void closeUart(int uartNum) {
+		uartAllocator_.releaseModule(uartNum);
+		try {
+			protocol_.uartConfigure(uartNum, 0, false, false, 0);
 		} catch (IOException e) {
 		}
 	}
@@ -98,13 +107,7 @@ public class IOIOImpl implements IOIO {
 		openPins_[spec.pin] = true;
 		incomingState_.addPinListener(spec.pin, result);
 		try {
-			int pull = 0;
-			if (spec.mode == DigitalInputSpec.Mode.PULL_UP) {
-				pull = 1;
-			} else if (spec.mode == DigitalInputSpec.Mode.PULL_DOWN) {
-				pull = 2;
-			}
-			protocol_.setPinDigitalIn(spec.pin, pull);
+			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setChangeNotify(spec.pin, true);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
@@ -130,7 +133,7 @@ public class IOIOImpl implements IOIO {
 		openPins_[spec.pin] = true;
 		incomingState_.addPinListener(spec.pin, result);
 		try {
-			protocol_.setPinDigitalOut(spec.pin, startValue, spec.mode == DigitalOutputSpec.Mode.OPEN_DRAIN);
+			protocol_.setPinDigitalOut(spec.pin, startValue, spec.mode);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
@@ -198,29 +201,65 @@ public class IOIOImpl implements IOIO {
 		openPins_[spec.pin] = true;
 		incomingState_.addPinListener(spec.pin, pwm);
 		try {
-			protocol_.setPinDigitalOut(spec.pin, false, spec.mode == DigitalOutputSpec.Mode.OPEN_DRAIN);
+			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
 			protocol_.setPinPwm(spec.pin, pwmNum);
 			protocol_.setPwmPeriod(pwmNum, period, scale256);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
 		return pwm;
-		
 	}
 
 	@Override
 	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
-			throws ConnectionLostException, InvalidOperationException {
-		// TODO Auto-generated method stub
-		return null;
+			throws ConnectionLostException, InvalidOperationException, OutOfResourceException {
+		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInputSpec(rx),
+						tx == INVALID_PIN_NUMBER ? null : new DigitalOutputSpec(tx),
+						baud, parity, stopbits);
 	}
 
 	@Override
 	synchronized public Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
 			int parity, int stopbits) throws ConnectionLostException,
-			InvalidOperationException {
-		// TODO Auto-generated method stub
-		return null;
+			InvalidOperationException, OutOfResourceException {
+		int rxPin = rx != null ? rx.pin : INVALID_PIN_NUMBER;
+		int txPin = tx != null ? tx.pin : INVALID_PIN_NUMBER;
+		if (rx != null && openPins_[rx.pin]) {
+			throw new InvalidOperationException("Pin number " + rx.pin + " is already open.");
+		}
+		if (tx != null && openPins_[tx.pin]) {
+			throw new InvalidOperationException("Pin number " + rx.pin + " is already open.");
+		}
+		Integer uartNum = uartAllocator_.allocateModule();
+		if (uartNum == null) {
+			throw new OutOfResourceException("No more available UART modules");
+		}
+ 		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
+ 		incomingState_.addUartListener(uartNum, uart);
+		try {
+			if (rx != null) {
+				incomingState_.addPinListener(rx.pin, uart.rxListener);
+				openPins_[rx.pin] = true;
+				protocol_.setPinDigitalIn(rx.pin, rx.mode);
+				protocol_.setPinUartRx(rx.pin, uartNum, true);
+			}
+			if (tx != null) {
+				incomingState_.addPinListener(tx.pin, uart.txListener);
+				openPins_[tx.pin] = true;
+				protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
+				protocol_.setPinUartTx(tx.pin, uartNum, true);
+			}
+			boolean speed4x = true;
+			int rate = Math.round(4000000.0f / baud) - 1;
+			if (rate > 65535) {
+				speed4x = false;
+				rate = Math.round(1000000.0f / baud) - 1;
+			}
+			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits == 2, parity);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+		return uart;
 	}
 
 //	@Override

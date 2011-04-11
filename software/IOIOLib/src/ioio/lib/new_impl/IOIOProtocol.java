@@ -1,9 +1,13 @@
 package ioio.lib.new_impl;
 
+import ioio.lib.api.DigitalInputSpec;
+import ioio.lib.api.DigitalOutputSpec;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.graphics.Path.Direction;
 import android.util.Log;
 
 public class IOIOProtocol {
@@ -91,12 +95,20 @@ public class IOIOProtocol {
 			int writeSize, int readSize, byte[] writeData) throws IOException { assert(false); }
 
 
-	synchronized public void setPinDigitalOut(int pin, boolean value, boolean openDrain) throws IOException { 
+	synchronized public void setPinDigitalOut(int pin, boolean value, DigitalOutputSpec.Mode mode) throws IOException { 
 		writeByte(SET_PIN_DIGITAL_OUT);
-		writeByte((pin << 2) | (openDrain ? 0x01 : 0x00) | (value ? 0x02 : 0x00));
+		writeByte((pin << 2)
+				| (mode == DigitalOutputSpec.Mode.OPEN_DRAIN ? 0x01 : 0x00)
+				| (value ? 0x02 : 0x00));
 	}
 
-	synchronized public void setPinDigitalIn(int pin, int pull) throws IOException { 
+	synchronized public void setPinDigitalIn(int pin, DigitalInputSpec.Mode mode) throws IOException {
+		int pull = 0;
+		if (mode == DigitalInputSpec.Mode.PULL_UP) {
+			pull = 1;
+		} else if (mode == DigitalInputSpec.Mode.PULL_DOWN) {
+			pull = 2;
+		}
 		writeByte(SET_PIN_DIGITAL_IN);
 		writeByte((pin << 2) | pull);
 	}
@@ -113,14 +125,33 @@ public class IOIOProtocol {
 		writeByte(pin);
 	}
 
-	synchronized public void uartData(int uartNum, int numBytes, byte data[]) throws IOException { assert(false); }
+	synchronized public void uartData(int uartNum, int numBytes, byte data[]) throws IOException {
+		writeByte(UART_DATA);
+		writeByte((numBytes - 1) | uartNum << 6);
+		for (int i = 0; i < numBytes; ++i) {
+			writeByte(data[i]);
+		}
+	}
 
 	synchronized public void uartConfigure(int uartNum, int rate, boolean speed4x,
-			boolean twoStopBits, int parity) throws IOException { assert(false); }
+			boolean twoStopBits, int parity) throws IOException {
+		writeByte(UART_CONFIG);
+		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
+				| (twoStopBits ? 0x04 : 0x00) | parity);
+		writeTwoBytes(rate);
+	}
 
-	synchronized public void setPinUartRx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
+	synchronized public void setPinUartRx(int pin, int uartNum, boolean enable) throws IOException {
+		writeByte(SET_PIN_UART_RX);
+		writeByte(pin);
+		writeByte((enable ? 0x80 : 0x00) | uartNum);
+	}
 
-	synchronized public void setPinUartTx(int pin, int uartNum, boolean enable) throws IOException { assert(false); }
+	synchronized public void setPinUartTx(int pin, int uartNum, boolean enable) throws IOException {
+		writeByte(SET_PIN_UART_TX);
+		writeByte(pin);
+		writeByte((enable ? 0x80 : 0x00) | uartNum);
+	}
 
 	synchronized public void spiConfigureMaster(int spiNum, int scale, int div,
 			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) throws IOException { assert(false); }
@@ -203,6 +234,7 @@ public class IOIOProtocol {
 			super.run();
 			int b;
 			int tmp;
+			byte[] data = new byte[64];
 			try {
 				while (true) {
 					switch (b = readByte()) {
@@ -275,7 +307,9 @@ public class IOIOProtocol {
 						break;
 						
 					case UART_REPORT_TX_STATUS:
-						// TODO: implement
+						b = readByte();
+						tmp = readByte();
+						handler_.handleUartReportTxStatus(b & 0x03, (b >> 2) | (tmp << 8));
 						break;
 						
 					case SET_PIN_ANALOG_IN:
@@ -283,19 +317,30 @@ public class IOIOProtocol {
 						break;
 						
 					case UART_DATA:
-						// TODO: implement
+						tmp = readByte();
+						for (int i = 0; i < (tmp & 0x3F) + 1; ++i) {
+							data[i] = (byte) readByte();
+						}
+						handler_.handleUartData(tmp >> 6, (tmp & 0x3F) + 1, data);
 						break;
 						
 					case UART_CONFIG:
-						// TODO: implement
+						tmp = readByte();
+						handler_.handleUartConfigure(tmp >> 6, readTwoBytes(),
+								(tmp & 0x08) != 0, (tmp & 0x04) != 0,
+								tmp & 0x03);
 						break;
 						
 					case SET_PIN_UART_RX:
-						// TODO: implement
+						b = readByte();
+						tmp = readByte();
+						handler_.handleSetPinUartRx(b, tmp & 0x03, (tmp & 0x80) != 0);
 						break;
 						
 					case SET_PIN_UART_TX:
-						// TODO: implement
+						b = readByte();
+						tmp = readByte();
+						handler_.handleSetPinUartTx(b, tmp & 0x03, (tmp & 0x80) != 0);
 						break;
 						
 					case SPI_DATA:

@@ -1,10 +1,9 @@
 package ioio.lib.new_impl;
 
-import android.util.Log;
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
 import ioio.lib.new_impl.IncomingState.PinMode;
+import android.util.Log;
 
 public class DigitalInputImpl extends AbstractPin implements DigitalInput {
 	boolean value_;

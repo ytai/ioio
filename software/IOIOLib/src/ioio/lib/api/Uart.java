@@ -63,6 +63,6 @@ public interface Uart extends Closeable {
     public static final int ONE_STOP_BIT = 1;
     public static final int TWO_STOP_BITS = 2;
 
-   public InputStream openInputStream();
-   public OutputStream openOutputStream();
+   public InputStream getInputStream();
+   public OutputStream getOutputStream();
 }

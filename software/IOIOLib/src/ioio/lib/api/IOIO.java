@@ -51,6 +51,8 @@ import ioio.lib.api.exception.OutOfResourceException;
  * @author birmiwal
  */
 public interface IOIO {
+	public static final int INVALID_PIN_NUMBER = -1; 
+	// TODO(ytai): add parity and stop bits constants (maybe in UART).
 
     /**
 	 * Establishes connection with a board.
@@ -194,13 +196,14 @@ public interface IOIO {
 	 * @return Object of the assigned UART module.
 	 * @throws ConnectionLostException in case connection was lost before running this method.
 	 * @throws InvalidOperationException
+	 * @throws OutOfResourceException 
 	 */
 	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException, InvalidOperationException, OutOfResourceException;
     
 	Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
 			int parity, int stopbits) throws ConnectionLostException,
-			InvalidOperationException;
+			InvalidOperationException, OutOfResourceException;
     
 	
 //	/**
