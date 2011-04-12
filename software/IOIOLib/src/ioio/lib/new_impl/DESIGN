@@ -33,18 +33,18 @@ waitHigh / waitLow rather than edge-based, so that returns immediately if state 
 
 TODO:
 -----
-- waits
 - API doc
 - waitForOpen()?
 - SPI
-- I2C
 - pin functions
 - factory
 - protocol version not supported
 - query hardware, bootloader, firmware versions. standardize major / minor versions
-- disconnect listener
 
 
+V waits
+V I2C
+V disconnect listener
 V add parity and stop bits constants (maybe in UART).
 V input listener instead of pin listener, remove outputs.
 V disconnect listener

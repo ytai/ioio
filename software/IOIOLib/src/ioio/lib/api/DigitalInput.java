@@ -44,4 +44,5 @@ import ioio.lib.api.exception.ConnectionLostException;
  */
 public interface DigitalInput extends Closeable {
     public boolean read() throws InterruptedException, ConnectionLostException;
+    public void waitForValue(boolean value) throws InterruptedException, ConnectionLostException;
 }

@@ -30,7 +30,7 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 		value_ = value; 
 		if (!valid_) {
 			valid_ = true;
-			notify();
+			notifyAll();
 		}
 	}
 
@@ -47,6 +47,6 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 	@Override
 	public synchronized void disconnected() {
 		super.disconnected();
-		notify();
+		notifyAll();
 	}
 }

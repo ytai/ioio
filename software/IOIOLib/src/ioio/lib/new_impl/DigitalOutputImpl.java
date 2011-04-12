@@ -19,5 +19,4 @@ public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 			throw new ConnectionLostException(e);
 		}
 	}
-
 }
