@@ -28,6 +28,7 @@
  */
 package ioio.lib.api;
 
+import ioio.lib.api.Twi.Rate;
 import ioio.lib.api.Uart.Parity;
 import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -218,5 +219,5 @@ public interface IOIO {
 	 * @throws ConnectionLostException
 	 * @throws InvalidOperationException
 	 */
-	Twi openTwi(int twiNum, int speed) throws ConnectionLostException;
+	Twi openTwi(int twiNum, Rate rate, boolean smbus) throws ConnectionLostException;
 }

@@ -4,7 +4,7 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.new_impl.FlowControlledOutputStream.Sender;
-import ioio.lib.new_impl.IncomingState.UartListener;
+import ioio.lib.new_impl.IncomingState.DataModuleListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 import android.util.Log;
 
-public class UartImpl extends AbstractResource implements UartListener, Sender, Uart {
+public class UartImpl extends AbstractResource implements DataModuleListener, Sender, Uart {
 	private static final int MAX_PACKET = 64;
 	
 	final int uartNum_;
@@ -56,6 +56,12 @@ public class UartImpl extends AbstractResource implements UartListener, Sender, 
 		}
 	}
 	
+	@Override
+	synchronized public void disconnected() {
+		super.disconnected();
+		outgoing_.kill();
+	}
+
 	@Override
 	public InputStream getInputStream() {
 		return incoming_;

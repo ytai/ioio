@@ -9,6 +9,7 @@ import ioio.lib.api.DigitalOutputSpec;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.Twi;
+import ioio.lib.api.Twi.Rate;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.OutOfResourceException;
@@ -19,13 +20,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class IOIOImpl implements IOIO {
-	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
-	
-	
 	IOIOProtocol protocol_;
 	private boolean connected_ = true;
 	private IncomingState incomingState_ = new IncomingState();
 	private boolean openPins_[] = new boolean[Constants.NUM_PINS];
+	private boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
 	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(Constants.NUM_PWM_MODULES);
 	private ModuleAllocator uartAllocator_ = new ModuleAllocator(Constants.NUM_UART_MODULES);
 	
@@ -64,6 +63,19 @@ public class IOIOImpl implements IOIO {
 		uartAllocator_.releaseModule(uartNum);
 		try {
 			protocol_.uartConfigure(uartNum, 0, false, Uart.StopBits.ONE_STOP_BIT, Uart.Parity.NO_PARITY);
+		} catch (IOException e) {
+		}
+	}
+	
+	synchronized void closeTwi(int twiNum) {
+		if (!openTwi_[twiNum]) {
+			throw new IllegalStateException("TWI not open: " + twiNum);
+		}
+		openTwi_[twiNum] = false;
+		openPins_[Constants.TWI_PINS[twiNum][0]] = false;
+		openPins_[Constants.TWI_PINS[twiNum][1]] = false;
+		try {
+			protocol_.i2cClose(twiNum);
 		} catch (IOException e) {
 		}
 	}
@@ -264,6 +276,25 @@ public class IOIOImpl implements IOIO {
 		return uart;
 	}
 
+	@Override
+	synchronized public Twi openTwi(int twiNum, Rate rate, boolean smbus) throws ConnectionLostException {
+		checkConnected();
+		checkTwiFree(twiNum);
+		checkPinFree(Constants.TWI_PINS[twiNum][0]);
+		checkPinFree(Constants.TWI_PINS[twiNum][1]);
+		openPins_[Constants.TWI_PINS[twiNum][0]] = true;
+		openPins_[Constants.TWI_PINS[twiNum][1]] = true;
+		openTwi_[twiNum] = true;
+		TwiImpl twi = new TwiImpl(this, twiNum);
+		incomingState_.addTwiListener(twiNum, twi);
+		try {
+			protocol_.i2cConfigureMaster(twiNum, rate, smbus);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+		return twi;
+	}
+
 //	@Override
 //	public IOIOSpi openSpi(int miso, int mosi, int clk, int select, int speed)
 //			throws ConnectionLostException, InvalidOperationException {
@@ -297,10 +328,10 @@ public class IOIOImpl implements IOIO {
 			throw new IllegalArgumentException("Pin already open: " + pin);
 		}
 	}
-
-	@Override
-	public Twi openTwi(int twiNum, int speed) throws ConnectionLostException {
-		// TODO Auto-generated method stub
-		return null;
+	
+	private void checkTwiFree(int twi) {
+		if (openTwi_[twi]) {
+			throw new IllegalArgumentException("TWI already open: " + twi);
+		}
 	}
 }

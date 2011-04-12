@@ -25,7 +25,7 @@ public class IncomingState implements IncomingHandler {
 		void disconnected();
 	}
 	
-	interface UartListener {
+	interface DataModuleListener {
 		void dataReceived(byte[] data, int size);
 		void reportBufferRemaining(int bytesRemaining);
 	}
@@ -58,11 +58,11 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 	
-	class UartState {
-		private Queue<UartListener> listeners_ = new LinkedList<IncomingState.UartListener>();
+	class DataModuleState {
+		private Queue<DataModuleListener> listeners_ = new LinkedList<IncomingState.DataModuleListener>();
 		private boolean currentOpen_ = false;
 		
-		void pushListener(UartListener listener) {
+		void pushListener(DataModuleListener listener) {
 			listeners_.add(listener);
 		}
 		
@@ -92,7 +92,8 @@ public class IncomingState implements IncomingHandler {
 	}
 	
 	private InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
-	private UartState[] uartStates_ = new UartState[Constants.NUM_UART_MODULES];
+	private DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
+	private DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
 	private ConnectionState connection_ = ConnectionState.INIT;
 	private Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	
@@ -101,7 +102,10 @@ public class IncomingState implements IncomingHandler {
 			intputPinStates_[i] = new InputPinState();
 		}
 		for (int i = 0; i < uartStates_.length; ++i) {
-			uartStates_[i] = new UartState();
+			uartStates_[i] = new DataModuleState();
+		}
+		for (int i = 0; i < twiStates_.length; ++i) {
+			twiStates_[i] = new DataModuleState();
 		}
 	}
 	
@@ -124,8 +128,12 @@ public class IncomingState implements IncomingHandler {
 		intputPinStates_[pin].pushListener(listener);
 	}
 	
-	public void addUartListener(int uartNum, UartListener listener) {
+	public void addUartListener(int uartNum, DataModuleListener listener) {
 		uartStates_[uartNum].pushListener(listener);
+	}
+	
+	public void addTwiListener(int twiNum, DataModuleListener listener) {
+		twiStates_[twiNum].pushListener(listener);
 	}
 	
 	synchronized public void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
@@ -154,8 +162,11 @@ public class IncomingState implements IncomingHandler {
 		for (InputPinState pinState: intputPinStates_) {
 			pinState.closeCurrentListener();
 		}
-		for (UartState uartState: uartStates_) {
+		for (DataModuleState uartState: uartStates_) {
 			uartState.closeCurrentListener();
+		}
+		for (DataModuleState twiState: twiStates_) {
+			twiState.closeCurrentListener();
 		}
 	}
 
@@ -213,8 +224,13 @@ public class IncomingState implements IncomingHandler {
 	public void handleI2cConfigureMaster(int i2cNum, int rate,
 			boolean smbusLevels) {
 		logMethod("handleI2cConfigureMaster", i2cNum, rate, smbusLevels);
-		// TODO Auto-generated method stub
-		
+		twiStates_[i2cNum].openNextListener();
+	}
+
+	@Override
+	public void handleI2cClose(int i2cNum) {
+		logMethod("handleI2cClose", i2cNum);
+		twiStates_[i2cNum].closeCurrentListener();
 	}
 
 	@Override
@@ -232,6 +248,12 @@ public class IncomingState implements IncomingHandler {
 	public void handleUartReportTxStatus(int uartNum, int bytesRemaining) {
 		logMethod("handleUartReportTxStatus", uartNum, bytesRemaining);
 		uartStates_[uartNum].reportBufferRemaining(bytesRemaining);
+	}
+
+	@Override
+	public void handleI2cReportTxStatus(int i2cNum, int bytesRemaining) {
+		logMethod("handleI2cReportTxStatus", i2cNum, bytesRemaining);
+		twiStates_[i2cNum].reportBufferRemaining(bytesRemaining);
 	}
 
 	@Override
@@ -271,8 +293,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleI2cResult(int i2cNum, int size, byte[] data) {
 		logMethod("handleI2cResult", i2cNum, size, data);
-		// TODO Auto-generated method stub
-		
+		twiStates_[i2cNum].dataReceived(data, size);
 	}
 	
 	private void checkConnected() throws ConnectionLostException {

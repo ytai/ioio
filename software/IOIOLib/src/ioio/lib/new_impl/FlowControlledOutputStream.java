@@ -56,6 +56,10 @@ public class FlowControlledOutputStream extends OutputStream {
 		closed_ = true;
 		thread_.interrupt();
 	}
+	
+	synchronized public void kill() {
+		thread_.interrupt();
+	}
 
 	class FlushThread extends Thread {
 		@Override

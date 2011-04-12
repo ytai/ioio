@@ -2,6 +2,7 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.DigitalInputSpec;
 import ioio.lib.api.DigitalOutputSpec;
+import ioio.lib.api.Twi.Rate;
 import ioio.lib.api.Uart;
 
 import java.io.IOException;
@@ -92,11 +93,21 @@ public class IOIOProtocol {
 	}
 
 	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[],
-			int dataBytes, int totalBytes, int responseBytes) throws IOException { assert(false); }
+			int dataBytes, int totalBytes, int responseBytes) throws IOException {
+		// TODO: implement
+	}
 
 	synchronized public void i2cWriteRead(int i2cNum, boolean tenBitAddr, int address,
-			int writeSize, int readSize, byte[] writeData) throws IOException { assert(false); }
-
+			int writeSize, int readSize, byte[] writeData) throws IOException {
+		writeByte(I2C_WRITE_READ);
+		writeByte(((address >> 8) << 6) | (tenBitAddr ? 0x20 : 0x00) | i2cNum);
+		writeByte(address & 0xFF);
+		writeByte(writeSize);
+		writeByte(readSize);
+		for (int i = 0; i < writeSize; ++i) {
+			writeByte(writeData[i]);
+		}
+	}
 
 	synchronized public void setPinDigitalOut(int pin, boolean value, DigitalOutputSpec.Mode mode) throws IOException { 
 		writeByte(SET_PIN_DIGITAL_OUT);
@@ -121,7 +132,9 @@ public class IOIOProtocol {
 		writeByte((pin << 2) | (changeNotify ? 0x01 : 0x00));
 	}
 
-	synchronized public void registerPeriodicDigitalSampling(int pin, int freqScale) throws IOException { assert(false); }
+	synchronized public void registerPeriodicDigitalSampling(int pin, int freqScale) throws IOException {
+		// TODO: implement
+	}
 
 	synchronized public void setPinAnalogIn(int pin) throws IOException { 
 		writeByte(SET_PIN_ANALOG_IN);
@@ -160,11 +173,24 @@ public class IOIOProtocol {
 	}
 
 	synchronized public void spiConfigureMaster(int spiNum, int scale, int div,
-			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) throws IOException { assert(false); }
+			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) throws IOException {
+		// TODO: implement
+	}
 
-	synchronized public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException { assert(false); }
+	synchronized public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException {
+		// TODO: implement
+	}
 
-	synchronized public void i2cConfigureMaster(int i2cNum, int rate, boolean smbusLevels) throws IOException { assert(false); }
+	synchronized public void i2cConfigureMaster(int i2cNum, Rate rate, boolean smbusLevels) throws IOException {
+		int rateBits = (rate == Rate.RATE_1MHz ? 3 : (rate == Rate.RATE_400KHz ? 2 : 1));
+		writeByte(I2C_CONFIGURE_MASTER);
+		writeByte((smbusLevels ? 0x80 : 0) | (rateBits << 5) | i2cNum);
+	}
+	
+	synchronized public void i2cClose(int i2cNum) throws IOException {
+		writeByte(I2C_CONFIGURE_MASTER);
+		writeByte(i2cNum);
+	}
 	
 	public interface IncomingHandler {
 		public void handleConnectionLost();
@@ -186,6 +212,8 @@ public class IOIOProtocol {
 		public void handleI2cConfigureMaster(int i2cNum, int rate,
 				boolean smbusLevels);
 
+		public void handleI2cClose(int i2cNum);
+
 		public void handleEstablishConnection(int hardwareId, int bootloaderId,
 				int firmwareId);
 
@@ -202,6 +230,8 @@ public class IOIOProtocol {
 		public void handleReportAnalogInStatus(int pins[], int values[]);
 
 		public void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
+
+		public void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
 
 		public void handleI2cResult(int i2cNum, int size, byte[] data);
 
@@ -251,7 +281,7 @@ public class IOIOProtocol {
 			super.run();
 			int b;
 			int tmp;
-			byte[] data = new byte[64];
+			byte[] data = new byte[256];
 			try {
 				while (true) {
 					switch (b = readByte()) {
@@ -379,15 +409,29 @@ public class IOIOProtocol {
 						break;
 						
 					case I2C_CONFIGURE_MASTER:
-						// TODO: implement
+						b = readByte();
+						if (((b >> 5) & 0x03) != 0) {
+							handler_.handleI2cConfigureMaster(b & 0x03, (b >> 5) & 0x03, (b >> 7) == 1);
+						} else {
+							handler_.handleI2cClose(b & 0x03);
+						}
 						break;
 						
 					case I2C_RESULT:
-						// TODO: implement
+						b = readByte();
+						tmp = readByte();
+						if (tmp != 0xFF) {
+							for (int i = 0; i < tmp; ++i) {
+								data[i] = (byte) readByte();
+							}
+						}
+						handler_.handleI2cResult(b & 0x03, tmp, data);
 						break;
 						
 					case I2C_REPORT_TX_STATUS:
-						// TODO: implement
+						b = readByte();
+						tmp = readByte();
+						handler_.handleI2cReportTxStatus(b & 0x03, (b >> 2) | (tmp << 8));
 						break;
 						
 					default:
