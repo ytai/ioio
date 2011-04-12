@@ -20,17 +20,23 @@ public class DigitalInputImpl extends AbstractPin implements DigitalInput, Input
 		value_ = (value == 1); 
 		if (!valid_) {
 			valid_ = true;
-			notifyAll();
+			notify();
 		}
 	}
 
 	@Override
 	synchronized public boolean read() throws InterruptedException, ConnectionLostException {
 		checkState();
-		while (!valid_) {
+		while (!valid_ && state_ != State.DISCONNECTED) {
 			wait();
 		}
+		checkState();
 		return value_;
 	}
 
+	@Override
+	public synchronized void disconnected() {
+		super.disconnected();
+		notify();
+	}
 }

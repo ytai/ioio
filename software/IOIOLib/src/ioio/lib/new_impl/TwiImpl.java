@@ -35,7 +35,6 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 	
 	Queue<TwiResult> pendingRequests_ = new LinkedList<TwiImpl.TwiResult>();
 	FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this); 
-	boolean disconnected_ = false;
 	
 	private final int twiNum_;
 	
@@ -48,7 +47,6 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 	synchronized public void disconnected() {
 		super.disconnected();
 		outgoing_.kill();
-		disconnected_ = true;
 		for (TwiResult tr: pendingRequests_) {
 			synchronized (tr) {
 				tr.notify();
@@ -60,7 +58,7 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 	public boolean writeRead(int address, boolean tenBitAddr,
 			byte[] writeData, int writeSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException {
-		Log.i("TwiImpl", "writeRead");
+		checkState();
 		TwiResult result = new TwiResult();
 		result.data_ = readData;
 		
@@ -78,20 +76,16 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 
 		Log.i("TwiImpl", "waiting for result");
 		synchronized (result) {
-			while (!result.ready_ && !disconnected_) {
+			while (!result.ready_ && state_ != State.DISCONNECTED) {
 				result.wait();
 			}
-			if (disconnected_) {
-				throw new ConnectionLostException();
-			}
+			checkState();
 		}
-		Log.i("TwiImpl", "got result");
 		return result.size_ != 0xFF;
 	}
 
 	@Override
 	synchronized public void dataReceived(byte[] data, int size) {
-		Log.i("TwiImpl", "dataReceived");
 		TwiResult result = pendingRequests_.remove();
 		synchronized (result) {
 			result.ready_ = true;
@@ -105,7 +99,6 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 
 	@Override
 	synchronized public void reportBufferRemaining(int bytesRemaining) {
-		Log.i("TwiImpl", "reportBufferRemaining: " + bytesRemaining);
 		outgoing_.readyToSend(bytesRemaining);
 	}
 	
@@ -118,7 +111,6 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 
 	@Override
 	public void send(Packet packet) {
-		Log.i("TwiImpl", "sending packet");
 		OutgoingPacket p = (OutgoingPacket) packet;
 		try {
 			ioio_.protocol_.i2cWriteRead(twiNum_, p.tenBitAddr_, p.addr_,

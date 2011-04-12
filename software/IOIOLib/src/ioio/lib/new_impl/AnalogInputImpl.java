@@ -30,17 +30,23 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 		value_ = value; 
 		if (!valid_) {
 			valid_ = true;
-			notifyAll();
+			notify();
 		}
 	}
 
 	@Override
 	synchronized public float read() throws InterruptedException, ConnectionLostException {
 		checkState();
-		while (!valid_) {
+		while (!valid_ && state_ != State.DISCONNECTED) {
 			wait();
 		}
+		checkState();
 		return (float) value_ / 1023.0f;
 	}
 
+	@Override
+	public synchronized void disconnected() {
+		super.disconnected();
+		notify();
+	}
 }
