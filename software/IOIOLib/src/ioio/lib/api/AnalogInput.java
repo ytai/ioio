@@ -29,8 +29,9 @@
 
 package ioio.lib.api;
 
+import java.io.Closeable;
+
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
 
 
 /**
@@ -41,8 +42,8 @@ import ioio.lib.api.exception.InvalidStateException;
  * 
  * @author arshan
  */
-public interface AnalogInput extends Pin {
-    public float getVoltage() throws InvalidStateException, InterruptedException, ConnectionLostException;
-    public float getReference() throws InvalidStateException;
-    public float read() throws InvalidStateException, InterruptedException, ConnectionLostException;
+public interface AnalogInput extends Closeable {
+    public float getVoltage() throws InterruptedException, ConnectionLostException;
+    public float getReference();
+    public float read() throws InterruptedException, ConnectionLostException;
 }

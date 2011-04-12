@@ -28,9 +28,9 @@
  */
 package ioio.lib.api;
 
+import ioio.lib.api.Uart.Parity;
+import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidOperationException;
-import ioio.lib.api.exception.OutOfResourceException;
 
 /**
  * An interface for interacting with the IOIO board.
@@ -52,19 +52,6 @@ import ioio.lib.api.exception.OutOfResourceException;
  */
 public interface IOIO {
 	public static final int INVALID_PIN_NUMBER = -1; 
-	// TODO(ytai): add parity and stop bits constants (maybe in UART).
-
-    /**
-	 * Establishes connection with a board.
-	 *
-	 * This method is blocking until connection is established.
-	 * This method can be aborted by calling abortConnection();
-	 *
-	 * @throws OperationAbortedException if abortConnection() got called.
-	 */
-	// TODO(ytai): delete
-	//public void waitForConnect() throws OperationAbortedException, SocketException;
-
 	/**
 	 * Closes a connection to the board, and returns it to the initial state.
 	 *
@@ -73,12 +60,6 @@ public interface IOIO {
 	 * @throws InterruptedException 
 	 */
 	public void disconnect() throws InterruptedException;
-
-	/**
-	 * Aborts the currently running waitForConnect() method.
-	 */
-	// TODO(ytai): delete
-	//public void abortConnection();
 
 	/**
 	 * @return true if a connection is established.
@@ -116,13 +97,13 @@ public interface IOIO {
 	 * @throws InvalidOperationException
 	 */
 	public DigitalInput openDigitalInput(int pin)
-	throws ConnectionLostException, InvalidOperationException;
+	throws ConnectionLostException;
 
     public DigitalInput openDigitalInput(int pin, DigitalInputSpec.Mode mode)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     public DigitalInput openDigitalInput(DigitalInputSpec spec)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     /**
      * Assign a pin for digital output.
@@ -137,16 +118,16 @@ public interface IOIO {
      * @throws InvalidOperationException
      */
     public DigitalOutput openDigitalOutput(int pin, DigitalOutputSpec.Mode mode, boolean startValue)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     public DigitalOutput openDigitalOutput(DigitalOutputSpec spec, boolean startValue)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     public DigitalOutput openDigitalOutput(int pin, boolean startValue)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     public DigitalOutput openDigitalOutput(int pin)
-    throws ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
 	/**
 	 * Assign a pin for analog input.
@@ -159,7 +140,7 @@ public interface IOIO {
 	 * @throws InvalidOperationException
 	 */
 	public AnalogInput openAnalogInput(int pin)
-	throws ConnectionLostException, InvalidOperationException;
+	throws ConnectionLostException;
 
 	/**
 	 * Assign a pin for PWM output.
@@ -176,10 +157,10 @@ public interface IOIO {
 	 * @throws InvalidOperationException
 	 */
     public PwmOutput openPwmOutput(int pin, int freqHz)
-    throws OutOfResourceException, ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
     public PwmOutput openPwmOutput(DigitalOutputSpec spec, int freqHz)
-    throws OutOfResourceException, ConnectionLostException, InvalidOperationException;
+    throws ConnectionLostException;
 
 	
 	/**
@@ -198,12 +179,11 @@ public interface IOIO {
 	 * @throws InvalidOperationException
 	 * @throws OutOfResourceException 
 	 */
-	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
-    throws ConnectionLostException, InvalidOperationException, OutOfResourceException;
+	public Uart openUart(int rx, int tx, int baud, Parity parity, StopBits stopbits)
+    throws ConnectionLostException;
     
 	Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
-			int parity, int stopbits) throws ConnectionLostException,
-			InvalidOperationException, OutOfResourceException;
+			Parity parity, StopBits stopbits) throws ConnectionLostException;
     
 	
 //	/**
@@ -230,14 +210,13 @@ public interface IOIO {
 //			DigitalOutputSpec clk, DigitalOutputSpec select, int speed)
 //	throws ConnectionLostException, InvalidOperationException;
 //
-//	/**
-//	 * The pins for Twi are static. 
-//	 * 
-//	 * @param speed
-//	 * @return
-//	 * @throws ConnectionLostException
-//	 * @throws InvalidOperationException
-//	 */
-//	IOIOTwi openTwi(int twiNum, int speed) throws ConnectionLostException,
-//			InvalidOperationException;
+	/**
+	 * The pins for Twi are static. 
+	 * 
+	 * @param speed
+	 * @return
+	 * @throws ConnectionLostException
+	 * @throws InvalidOperationException
+	 */
+	Twi openTwi(int twiNum, int speed) throws ConnectionLostException;
 }

@@ -5,8 +5,6 @@ import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import android.util.Log;
-
 public class FlowControlledOutputStream extends OutputStream {
 	interface Sender {
 		void send(byte[] data, int size);

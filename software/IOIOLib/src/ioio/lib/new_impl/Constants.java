@@ -2,6 +2,7 @@ package ioio.lib.new_impl;
 
 public class Constants {
 	static final int NUM_PINS = 49;
+	static final int NUM_ANALOG_PINS = 16;
 	static final int NUM_PWM_MODULES = 9;
 	static final int NUM_UART_MODULES = 4;
 	static final int NUM_SPI_MODULES = 3;

@@ -28,14 +28,15 @@
  */
 package ioio.lib.api;
 
+import java.io.Closeable;
+
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
 
 /**
  * Define the basic functions that must be supported by all Digital outputs.
  * 
  * @author arshan
  */
-public interface DigitalOutput extends Pin {    
-    public void write(Boolean val) throws InvalidStateException, ConnectionLostException;
+public interface DigitalOutput extends Closeable {    
+    public void write(Boolean val) throws ConnectionLostException;
 }

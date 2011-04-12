@@ -2,24 +2,12 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.IncomingState.PinMode;
 
 import java.io.IOException;
 
 public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
-	DigitalOutputImpl(IOIOImpl ioio, int pin) {
+	DigitalOutputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(ioio, pin);
-	}
-
-	@Override
-	synchronized public void opened(PinMode mode) {
-		assert(mode == PinMode.DIGITAL_OUT);
-		super.opened(mode);
-	}
-
-	@Override
-	synchronized public void setValue(int value) {
-		assert(false);
 	}
 
 	@Override

@@ -8,16 +8,20 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutputSpec;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
+import ioio.lib.api.Twi;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidOperationException;
 import ioio.lib.api.exception.OutOfResourceException;
+import ioio.lib.new_impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class IOIOImpl implements IOIO {
+	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
+	
+	
 	IOIOProtocol protocol_;
 	private boolean connected_ = true;
 	private IncomingState incomingState_ = new IncomingState();
@@ -28,6 +32,14 @@ public class IOIOImpl implements IOIO {
 	public IOIOImpl(InputStream in, OutputStream out) throws InterruptedException, ConnectionLostException {
 		protocol_ = new IOIOProtocol(in, out, incomingState_);
 		incomingState_.waitConnect();
+	}
+	
+	synchronized void removeDisconnectListener(DisconnectListener listener) {
+		incomingState_.removeDisconnectListener(listener);
+	}
+	
+	synchronized void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
+		incomingState_.addDisconnectListener(listener);
 	}
 	
 	synchronized void closePin(int pin) {
@@ -51,7 +63,7 @@ public class IOIOImpl implements IOIO {
 	synchronized void closeUart(int uartNum) {
 		uartAllocator_.releaseModule(uartNum);
 		try {
-			protocol_.uartConfigure(uartNum, 0, false, false, 0);
+			protocol_.uartConfigure(uartNum, 0, false, Uart.StopBits.ONE_STOP_BIT, Uart.Parity.NO_PARITY);
 		} catch (IOException e) {
 		}
 	}
@@ -69,6 +81,7 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	synchronized public void softReset() throws ConnectionLostException {
+		checkConnected();
 		try {
 			protocol_.softReset();
 		} catch (IOException e) {
@@ -78,6 +91,7 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	synchronized public void hardReset() throws ConnectionLostException {
+		checkConnected();
 		try {
 			protocol_.hardReset();
 		} catch (IOException e) {
@@ -87,25 +101,24 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	public DigitalInput openDigitalInput(int pin)
-			throws ConnectionLostException, InvalidOperationException {
+			throws ConnectionLostException {
 		return openDigitalInput(new DigitalInputSpec(pin));
 	}
 
 	@Override
 	public DigitalInput openDigitalInput(int pin, Mode mode)
-			throws ConnectionLostException, InvalidOperationException {
+			throws ConnectionLostException {
 		return openDigitalInput(new DigitalInputSpec(pin, mode));
 	}
 
 	@Override
-	public DigitalInput openDigitalInput(DigitalInputSpec spec)
-			throws ConnectionLostException, InvalidOperationException {
-		if (openPins_[spec.pin]) {
-			throw new InvalidOperationException("Pin number " + spec.pin + " is already open.");
-		}
+	synchronized public DigitalInput openDigitalInput(DigitalInputSpec spec)
+			throws ConnectionLostException {
+		checkConnected();
+		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
-		incomingState_.addPinListener(spec.pin, result);
+		incomingState_.addInputPinListener(spec.pin, result);
 		try {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setChangeNotify(spec.pin, true);
@@ -116,22 +129,19 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public DigitalOutput openDigitalOutput(int pin,
+	public DigitalOutput openDigitalOutput(int pin,
 			ioio.lib.api.DigitalOutputSpec.Mode mode, boolean startValue)
-			throws ConnectionLostException, InvalidOperationException {
+			throws ConnectionLostException {
 		return openDigitalOutput(new DigitalOutputSpec(pin, mode), startValue);
 	}
 
 	@Override
 	synchronized public DigitalOutput openDigitalOutput(DigitalOutputSpec spec,
-			boolean startValue) throws ConnectionLostException,
-			InvalidOperationException {
-		if (openPins_[spec.pin]) {
-			throw new InvalidOperationException("Pin number " + spec.pin + " is already open.");
-		}
+			boolean startValue) throws ConnectionLostException {
+		checkConnected();
+		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
-		incomingState_.addPinListener(spec.pin, result);
 		try {
 			protocol_.setPinDigitalOut(spec.pin, startValue, spec.mode);
 		} catch (IOException e) {
@@ -142,25 +152,23 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	public DigitalOutput openDigitalOutput(int pin, boolean startValue)
-			throws ConnectionLostException, InvalidOperationException {
+			throws ConnectionLostException {
 		return openDigitalOutput(new DigitalOutputSpec(pin), startValue);
 	}
 
 	@Override
 	public DigitalOutput openDigitalOutput(int pin)
-			throws ConnectionLostException, InvalidOperationException {
+			throws ConnectionLostException {
 		return openDigitalOutput(new DigitalOutputSpec(pin), false);
 	}
 
 	@Override
-	synchronized public AnalogInput openAnalogInput(int pin) throws ConnectionLostException,
-			InvalidOperationException {
-		if (openPins_[pin]) {
-			throw new InvalidOperationException("Pin number " + pin + " is already open.");
-		}
+	synchronized public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
+		checkConnected();
+		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
 		openPins_[pin] = true;
-		incomingState_.addPinListener(pin, result);
+		incomingState_.addInputPinListener(pin, result);
 		try {
 			protocol_.setPinAnalogIn(pin);
 		} catch (IOException e) {
@@ -171,18 +179,15 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	public PwmOutput openPwmOutput(int pin, int freqHz)
-			throws OutOfResourceException, ConnectionLostException,
-			InvalidOperationException {
+			throws ConnectionLostException {
 		return openPwmOutput(new DigitalOutputSpec(pin), freqHz);
 	}
 
 	@Override
 	synchronized public PwmOutput openPwmOutput(DigitalOutputSpec spec, int freqHz)
-			throws OutOfResourceException, ConnectionLostException,
-			InvalidOperationException {
-		if (openPins_[spec.pin]) {
-			throw new InvalidOperationException("Pin number " + spec.pin + " is already open.");
-		}
+			throws ConnectionLostException {
+		checkConnected();
+		checkPinFree(spec.pin);
 		Integer pwmNum = pwmAllocator_.allocateModule();
 		if (pwmNum == null) {
 			throw new OutOfResourceException("No more available PWM modules");
@@ -199,7 +204,6 @@ public class IOIOImpl implements IOIO {
 		}
  		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period, effectivePeriodMicroSec);
 		openPins_[spec.pin] = true;
-		incomingState_.addPinListener(spec.pin, pwm);
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
 			protocol_.setPinPwm(spec.pin, pwmNum);
@@ -211,8 +215,8 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	public Uart openUart(int rx, int tx, int baud, int parity, int stopbits)
-			throws ConnectionLostException, InvalidOperationException, OutOfResourceException {
+	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity, Uart.StopBits stopbits)
+			throws ConnectionLostException {
 		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInputSpec(rx),
 						tx == INVALID_PIN_NUMBER ? null : new DigitalOutputSpec(tx),
 						baud, parity, stopbits);
@@ -220,16 +224,16 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	synchronized public Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
-			int parity, int stopbits) throws ConnectionLostException,
-			InvalidOperationException, OutOfResourceException {
+			Uart.Parity parity, Uart.StopBits stopbits) throws ConnectionLostException {
+		checkConnected();
+		if (rx != null) {
+			checkPinFree(rx.pin);
+		}
+		if (tx != null) {
+			checkPinFree(tx.pin);
+		}
 		int rxPin = rx != null ? rx.pin : INVALID_PIN_NUMBER;
 		int txPin = tx != null ? tx.pin : INVALID_PIN_NUMBER;
-		if (rx != null && openPins_[rx.pin]) {
-			throw new InvalidOperationException("Pin number " + rx.pin + " is already open.");
-		}
-		if (tx != null && openPins_[tx.pin]) {
-			throw new InvalidOperationException("Pin number " + rx.pin + " is already open.");
-		}
 		Integer uartNum = uartAllocator_.allocateModule();
 		if (uartNum == null) {
 			throw new OutOfResourceException("No more available UART modules");
@@ -238,13 +242,11 @@ public class IOIOImpl implements IOIO {
  		incomingState_.addUartListener(uartNum, uart);
 		try {
 			if (rx != null) {
-				incomingState_.addPinListener(rx.pin, uart.rxListener);
 				openPins_[rx.pin] = true;
 				protocol_.setPinDigitalIn(rx.pin, rx.mode);
 				protocol_.setPinUartRx(rx.pin, uartNum, true);
 			}
 			if (tx != null) {
-				incomingState_.addPinListener(tx.pin, uart.txListener);
 				openPins_[tx.pin] = true;
 				protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
 				protocol_.setPinUartTx(tx.pin, uartNum, true);
@@ -255,7 +257,7 @@ public class IOIOImpl implements IOIO {
 				speed4x = false;
 				rate = Math.round(1000000.0f / baud) - 1;
 			}
-			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits == 2, parity);
+			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits, parity);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
@@ -283,4 +285,22 @@ public class IOIOImpl implements IOIO {
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
+	
+	private void checkConnected() throws ConnectionLostException {
+		if (!connected_) {
+			throw new ConnectionLostException();
+		}
+	}
+	
+	private void checkPinFree(int pin) {
+		if (openPins_[pin]) {
+			throw new IllegalArgumentException("Pin already open: " + pin);
+		}
+	}
+
+	@Override
+	public Twi openTwi(int twiNum, int speed) throws ConnectionLostException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

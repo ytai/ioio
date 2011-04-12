@@ -1,32 +1,25 @@
 package ioio.lib.new_impl;
 
-import android.util.Log;
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
-import ioio.lib.new_impl.IncomingState.PinMode;
+import ioio.lib.new_impl.IncomingState.InputPinListener;
+import android.util.Log;
 
-public class AnalogInputImpl extends AbstractPin implements AnalogInput {
+public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListener {
 	private int value_;
 	private boolean valid_ = false;
 	
-	AnalogInputImpl(IOIOImpl ioio, int pin) {
+	AnalogInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(ioio, pin);
 	}
 	
 	@Override
-	synchronized public void opened(PinMode mode) {
-		assert(mode == PinMode.ANALOG_IN);
-		super.opened(mode);
-	}
-
-	@Override
-	public float getVoltage() throws InvalidStateException, InterruptedException, ConnectionLostException {
+	public float getVoltage() throws InterruptedException, ConnectionLostException {
 		return read() * getReference();
 	}
 
 	@Override
-	public float getReference() throws InvalidStateException {
+	public float getReference() {
 		return 3.3f;
 	}
 

@@ -30,7 +30,6 @@ package ioio.lib.api;
 
 
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
 
 import java.io.Closeable;
 
@@ -55,7 +54,7 @@ public interface PwmOutput extends Closeable {
      * @throws ConnectionLostException in case connection was lost before running this method.
      * @throws InvalidStateException In case the pin has been closed.
      */
-    public void setDutyCycle(float dutyCycle) throws ConnectionLostException, InvalidStateException;
+    public void setDutyCycle(float dutyCycle) throws ConnectionLostException;
 
     /**
      * Sets the width of the pulse (high) in micro seconds.
@@ -68,5 +67,5 @@ public interface PwmOutput extends Closeable {
      * @throws ConnectionLostException in case connection was lost before running this method.
      * @throws InvalidStateException In case the pin has been closed.
      */
-    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException, InvalidStateException;
+    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
 }

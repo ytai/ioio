@@ -1,50 +1,31 @@
 package ioio.lib.new_impl;
 
+import ioio.lib.api.IOIO;
+import ioio.lib.api.Uart;
+import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.new_impl.FlowControlledOutputStream.Sender;
+import ioio.lib.new_impl.IncomingState.UartListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.util.Log;
 
-import ioio.lib.api.Uart;
-import ioio.lib.new_impl.FlowControlledOutputStream.Sender;
-import ioio.lib.new_impl.IncomingState;
-import ioio.lib.new_impl.IncomingState.PinMode;
-import ioio.lib.new_impl.IncomingState.UartListener;
-
-public class UartImpl implements UartListener, Sender, Uart {
-	// TODO(ytai): make simpler
-	class PinListener implements IncomingState.PinListener {
-		@Override
-		public void opened(PinMode mode) {
-		}
-
-		@Override
-		public void closed() {
-		}
-
-		@Override
-		public void lost() {
-		}
-
-		@Override
-		public void setValue(int value) {
-		}
-	}
-	
-	public IncomingState.PinListener rxListener = new PinListener();
-	public IncomingState.PinListener txListener = rxListener;
-	
+public class UartImpl extends AbstractResource implements UartListener, Sender, Uart {
 	private static final int MAX_PACKET = 64;
 	
-	IOIOImpl ioio_;
 	final int uartNum_;
+	final int rxPinNum_;
+	final int txPinNum_;
 	FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
 	QueueInputStream incoming_ = new QueueInputStream();
 	
-	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum) {
-		ioio_ = ioio;
+	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum) throws ConnectionLostException {
+		super(ioio);
 		uartNum_ = uartNum;
+		rxPinNum_ = rxPin;
+		txPinNum_ = txPin;
 	}
 
 	@Override
@@ -63,9 +44,16 @@ public class UartImpl implements UartListener, Sender, Uart {
 
 	@Override
 	synchronized public void close() {
+		super.close();
 		incoming_.close();
 		outgoing_.close();
 		ioio_.closeUart(uartNum_);
+		if (rxPinNum_ != IOIO.INVALID_PIN_NUMBER) {
+			ioio_.closePin(rxPinNum_);
+		}
+		if (txPinNum_ != IOIO.INVALID_PIN_NUMBER) {
+			ioio_.closePin(txPinNum_);
+		}
 	}
 	
 	@Override

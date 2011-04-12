@@ -1,7 +1,9 @@
 package ioio.lib.new_impl;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 import android.util.Log;
 
@@ -9,30 +11,16 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.new_impl.IOIOProtocol.IncomingHandler;
 
 public class IncomingState implements IncomingHandler {
-	enum PinMode {
-		DIGITAL_IN,
-		DIGITAL_OUT,
-		ANALOG_IN,
-		UART,
-		SPI,
-		I2C
-	}
-	
 	enum ConnectionState {
 		INIT,
-		OPEN,
-		CLOSED
+		CONNECTED,
+		DISCONNECTED
 	}
 	
-	// TODO(ytai): leave only setValue, do not register non-input pins.
-	interface PinListener {
-		void opened(PinMode mode);
-		void closed();
-		void lost();
+	interface InputPinListener {
 		void setValue(int value);
 	}
 	
-	// TODO(ytai): use this.
 	interface DisconnectListener {
 		void disconnected();
 	}
@@ -42,34 +30,25 @@ public class IncomingState implements IncomingHandler {
 		void reportBufferRemaining(int bytesRemaining);
 	}
 	
-	class PinState {
-		private Queue<PinListener> listeners_ = new LinkedList<PinListener>();
+	class InputPinState {
+		private Queue<InputPinListener> listeners_ = new LinkedList<InputPinListener>();
 		private boolean currentOpen_ = false;
 		
-		void pushListener(PinListener listener) {
+		void pushListener(InputPinListener listener) {
 			listeners_.add(listener);
 		}
 		
 		void closeCurrentListener() {
-			assert(!listeners_.isEmpty());
 			if (currentOpen_) {
 				currentOpen_ = false;
-				PinListener current = listeners_.remove();
-				current.closed();
+				listeners_.remove();
 			}
 		}
 		
-		void openNextListener(PinMode mode) {
+		void openNextListener() {
 			assert(!listeners_.isEmpty());
 			if (!currentOpen_) {
 				currentOpen_ = true;
-				listeners_.peek().opened(mode);
-			}
-		}
-		
-		void forceCloseAll() {
-			while (!listeners_.isEmpty()) {
-				listeners_.remove().lost();
 			}
 		}
 		
@@ -88,7 +67,6 @@ public class IncomingState implements IncomingHandler {
 		}
 		
 		void closeCurrentListener() {
-			assert(!listeners_.isEmpty());
 			if (currentOpen_) {
 				currentOpen_ = false;
 				listeners_.remove();
@@ -113,13 +91,14 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 	
-	private PinState[] pinStates_ = new PinState[Constants.NUM_PINS];
+	private InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
 	private UartState[] uartStates_ = new UartState[Constants.NUM_UART_MODULES];
 	private ConnectionState connection_ = ConnectionState.INIT;
+	private Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	
 	public IncomingState() {
-		for (int i = 0; i < pinStates_.length; ++i) {
-			pinStates_[i] = new PinState();
+		for (int i = 0; i < intputPinStates_.length; ++i) {
+			intputPinStates_[i] = new InputPinState();
 		}
 		for (int i = 0; i < uartStates_.length; ++i) {
 			uartStates_[i] = new UartState();
@@ -130,64 +109,63 @@ public class IncomingState implements IncomingHandler {
 		while (connection_ == ConnectionState.INIT) {
 			wait();
 		}
-		if (connection_ == ConnectionState.CLOSED) {
-			throw new ConnectionLostException("Failed to connect");
+		if (connection_ == ConnectionState.DISCONNECTED) {
+			throw new ConnectionLostException();
 		}
 	}
 	
 	synchronized public void waitDisconnect() throws InterruptedException {
-		while (connection_ != ConnectionState.CLOSED) {
+		while (connection_ != ConnectionState.DISCONNECTED) {
 			wait();
 		}
 	}
 	
-	public void addPinListener(int pin, PinListener listener) {
-		pinStates_[pin].pushListener(listener);
+	public void addInputPinListener(int pin, InputPinListener listener) {
+		intputPinStates_[pin].pushListener(listener);
 	}
 	
 	public void addUartListener(int uartNum, UartListener listener) {
 		uartStates_[uartNum].pushListener(listener);
 	}
 	
-	public void addDisconnectListener(DisconnectListener listener) {
-		// TODO(ytai): implement
+	synchronized public void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
+		checkConnected();
+		disconnectListeners_.add(listener);
+	}
+	
+	synchronized public void removeDisconnectListener(DisconnectListener listener) {
+		disconnectListeners_.remove(listener);
 	}
 	
 	@Override
 	synchronized public void handleConnectionLost() {
 		logMethod("handleConnectionLost");
-		for (PinState pinState: pinStates_) {
-			pinState.forceCloseAll();
+		for (DisconnectListener listener: disconnectListeners_) {
+			listener.disconnected();
 		}
-		connection_ = ConnectionState.CLOSED;
+		disconnectListeners_.clear();
+		connection_ = ConnectionState.DISCONNECTED;
 		notifyAll();
 	}
 
 	@Override
 	public void handleSoftReset() {
 		logMethod("handleSoftReset");
-		for (PinState pinState: pinStates_) {
+		for (InputPinState pinState: intputPinStates_) {
 			pinState.closeCurrentListener();
 		}
-	}
-
-	@Override
-	public void handleSetPinDigitalOut(int pin, boolean value, boolean openDrain) {
-		logMethod("handleSetPinDigitalOut", pin, value, openDrain);
-		pinStates_[pin].openNextListener(PinMode.DIGITAL_OUT);
-	}
-
-	@Override
-	public void handleSetPinDigitalIn(int pin, int pull) {
-		logMethod("handleSetPinDigitalIn", pin, pull);
-		pinStates_[pin].closeCurrentListener();
+		for (UartState uartState: uartStates_) {
+			uartState.closeCurrentListener();
+		}
 	}
 
 	@Override
 	public void handleSetChangeNotify(int pin, boolean changeNotify) {
 		logMethod("handleSetChangeNotify", pin, changeNotify);
 		if (changeNotify) {
-			pinStates_[pin].openNextListener(PinMode.DIGITAL_IN);
+			intputPinStates_[pin].openNextListener();
+		} else {
+			intputPinStates_[pin].closeCurrentListener();
 		}
 	}
 
@@ -198,11 +176,15 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleSetPinAnalogIn(int pin) {
-		logMethod("handleSetPinAnalogIn", pin);
-		pinStates_[pin].openNextListener(PinMode.ANALOG_IN);
+	public void handleAnalogPinNotify(int pin, boolean open) {
+		logMethod("handleAnalogPinStatus", pin, open);
+		if (open) {
+			intputPinStates_[pin].openNextListener();
+		} else {
+			intputPinStates_[pin].closeCurrentListener();
+		}
 	}
-
+	
 	@Override
 	public void handleUartData(int uartNum, int numBytes, byte[] data) {
 		logMethod("handleUartData", uartNum, numBytes, data);
@@ -221,40 +203,12 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleSetPinUartRx(int pin, int uartNum, boolean enable) {
-		logMethod("handleSetPinUartRx", pin, uartNum, enable);
-		if (enable) {
-			pinStates_[pin].openNextListener(PinMode.UART);
-		} else {
-			pinStates_[pin].closeCurrentListener();
-		}
-	}
-
-	@Override
-	public void handleSetPinUartTx(int pin, int uartNum, boolean enable) {
-		logMethod("handleSetPinUartTx", pin, uartNum, enable);
-		if (enable) {
-			pinStates_[pin].openNextListener(PinMode.UART);
-		} else {
-			pinStates_[pin].closeCurrentListener();
-		}
-	}
-
-	@Override
 	public void handleSpiConfigureMaster(int spiNum, int scale, int div,
 			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) {
 		logMethod("handleSpiConfigureMaster", spiNum, scale, div, sampleAtEnd, clkEdge, clkPol);
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void handleSetPinSpi(int pin, int mode, boolean enable, int spiNum) {
-		logMethod("handleSetPinSpi", pin, mode, enable, spiNum);
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void handleI2cConfigureMaster(int i2cNum, int rate,
 			boolean smbusLevels) {
@@ -269,7 +223,7 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleEstablishConnection", hardwareId, bootloaderId, firmwareId);
 		// TODO: check versions, close on failure
 		synchronized(this) {
-			connection_ = ConnectionState.OPEN;
+			connection_ = ConnectionState.CONNECTED;
 			notifyAll();
 		}
 	}
@@ -289,7 +243,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleReportDigitalInStatus(int pin, boolean level) {
 		logMethod("handleReportDigitalInStatus", pin, level);
-		pinStates_[pin].setValue(level ? 1 : 0);
+		intputPinStates_[pin].setValue(level ? 1 : 0);
 	}
 
 	@Override
@@ -303,7 +257,7 @@ public class IncomingState implements IncomingHandler {
 	public void handleReportAnalogInStatus(int pins[], int values[]) {
 		logMethod("handleReportAnalogInStatus", pins, values);
 		for (int i = 0; i < pins.length; ++i) {
-			pinStates_[pins[i]].setValue(values[i]);
+			intputPinStates_[pins[i]].setValue(values[i]);
 		}		
 	}
 
@@ -319,6 +273,12 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cResult", i2cNum, size, data);
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void checkConnected() throws ConnectionLostException {
+		if (connection_ != ConnectionState.CONNECTED) {
+			throw new ConnectionLostException();
+		}
 	}
 	
 	private void logMethod(String name, Object... args) {

@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import android.util.Log;
-
 public class QueueInputStream extends InputStream {
 	private BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);

@@ -2,21 +2,15 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.IncomingState.PinMode;
+import ioio.lib.new_impl.IncomingState.InputPinListener;
 import android.util.Log;
 
-public class DigitalInputImpl extends AbstractPin implements DigitalInput {
+public class DigitalInputImpl extends AbstractPin implements DigitalInput, InputPinListener {
 	boolean value_;
 	boolean valid_ = false;
 	
-	DigitalInputImpl(IOIOImpl ioio, int pin) {
+	DigitalInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(ioio, pin);
-	}
-
-	@Override
-	synchronized public void opened(PinMode mode) {
-		assert(mode == PinMode.DIGITAL_IN);
-		super.opened(mode);
 	}
 
 	@Override

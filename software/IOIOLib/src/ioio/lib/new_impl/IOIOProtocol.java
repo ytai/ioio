@@ -2,12 +2,15 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.DigitalInputSpec;
 import ioio.lib.api.DigitalOutputSpec;
+import ioio.lib.api.Uart;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import android.graphics.Path.Direction;
 import android.util.Log;
 
 public class IOIOProtocol {
@@ -134,10 +137,13 @@ public class IOIOProtocol {
 	}
 
 	synchronized public void uartConfigure(int uartNum, int rate, boolean speed4x,
-			boolean twoStopBits, int parity) throws IOException {
+			Uart.StopBits stopbits, Uart.Parity parity) throws IOException {
+		int parbits = parity == Uart.Parity.EVEN_PARITY ? 1
+				: (parity == Uart.Parity.ODD_PARITY ? 2 : 0);
 		writeByte(UART_CONFIG);
 		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
-				| (twoStopBits ? 0x04 : 0x00) | parity);
+				| (stopbits == Uart.StopBits.TWO_STOP_BITS ? 0x04 : 0x00)
+				| parbits);
 		writeTwoBytes(rate);
 	}
 
@@ -162,41 +168,31 @@ public class IOIOProtocol {
 	
 	public interface IncomingHandler {
 		public void handleConnectionLost();
-		
+
 		public void handleSoftReset();
-
-		public void handleSetPinDigitalOut(int pin, boolean value, boolean openDrain);
-
-		public void handleSetPinDigitalIn(int pin, int pull);
 
 		public void handleSetChangeNotify(int pin, boolean changeNotify);
 
 		public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
-
-		public void handleSetPinAnalogIn(int pin);
 
 		public void handleUartData(int uartNum, int numBytes, byte data[]);
 
 		public void handleUartConfigure(int uartNum, int rate, boolean speed4x,
 				boolean twoStopBits, int parity);
 
-		public void handleSetPinUartRx(int pin, int uartNum, boolean enable);
-
-		public void handleSetPinUartTx(int pin, int uartNum, boolean enable);
-
 		public void handleSpiConfigureMaster(int spiNum, int scale, int div,
 				boolean sampleAtEnd, boolean clkEdge, boolean clkPol);
 
-		public void handleSetPinSpi(int pin, int mode, boolean enable, int spiNum);
-
-		public void handleI2cConfigureMaster(int i2cNum, int rate, boolean smbusLevels);
+		public void handleI2cConfigureMaster(int i2cNum, int rate,
+				boolean smbusLevels);
 
 		public void handleEstablishConnection(int hardwareId, int bootloaderId,
 				int firmwareId);
 
 		public void handleUartReportTxStatus(int uartNum, int bytesRemaining);
 
-		public void handleSpiData(int spiNum, int ssPin, byte data[], int dataBytes);
+		public void handleSpiData(int spiNum, int ssPin, byte data[],
+				int dataBytes);
 
 		public void handleReportDigitalInStatus(int pin, boolean level);
 
@@ -208,11 +204,32 @@ public class IOIOProtocol {
 		public void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
 
 		public void handleI2cResult(int i2cNum, int size, byte[] data);
-	}
-	
+
+		public void handleAnalogPinNotify(int pin, boolean open);
+	}	
 
 	class IncomingThread extends Thread {
-		private int[] analogFramePins_;
+		private int[] analogFramePins_ = new int[0];
+		private Set<Integer> removedPins_ = new HashSet<Integer>(Constants.NUM_ANALOG_PINS);
+		private Set<Integer> addedPins_ = new HashSet<Integer>(Constants.NUM_ANALOG_PINS);
+		
+		private void findDelta(int[] newPins) {
+			removedPins_.clear();
+			addedPins_.clear();
+			for (int i: analogFramePins_) {
+				removedPins_.add(i);
+			}
+			for (int i: newPins) {
+				addedPins_.add(i);
+			}
+			for (Iterator<Integer> it = removedPins_.iterator(); it.hasNext(); ) {
+				Integer current = it.next();
+				if (addedPins_.contains(current)) {
+					it.remove();
+					addedPins_.remove(current);
+				}
+			}
+		}
 		
 		private int readByte() throws IOException {
 			int b = in_.read();
@@ -257,8 +274,7 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_PIN_DIGITAL_OUT:
-						tmp = readByte();
-						handler_.handleSetPinDigitalOut(tmp >> 2, ((tmp >> 1) & 0x01) == 1, (tmp & 0x01) == 1);
+						readByte();
 						break;
 						
 					case REPORT_DIGITAL_IN_STATUS:
@@ -267,8 +283,7 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_PIN_DIGITAL_IN:
-						tmp = readByte();
-						handler_.handleSetPinDigitalIn(tmp >> 2, tmp & 0x03);
+						readByte();
 						break;
 						
 					case SET_CHANGE_NOTIFY:
@@ -286,10 +301,18 @@ public class IOIOProtocol {
 						
 					case REPORT_ANALOG_IN_FORMAT:
 						int numPins = readByte();
-						analogFramePins_ = new int[numPins];
+						int[] newFormat = new int[numPins];
 						for (int i = 0; i < numPins; ++i) {
-							analogFramePins_[i] = readByte();
+							newFormat[i] = readByte();
 						}
+						findDelta(newFormat);
+						for (Integer i: removedPins_) {
+							handler_.handleAnalogPinNotify(i, false);
+						}
+						for (Integer i: addedPins_) {
+							handler_.handleAnalogPinNotify(i, true);
+						}
+						analogFramePins_ = newFormat;
 						break;
 						
 					case REPORT_ANALOG_IN_STATUS:
@@ -313,7 +336,7 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_PIN_ANALOG_IN:
-						handler_.handleSetPinAnalogIn(readByte());
+						readByte();
 						break;
 						
 					case UART_DATA:
@@ -332,15 +355,11 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_PIN_UART_RX:
-						b = readByte();
-						tmp = readByte();
-						handler_.handleSetPinUartRx(b, tmp & 0x03, (tmp & 0x80) != 0);
+						readTwoBytes();
 						break;
 						
 					case SET_PIN_UART_TX:
-						b = readByte();
-						tmp = readByte();
-						handler_.handleSetPinUartTx(b, tmp & 0x03, (tmp & 0x80) != 0);
+						readTwoBytes();
 						break;
 						
 					case SPI_DATA:

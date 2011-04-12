@@ -1,45 +1,34 @@
 package ioio.lib.new_impl;
 
-import java.io.IOException;
-
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.InvalidStateException;
-import ioio.lib.new_impl.IncomingState.PinMode;
 
-public class PwmImpl extends AbstractPin implements PwmOutput {
+import java.io.IOException;
+
+public class PwmImpl extends AbstractResource implements PwmOutput {
 	private int pwmNum_;
+	private int pinNum_;
 	private int periodUs_;
 	private int period_;
 
-	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period, int periodUs) {
-		super(ioio, pinNum);
+	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period, int periodUs) throws ConnectionLostException {
+		super(ioio);
 		ioio_ = ioio;
 		pwmNum_ = pwmNum;
+		pinNum_ = pinNum;
 		periodUs_ = periodUs;
 		period_ = period;
-	}
-
-	@Override
-	synchronized public void opened(PinMode mode) {
-		assert(mode == PinMode.DIGITAL_OUT);
-		super.opened(mode);
 	}
 
 	@Override
 	public synchronized void close() {
 		super.close();
 		ioio_.closePwm(pwmNum_);
+		ioio_.closePin(pinNum_);
 	}
 
 	@Override
-	synchronized public void setValue(int value) {
-		assert(false);
-	}
-
-	@Override
-	public void setDutyCycle(float dutyCycle) throws ConnectionLostException,
-			InvalidStateException {
+	public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
 		checkState();
 		assert(dutyCycle <= 1 && dutyCycle >= 0);
 		int pw, fraction;
@@ -59,13 +48,11 @@ public class PwmImpl extends AbstractPin implements PwmOutput {
 	}
 
 	@Override
-	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException,
-			InvalidStateException {
+	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
 		assert(pulseWidthUs >= 0);
 		if (pulseWidthUs > periodUs_) {
 			pulseWidthUs = periodUs_;
 		}
 		setDutyCycle(((float) pulseWidthUs) / periodUs_);
 	}
-
 }

@@ -28,6 +28,8 @@
  */
 package ioio.lib.api;
 
+import java.io.Closeable;
+
 import ioio.lib.api.exception.ConnectionLostException;
 
 
@@ -40,6 +42,6 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @author arshan
  *
  */
-public interface DigitalInput extends Pin {
+public interface DigitalInput extends Closeable {
     public boolean read() throws InterruptedException, ConnectionLostException;
 }
