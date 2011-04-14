@@ -35,10 +35,10 @@ TODO:
 -----
 - API doc
 - SPI
-- pin functions
 - protocol version not supported
 - query hardware, bootloader, firmware versions. standardize major / minor versions
 
+V pin functions
 V factory
 V waits
 V I2C

@@ -159,6 +159,7 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public DigitalInput openDigitalInput(DigitalInputSpec spec)
 			throws ConnectionLostException {
+		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
@@ -182,6 +183,7 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public DigitalOutput openDigitalOutput(DigitalOutputSpec spec,
 			boolean startValue) throws ConnectionLostException {
+		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
@@ -208,6 +210,7 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public AnalogInput openAnalogInput(int pin)
 			throws ConnectionLostException {
+		PinFunctionMap.checkSupportsAnalogInput(pin);
 		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
 		openPins_[pin] = true;
@@ -229,6 +232,7 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public PwmOutput openPwmOutput(DigitalOutputSpec spec,
 			int freqHz) throws ConnectionLostException {
+		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
 		Integer pwmNum = pwmAllocator_.allocateModule();
 		if (pwmNum == null) {
@@ -270,9 +274,11 @@ public class IOIOImpl implements IOIO {
 			DigitalOutputSpec tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
 		if (rx != null) {
+			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
 			checkPinFree(rx.pin);
 		}
 		if (tx != null) {
+			PinFunctionMap.checkSupportsPeripheralOutput(tx.pin);
 			checkPinFree(tx.pin);
 		}
 		int rxPin = rx != null ? rx.pin : INVALID_PIN_NUMBER;
