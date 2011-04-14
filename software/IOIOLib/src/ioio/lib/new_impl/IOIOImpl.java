@@ -16,31 +16,76 @@ import ioio.lib.api.exception.OutOfResourceException;
 import ioio.lib.new_impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import android.util.Log;
 
 public class IOIOImpl implements IOIO {
+	enum State {
+		INIT, CONNECTED, DEAD
+	}
+
 	IOIOProtocol protocol_;
-	private boolean connected_ = true;
+	private IOIOConnection connection_;
 	private IncomingState incomingState_ = new IncomingState();
 	private boolean openPins_[] = new boolean[Constants.NUM_PINS];
 	private boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
-	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(Constants.NUM_PWM_MODULES);
-	private ModuleAllocator uartAllocator_ = new ModuleAllocator(Constants.NUM_UART_MODULES);
-	
-	public IOIOImpl(InputStream in, OutputStream out) throws InterruptedException, ConnectionLostException {
-		protocol_ = new IOIOProtocol(in, out, incomingState_);
-		incomingState_.waitConnect();
+	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(
+			Constants.NUM_PWM_MODULES);
+	private ModuleAllocator uartAllocator_ = new ModuleAllocator(
+			Constants.NUM_UART_MODULES);
+	private State state_ = State.INIT;
+
+	public IOIOImpl(IOIOConnection con) {
+		connection_ = con;
 	}
-	
+
+	@Override
+	synchronized public void waitForConnect() throws ConnectionLostException {
+		if (state_ != State.INIT) {
+			throw new IllegalStateException(
+					"May only call waitForConnect() once");
+		}
+		Log.d("IOIOImpl", "Waiting for IOIO connection");
+		try {
+			try {
+				Log.d("IOIOImpl", "Waiting for TCP connection");
+				connection_.waitForConnect();
+				Log.d("IOIOImpl", "Waiting for handshake");
+				protocol_ = new IOIOProtocol(connection_.getInputStream(),
+						connection_.getOutputStream(), incomingState_);
+			} catch (ConnectionLostException e) {
+				incomingState_.handleConnectionLost();
+				throw e;
+			}
+			incomingState_.waitConnect();
+			state_ = State.CONNECTED;
+			Log.i("IOIOImpl", "IOIO connection established");
+		} catch (ConnectionLostException e) {
+			state_ = State.DEAD;
+			throw e;
+		} catch (InterruptedException e) {
+			Log.e("IOIOImpl", "Unexpected exception", e);
+		}
+	}
+
+	@Override
+	public void disconnect() {
+		connection_.disconnect();
+	}
+
+	public void waitForDisconnect() throws InterruptedException {
+		incomingState_.waitDisconnect();
+	}
+
 	synchronized void removeDisconnectListener(DisconnectListener listener) {
 		incomingState_.removeDisconnectListener(listener);
 	}
-	
-	synchronized void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
+
+	synchronized void addDisconnectListener(DisconnectListener listener)
+			throws ConnectionLostException {
 		incomingState_.addDisconnectListener(listener);
 	}
-	
+
 	synchronized void closePin(int pin) {
 		if (openPins_[pin]) {
 			try {
@@ -50,7 +95,7 @@ public class IOIOImpl implements IOIO {
 			openPins_[pin] = false;
 		}
 	}
-	
+
 	synchronized void closePwm(int pwmNum) {
 		pwmAllocator_.releaseModule(pwmNum);
 		try {
@@ -62,11 +107,12 @@ public class IOIOImpl implements IOIO {
 	synchronized void closeUart(int uartNum) {
 		uartAllocator_.releaseModule(uartNum);
 		try {
-			protocol_.uartConfigure(uartNum, 0, false, Uart.StopBits.ONE_STOP_BIT, Uart.Parity.NO_PARITY);
+			protocol_.uartConfigure(uartNum, 0, false,
+					Uart.StopBits.ONE_STOP_BIT, Uart.Parity.NO_PARITY);
 		} catch (IOException e) {
 		}
 	}
-	
+
 	synchronized void closeTwi(int twiNum) {
 		if (!openTwi_[twiNum]) {
 			throw new IllegalStateException("TWI not open: " + twiNum);
@@ -81,19 +127,7 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public void disconnect() throws InterruptedException {
-		protocol_.close();
-		incomingState_.waitDisconnect();
-	}
-
-	@Override
-	public boolean isConnected() {
-		return connected_;
-	}
-
-	@Override
 	synchronized public void softReset() throws ConnectionLostException {
-		checkConnected();
 		try {
 			protocol_.softReset();
 		} catch (IOException e) {
@@ -103,7 +137,6 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	synchronized public void hardReset() throws ConnectionLostException {
-		checkConnected();
 		try {
 			protocol_.hardReset();
 		} catch (IOException e) {
@@ -126,7 +159,6 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public DigitalInput openDigitalInput(DigitalInputSpec spec)
 			throws ConnectionLostException {
-		checkConnected();
 		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
@@ -150,7 +182,6 @@ public class IOIOImpl implements IOIO {
 	@Override
 	synchronized public DigitalOutput openDigitalOutput(DigitalOutputSpec spec,
 			boolean startValue) throws ConnectionLostException {
-		checkConnected();
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
 		openPins_[spec.pin] = true;
@@ -175,8 +206,8 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public AnalogInput openAnalogInput(int pin) throws ConnectionLostException {
-		checkConnected();
+	synchronized public AnalogInput openAnalogInput(int pin)
+			throws ConnectionLostException {
 		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
 		openPins_[pin] = true;
@@ -196,9 +227,8 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public PwmOutput openPwmOutput(DigitalOutputSpec spec, int freqHz)
-			throws ConnectionLostException {
-		checkConnected();
+	synchronized public PwmOutput openPwmOutput(DigitalOutputSpec spec,
+			int freqHz) throws ConnectionLostException {
 		checkPinFree(spec.pin);
 		Integer pwmNum = pwmAllocator_.allocateModule();
 		if (pwmNum == null) {
@@ -214,7 +244,8 @@ public class IOIOImpl implements IOIO {
 		} else {
 			effectivePeriodMicroSec = (period + 1) / 16;
 		}
- 		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period, effectivePeriodMicroSec);
+		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period,
+				effectivePeriodMicroSec);
 		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
@@ -227,17 +258,17 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity, Uart.StopBits stopbits)
-			throws ConnectionLostException {
-		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInputSpec(rx),
-						tx == INVALID_PIN_NUMBER ? null : new DigitalOutputSpec(tx),
-						baud, parity, stopbits);
+	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
+			Uart.StopBits stopbits) throws ConnectionLostException {
+		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInputSpec(
+				rx), tx == INVALID_PIN_NUMBER ? null
+				: new DigitalOutputSpec(tx), baud, parity, stopbits);
 	}
 
 	@Override
-	synchronized public Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
-			Uart.Parity parity, Uart.StopBits stopbits) throws ConnectionLostException {
-		checkConnected();
+	synchronized public Uart openUart(DigitalInputSpec rx,
+			DigitalOutputSpec tx, int baud, Uart.Parity parity,
+			Uart.StopBits stopbits) throws ConnectionLostException {
 		if (rx != null) {
 			checkPinFree(rx.pin);
 		}
@@ -250,8 +281,8 @@ public class IOIOImpl implements IOIO {
 		if (uartNum == null) {
 			throw new OutOfResourceException("No more available UART modules");
 		}
- 		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
- 		incomingState_.addUartListener(uartNum, uart);
+		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
+		incomingState_.addUartListener(uartNum, uart);
 		try {
 			if (rx != null) {
 				openPins_[rx.pin] = true;
@@ -277,8 +308,8 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public Twi openTwi(int twiNum, Rate rate, boolean smbus) throws ConnectionLostException {
-		checkConnected();
+	synchronized public Twi openTwi(int twiNum, Rate rate, boolean smbus)
+			throws ConnectionLostException {
 		checkTwiFree(twiNum);
 		checkPinFree(Constants.TWI_PINS[twiNum][0]);
 		checkPinFree(Constants.TWI_PINS[twiNum][1]);
@@ -295,40 +326,37 @@ public class IOIOImpl implements IOIO {
 		return twi;
 	}
 
-//	@Override
-//	public IOIOSpi openSpi(int miso, int mosi, int clk, int select, int speed)
-//			throws ConnectionLostException, InvalidOperationException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	synchronized public IOIOSpi openSpi(DigitalInputSpec miso, DigitalOutputSpec mosi,
-//			DigitalOutputSpec clk, DigitalOutputSpec select, int speed)
-//			throws ConnectionLostException, InvalidOperationException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	synchronized public IOIOTwi openTwi(int twiNum, int speed) throws ConnectionLostException,
-//			InvalidOperationException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-	
-	private void checkConnected() throws ConnectionLostException {
-		if (!connected_) {
-			throw new ConnectionLostException();
-		}
-	}
-	
+	// @Override
+	// public IOIOSpi openSpi(int miso, int mosi, int clk, int select, int
+	// speed)
+	// throws ConnectionLostException, InvalidOperationException {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+	//
+	// @Override
+	// synchronized public IOIOSpi openSpi(DigitalInputSpec miso,
+	// DigitalOutputSpec mosi,
+	// DigitalOutputSpec clk, DigitalOutputSpec select, int speed)
+	// throws ConnectionLostException, InvalidOperationException {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+	//
+	// @Override
+	// synchronized public IOIOTwi openTwi(int twiNum, int speed) throws
+	// ConnectionLostException,
+	// InvalidOperationException {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+
 	private void checkPinFree(int pin) {
 		if (openPins_[pin]) {
 			throw new IllegalArgumentException("Pin already open: " + pin);
 		}
 	}
-	
+
 	private void checkTwiFree(int twi) {
 		if (openTwi_[twi]) {
 			throw new IllegalArgumentException("TWI already open: " + twi);

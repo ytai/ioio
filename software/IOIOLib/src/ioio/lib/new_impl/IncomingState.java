@@ -313,6 +313,6 @@ public class IncomingState implements IncomingHandler {
 		}
 		msg.append(')');
 		
-		Log.i("IncomingState", msg.toString());
+		Log.v("IncomingState", msg.toString());
 	}
 }

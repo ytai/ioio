@@ -15,7 +15,7 @@ public class DigitalInputImpl extends AbstractPin implements DigitalInput, Input
 
 	@Override
 	synchronized public void setValue(int value) {
-		Log.i("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
+		Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
 		assert(value == 0 || value == 1);
 		value_ = (value == 1); 
 		if (!valid_) {

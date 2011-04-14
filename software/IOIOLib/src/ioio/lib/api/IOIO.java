@@ -32,6 +32,7 @@ import ioio.lib.api.Twi.Rate;
 import ioio.lib.api.Uart.Parity;
 import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.OutOfResourceException;
 
 /**
  * An interface for interacting with the IOIO board.
@@ -53,19 +54,32 @@ import ioio.lib.api.exception.ConnectionLostException;
  */
 public interface IOIO {
 	public static final int INVALID_PIN_NUMBER = -1; 
-	/**
-	 * Closes a connection to the board, and returns it to the initial state.
+    /**
+	 * Establishes connection with the IOIO board.
 	 *
-	 * All objects obtained from this instance until now get invalidated,
-	 * and will throw an exception on every operation.
-	 * @throws InterruptedException 
+	 * This method is blocking until connection is established.
+	 * This method can be aborted by calling disconnect();
+	 *
+	 * @throws ConnectionLostException if disconnect() got called or if an error occurred during
+	 * connection.
 	 */
-	public void disconnect() throws InterruptedException;
+	public void waitForConnect() throws ConnectionLostException;
 
 	/**
-	 * @return true if a connection is established.
+	 * Closes a connection to the board, or aborts and connection process started with
+	 * waitForConnect().
+	 * Once this method is called, this IOIO object and all the objects obtain from it
+	 * become invalid and will throw an exception on every operation.
+	 * When this method returns normally, it means that all resources have been released, and
+	 * a new instance can be created and connected.
+	 * 
+	 * @throws InterruptedException if interrupt() has been called on the thread doing the
+	 * disconnect. This might mean that an immediate attempt to create and connect a new IOIO
+	 * object might fail for resource contention.
 	 */
-	public boolean isConnected();
+	public void disconnect();
+	
+	public void waitForDisconnect() throws InterruptedException;
 
 	/**
 	 * Resets the entire state (returning to initial state), without dropping the connection.

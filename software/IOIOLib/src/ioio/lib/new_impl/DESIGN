@@ -34,14 +34,12 @@ waitHigh / waitLow rather than edge-based, so that returns immediately if state 
 TODO:
 -----
 - API doc
-- waitForOpen()?
 - SPI
 - pin functions
-- factory
 - protocol version not supported
 - query hardware, bootloader, firmware versions. standardize major / minor versions
 
-
+V factory
 V waits
 V I2C
 V disconnect listener

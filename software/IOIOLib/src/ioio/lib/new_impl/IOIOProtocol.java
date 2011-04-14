@@ -48,7 +48,7 @@ public class IOIOProtocol {
 	
 	private void writeByte(int b) throws IOException {
 		assert(b >= 0 && b < 256);
-		Log.i("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
+		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
 		out_.write(b);
 	}
 	
@@ -262,10 +262,15 @@ public class IOIOProtocol {
 		}
 		
 		private int readByte() throws IOException {
-			int b = in_.read();
-			if (b == -1) throw new IOException("Unexpected stream closure");
-			Log.i("IOIOProtocol", "received: 0x" + Integer.toHexString(b));
-			return b;
+			try {
+				int b = in_.read();
+				if (b == -1) throw new IOException("Unexpected stream closure");
+				Log.v("IOIOProtocol", "received: 0x" + Integer.toHexString(b));
+				return b;
+			} catch (IOException e) {
+				Log.i("IOIOProtocol", "IOIO disconnected");
+				throw e;
+			}
 		}
 		
 		private int readTwoBytes() throws IOException {
@@ -436,11 +441,12 @@ public class IOIOProtocol {
 						
 					default:
 						in_.close();
-						throw new IOException("Received unexpected command: 0x" + Integer.toHexString(b));
+						IOException e = new IOException("Received unexpected command: 0x" + Integer.toHexString(b)); 
+						Log.e("IOIOProtocol", "Protocol error", e);
+						throw e;
 					}
 				}
 			} catch (IOException e) {
-				Log.i("IOIOProtocol", e.getMessage());
 				handler_.handleConnectionLost();
 			}
 		}
@@ -456,21 +462,5 @@ public class IOIOProtocol {
 		out_ = out;
 		handler_ = handler;
 		thread_.start();
-	}
-	
-	public void close() {
-		Log.i("IOIOProtocol", "Client initiated close");
-		try {
-			in_.close();
-		} catch (IOException e) {
-		}
-		try {
-			out_.close();
-		} catch (IOException e) {
-		}
-		try {
-			thread_.join();
-		} catch (InterruptedException e) {
-		}
 	}
 }

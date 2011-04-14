@@ -28,22 +28,19 @@
  */
 package ioio.lib.api;
 
+import ioio.lib.new_impl.IOIOImpl;
+import ioio.lib.new_impl.SocketIOIOConnection;
+
 
 /**
  * Factory class for getting a handle to the IOIO
- *
+ * 
  * @author arshan
  */
 public class IOIOFactory {
-//
-//    private static IOIOImpl singleton = null;
-//
-//    public static IOIO connect() throws OperationAbortedException, SocketException {
-//        if (singleton == null) {
-//            singleton = new IOIOImpl();
-//        }
-//        singleton.waitForConnect();
-//        return singleton;
-//    }
-//    
+	private static final int IOIO_PORT = 4545;  
+	
+	public static IOIO create() {
+		return new IOIOImpl(new SocketIOIOConnection(IOIO_PORT));
+	}
 }

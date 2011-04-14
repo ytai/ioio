@@ -74,7 +74,6 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 			outgoing_.write(p);
 		}
 
-		Log.i("TwiImpl", "waiting for result");
 		synchronized (result) {
 			while (!result.ready_ && state_ != State.DISCONNECTED) {
 				result.wait();
