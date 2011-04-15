@@ -216,8 +216,13 @@ static BOOL MessageDone() {
 
     case SET_CHANGE_NOTIFY:
       CHECK(rx_msg.args.set_change_notify.pin < NUM_PINS);
+      if (rx_msg.args.set_change_notify.cn) {
+        Echo();
+      }
       SetChangeNotify(rx_msg.args.set_change_notify.pin, rx_msg.args.set_change_notify.cn);
-      Echo();
+      if (!rx_msg.args.set_change_notify.cn) {
+        Echo();
+      }
       break;
 
     case SET_PIN_PWM:
@@ -243,8 +248,8 @@ static BOOL MessageDone() {
 
     case SET_PIN_ANALOG_IN:
       CHECK(rx_msg.args.set_pin_analog_in.pin < NUM_PINS);
-      SetPinAnalogIn(rx_msg.args.set_pin_analog_in.pin);
       Echo();
+      SetPinAnalogIn(rx_msg.args.set_pin_analog_in.pin);
       break;
 
     case UART_DATA:
@@ -257,12 +262,17 @@ static BOOL MessageDone() {
     case UART_CONFIG:
       CHECK(rx_msg.args.uart_config.uart_num < NUM_UART_MODULES);
       CHECK(rx_msg.args.uart_config.parity < 3);
+      if (rx_msg.args.uart_config.rate) {
+        Echo();
+      }
       UARTConfig(rx_msg.args.uart_config.uart_num,
                  rx_msg.args.uart_config.rate,
                  rx_msg.args.uart_config.speed4x,
                  rx_msg.args.uart_config.two_stop_bits,
                  rx_msg.args.uart_config.parity);
-      Echo();
+      if (!rx_msg.args.uart_config.rate) {
+        Echo();
+      }
       UARTReportTxStatus(rx_msg.args.uart_config.uart_num);
       break;
 
@@ -311,13 +321,20 @@ static BOOL MessageDone() {
 
     case SPI_CONFIGURE_MASTER:
       CHECK(rx_msg.args.spi_configure_master.spi_num < NUM_SPI_MODULES);
+      if (rx_msg.args.spi_configure_master.scale != 0
+          || rx_msg.args.spi_configure_master.div != 0) {
+        Echo();
+      }
       SPIConfigMaster(rx_msg.args.spi_configure_master.spi_num,
                       rx_msg.args.spi_configure_master.scale,
                       rx_msg.args.spi_configure_master.div,
                       rx_msg.args.spi_configure_master.smp_end,
                       rx_msg.args.spi_configure_master.clk_edge,
                       rx_msg.args.spi_configure_master.clk_pol);
-      Echo();
+      if (rx_msg.args.spi_configure_master.scale == 0
+          && rx_msg.args.spi_configure_master.div == 0) {
+        Echo();
+      }
       SPIReportTxStatus(rx_msg.args.spi_configure_master.spi_num);
       break;
 
@@ -338,10 +355,15 @@ static BOOL MessageDone() {
 
     case I2C_CONFIGURE_MASTER:
       CHECK(rx_msg.args.i2c_configure_master.i2c_num < NUM_I2C_MODULES);
+      if (rx_msg.args.i2c_configure_master.rate) {
+        Echo();
+      }
       I2CConfigMaster(rx_msg.args.i2c_configure_master.i2c_num,
                       rx_msg.args.i2c_configure_master.rate,
                       rx_msg.args.i2c_configure_master.smbus_levels);
-      Echo();
+      if (!rx_msg.args.i2c_configure_master.rate) {
+        Echo();
+      }
       I2CReportTxStatus(rx_msg.args.i2c_configure_master.i2c_num);
       break;
 

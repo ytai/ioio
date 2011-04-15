@@ -17,11 +17,13 @@ void SetDigitalOutLevel(int pin, int value) {
 void SetChangeNotify(int pin, int changeNotify) {
   log_printf("SetChangeNotify(%d, %d)", pin, changeNotify);
   SAVE_PIN_FOR_LOG(pin);
-  PinSetCnforce(pin);
+  _CNIE = 0;
   PinSetCnen(pin, changeNotify);
   if (changeNotify) {
+    PinSetCnforce(pin);
     _CNIF = 1;  // force a status message on the new pin
   }
+  _CNIE = 1;
 }
 
 static void SendDigitalInStatusMessage(int pin, int value) {
@@ -30,7 +32,7 @@ static void SendDigitalInStatusMessage(int pin, int value) {
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_DIGITAL_IN_STATUS;
   msg.args.report_digital_in_status.pin = pin;
-  msg.args.report_digital_in_status.level = PinGetPort(pin);
+  msg.args.report_digital_in_status.level = value;
   AppProtocolSendMessage(&msg);
 }
 
