@@ -190,8 +190,9 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public DigitalOutput openDigitalOutput(DigitalOutput.Spec spec,
-			boolean startValue) throws ConnectionLostException {
+	synchronized public DigitalOutput openDigitalOutput(
+			DigitalOutput.Spec spec, boolean startValue)
+			throws ConnectionLostException {
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
@@ -270,8 +271,8 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
-		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInput.Spec(
-				rx), tx == INVALID_PIN_NUMBER ? null
+		return openUart(rx == INVALID_PIN_NUMBER ? null
+				: new DigitalInput.Spec(rx), tx == INVALID_PIN_NUMBER ? null
 				: new DigitalOutput.Spec(tx), baud, parity, stopbits);
 	}
 
@@ -336,22 +337,30 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
-			SpiMaster.Config config) throws ConnectionLostException {
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
+			int slaveSelect, SpiMaster.Rate rate)
+			throws ConnectionLostException {
+		return openSpiMaster(miso, mosi, clk, new int[] { slaveSelect }, rate);
+	}
+
+	@Override
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
+			int[] slaveSelect, SpiMaster.Rate rate)
+			throws ConnectionLostException {
 		DigitalOutput.Spec[] slaveSpecs = new DigitalOutput.Spec[slaveSelect.length];
 		for (int i = 0; i < slaveSelect.length; ++i) {
 			slaveSpecs[i] = new DigitalOutput.Spec(slaveSelect[i]);
 		}
 		return openSpiMaster(new DigitalInput.Spec(miso),
-				new DigitalOutput.Spec(mosi),
-				new DigitalOutput.Spec(clk),
-				slaveSpecs, config);
+				new DigitalOutput.Spec(mosi), new DigitalOutput.Spec(clk),
+				slaveSpecs, new SpiMaster.Config(rate));
 	}
 
 	@Override
-	synchronized public SpiMaster openSpiMaster(DigitalInput.Spec miso, DigitalOutput.Spec mosi,
-			DigitalOutput.Spec clk, DigitalOutput.Spec[] slaveSelect,
-			SpiMaster.Config config) throws ConnectionLostException {
+	synchronized public SpiMaster openSpiMaster(DigitalInput.Spec miso,
+			DigitalOutput.Spec mosi, DigitalOutput.Spec clk,
+			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
+			throws ConnectionLostException {
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
 		checkPinFree(mosi.pin);
@@ -361,7 +370,8 @@ public class IOIOImpl implements IOIO {
 			ssPins[i] = slaveSelect[i].pin;
 		}
 		int spiNum = spiAllocator_.allocateModule();
-		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin, clk.pin, ssPins);
+		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin,
+				clk.pin, ssPins);
 		incomingState_.addSpiListener(spiNum, spi);
 		try {
 			protocol_.setPinDigitalIn(miso.pin, miso.mode);
@@ -370,7 +380,7 @@ public class IOIOImpl implements IOIO {
 			protocol_.setPinSpi(mosi.pin, 0, true, spiNum);
 			protocol_.setPinDigitalOut(clk.pin, config.invertClk, clk.mode);
 			protocol_.setPinSpi(clk.pin, 2, true, spiNum);
-			for (DigitalOutput.Spec spec: slaveSelect) {
+			for (DigitalOutput.Spec spec : slaveSelect) {
 				protocol_.setPinDigitalOut(spec.pin, true, spec.mode);
 			}
 			protocol_.spiConfigureMaster(spiNum, config);

@@ -34,10 +34,10 @@ waitHigh / waitLow rather than edge-based, so that returns immediately if state 
 TODO:
 -----
 - API doc
-- SPI
 - protocol version not supported
 - query hardware, bootloader, firmware versions. standardize major / minor versions
 
+V SPI
 V pin functions
 V factory
 V waits

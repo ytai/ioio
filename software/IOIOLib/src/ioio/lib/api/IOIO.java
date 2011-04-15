@@ -247,7 +247,10 @@ public interface IOIO {
 	 * @return
 	 */
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
-			SpiMaster.Config config) throws ConnectionLostException;
+			SpiMaster.Rate rate) throws ConnectionLostException;
+
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int slaveSelect,
+			SpiMaster.Rate rate) throws ConnectionLostException;
 
 	public SpiMaster openSpiMaster(DigitalInput.Spec miso, DigitalOutput.Spec mosi,
 			DigitalOutput.Spec clk, DigitalOutput.Spec[] slaveSelect,
