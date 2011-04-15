@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;

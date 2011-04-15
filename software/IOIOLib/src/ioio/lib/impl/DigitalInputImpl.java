@@ -1,8 +1,8 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.IncomingState.InputPinListener;
+import ioio.lib.impl.IncomingState.InputPinListener;
 import android.util.Log;
 
 public class DigitalInputImpl extends AbstractPin implements DigitalInput, InputPinListener {

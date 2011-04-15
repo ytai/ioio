@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,7 +8,7 @@ import java.util.Set;
 import android.util.Log;
 
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.IOIOProtocol.IncomingHandler;
+import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 
 public class IncomingState implements IncomingHandler {
 	enum ConnectionState {

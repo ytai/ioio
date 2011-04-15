@@ -1,10 +1,10 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.FlowControlledOutputStream.Sender;
-import ioio.lib.new_impl.IncomingState.DataModuleListener;
+import ioio.lib.impl.FlowControlledOutputStream.Sender;
+import ioio.lib.impl.IncomingState.DataModuleListener;
 
 import java.io.IOException;
 import java.io.InputStream;

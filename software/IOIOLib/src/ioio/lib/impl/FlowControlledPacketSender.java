@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;

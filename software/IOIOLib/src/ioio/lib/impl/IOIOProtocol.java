@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;

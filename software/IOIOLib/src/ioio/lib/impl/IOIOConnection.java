@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -1,7 +1,7 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.new_impl.IncomingState.DisconnectListener;
+import ioio.lib.impl.IncomingState.DisconnectListener;
 
 import java.io.Closeable;
 

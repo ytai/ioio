@@ -1,4 +1,4 @@
-package ioio.lib.new_impl;
+package ioio.lib.impl;
 
 class Constants {
 	static final int NUM_PINS = 49;

@@ -28,8 +28,8 @@
  */
 package ioio.lib.api;
 
-import ioio.lib.new_impl.IOIOImpl;
-import ioio.lib.new_impl.SocketIOIOConnection;
+import ioio.lib.impl.IOIOImpl;
+import ioio.lib.impl.SocketIOIOConnection;
 
 
 /**
