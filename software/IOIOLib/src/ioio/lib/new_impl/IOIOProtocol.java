@@ -1,7 +1,7 @@
 package ioio.lib.new_impl;
 
-import ioio.lib.api.DigitalInputSpec;
-import ioio.lib.api.DigitalOutputSpec;
+import ioio.lib.api.DigitalInput;
+import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
@@ -133,18 +133,18 @@ public class IOIOProtocol {
 		}
 	}
 
-	synchronized public void setPinDigitalOut(int pin, boolean value, DigitalOutputSpec.Mode mode) throws IOException { 
+	synchronized public void setPinDigitalOut(int pin, boolean value, DigitalOutput.Spec.Mode mode) throws IOException { 
 		writeByte(SET_PIN_DIGITAL_OUT);
 		writeByte((pin << 2)
-				| (mode == DigitalOutputSpec.Mode.OPEN_DRAIN ? 0x01 : 0x00)
+				| (mode == DigitalOutput.Spec.Mode.OPEN_DRAIN ? 0x01 : 0x00)
 				| (value ? 0x02 : 0x00));
 	}
 
-	synchronized public void setPinDigitalIn(int pin, DigitalInputSpec.Mode mode) throws IOException {
+	synchronized public void setPinDigitalIn(int pin, DigitalInput.Spec.Mode mode) throws IOException {
 		int pull = 0;
-		if (mode == DigitalInputSpec.Mode.PULL_UP) {
+		if (mode == DigitalInput.Spec.Mode.PULL_UP) {
 			pull = 1;
-		} else if (mode == DigitalInputSpec.Mode.PULL_DOWN) {
+		} else if (mode == DigitalInput.Spec.Mode.PULL_DOWN) {
 			pull = 2;
 		}
 		writeByte(SET_PIN_DIGITAL_IN);

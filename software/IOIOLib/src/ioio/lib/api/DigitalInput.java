@@ -28,21 +28,39 @@
  */
 package ioio.lib.api;
 
-import java.io.Closeable;
-
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.Closeable;
 
 /**
  * Define the basic functions that must be supported by all Digital inputs.
  * 
- * TODO(XXX): change notification.
- * TODO(arshan): reflect hw capabilities
- *  
+ * TODO(XXX): change notification. TODO(arshan): reflect hw capabilities
+ * 
  * @author arshan
- *
+ * 
  */
 public interface DigitalInput extends Closeable {
-    public boolean read() throws InterruptedException, ConnectionLostException;
-    public void waitForValue(boolean value) throws InterruptedException, ConnectionLostException;
+	static public class Spec {
+		public enum Mode {
+			FLOATING, PULL_UP, PULL_DOWN
+		}
+
+		public int pin;
+		public Mode mode;
+
+		public Spec(int pin, Mode mode) {
+			this.pin = pin;
+			this.mode = mode;
+		}
+
+		public Spec(int pin) {
+			this(pin, Mode.FLOATING);
+		}
+	}
+
+	public boolean read() throws InterruptedException, ConnectionLostException;
+
+	public void waitForValue(boolean value) throws InterruptedException,
+			ConnectionLostException;
 }

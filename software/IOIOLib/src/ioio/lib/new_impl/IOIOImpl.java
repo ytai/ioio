@@ -2,10 +2,8 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.DigitalInput;
-import ioio.lib.api.DigitalInputSpec;
-import ioio.lib.api.DigitalInputSpec.Mode;
+import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
-import ioio.lib.api.DigitalOutputSpec;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.SpiMaster;
@@ -91,7 +89,7 @@ public class IOIOImpl implements IOIO {
 	synchronized void closePin(int pin) {
 		if (openPins_[pin]) {
 			try {
-				protocol_.setPinDigitalIn(pin, DigitalInputSpec.Mode.FLOATING);
+				protocol_.setPinDigitalIn(pin, DigitalInput.Spec.Mode.FLOATING);
 			} catch (IOException e) {
 			}
 			openPins_[pin] = false;
@@ -158,17 +156,17 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public DigitalInput openDigitalInput(int pin)
 			throws ConnectionLostException {
-		return openDigitalInput(new DigitalInputSpec(pin));
+		return openDigitalInput(new DigitalInput.Spec(pin));
 	}
 
 	@Override
 	public DigitalInput openDigitalInput(int pin, Mode mode)
 			throws ConnectionLostException {
-		return openDigitalInput(new DigitalInputSpec(pin, mode));
+		return openDigitalInput(new DigitalInput.Spec(pin, mode));
 	}
 
 	@Override
-	synchronized public DigitalInput openDigitalInput(DigitalInputSpec spec)
+	synchronized public DigitalInput openDigitalInput(DigitalInput.Spec spec)
 			throws ConnectionLostException {
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
@@ -186,13 +184,13 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	public DigitalOutput openDigitalOutput(int pin,
-			ioio.lib.api.DigitalOutputSpec.Mode mode, boolean startValue)
+			ioio.lib.api.DigitalOutput.Spec.Mode mode, boolean startValue)
 			throws ConnectionLostException {
-		return openDigitalOutput(new DigitalOutputSpec(pin, mode), startValue);
+		return openDigitalOutput(new DigitalOutput.Spec(pin, mode), startValue);
 	}
 
 	@Override
-	synchronized public DigitalOutput openDigitalOutput(DigitalOutputSpec spec,
+	synchronized public DigitalOutput openDigitalOutput(DigitalOutput.Spec spec,
 			boolean startValue) throws ConnectionLostException {
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
@@ -209,13 +207,13 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public DigitalOutput openDigitalOutput(int pin, boolean startValue)
 			throws ConnectionLostException {
-		return openDigitalOutput(new DigitalOutputSpec(pin), startValue);
+		return openDigitalOutput(new DigitalOutput.Spec(pin), startValue);
 	}
 
 	@Override
 	public DigitalOutput openDigitalOutput(int pin)
 			throws ConnectionLostException {
-		return openDigitalOutput(new DigitalOutputSpec(pin), false);
+		return openDigitalOutput(new DigitalOutput.Spec(pin), false);
 	}
 
 	@Override
@@ -237,11 +235,11 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public PwmOutput openPwmOutput(int pin, int freqHz)
 			throws ConnectionLostException {
-		return openPwmOutput(new DigitalOutputSpec(pin), freqHz);
+		return openPwmOutput(new DigitalOutput.Spec(pin), freqHz);
 	}
 
 	@Override
-	synchronized public PwmOutput openPwmOutput(DigitalOutputSpec spec,
+	synchronized public PwmOutput openPwmOutput(DigitalOutput.Spec spec,
 			int freqHz) throws ConnectionLostException {
 		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
@@ -272,14 +270,14 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
-		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInputSpec(
+		return openUart(rx == INVALID_PIN_NUMBER ? null : new DigitalInput.Spec(
 				rx), tx == INVALID_PIN_NUMBER ? null
-				: new DigitalOutputSpec(tx), baud, parity, stopbits);
+				: new DigitalOutput.Spec(tx), baud, parity, stopbits);
 	}
 
 	@Override
-	synchronized public Uart openUart(DigitalInputSpec rx,
-			DigitalOutputSpec tx, int baud, Uart.Parity parity,
+	synchronized public Uart openUart(DigitalInput.Spec rx,
+			DigitalOutput.Spec tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
 		if (rx != null) {
 			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
@@ -340,19 +338,19 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
 			SpiMaster.Config config) throws ConnectionLostException {
-		DigitalOutputSpec[] slaveSpecs = new DigitalOutputSpec[slaveSelect.length];
+		DigitalOutput.Spec[] slaveSpecs = new DigitalOutput.Spec[slaveSelect.length];
 		for (int i = 0; i < slaveSelect.length; ++i) {
-			slaveSpecs[i] = new DigitalOutputSpec(slaveSelect[i]);
+			slaveSpecs[i] = new DigitalOutput.Spec(slaveSelect[i]);
 		}
-		return openSpiMaster(new DigitalInputSpec(miso),
-				new DigitalOutputSpec(mosi),
-				new DigitalOutputSpec(clk),
+		return openSpiMaster(new DigitalInput.Spec(miso),
+				new DigitalOutput.Spec(mosi),
+				new DigitalOutput.Spec(clk),
 				slaveSpecs, config);
 	}
 
 	@Override
-	synchronized public SpiMaster openSpiMaster(DigitalInputSpec miso, DigitalOutputSpec mosi,
-			DigitalOutputSpec clk, DigitalOutputSpec[] slaveSelect,
+	synchronized public SpiMaster openSpiMaster(DigitalInput.Spec miso, DigitalOutput.Spec mosi,
+			DigitalOutput.Spec clk, DigitalOutput.Spec[] slaveSelect,
 			SpiMaster.Config config) throws ConnectionLostException {
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
@@ -372,7 +370,7 @@ public class IOIOImpl implements IOIO {
 			protocol_.setPinSpi(mosi.pin, 0, true, spiNum);
 			protocol_.setPinDigitalOut(clk.pin, config.invertClk, clk.mode);
 			protocol_.setPinSpi(clk.pin, 2, true, spiNum);
-			for (DigitalOutputSpec spec: slaveSelect) {
+			for (DigitalOutput.Spec spec: slaveSelect) {
 				protocol_.setPinDigitalOut(spec.pin, true, spec.mode);
 			}
 			protocol_.spiConfigureMaster(spiNum, config);

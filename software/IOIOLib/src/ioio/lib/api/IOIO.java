@@ -123,10 +123,10 @@ public interface IOIO {
 	public DigitalInput openDigitalInput(int pin)
 			throws ConnectionLostException;
 
-	public DigitalInput openDigitalInput(int pin, DigitalInputSpec.Mode mode)
+	public DigitalInput openDigitalInput(int pin, DigitalInput.Spec.Mode mode)
 			throws ConnectionLostException;
 
-	public DigitalInput openDigitalInput(DigitalInputSpec spec)
+	public DigitalInput openDigitalInput(DigitalInput.Spec spec)
 			throws ConnectionLostException;
 
 	/**
@@ -148,10 +148,10 @@ public interface IOIO {
 	 * @throws InvalidOperationException
 	 */
 	public DigitalOutput openDigitalOutput(int pin,
-			DigitalOutputSpec.Mode mode, boolean startValue)
+			DigitalOutput.Spec.Mode mode, boolean startValue)
 			throws ConnectionLostException;
 
-	public DigitalOutput openDigitalOutput(DigitalOutputSpec spec,
+	public DigitalOutput openDigitalOutput(DigitalOutput.Spec spec,
 			boolean startValue) throws ConnectionLostException;
 
 	public DigitalOutput openDigitalOutput(int pin, boolean startValue)
@@ -199,7 +199,7 @@ public interface IOIO {
 	public PwmOutput openPwmOutput(int pin, int freqHz)
 			throws ConnectionLostException;
 
-	public PwmOutput openPwmOutput(DigitalOutputSpec spec, int freqHz)
+	public PwmOutput openPwmOutput(DigitalOutput.Spec spec, int freqHz)
 			throws ConnectionLostException;
 
 	/**
@@ -230,7 +230,7 @@ public interface IOIO {
 	public Uart openUart(int rx, int tx, int baud, Parity parity,
 			StopBits stopbits) throws ConnectionLostException;
 
-	public Uart openUart(DigitalInputSpec rx, DigitalOutputSpec tx, int baud,
+	public Uart openUart(DigitalInput.Spec rx, DigitalOutput.Spec tx, int baud,
 			Parity parity, StopBits stopbits) throws ConnectionLostException;
 
 	/**
@@ -249,8 +249,8 @@ public interface IOIO {
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
 			SpiMaster.Config config) throws ConnectionLostException;
 
-	public SpiMaster openSpiMaster(DigitalInputSpec miso, DigitalOutputSpec mosi,
-			DigitalOutputSpec clk, DigitalOutputSpec[] slaveSelect,
+	public SpiMaster openSpiMaster(DigitalInput.Spec miso, DigitalOutput.Spec mosi,
+			DigitalOutput.Spec clk, DigitalOutput.Spec[] slaveSelect,
 			SpiMaster.Config config) throws ConnectionLostException;
 
 	/**

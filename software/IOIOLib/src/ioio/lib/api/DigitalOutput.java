@@ -28,9 +28,9 @@
  */
 package ioio.lib.api;
 
-import java.io.Closeable;
-
 import ioio.lib.api.exception.ConnectionLostException;
+
+import java.io.Closeable;
 
 /**
  * Define the basic functions that must be supported by all Digital outputs.
@@ -38,5 +38,23 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @author arshan
  */
 public interface DigitalOutput extends Closeable {    
+	public static class Spec {
+		public enum Mode {
+		    NORMAL,
+		    OPEN_DRAIN,
+		}
+		
+		public int pin;
+		public Mode mode;
+		
+		public Spec(int pin, Mode mode) {
+			this.pin = pin;
+			this.mode = mode;
+		}
+		
+		public Spec(int pin) {
+			this(pin, Mode.NORMAL);
+		}
+	}
     public void write(Boolean val) throws ConnectionLostException;
 }
