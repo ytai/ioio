@@ -1,5 +1,7 @@
 package ioio.lib.new_impl;
 
+import ioio.lib.api.exception.OutOfResourceException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,16 +18,18 @@ import java.util.TreeSet;
  */
 public class ModuleAllocator {
 
-    private Set<Integer> availableModuleIds;
-    private Set<Integer> allocatedModuleIds;
+    private Set<Integer> availableModuleIds_;
+    private Set<Integer> allocatedModuleIds_;
+	private String name_;
 
-    public ModuleAllocator(Collection<Integer> availableModuleIds) {
-        this.availableModuleIds = new TreeSet<Integer>(availableModuleIds);
-        allocatedModuleIds = new HashSet<Integer>();
+    public ModuleAllocator(Collection<Integer> availableModuleIds, String name) {
+        this.availableModuleIds_ = new TreeSet<Integer>(availableModuleIds);
+        allocatedModuleIds_ = new HashSet<Integer>();
+        name_ = name;
     }
 
-    public ModuleAllocator(int maxModules) {
-        this(getList(maxModules));
+    public ModuleAllocator(int maxModules, String name) {
+        this(getList(maxModules), name);
     }
 
     private static Collection<Integer> getList(int maxModules) {
@@ -40,13 +44,13 @@ public class ModuleAllocator {
      * @return a module id that was allocated, or {@code null} if nothing was available
      */
     public Integer allocateModule() {
-        if (availableModuleIds.isEmpty()) {
-            return null;
+        if (availableModuleIds_.isEmpty()) {
+        	throw new OutOfResourceException("No more resources of the requested type: " + name_);
         }
-        synchronized (availableModuleIds) {
-            Integer moduleId = availableModuleIds.iterator().next();
-            availableModuleIds.remove(moduleId);
-            allocatedModuleIds.add(moduleId);
+        synchronized (availableModuleIds_) {
+            Integer moduleId = availableModuleIds_.iterator().next();
+            availableModuleIds_.remove(moduleId);
+            allocatedModuleIds_.add(moduleId);
             return moduleId;
         }
     }
@@ -56,28 +60,12 @@ public class ModuleAllocator {
      *     a moduleId is re-returned, or an invalid moduleId is provided
      */
     public void releaseModule(int moduleId) {
-        if (!allocatedModuleIds.contains(moduleId)) {
+        if (!allocatedModuleIds_.contains(moduleId)) {
             throw new IllegalArgumentException("moduleId: " + moduleId+ "; not yet allocated");
         }
-        synchronized (availableModuleIds) {
-            availableModuleIds.add(moduleId);
-            allocatedModuleIds.remove(moduleId);
+        synchronized (availableModuleIds_) {
+            availableModuleIds_.add(moduleId);
+            allocatedModuleIds_.remove(moduleId);
         }
-    }
-
-    /**
-     * Requests a moduleId to be allocated.
-     * @param moduleId the module id to reserve
-     * @return true if the module was reserved, false if it wasn't
-     */
-    public boolean requestAllocate(int moduleId) {
-        synchronized (availableModuleIds) {
-            if (!availableModuleIds.contains(moduleId)) {
-                return false;
-            }
-            availableModuleIds.remove(moduleId);
-            allocatedModuleIds.add(moduleId);
-        }
-        return true;
     }
 }

@@ -4,7 +4,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.Closeable;
 
-public interface Twi extends Closeable {
+public interface TwiMaster extends Closeable {
 	enum Rate {
 		RATE_100KHz,
 		RATE_400KHz,

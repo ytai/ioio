@@ -8,11 +8,11 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutputSpec;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
-import ioio.lib.api.Twi;
-import ioio.lib.api.Twi.Rate;
+import ioio.lib.api.SpiMaster;
+import ioio.lib.api.TwiMaster;
+import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.OutOfResourceException;
 import ioio.lib.new_impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
@@ -30,9 +30,11 @@ public class IOIOImpl implements IOIO {
 	private boolean openPins_[] = new boolean[Constants.NUM_PINS];
 	private boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
 	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(
-			Constants.NUM_PWM_MODULES);
+			Constants.NUM_PWM_MODULES, "PWM");
 	private ModuleAllocator uartAllocator_ = new ModuleAllocator(
-			Constants.NUM_UART_MODULES);
+			Constants.NUM_UART_MODULES, "UART");
+	private ModuleAllocator spiAllocator_ = new ModuleAllocator(
+			Constants.NUM_SPI_MODULES, "SPI");
 	private State state_ = State.INIT;
 
 	public IOIOImpl(IOIOConnection con) {
@@ -107,6 +109,7 @@ public class IOIOImpl implements IOIO {
 	synchronized void closeUart(int uartNum) {
 		uartAllocator_.releaseModule(uartNum);
 		try {
+			// TODO(ytai): uartClose()
 			protocol_.uartConfigure(uartNum, 0, false,
 					Uart.StopBits.ONE_STOP_BIT, Uart.Parity.NO_PARITY);
 		} catch (IOException e) {
@@ -122,6 +125,14 @@ public class IOIOImpl implements IOIO {
 		openPins_[Constants.TWI_PINS[twiNum][1]] = false;
 		try {
 			protocol_.i2cClose(twiNum);
+		} catch (IOException e) {
+		}
+	}
+
+	synchronized void closeSpi(int spiNum) {
+		spiAllocator_.releaseModule(spiNum);
+		try {
+			protocol_.spiClose(spiNum);
 		} catch (IOException e) {
 		}
 	}
@@ -234,10 +245,7 @@ public class IOIOImpl implements IOIO {
 			int freqHz) throws ConnectionLostException {
 		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
-		Integer pwmNum = pwmAllocator_.allocateModule();
-		if (pwmNum == null) {
-			throw new OutOfResourceException("No more available PWM modules");
-		}
+		int pwmNum = pwmAllocator_.allocateModule();
 		int period = 16000000 / freqHz - 1;
 		boolean scale256 = false;
 		int effectivePeriodMicroSec;
@@ -283,10 +291,7 @@ public class IOIOImpl implements IOIO {
 		}
 		int rxPin = rx != null ? rx.pin : INVALID_PIN_NUMBER;
 		int txPin = tx != null ? tx.pin : INVALID_PIN_NUMBER;
-		Integer uartNum = uartAllocator_.allocateModule();
-		if (uartNum == null) {
-			throw new OutOfResourceException("No more available UART modules");
-		}
+		int uartNum = uartAllocator_.allocateModule();
 		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
 		incomingState_.addUartListener(uartNum, uart);
 		try {
@@ -314,15 +319,15 @@ public class IOIOImpl implements IOIO {
 	}
 
 	@Override
-	synchronized public Twi openTwi(int twiNum, Rate rate, boolean smbus)
-			throws ConnectionLostException {
+	synchronized public TwiMaster openTwiMaster(int twiNum, Rate rate,
+			boolean smbus) throws ConnectionLostException {
 		checkTwiFree(twiNum);
 		checkPinFree(Constants.TWI_PINS[twiNum][0]);
 		checkPinFree(Constants.TWI_PINS[twiNum][1]);
 		openPins_[Constants.TWI_PINS[twiNum][0]] = true;
 		openPins_[Constants.TWI_PINS[twiNum][1]] = true;
 		openTwi_[twiNum] = true;
-		TwiImpl twi = new TwiImpl(this, twiNum);
+		TwiMasterImpl twi = new TwiMasterImpl(this, twiNum);
 		incomingState_.addTwiListener(twiNum, twi);
 		try {
 			protocol_.i2cConfigureMaster(twiNum, rate, smbus);
@@ -332,30 +337,50 @@ public class IOIOImpl implements IOIO {
 		return twi;
 	}
 
-	// @Override
-	// public IOIOSpi openSpi(int miso, int mosi, int clk, int select, int
-	// speed)
-	// throws ConnectionLostException, InvalidOperationException {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// synchronized public IOIOSpi openSpi(DigitalInputSpec miso,
-	// DigitalOutputSpec mosi,
-	// DigitalOutputSpec clk, DigitalOutputSpec select, int speed)
-	// throws ConnectionLostException, InvalidOperationException {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// synchronized public IOIOTwi openTwi(int twiNum, int speed) throws
-	// ConnectionLostException,
-	// InvalidOperationException {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
+	@Override
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
+			SpiMaster.Config config) throws ConnectionLostException {
+		DigitalOutputSpec[] slaveSpecs = new DigitalOutputSpec[slaveSelect.length];
+		for (int i = 0; i < slaveSelect.length; ++i) {
+			slaveSpecs[i] = new DigitalOutputSpec(slaveSelect[i]);
+		}
+		return openSpiMaster(new DigitalInputSpec(miso),
+				new DigitalOutputSpec(mosi),
+				new DigitalOutputSpec(clk),
+				slaveSpecs, config);
+	}
+
+	@Override
+	synchronized public SpiMaster openSpiMaster(DigitalInputSpec miso, DigitalOutputSpec mosi,
+			DigitalOutputSpec clk, DigitalOutputSpec[] slaveSelect,
+			SpiMaster.Config config) throws ConnectionLostException {
+		int ssPins[] = new int[slaveSelect.length];
+		checkPinFree(miso.pin);
+		checkPinFree(mosi.pin);
+		checkPinFree(clk.pin);
+		for (int i = 0; i < slaveSelect.length; ++i) {
+			checkPinFree(slaveSelect[i].pin);
+			ssPins[i] = slaveSelect[i].pin;
+		}
+		int spiNum = spiAllocator_.allocateModule();
+		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin, clk.pin, ssPins);
+		incomingState_.addSpiListener(spiNum, spi);
+		try {
+			protocol_.setPinDigitalIn(miso.pin, miso.mode);
+			protocol_.setPinSpi(miso.pin, 1, true, spiNum);
+			protocol_.setPinDigitalOut(mosi.pin, true, mosi.mode);
+			protocol_.setPinSpi(mosi.pin, 0, true, spiNum);
+			protocol_.setPinDigitalOut(clk.pin, config.invertClk, clk.mode);
+			protocol_.setPinSpi(clk.pin, 2, true, spiNum);
+			for (DigitalOutputSpec spec: slaveSelect) {
+				protocol_.setPinDigitalOut(spec.pin, true, spec.mode);
+			}
+			protocol_.spiConfigureMaster(spiNum, config);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+		return spi;
+	}
 
 	private void checkPinFree(int pin) {
 		if (openPins_[pin]) {

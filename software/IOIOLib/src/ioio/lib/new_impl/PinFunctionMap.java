@@ -1,6 +1,5 @@
 package ioio.lib.new_impl;
 
-import ioio.lib.api.IOIO;
 
 public class PinFunctionMap {
 	private static final boolean[] PERIPHERAL_OUT = new boolean[] { true,
@@ -40,12 +39,6 @@ public class PinFunctionMap {
 					+ " does not support peripheral output");
 		}
 	}
-
-//	static void checkLegalPin(int pin) {
-//		if (pin != IOIO.INVALID_PIN_NUMBER && (pin < 0 || pin > 48)) {
-//			throw new IllegalArgumentException("Illegal pin: " + pin);
-//		}
-//	}
 
 	static void checkValidPin(int pin) {
 		if (pin < 0 || pin > 48) {

@@ -1,6 +1,6 @@
 package ioio.lib.new_impl;
 
-import ioio.lib.api.Twi;
+import ioio.lib.api.TwiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.new_impl.FlowControlledPacketSender.Packet;
 import ioio.lib.new_impl.FlowControlledPacketSender.Sender;
@@ -12,10 +12,10 @@ import java.util.Queue;
 
 import android.util.Log;
 
-public class TwiImpl extends AbstractResource implements Twi, DataModuleListener, Sender {
+public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataModuleListener, Sender {
 	class TwiResult {
 		boolean ready_ = false;
-		public int size_;
+		public boolean success_;
 		public byte[] data_;
 	}
 	
@@ -33,12 +33,12 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 		
 	}
 	
-	Queue<TwiResult> pendingRequests_ = new LinkedList<TwiImpl.TwiResult>();
+	Queue<TwiResult> pendingRequests_ = new LinkedList<TwiMasterImpl.TwiResult>();
 	FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this); 
 	
 	private final int twiNum_;
 	
-	TwiImpl(IOIOImpl ioio, int twiNum) throws ConnectionLostException {
+	TwiMasterImpl(IOIOImpl ioio, int twiNum) throws ConnectionLostException {
 		super(ioio);
 		twiNum_ = twiNum;
 	}
@@ -80,7 +80,7 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 			}
 			checkState();
 		}
-		return result.size_ != 0xFF;
+		return result.success_;
 	}
 
 	@Override
@@ -88,10 +88,10 @@ public class TwiImpl extends AbstractResource implements Twi, DataModuleListener
 		TwiResult result = pendingRequests_.remove();
 		synchronized (result) {
 			result.ready_ = true;
-			if (size != 0xFF) {
+			result.success_ = (size != 0xFF);
+			if (result.success_) {
 				System.arraycopy(data, 0, result.data_, 0, size);
 			}
-			result.size_ = size;
 			result.notify();
 		}
 	}

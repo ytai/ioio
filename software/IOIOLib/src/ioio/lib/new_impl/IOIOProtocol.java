@@ -2,7 +2,8 @@ package ioio.lib.new_impl;
 
 import ioio.lib.api.DigitalInputSpec;
 import ioio.lib.api.DigitalOutputSpec;
-import ioio.lib.api.Twi.Rate;
+import ioio.lib.api.SpiMaster;
+import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
 
 import java.io.IOException;
@@ -45,6 +46,34 @@ public class IOIOProtocol {
 	static final int I2C_WRITE_READ                    = 0x15;
 	static final int I2C_RESULT                        = 0x15;
 	static final int I2C_REPORT_TX_STATUS              = 0x16;
+	
+	static final int[] SCALE_DIV = new int[] {
+		0x1F,  // 31.25
+		0x1E,  // 35.714
+		0x1D,  // 41.667
+		0x1C,  // 50
+		0x1B,  // 62.5
+		0x1A,  // 83.333
+		0x17,  // 125
+		0x16,  // 142.857
+		0x15,  // 166.667
+		0x14,  // 200
+		0x13,  // 250
+		0x12,  // 333.333
+		0x0F,  // 500
+		0x0E,  // 571.429
+		0x0D,  // 666.667
+		0x0C,  // 800
+		0x0B,  // 1000
+		0x0A,  // 1333.333
+		0x07,  // 2000
+		0x06,  // 2285.714
+		0x05,  // 2666.667
+		0x04,  // 3200
+		0x03,  // 4000
+		0x02,  // 5333.333
+		0x01   // 8000
+	};
 	
 	private void writeByte(int b) throws IOException {
 		assert(b >= 0 && b < 256);
@@ -90,11 +119,6 @@ public class IOIOProtocol {
 		writeByte(SET_PWM_PERIOD);
 		writeByte((pwmNum << 1) | (scale256 ? 1 : 0));
 		writeTwoBytes(period);
-	}
-
-	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[],
-			int dataBytes, int totalBytes, int responseBytes) throws IOException {
-		// TODO: implement
 	}
 
 	synchronized public void i2cWriteRead(int i2cNum, boolean tenBitAddr, int address,
@@ -172,13 +196,42 @@ public class IOIOProtocol {
 		writeByte((enable ? 0x80 : 0x00) | uartNum);
 	}
 
-	synchronized public void spiConfigureMaster(int spiNum, int scale, int div,
-			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) throws IOException {
-		// TODO: implement
+	synchronized public void spiConfigureMaster(int spiNum,
+			SpiMaster.Config config) throws IOException {
+		writeByte(SPI_CONFIGURE_MASTER);
+		writeByte((spiNum << 5) | SCALE_DIV[config.rate.ordinal()]);
+		writeByte((config.sampleOnTrailing ? 0x00 : 0x02)
+				| (config.invertClk ? 0x01 : 0x00));
+	}
+
+	synchronized public void spiClose(int spiNum) throws IOException {
+		writeByte(SPI_CONFIGURE_MASTER);
+		writeByte(spiNum << 5);
+		writeByte(0x00);
 	}
 
 	synchronized public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException {
-		// TODO: implement
+		writeByte(SET_PIN_SPI);
+		writeByte(pin);
+		writeByte((1 << 4) | (mode << 2) | spiNum);
+	}
+	
+	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[],
+			int dataBytes, int totalBytes, int responseBytes) throws IOException {
+		final boolean dataNeqTotal = (dataBytes != totalBytes);
+		final boolean resNeqTotal = (responseBytes != totalBytes);
+		writeByte(SPI_MASTER_REQUEST);
+		writeByte((spiNum << 6) | ssPin);
+		writeByte((dataNeqTotal ? 0x80 : 0x00) | (resNeqTotal ? 0x40 : 0x00) | totalBytes - 1);
+		if (dataNeqTotal) {
+			writeByte(dataBytes);
+		}
+		if (resNeqTotal) {
+			writeByte(responseBytes);
+		}
+		for (int i = 0; i < dataBytes; ++i) {
+			writeByte(data[i]);
+		}
 	}
 
 	synchronized public void i2cConfigureMaster(int i2cNum, Rate rate, boolean smbusLevels) throws IOException {
@@ -193,49 +246,41 @@ public class IOIOProtocol {
 	}
 	
 	public interface IncomingHandler {
-		public void handleConnectionLost();
-
-		public void handleSoftReset();
-
-		public void handleSetChangeNotify(int pin, boolean changeNotify);
-
-		public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
-
-		public void handleUartData(int uartNum, int numBytes, byte data[]);
-
-		public void handleUartConfigure(int uartNum, int rate, boolean speed4x,
-				boolean twoStopBits, int parity);
-
-		public void handleSpiConfigureMaster(int spiNum, int scale, int div,
-				boolean sampleAtEnd, boolean clkEdge, boolean clkPol);
-
-		public void handleI2cConfigureMaster(int i2cNum, int rate,
-				boolean smbusLevels);
-
-		public void handleI2cClose(int i2cNum);
-
 		public void handleEstablishConnection(int hardwareId, int bootloaderId,
 				int firmwareId);
+		public void handleConnectionLost();
+		public void handleSoftReset();
 
-		public void handleUartReportTxStatus(int uartNum, int bytesRemaining);
 
-		public void handleSpiData(int spiNum, int ssPin, byte data[],
-				int dataBytes);
-
+		public void handleSetChangeNotify(int pin, boolean changeNotify);
 		public void handleReportDigitalInStatus(int pin, boolean level);
-
+		public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
 		public void handleReportPeriodicDigitalInStatus(int frameNum,
 				boolean values[]);
 
+		
+		public void handleAnalogPinNotify(int pin, boolean open);
 		public void handleReportAnalogInStatus(int pins[], int values[]);
 
+		
+		public void handleUartOpen(int uartNum);
+		public void handleUartClose(int uartNum);
+		public void handleUartData(int uartNum, int numBytes, byte data[]);
+		public void handleUartReportTxStatus(int uartNum, int bytesRemaining);
+
+		
+		public void handleSpiOpen(int spiNum);
+		public void handleSpiClose(int spiNum);
+		public void handleSpiData(int spiNum, int ssPin, byte data[],
+				int dataBytes);
 		public void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
 
+
+		public void handleI2cOpen(int i2cNum);
+		public void handleI2cClose(int i2cNum);
+		public void handleI2cResult(int i2cNum, int size, byte[] data);
 		public void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
 
-		public void handleI2cResult(int i2cNum, int size, byte[] data);
-
-		public void handleAnalogPinNotify(int pin, boolean open);
 	}	
 
 	class IncomingThread extends Thread {
@@ -284,12 +329,13 @@ public class IOIOProtocol {
 		@Override
 		public void run() {
 			super.run();
-			int b;
-			int tmp;
+			int arg1;
+			int arg2;
+			int numPins;
 			byte[] data = new byte[256];
 			try {
 				while (true) {
-					switch (b = readByte()) {
+					switch (arg1 = readByte()) {
 					case ESTABLISH_CONNECTION:
 						if (readByte() != 'I'
 							|| readByte() != 'O'
@@ -313,8 +359,8 @@ public class IOIOProtocol {
 						break;
 						
 					case REPORT_DIGITAL_IN_STATUS:
-						tmp = readByte();
-						handler_.handleReportDigitalInStatus(tmp >> 2, (tmp & 0x01) == 1);
+						arg1 = readByte();
+						handler_.handleReportDigitalInStatus(arg1 >> 2, (arg1 & 0x01) == 1);
 						break;
 						
 					case SET_PIN_DIGITAL_IN:
@@ -322,8 +368,8 @@ public class IOIOProtocol {
 						break;
 						
 					case SET_CHANGE_NOTIFY:
-						tmp = readByte();
-						handler_.handleSetChangeNotify(tmp >> 2, (tmp & 0x01) == 1);
+						arg1 = readByte();
+						handler_.handleSetChangeNotify(arg1 >> 2, (arg1 & 0x01) == 1);
 						break;
 						
 					case REGISTER_PERIOD_DIGITAL_SAMPLING:
@@ -335,7 +381,7 @@ public class IOIOProtocol {
 						break;
 						
 					case REPORT_ANALOG_IN_FORMAT:
-						int numPins = readByte();
+						numPins = readByte();
 						int[] newFormat = new int[numPins];
 						for (int i = 0; i < numPins; ++i) {
 							newFormat[i] = readByte();
@@ -365,9 +411,9 @@ public class IOIOProtocol {
 						break;
 						
 					case UART_REPORT_TX_STATUS:
-						b = readByte();
-						tmp = readByte();
-						handler_.handleUartReportTxStatus(b & 0x03, (b >> 2) | (tmp << 8));
+						arg1 = readByte();
+						arg2 = readByte();
+						handler_.handleUartReportTxStatus(arg1 & 0x03, (arg1 >> 2) | (arg2 << 8));
 						break;
 						
 					case SET_PIN_ANALOG_IN:
@@ -375,18 +421,21 @@ public class IOIOProtocol {
 						break;
 						
 					case UART_DATA:
-						tmp = readByte();
-						for (int i = 0; i < (tmp & 0x3F) + 1; ++i) {
+						arg1 = readByte();
+						for (int i = 0; i < (arg1 & 0x3F) + 1; ++i) {
 							data[i] = (byte) readByte();
 						}
-						handler_.handleUartData(tmp >> 6, (tmp & 0x3F) + 1, data);
+						handler_.handleUartData(arg1 >> 6, (arg1 & 0x3F) + 1, data);
 						break;
 						
 					case UART_CONFIG:
-						tmp = readByte();
-						handler_.handleUartConfigure(tmp >> 6, readTwoBytes(),
-								(tmp & 0x08) != 0, (tmp & 0x04) != 0,
-								tmp & 0x03);
+						arg1 = readByte();
+						arg2 = readTwoBytes();
+						if (arg2 != 0) {
+							handler_.handleUartOpen(arg1 >> 6);
+						} else {
+							handler_.handleUartClose(arg1 >> 6);
+						}
 						break;
 						
 					case SET_PIN_UART_RX:
@@ -398,50 +447,63 @@ public class IOIOProtocol {
 						break;
 						
 					case SPI_DATA:
-						// TODO: implement
+						arg1 = readByte();
+						arg2 = readByte();
+						for (int i = 0; i < (arg1 & 0x3F) + 1; ++i) {
+							data[i] = (byte) readByte();
+						}
+						handler_.handleSpiData(arg1 >> 6, arg2, data, (arg1 & 0x3F) + 1);
 						break;
 
 					case SPI_REPORT_TX_STATUS:
-						// TODO: implement
+						arg1 = readByte();
+						arg2 = readByte();
+						handler_.handleSpiReportTxStatus(arg1 & 0x03, (arg1 >> 2) | (arg2 << 8));
 						break;
 						
 					case SPI_CONFIGURE_MASTER:
-						// TODO: implement
+						arg1 = readByte();
+						arg2 = readByte();
+						if ((arg1 & 0x1F) == 0) {
+							handler_.handleSpiClose((arg1 >> 3) & 0x03);
+						} else {
+							handler_.handleSpiOpen((arg1 >> 3) & 0x03);
+						}
 						break;
 						
 					case SET_PIN_SPI:
-						// TODO: implement
+						readTwoBytes();
 						break;
 						
 					case I2C_CONFIGURE_MASTER:
-						b = readByte();
-						if (((b >> 5) & 0x03) != 0) {
-							handler_.handleI2cConfigureMaster(b & 0x03, (b >> 5) & 0x03, (b >> 7) == 1);
+						arg1 = readByte();
+						if (((arg1 >> 5) & 0x03) != 0) {
+							handler_.handleI2cOpen(arg1 & 0x03);
 						} else {
-							handler_.handleI2cClose(b & 0x03);
+							handler_.handleI2cClose(arg1 & 0x03);
 						}
 						break;
 						
 					case I2C_RESULT:
-						b = readByte();
-						tmp = readByte();
-						if (tmp != 0xFF) {
-							for (int i = 0; i < tmp; ++i) {
+						arg1 = readByte();
+						arg2 = readByte();
+						if (arg2 != 0xFF) {
+							for (int i = 0; i < arg2; ++i) {
 								data[i] = (byte) readByte();
 							}
 						}
-						handler_.handleI2cResult(b & 0x03, tmp, data);
+						handler_.handleI2cResult(arg1 & 0x03, arg2, data);
 						break;
 						
 					case I2C_REPORT_TX_STATUS:
-						b = readByte();
-						tmp = readByte();
-						handler_.handleI2cReportTxStatus(b & 0x03, (b >> 2) | (tmp << 8));
+						arg1 = readByte();
+						arg2 = readByte();
+						handler_.handleI2cReportTxStatus(arg1 & 0x03, (arg1 >> 2) | (arg2 << 8));
 						break;
 						
 					default:
 						in_.close();
-						IOException e = new IOException("Received unexpected command: 0x" + Integer.toHexString(b)); 
+						IOException e = new IOException("Received unexpected command: 0x" + Integer.toHexString(arg1)); 
 						Log.e("IOIOProtocol", "Protocol error", e);
 						throw e;
 					}

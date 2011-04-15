@@ -94,6 +94,7 @@ public class IncomingState implements IncomingHandler {
 	private InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
 	private DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
 	private DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
+	private DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
 	private ConnectionState connection_ = ConnectionState.INIT;
 	private Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	
@@ -106,6 +107,9 @@ public class IncomingState implements IncomingHandler {
 		}
 		for (int i = 0; i < twiStates_.length; ++i) {
 			twiStates_[i] = new DataModuleState();
+		}
+		for (int i = 0; i < spiStates_.length; ++i) {
+			spiStates_[i] = new DataModuleState();
 		}
 	}
 	
@@ -134,6 +138,10 @@ public class IncomingState implements IncomingHandler {
 	
 	public void addTwiListener(int twiNum, DataModuleListener listener) {
 		twiStates_[twiNum].pushListener(listener);
+	}
+	
+	public void addSpiListener(int spiNum, DataModuleListener listener) {
+		spiStates_[spiNum].pushListener(listener);
 	}
 	
 	synchronized public void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
@@ -167,6 +175,9 @@ public class IncomingState implements IncomingHandler {
 		}
 		for (DataModuleState twiState: twiStates_) {
 			twiState.closeCurrentListener();
+		}
+		for (DataModuleState spiState: spiStates_) {
+			spiState.closeCurrentListener();
 		}
 	}
 
@@ -203,27 +214,33 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleUartConfigure(int uartNum, int rate, boolean speed4x,
-			boolean twoStopBits, int parity) {
-		logMethod("handleUartConfigure", uartNum, rate, speed4x, twoStopBits, parity);
-		if (rate == 0) {
-			uartStates_[uartNum].closeCurrentListener();
-		} else {
-			uartStates_[uartNum].openNextListener();
-		}
+	public void handleUartOpen(int uartNum) {
+		logMethod("handleUartOpen", uartNum);
+		uartStates_[uartNum].openNextListener();
 	}
 
 	@Override
-	public void handleSpiConfigureMaster(int spiNum, int scale, int div,
-			boolean sampleAtEnd, boolean clkEdge, boolean clkPol) {
-		logMethod("handleSpiConfigureMaster", spiNum, scale, div, sampleAtEnd, clkEdge, clkPol);
-		// TODO Auto-generated method stub
-		
+	public void handleUartClose(int uartNum) {
+		logMethod("handleUartClose", uartNum);
+		uartStates_[uartNum].closeCurrentListener();
 	}
+
 	@Override
-	public void handleI2cConfigureMaster(int i2cNum, int rate,
-			boolean smbusLevels) {
-		logMethod("handleI2cConfigureMaster", i2cNum, rate, smbusLevels);
+	public void handleSpiOpen(int spiNum) {
+		logMethod("handleSpiConfigureMaster", spiNum);
+		spiStates_[spiNum].openNextListener();
+	}
+	
+
+	@Override
+	public void handleSpiClose(int spiNum) {
+		logMethod("handleSpiClose", spiNum);
+		spiStates_[spiNum].closeCurrentListener();
+	}
+
+	@Override
+	public void handleI2cOpen(int i2cNum) {
+		logMethod("handleI2cConfigureMaster", i2cNum);
 		twiStates_[i2cNum].openNextListener();
 	}
 
@@ -259,7 +276,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleSpiData(int spiNum, int ssPin, byte[] data, int dataBytes) {
 		logMethod("handleSpiData", spiNum, ssPin, data, dataBytes);
-		// TODO Auto-generated method stub
+		spiStates_[spiNum].dataReceived(data, dataBytes);
 	}
 
 	@Override
@@ -286,8 +303,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleSpiReportTxStatus(int spiNum, int bytesRemaining) {
 		logMethod("handleSpiReportTxStatus", spiNum, bytesRemaining);
-		// TODO Auto-generated method stub
-		
+		spiStates_[spiNum].reportBufferRemaining(bytesRemaining);
 	}
 
 	@Override
