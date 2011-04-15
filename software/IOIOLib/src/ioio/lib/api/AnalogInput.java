@@ -33,7 +33,6 @@ import java.io.Closeable;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
-
 /**
  * Define the basic functions that must be supported by all Analog inputs.
  * 
@@ -43,7 +42,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @author arshan
  */
 public interface AnalogInput extends Closeable {
-    public float getVoltage() throws InterruptedException, ConnectionLostException;
-    public float getReference();
-    public float read() throws InterruptedException, ConnectionLostException;
+	public float getVoltage() throws InterruptedException,
+			ConnectionLostException;
+
+	public float getReference();
+
+	public float read() throws InterruptedException, ConnectionLostException;
 }
