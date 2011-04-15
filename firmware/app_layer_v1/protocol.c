@@ -218,9 +218,6 @@ static BOOL MessageDone() {
       CHECK(rx_msg.args.set_change_notify.pin < NUM_PINS);
       SetChangeNotify(rx_msg.args.set_change_notify.pin, rx_msg.args.set_change_notify.cn);
       Echo();
-      if (rx_msg.args.set_change_notify.cn) {
-        ReportDigitalInStatus(rx_msg.args.set_change_notify.pin);
-      }
       break;
 
     case SET_PIN_PWM:

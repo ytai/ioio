@@ -26,6 +26,12 @@ static void PinsInit() {
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     SetPinUartRx(0, i, 0);
   }
+  CNENB = 0x0000;
+  CNENC = 0x0000;
+  CNEND = 0x0000;
+  CNENE = 0x0000;
+  CNENF = 0x0000;
+  CNENG = 0x0000;
   // clear and enable global CN interrupts
   _CNIF = 0;
   _CNIE = 1;

@@ -12,6 +12,13 @@ unsigned int CNENE = 0x0000;
 unsigned int CNENF = 0x0000;
 unsigned int CNENG = 0x0000;
 
+unsigned int CNFORCEB = 0x0000;
+unsigned int CNFORCEC = 0x0000;
+unsigned int CNFORCED = 0x0000;
+unsigned int CNFORCEE = 0x0000;
+unsigned int CNFORCEF = 0x0000;
+unsigned int CNFORCEG = 0x0000;
+
 unsigned int CNBACKUPB = 0x0000;
 unsigned int CNBACKUPC = 0x0000;
 unsigned int CNBACKUPD = 0x0000;
@@ -27,6 +34,7 @@ typedef struct {
   SFR* odc;
   unsigned int* fake_cnen;
   unsigned int* cn_backup;
+  unsigned int* cn_force;
   unsigned int pos_mask;
   unsigned int neg_mask;
 } PORT_INFO;
@@ -35,7 +43,7 @@ typedef struct {
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 
-#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, &CNEN##port, &CNBACKUP##port, (1 << num), ~(1 << num) }
+#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, &CNEN##port, &CNBACKUP##port, &CNFORCE##port, (1 << num), ~(1 << num) }
 
 typedef struct {
   SFR* cnen;
@@ -288,13 +296,17 @@ void PinSetCnen(int pin, int cnen) {
   if (cnen) {
     *cinfo->cnen |= cinfo->pos_mask;
     *pinfo->fake_cnen |= pinfo->pos_mask;
-    // copy the pin bit from the port register to the backup register
-    *pinfo->cn_backup ^= ((*pinfo->cn_backup ^ *pinfo->port)
-                              & pinfo->pos_mask);
   } else {
     *cinfo->cnen &= cinfo->neg_mask;
-    *port_info->fake_cnen &= port_info->neg_mask;
+    *pinfo->fake_cnen &= pinfo->neg_mask;
   }
+  _CNIE = 1;  // enable CN interrupts
+}
+
+void PinSetCnforce(int pin) {
+  const PORT_INFO* pinfo = &port_info[pin];
+  _CNIE = 0;  // disable CN interrupts
+  *pinfo->cn_force |= pinfo->pos_mask;
   _CNIE = 1;  // enable CN interrupts
 }
 
