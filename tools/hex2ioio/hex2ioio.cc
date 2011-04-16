@@ -1,3 +1,32 @@
+/*
+ * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied.
+ */
+
 // hex2ioio
 // This utility translate a hex file into a IOIO application firmware image.
 // Usage: hex2ioio <variant> <infile> <outfile>
@@ -100,21 +129,21 @@ int main(int argc, const char* argv[]) {
     if (line[0] != ':') continue;
     const char * p = line + 1;
     uint8_t count = read8(p);
-	uint16_t address_lo = read16(p);
-	uint8_t type = read8(p);
-	switch (type) {
+	  uint16_t address_lo = read16(p);
+	  uint8_t type = read8(p);
+	  switch (type) {
       case 0:  // data
         {
           uint32_t address = static_cast<uint32_t>(address_hi) << 16 | address_lo;
-		  for (int i = 0; i < count; ++i) {
+		      for (int i = 0; i < count; ++i) {
             block_t &block = memory_map[(address & 0xFFFFFF00) >> 1];
             uint8_t byte = read8(p);
             block[address & 0xFF] = byte;
-		    if ((address & 0x03) == 3 && byte != 0) error("high byte of each dword must be 0");
+            if ((address & 0x03) == 3 && byte != 0) error("high byte of each dword must be 0");
             ++address;
           }
-		}
-		break;
+        }
+        break;
 
       case 1:  // eof
         got_eof_rec = true;
@@ -124,7 +153,7 @@ int main(int argc, const char* argv[]) {
         address_hi = read16(p);
         break;
     }
-	read8(p);  // for checksum
+	  read8(p);  // for checksum
     if (checksum) error("Failed checksum");
   }
   infile.close();

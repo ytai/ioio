@@ -1,5 +1,5 @@
  /*
-  * Copyright 2011. All rights reserved.
+  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
   *  
   * 
   * Redistribution and use in source and binary forms, with or without modification, are
