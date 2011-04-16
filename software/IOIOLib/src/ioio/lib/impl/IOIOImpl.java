@@ -50,17 +50,17 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		INIT, CONNECTED, DEAD
 	}
 
-	IOIOProtocol protocol_;
-	private IOIOConnection connection_;
-	private IncomingState incomingState_ = new IncomingState();
-	private boolean openPins_[] = new boolean[Constants.NUM_PINS];
-	private boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
-	private ModuleAllocator pwmAllocator_ = new ModuleAllocator(
+	private final IOIOConnection connection_;
+	private final IncomingState incomingState_ = new IncomingState();
+	private final boolean openPins_[] = new boolean[Constants.NUM_PINS];
+	private final boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
+	private final ModuleAllocator pwmAllocator_ = new ModuleAllocator(
 			Constants.NUM_PWM_MODULES, "PWM");
-	private ModuleAllocator uartAllocator_ = new ModuleAllocator(
+	private final ModuleAllocator uartAllocator_ = new ModuleAllocator(
 			Constants.NUM_UART_MODULES, "UART");
-	private ModuleAllocator spiAllocator_ = new ModuleAllocator(
+	private final ModuleAllocator spiAllocator_ = new ModuleAllocator(
 			Constants.NUM_SPI_MODULES, "SPI");
+	IOIOProtocol protocol_;
 	private State state_ = State.INIT;
 
 	public IOIOImpl(IOIOConnection con) {

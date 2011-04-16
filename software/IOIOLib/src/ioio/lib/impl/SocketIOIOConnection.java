@@ -39,7 +39,7 @@ import java.net.Socket;
 import android.util.Log;
 
 public class SocketIOIOConnection implements IOIOConnection {
-	private int port_;
+	private final int port_;
 	private ServerSocket server_ = null;
 	private Socket socket_ = null;
 	private boolean disconnect_ = false;

@@ -34,14 +34,13 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.io.IOException;
 
 public class PwmImpl extends AbstractResource implements PwmOutput {
-	private int pwmNum_;
-	private int pinNum_;
-	private int periodUs_;
-	private int period_;
+	private final int pwmNum_;
+	private final int pinNum_;
+	private final int periodUs_;
+	private final int period_;
 
 	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period, int periodUs) throws ConnectionLostException {
 		super(ioio);
-		ioio_ = ioio;
 		pwmNum_ = pwmNum;
 		pinNum_ = pinNum;
 		periodUs_ = periodUs;

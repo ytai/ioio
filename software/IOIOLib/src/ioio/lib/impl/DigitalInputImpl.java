@@ -34,8 +34,8 @@ import ioio.lib.impl.IncomingState.InputPinListener;
 import android.util.Log;
 
 public class DigitalInputImpl extends AbstractPin implements DigitalInput, InputPinListener {
-	boolean value_;
-	boolean valid_ = false;
+	private boolean value_;
+	private boolean valid_ = false;
 	
 	DigitalInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(ioio, pin);

@@ -34,7 +34,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class QueueInputStream extends InputStream {
-	private BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
+	private final BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
 	private boolean closed_ = false;
 

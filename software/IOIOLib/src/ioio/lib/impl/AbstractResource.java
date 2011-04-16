@@ -35,14 +35,13 @@ import java.io.Closeable;
 
 public class AbstractResource implements Closeable, DisconnectListener {
 	enum State {
-		INIT,
 		OPEN,
 		CLOSED,
 		DISCONNECTED
 	}
 	
-	protected State state_ = State.INIT;
-	protected IOIOImpl ioio_;
+	protected State state_ = State.OPEN;
+	protected final IOIOImpl ioio_;
 
 	public AbstractResource(IOIOImpl ioio) throws ConnectionLostException {
 		ioio_ = ioio;
@@ -60,6 +59,7 @@ public class AbstractResource implements Closeable, DisconnectListener {
 		if (state_ == State.CLOSED) {
 			throw new IllegalStateException("Trying to use a closed resouce");
 		} else if (state_ == State.DISCONNECTED) {
+			state_ = State.CLOSED;
 			return;
 		}
 		state_ = State.CLOSED;

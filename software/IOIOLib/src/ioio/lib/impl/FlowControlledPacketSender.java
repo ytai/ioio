@@ -41,10 +41,11 @@ public class FlowControlledPacketSender {
 		void send(Packet packet);
 	}
 
-	private Sender sender_;
-	private BlockingQueue<Packet> queue_ = new ArrayBlockingQueue<Packet>(
+	private final Sender sender_;
+	private final BlockingQueue<Packet> queue_ = new ArrayBlockingQueue<Packet>(
 			Constants.PACKET_BUFFER_SIZE);
-	FlushThread thread_ = new FlushThread();
+	private final FlushThread thread_ = new FlushThread();
+	
 	private int readyToSend_ = 0;
 	private boolean closed_ = false;
 

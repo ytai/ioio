@@ -38,13 +38,14 @@ public class FlowControlledOutputStream extends OutputStream {
 		void send(byte[] data, int size);
 	}
 
-	private Sender sender_;
-	private BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
+	private final Sender sender_;
+	private final BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
-	FlushThread thread_ = new FlushThread();
-	private int readyToSend_ = 0;
+	private final FlushThread thread_ = new FlushThread();
 	private final int maxPacket_;
 	private final byte[] packet_;
+
+	private int readyToSend_ = 0;
 	private boolean closed_ = false;
 
 	public FlowControlledOutputStream(Sender sender, int maxPacket) {

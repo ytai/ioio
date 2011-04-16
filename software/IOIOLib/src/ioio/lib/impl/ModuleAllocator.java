@@ -45,10 +45,9 @@ import java.util.TreeSet;
  * @author birmiwal
  */
 public class ModuleAllocator {
-
-    private Set<Integer> availableModuleIds_;
-    private Set<Integer> allocatedModuleIds_;
-	private String name_;
+    private final Set<Integer> availableModuleIds_;
+    private final Set<Integer> allocatedModuleIds_;
+	private final String name_;
 
     public ModuleAllocator(Collection<Integer> availableModuleIds, String name) {
         this.availableModuleIds_ = new TreeSet<Integer>(availableModuleIds);

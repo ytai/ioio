@@ -62,15 +62,15 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		}
 	}
 
-	Queue<SpiResult> pendingRequests_ = new LinkedList<SpiMasterImpl.SpiResult>();
-	FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
+	private final Queue<SpiResult> pendingRequests_ = new LinkedList<SpiMasterImpl.SpiResult>();
+	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
 
 	private final int spiNum_;
-	private Map<Integer, Integer> ssPinToIndex_;
-	private int[] indexToSsPin_;
-	private int mosiPinNum_;
-	private int misoPinNum_;
-	private int clkPinNum_;
+	private final Map<Integer, Integer> ssPinToIndex_;
+	private final int[] indexToSsPin_;
+	private final int mosiPinNum_;
+	private final int misoPinNum_;
+	private final int clkPinNum_;
 
 	SpiMasterImpl(IOIOImpl ioio, int spiNum, int mosiPinNum, int misoPinNum,
 			int clkPinNum, int[] ssPins) throws ConnectionLostException {

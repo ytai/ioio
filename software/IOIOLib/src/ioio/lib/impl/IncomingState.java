@@ -119,12 +119,12 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 	
-	private InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
-	private DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
-	private DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
-	private DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
+	private final InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
+	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
+	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
+	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
+	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
-	private Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	
 	public IncomingState() {
 		for (int i = 0; i < intputPinStates_.length; ++i) {

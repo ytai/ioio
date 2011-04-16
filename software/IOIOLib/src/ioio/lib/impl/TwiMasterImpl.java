@@ -61,9 +61,8 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 		
 	}
 	
-	Queue<TwiResult> pendingRequests_ = new LinkedList<TwiMasterImpl.TwiResult>();
-	FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this); 
-	
+	private final Queue<TwiResult> pendingRequests_ = new LinkedList<TwiMasterImpl.TwiResult>();
+	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
 	private final int twiNum_;
 	
 	TwiMasterImpl(IOIOImpl ioio, int twiNum) throws ConnectionLostException {

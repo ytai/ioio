@@ -542,10 +542,10 @@ public class IOIOProtocol {
 		}
 	}
 
-	private InputStream in_;
-	private OutputStream out_;
-	private IncomingHandler handler_;
-	private IncomingThread thread_ = new IncomingThread();
+	private final InputStream in_;
+	private final OutputStream out_;
+	private final IncomingHandler handler_;
+	private final IncomingThread thread_ = new IncomingThread();
 	
 	public IOIOProtocol(InputStream in, OutputStream out, IncomingHandler handler) {
 		in_ = in;

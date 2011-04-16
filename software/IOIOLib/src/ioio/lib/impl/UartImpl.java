@@ -43,11 +43,11 @@ import android.util.Log;
 public class UartImpl extends AbstractResource implements DataModuleListener, Sender, Uart {
 	private static final int MAX_PACKET = 64;
 	
-	final int uartNum_;
-	final int rxPinNum_;
-	final int txPinNum_;
-	FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
-	QueueInputStream incoming_ = new QueueInputStream();
+	private final int uartNum_;
+	private final int rxPinNum_;
+	private final int txPinNum_;
+	private final FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
+	private final QueueInputStream incoming_ = new QueueInputStream();
 	
 	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum) throws ConnectionLostException {
 		super(ioio);
