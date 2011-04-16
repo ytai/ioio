@@ -137,6 +137,7 @@ public class IOIOTestBed extends Activity {
 						(PIN_COUNT + 1) / 2);
 				List<Integer> oddLow = new ArrayList<Integer>(
 						(PIN_COUNT + 1) / 2);
+				pins.add(null);  // for pin 0 - LED
 				for (int i = 1; i <= PIN_COUNT; ++i) {
 					if (IGNORE_PINS_SET.contains(i)) {
 						pins.add(null);
@@ -149,7 +150,7 @@ public class IOIOTestBed extends Activity {
 					evenLow.clear();
 					oddHigh.clear();
 					oddLow.clear();
-					for (int i = 0; i < PIN_COUNT; ++i) {
+					for (int i = 0; i < pins.size(); ++i) {
 						if (pins.get(i) == null) {
 							continue;
 						}
@@ -210,7 +211,7 @@ public class IOIOTestBed extends Activity {
 			color = Color.GREEN;
 		} else if (low.size() == 0) {
 			text = "All HIGH";
-			color = Color.GREEN;
+			color = Color.YELLOW;
 		} else {
 			color = Color.RED;
 			if (high.size() < low.size()) {
