@@ -173,7 +173,7 @@ public class IncomingState implements IncomingHandler {
 	}
 	
 	synchronized public void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
-		checkConnected();
+		checkNotDisconnected();
 		disconnectListeners_.add(listener);
 	}
 	
@@ -340,8 +340,8 @@ public class IncomingState implements IncomingHandler {
 		twiStates_[i2cNum].dataReceived(data, size);
 	}
 	
-	private void checkConnected() throws ConnectionLostException {
-		if (connection_ != ConnectionState.CONNECTED) {
+	private void checkNotDisconnected() throws ConnectionLostException {
+		if (connection_ == ConnectionState.DISCONNECTED) {
 			throw new ConnectionLostException();
 		}
 	}

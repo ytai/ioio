@@ -45,7 +45,7 @@ import java.io.IOException;
 
 import android.util.Log;
 
-public class IOIOImpl implements IOIO {
+public class IOIOImpl implements IOIO, DisconnectListener {
 	enum State {
 		INIT, CONNECTED, DEAD
 	}
@@ -69,14 +69,17 @@ public class IOIOImpl implements IOIO {
 
 	@Override
 	synchronized public void waitForConnect() throws ConnectionLostException {
-		if (state_ != State.INIT) {
-			throw new IllegalStateException(
-					"May only call waitForConnect() once");
+		if (state_ == State.CONNECTED) {
+			return;
 		}
+		if (state_ == State.DEAD) {
+			throw new ConnectionLostException();
+		}
+		addDisconnectListener(this);
 		Log.d("IOIOImpl", "Waiting for IOIO connection");
 		try {
 			try {
-				Log.d("IOIOImpl", "Waiting for TCP connection");
+				Log.d("IOIOImpl", "Waiting for underlying connection");
 				connection_.waitForConnect();
 				Log.d("IOIOImpl", "Waiting for handshake");
 				protocol_ = new IOIOProtocol(connection_.getInputStream(),
@@ -99,6 +102,12 @@ public class IOIOImpl implements IOIO {
 	@Override
 	public void disconnect() {
 		connection_.disconnect();
+	}
+	
+
+	@Override
+	public void disconnected() {
+		disconnect();
 	}
 
 	public void waitForDisconnect() throws InterruptedException {
