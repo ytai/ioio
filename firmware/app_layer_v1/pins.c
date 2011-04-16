@@ -68,7 +68,7 @@ typedef struct {
   unsigned int neg_mask;
 } PORT_INFO;
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 

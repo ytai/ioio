@@ -43,8 +43,9 @@
 #define _STRINGIFY(x) #x
 #define _TOSTRING(x) _STRINGIFY(x)
 
-// TODO: move to a project flag.
-#define IOIO_VER 12
+#ifndef IOIO_VER
+#error Must define IOIO_VER
+#endif
 
 // number of pins of each board
 #if IOIO_VER == 10
@@ -56,8 +57,12 @@
 #endif
 
 // assert MCU
-#if IOIO_VER >= 10 && IOIO_VER <= 13
+#if IOIO_VER >= 10 && IOIO_VER <= 12
   #ifndef __PIC24FJ128DA106__
+    #error Board and MCU mismatch - expecting PIC24FJ128DA106
+  #endif
+#elif IOIO_VER >= 13 && IOIO_VER <= 15
+  #ifndef __PIC24FJ128DA206__
     #error Board and MCU mismatch - expecting PIC24FJ128DA106
   #endif
 #else
@@ -79,7 +84,7 @@
 
 #define BOARD_VARIANT_STRING _TOSTRING(BOARD_VARIANT)
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   #define NUM_PWM_MODULES 9
   #define NUM_UART_MODULES 4
   #define NUM_SPI_MODULES 3
