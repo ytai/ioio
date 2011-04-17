@@ -1,5 +1,6 @@
-package ioio.examples.hello;
+package ioio.examples.hello_power;
 
+import ioio.examples.hello_power.R;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
@@ -67,7 +68,7 @@ public class MainActivity extends Activity {
 					}
 				} catch (ConnectionLostException e) {
 				} catch (Exception e) {
-					Log.e("HelloIOIO", "Unexpected exception caught", e);
+					Log.e("HelloIOIOPower", "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -85,7 +86,7 @@ public class MainActivity extends Activity {
 				ioio_.disconnect();
 			}
 		}
-		
+
 		private void setText(final String str) {
 			runOnUiThread(new Runnable() {
 				@Override
