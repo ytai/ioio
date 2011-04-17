@@ -2,4 +2,6 @@
 <resources>
     <string name="hello">Hello, IOIO Power User!</string>
     <string name="app_name">Hello IOIO Power</string>
+    <string name="wait_ioio">Waiting for IOIO to connect...</string>
+    <string name="ioio_connected">IOIO connected!</string>
 </resources>

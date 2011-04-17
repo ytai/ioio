@@ -59,7 +59,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 						break;
 					}
 				} catch (Exception e) {
-					Log.e("BaseIOIOActivity", "Unexpected exception caught", e);
+					Log.e("AbstractIOIOActivity",
+							"Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -71,9 +72,11 @@ public abstract class AbstractIOIOActivity extends Activity {
 			}
 		}
 
-		protected void setup() throws ConnectionLostException {}
+		protected void setup() throws ConnectionLostException {
+		}
 
-		protected void loop() throws ConnectionLostException {}
+		protected void loop() throws ConnectionLostException {
+		}
 
 		public synchronized final void abort() {
 			abort_ = true;

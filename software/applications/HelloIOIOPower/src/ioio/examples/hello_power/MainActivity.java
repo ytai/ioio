@@ -94,9 +94,9 @@ public class MainActivity extends Activity {
 					ioio_ = IOIOFactory.create();
 				}
 				try {
-					setText("Waiting for IOIO...");
+					setText(R.string.wait_ioio);
 					ioio_.waitForConnect();
-					setText("IOIO connected!");
+					setText(R.string.ioio_connected);
 					DigitalOutput led = ioio_.openDigitalOutput(0, true);
 					while (true) {
 						led.write(!button_.isChecked());
@@ -132,13 +132,13 @@ public class MainActivity extends Activity {
 
 		/**
 		 * Set the text line on top of the screen. 
-		 * @param str The message to present.
+		 * @param id The string ID of the message to present.
 		 */
-		private void setText(final String str) {
+		private void setText(final int id) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					title_.setText(str);
+					title_.setText(getString(id));
 				}
 			});
 		}
