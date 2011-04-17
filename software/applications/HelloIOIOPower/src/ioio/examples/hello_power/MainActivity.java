@@ -1,6 +1,5 @@
 package ioio.examples.hello_power;
 
-import ioio.examples.hello_power.R;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
@@ -11,12 +10,30 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+/**
+ * This is the main activity of the HelloIOIOPower example application.
+ * 
+ * It displays a toggle button on the screen, which enables control of the
+ * on-board LED, as well as a text message that shows whether the IOIO is
+ * connected.
+ * 
+ * Compared to the HelloIOIO example, this example does not use the
+ * AbstractIOIOActivity utility class, thus has finer control of thread creation
+ * and IOIO-connection process. For a simpler use cases, see the HelloIOIO
+ * example.
+ */
 public class MainActivity extends Activity {
+	/** The text displayed at the top of the page. */
 	private TextView title_;
+	/** The toggle button used to control the LED. */
 	private ToggleButton button_;
+	/** The thread that interacts with the IOIO. */
 	private IOIOThread ioio_thread_;
 
-	/** Called when the activity is first created. */
+	/**
+	 * Called when the activity is first created. Here we normally initialize
+	 * our GUI.
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,6 +42,22 @@ public class MainActivity extends Activity {
 		button_ = (ToggleButton) findViewById(R.id.button);
 	}
 
+	/**
+	 * Called when the application is resumed (also when first started). Here is
+	 * where we'll create our IOIO thread.
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		ioio_thread_ = new IOIOThread();
+		ioio_thread_.start();
+	}
+
+	/**
+	 * Called when the application is paused. We want to disconnect with the
+	 * IOIO at this point, as the user is no longer interacting with our
+	 * application.
+	 */
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -35,18 +68,21 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		ioio_thread_ = new IOIOThread();
-		ioio_thread_.start();
-	}
-
-
+	/**
+	 * This is the thread that does the IOIO interaction.
+	 * 
+	 * It first creates a IOIO instance and wait for a connection to be
+	 * established. Then it starts doing the main work of opening the LED pin
+	 * and constantly updating it to match the toggle button's state.
+	 * 
+	 * Whenever a connection drops, it tries to reconnect, unless this is a
+	 * result of abort().
+	 */
 	class IOIOThread extends Thread {
 		private IOIO ioio_;
-		private boolean abort_ = false; 
+		private boolean abort_ = false;
 
+		/** Thread body. */
 		@Override
 		public void run() {
 			super.run();
@@ -80,6 +116,13 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		/**
+		 * Abort the connection.
+		 * 
+		 * This is a little tricky synchronization-wise: we need to be handle
+		 * the case of abortion happening before the IOIO instance is created or
+		 * during its creation.
+		 */
 		synchronized public void abort() {
 			abort_ = true;
 			if (ioio_ != null) {
@@ -87,6 +130,10 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		/**
+		 * Set the text line on top of the screen. 
+		 * @param str The message to present.
+		 */
 		private void setText(final String str) {
 			runOnUiThread(new Runnable() {
 				@Override
