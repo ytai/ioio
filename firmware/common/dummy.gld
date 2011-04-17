@@ -1,0 +1,6 @@
+/*
+ * This is a linker script that does nothing, intended to prevent MPLAB X from
+ * using the default linker script for the platform.
+ * The real linker script is passed as an extra argument to the linker, based on
+ * configuration.
+ */
