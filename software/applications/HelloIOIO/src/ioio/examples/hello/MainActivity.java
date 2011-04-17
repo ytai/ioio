@@ -49,8 +49,13 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 			super.run();
-			while (!abort_) {
-				ioio_ = IOIOFactory.create();
+			while (true) {
+				synchronized (this) {
+					if (abort_) {
+						break;
+					}
+					ioio_ = IOIOFactory.create();
+				}
 				try {
 					setText("Waiting for IOIO...");
 					ioio_.waitForConnect();
@@ -62,8 +67,9 @@ public class MainActivity extends Activity {
 					}
 				} catch (ConnectionLostException e) {
 				} catch (Exception e) {
-					Log.e("IOIOTester", "Exception caught", e);
+					Log.e("HelloIOIO", "Unexpected exception caught", e);
 					ioio_.disconnect();
+					break;
 				} finally {
 					try {
 						ioio_.waitForDisconnect();
@@ -73,12 +79,10 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		public void abort() {
+		synchronized public void abort() {
 			abort_ = true;
-			ioio_.disconnect();
-			try {
-				ioio_.waitForDisconnect();
-			} catch (InterruptedException e) {
+			if (ioio_ != null) {
+				ioio_.disconnect();
 			}
 		}
 		

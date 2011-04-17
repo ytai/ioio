@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import android.util.Log;
 
@@ -88,7 +89,10 @@ public class SocketIOIOConnection implements IOIOConnection {
 						Log.e("SocketIOIOConnection", "Unexpected exception", e1);
 					}
 				}
-				throw new ConnectionLostException();
+				if (e instanceof SocketException && e.getMessage().equals("Permission denied")) {
+					Log.e("SocketIOIOConnection", "Did you forget to declare uses-permission of android.permission.INTERNET?");
+				}
+				throw new ConnectionLostException(e);
 			}
 		}
 	}
