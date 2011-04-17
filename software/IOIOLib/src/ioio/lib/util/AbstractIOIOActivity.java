@@ -71,9 +71,9 @@ public abstract class AbstractIOIOActivity extends Activity {
 			}
 		}
 
-		protected abstract void setup() throws ConnectionLostException;
+		protected void setup() throws ConnectionLostException {}
 
-		protected abstract void loop() throws ConnectionLostException;
+		protected void loop() throws ConnectionLostException {}
 
 		public synchronized final void abort() {
 			abort_ = true;
