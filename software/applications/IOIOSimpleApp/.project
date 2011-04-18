@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>IOIO Simple app</name>
+	<name>IOIOSimpleApp</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -30,4 +30,11 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>IOIOLib_src</name>
+			<type>2</type>
+			<locationURI>_android_IOIOLib_a09f8619/src</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
