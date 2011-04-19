@@ -30,8 +30,6 @@ package ioio.lib.api;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
-import java.io.Closeable;
-
 /**
  * An interface for controlling a TWI module, in TWI bus-master mode, enabling
  * communication with multiple TWI-enabled slave modules.

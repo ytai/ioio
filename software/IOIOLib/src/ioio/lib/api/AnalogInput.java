@@ -29,8 +29,6 @@
 
 package ioio.lib.api;
 
-import java.io.Closeable;
-
 import ioio.lib.api.exception.ConnectionLostException;
 
 /**

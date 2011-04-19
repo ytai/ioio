@@ -30,8 +30,6 @@ package ioio.lib.api;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
-import java.io.Closeable;
-
 /**
  * A pin used for digital output.
  * <p>
