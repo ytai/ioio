@@ -308,8 +308,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
-		return openUart(rx == INVALID_PIN_NUMBER ? null
-				: new DigitalInput.Spec(rx), tx == INVALID_PIN_NUMBER ? null
+		return openUart(rx == INVALID_PIN ? null
+				: new DigitalInput.Spec(rx), tx == INVALID_PIN ? null
 				: new DigitalOutput.Spec(tx), baud, parity, stopbits);
 	}
 
@@ -325,8 +325,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			PinFunctionMap.checkSupportsPeripheralOutput(tx.pin);
 			checkPinFree(tx.pin);
 		}
-		int rxPin = rx != null ? rx.pin : INVALID_PIN_NUMBER;
-		int txPin = tx != null ? tx.pin : INVALID_PIN_NUMBER;
+		int rxPin = rx != null ? rx.pin : INVALID_PIN;
+		int txPin = tx != null ? tx.pin : INVALID_PIN;
 		int uartNum = uartAllocator_.allocateModule();
 		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
 		incomingState_.addUartListener(uartNum, uart);

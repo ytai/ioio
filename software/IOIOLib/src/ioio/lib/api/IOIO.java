@@ -34,237 +34,476 @@ import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.OutOfResourceException;
 
+import java.io.Closeable;
+
 /**
- * An interface for interacting with the IOIO board.
- * 
- * Initially all pins should be tri-stated (floating). Whenever a connection is
- * lost or dropped, the board should immediately return to the initial state.
- * 
- * TODO(ytai): fix example Typical Usage:
+ * This interface provides control over all the IOIO board functions.
+ * <p>
+ * An instance of this interface is typically obtained by using the
+ * {@link IOIOFactory} class. Initially, a connection should be established, by
+ * calling {@link #waitForConnect()}. This method will block until the board is
+ * connected an a connection has been established.
+ * <p>
+ * As soon as a connection is established, the IOIO can be used, typically, by
+ * calling the openXXX() functions to obtain additional interfaces for
+ * controlling specific function of the board.
+ * <p>
+ * Whenever a connection is lost as a result of physically disconnecting the
+ * board or as a result of calling {@link #disconnect()}, this instance and all
+ * the interfaces obtained from it become invalid, and will throw a
+ * {@link ConnectionLostException} on every operation. Once the connection is
+ * lost, those instances cannot be recycled, but rather it is required to create
+ * new ones and wait for a connection again.
+ * <p>
+ * Initially all pins are tri-stated (floating), and all functions are disabled.
+ * Whenever a connection is lost or dropped, the board will immediately return
+ * to the this initial state.
+ * <p>
+ * Typical usage:
  * 
  * <pre>
- * PeripheralController controller = PeripheralController.waitForController();
- * DigitalOutput out = controller.openDigitalOutput(10, false);
- * out.write(true);
+ * IOIO ioio = IOIOFactory.create();
+ * try {
+ *   ioio.waitForConnect();
+ *   DigitalOutput out = ioio.openDigitalOutput(10);
+ *   out.write(true);
+ *   ...
+ * } catch (ConnectionLostException e) {
+ * } catch (Exception e) {
+ *   ioio.disconnect();
+ * } finally {
+ *   ioio.waitForDisconnect();
+ * }
  * </pre>
  * 
- * @author arshan
- * @author birmiwal
+ * TODO(ytai): check what happens if using IOIO before waitForConnect().
  */
 public interface IOIO {
-	public static final int INVALID_PIN_NUMBER = -1;
+	/** An invalid pin number. */
+	public static final int INVALID_PIN = -1;
+	/** The pin number used to designate the on-board 'stat' LED. */
+	public static final int LED_PIN = 0;
 
 	/**
 	 * Establishes connection with the IOIO board.
-	 * 
+	 * <p>
 	 * This method is blocking until connection is established. This method can
-	 * be aborted by calling disconnect();
+	 * be aborted by calling {@link #disconnect()}. In this case, it will throw
+	 * a {@link ConnectionLostException}.
 	 * 
 	 * @throws ConnectionLostException
-	 *             if disconnect() got called or if an error occurred during
-	 *             connection.
+	 *             An error occurred during connection or disconnect() has been
+	 *             called during connection.
+	 * @see #disconnect()
+	 * @see #waitForDisconnect()
 	 */
 	public void waitForConnect() throws ConnectionLostException;
 
 	/**
-	 * Closes a connection to the board, or aborts and connection process
-	 * started with waitForConnect(). Once this method is called, this IOIO
-	 * object and all the objects obtain from it become invalid and will throw
-	 * an exception on every operation. When this method returns normally, it
-	 * means that all resources have been released, and a new instance can be
-	 * created and connected.
-	 * 
-	 * @throws InterruptedException
-	 *             if interrupt() has been called on the thread doing the
-	 *             disconnect. This might mean that an immediate attempt to
-	 *             create and connect a new IOIO object might fail for resource
-	 *             contention.
+	 * Closes the connection to the board, or aborts a connection process
+	 * started with waitForConnect().
+	 * <p>
+	 * Once this method is called, this IOIO instance and all the instances
+	 * obtain from it become invalid and will throw an exception on every
+	 * operation.
+	 * <p>
+	 * This method is asynchronous, i.e. it returns immediately, but it is not
+	 * guaranteed that all connection-related resources has already been freed
+	 * and can be reused upon return. In cases when this is important, client
+	 * can call {@link #waitForDisconnect()}, which will block until all
+	 * resources have been freed.
 	 */
 	public void disconnect();
 
+	/**
+	 * Blocks until IOIO has been disconnected and all connection-related
+	 * resources have been freed, so that a new connection can be attempted.
+	 * 
+	 * @throws InterruptedException
+	 *             When interrupt() has been called on this thread. This might
+	 *             mean that an immediate attempt to create and connect a new
+	 *             IOIO object might fail for resource contention.
+	 * @see #disconnect()
+	 * @see #waitForConnect()
+	 */
 	public void waitForDisconnect() throws InterruptedException;
 
 	/**
 	 * Resets the entire state (returning to initial state), without dropping
 	 * the connection.
-	 * 
-	 * All objects obtained from this instance until now get invalidated, and
-	 * will throw an exception on every operation.
+	 * <p>
+	 * It is equivalent to calling {@link Closeable#close()} on every interface
+	 * obtained from this instance.
 	 * 
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see #hardReset()
 	 */
 	public void softReset() throws ConnectionLostException;
 
 	/**
-	 * Equivalent to disconnecting and reconnecting board power.
-	 * 
-	 * The connection will be dropped and not reestablished. Boot sequence will
-	 * take place.
+	 * Equivalent to disconnecting and reconnecting the board power supply.
+	 * <p>
+	 * The connection will be dropped and not reestablished. Full boot sequence
+	 * will take place, so firmware upgrades can be performed.
 	 * 
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see #softReset()
 	 */
 	public void hardReset() throws ConnectionLostException;
 
 	/**
-	 * Assign a pin for digital input.
+	 * Open a pin for digital input.
+	 * <p>
+	 * A digital input pin can be used to read logic-level signals. The pin will
+	 * operate in this mode until close() is invoked on the returned interface.
+	 * It is illegal to open a pin that has already been opened and has not been
+	 * closed. A connection must have been established prior to calling this
+	 * method, by invoking {@link #waitForConnect()}.
 	 * 
-	 * See board documentation for a complete list of functions supported by
-	 * each physical pin.
-	 * 
-	 * @param pin
-	 *            The number of pin to assign as appears on the board.
-	 * @return Object of the assigned pin.
+	 * @param spec
+	 *            Pin specification, consisting of the pin number, as labeled on
+	 *            the board, and the mode, which determines whether the pin will
+	 *            be floating, pull-up or pull-down. See
+	 *            {@link DigitalInput.Spec.Mode} for more information.
+	 * @return Interface of the assigned pin.
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see DigitalInput
 	 */
-	public DigitalInput openDigitalInput(int pin)
-			throws ConnectionLostException;
-
-	public DigitalInput openDigitalInput(int pin, DigitalInput.Spec.Mode mode)
-			throws ConnectionLostException;
-
 	public DigitalInput openDigitalInput(DigitalInput.Spec spec)
 			throws ConnectionLostException;
 
 	/**
-	 * Assign a pin for digital output.
+	 * Shorthand for openDigitalInput(new DigitalInput.Spec(pin)).
 	 * 
-	 * See board documentation for a complete list of functions supported by
-	 * each physical pin.
+	 * @see #openDigitalInput(ioio.lib.api.DigitalInput.Spec)
+	 */
+	public DigitalInput openDigitalInput(int pin)
+			throws ConnectionLostException;
+
+	/**
+	 * Shorthand for openDigitalInput(new DigitalInput.Spec(pin, mode)).
 	 * 
-	 * @param pin
-	 *            The number of pin to assign as appears on the board.
+	 * @see #openDigitalInput(ioio.lib.api.DigitalInput.Spec)
+	 */
+	public DigitalInput openDigitalInput(int pin, DigitalInput.Spec.Mode mode)
+			throws ConnectionLostException;
+
+	/**
+	 * Open a pin for digital output.
+	 * <p>
+	 * A digital output pin can be used to generate logic-level signals. The pin
+	 * will operate in this mode until close() is invoked on the returned
+	 * interface. It is illegal to open a pin that has already been opened and
+	 * has not been closed. A connection must have been established prior to
+	 * calling this method, by invoking {@link #waitForConnect()}.
+	 * 
+	 * @param spec
+	 *            Pin specification, consisting of the pin number, as labeled on
+	 *            the board, and the mode, which determines whether the pin will
+	 *            be normal or open-drain. See {@link DigitalOutput.Spec.Mode}
+	 *            for more information.
 	 * @param startValue
-	 *            the initial value of that pin.
-	 * @param mode
-	 *            mode for opening the output; can be used for setting in
-	 *            open-drain mode where an external pullup is required.
-	 * @return Object of the assigned pin.
+	 *            The initial logic level this pin will generate as soon at it
+	 *            is open.
+	 * @return Interface of the assigned pin.
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see DigitalOutput
+	 */
+	public DigitalOutput openDigitalOutput(DigitalOutput.Spec spec,
+			boolean startValue) throws ConnectionLostException;
+
+	/**
+	 * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin, mode),
+	 * startValue).
+	 * 
+	 * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
 	 */
 	public DigitalOutput openDigitalOutput(int pin,
 			DigitalOutput.Spec.Mode mode, boolean startValue)
 			throws ConnectionLostException;
 
-	public DigitalOutput openDigitalOutput(DigitalOutput.Spec spec,
-			boolean startValue) throws ConnectionLostException;
-
+	/**
+	 * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin), startValue).
+	 * Pin mode will be "normal" (as opposed to "open-drain".
+	 * 
+	 * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
+	 */
 	public DigitalOutput openDigitalOutput(int pin, boolean startValue)
 			throws ConnectionLostException;
 
+	/**
+	 * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin), false). Pin
+	 * mode will be "normal" (as opposed to "open-drain".
+	 * 
+	 * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
+	 */
 	public DigitalOutput openDigitalOutput(int pin)
 			throws ConnectionLostException;
 
 	/**
-	 * Assign a pin for analog input.
-	 * 
-	 * See board documentation for a complete list of functions supported by
-	 * each physical pin.
+	 * Open a pin for analog input.
+	 * <p>
+	 * An analog input pin can be used to measure voltage. Note that not every
+	 * pin can be used as an analog input. See board documentation for the legal
+	 * pins and permitted voltage range.
+	 * <p>
+	 * The pin will operate in this mode until close() is invoked on the
+	 * returned interface. It is illegal to open a pin that has already been
+	 * opened and has not been closed. A connection must have been established
+	 * prior to calling this method, by invoking {@link #waitForConnect()}.
 	 * 
 	 * @param pin
-	 *            The number of pin to assign as appears on the board.
-	 * @return Object of the assigned pin.
+	 *            Pin number, as labeled on the board.
+	 * @return Interface of the assigned pin.
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see AnalogInput
 	 */
 	public AnalogInput openAnalogInput(int pin) throws ConnectionLostException;
 
 	/**
-	 * Assign a pin for PWM output.
+	 * Open a pin for PWM (Pulse-Width Modulation) output.
+	 * <p>
+	 * A PWM pin produces a logic-level PWM signal. These signals are typically
+	 * used for simulating analog outputs for controlling the intensity of LEDs,
+	 * the rotation speed of motors, etc. They are also frequently used for
+	 * controlling hobby servo motors.
+	 * <p>
+	 * Note that not every pin can be used as PWM output. In addition, the total
+	 * number of concurrent PWM modules in use is limited. See board
+	 * documentation for the legal pins and limit on concurrent usage.
+	 * <p>
+	 * The pin will operate in this mode until close() is invoked on the
+	 * returned interface. It is illegal to open a pin that has already been
+	 * opened and has not been closed. A connection must have been established
+	 * prior to calling this method, by invoking {@link #waitForConnect()}.
 	 * 
-	 * See board documentation for a complete list of functions supported by
-	 * each physical pin. Note: Number of concurrent PWM outputs is limited, see
-	 * board documentation for details.
-	 * 
-	 * @param pin
-	 *            The number of pin to assign as appears on the board.
-	 * @param enableOpenDrain
-	 *            true for opening pin in open drain mode (digital HIGH will put
-	 *            pin in tri-state).
+	 * @param spec
+	 *            Pin specification, consisting of the pin number, as labeled on
+	 *            the board, and the mode, which determines whether the pin will
+	 *            be normal or open-drain. See {@link DigitalOutput.Spec.Mode}
+	 *            for more information.
 	 * @param freqHz
-	 *            The PWM frequency in Hz.
-	 * @return Object of the assigned pin.
-	 * @throws OutOfResourceException
-	 *             in case maximum concurrent PWM outputs are already in use.
+	 *            PWM frequency, in Hertz.
+	 * @return Interface of the assigned pin.
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @throws OutOfResourceException
+	 *             This is a runtime exception, so it is not necessary to catch
+	 *             it if the client guarantees that the total number of
+	 *             concurrent PWM resources is not exceeded.
+	 * @see PwmOutput
 	 */
-	public PwmOutput openPwmOutput(int pin, int freqHz)
-			throws ConnectionLostException;
-
 	public PwmOutput openPwmOutput(DigitalOutput.Spec spec, int freqHz)
 			throws ConnectionLostException;
 
 	/**
-	 * Open a UART module, enabling a bulk transfer of byte buffers.
+	 * Shorthand for openPwmOutput(new DigitalOutput.Spec(pin), freqHz).
 	 * 
-	 * See board documentation for a complete list of functions supported by
-	 * each physical pin. Note: Number of concurrent UART modules is limited,
-	 * see board documentation for details.
+	 * @see #openPwmOutput(ioio.lib.api.DigitalOutput.Spec, int)
+	 */
+	public PwmOutput openPwmOutput(int pin, int freqHz)
+			throws ConnectionLostException;
+
+	/**
+	 * Open a UART module, enabling a bulk transfer of byte buffers.
+	 * <p>
+	 * UART is a very common hardware communication protocol, enabling full-
+	 * duplex, asynchronous point-to-point data transfer. It typically serves
+	 * for opening consoles or as a basis for higher-level protocols, such as
+	 * MIDI.
+	 * <p>
+	 * Note that not every pin can be used for UART RX or TX. In addition, the
+	 * total number of concurrent UART modules in use is limited. See board
+	 * documentation for the legal pins and limit on concurrent usage.
+	 * <p>
+	 * The UART module will operate, and the pins will work in their respective
+	 * modes until close() is invoked on the returned interface. It is illegal
+	 * to use pins that have already been opened and has not been closed. A
+	 * connection must have been established prior to calling this method, by
+	 * invoking {@link #waitForConnect()}.
 	 * 
 	 * @param rx
-	 *            The number of pin to assign for receiving as appears on the
-	 *            board.
+	 *            Pin specification for the RX pin, consisting of the pin
+	 *            number, as labeled on the board, and the mode, which
+	 *            determines whether the pin will be floating, pull-up or
+	 *            pull-down. See {@link DigitalInput.Spec.Mode} for more
+	 *            information. null can be passed to designate that we do not
+	 *            want RX input to this module.
 	 * @param tx
-	 *            The number of pin to assign for sending as appears on the
-	 *            board.
+	 *            Pin specification for the TX pin, consisting of the pin
+	 *            number, as labeled on the board, and the mode, which
+	 *            determines whether the pin will be normal or open-drain. See
+	 *            {@link DigitalOutput.Spec.Mode} for more information. null can
+	 *            be passed to designate that we do not want TX output to this
+	 *            module.
 	 * @param baud
 	 *            The clock frequency of the UART module in Hz.
 	 * @param parity
-	 *            The parity mode.
+	 *            The parity mode, as in {@link Parity}.
 	 * @param stopbits
-	 *            Number of stop bits.
-	 * @return Object of the assigned UART module.
+	 *            Number of stop bits, as in {@link StopBits}.
+	 * @return Interface of the assigned module.
 	 * @throws ConnectionLostException
-	 *             in case connection was lost before running this method.
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
 	 * @throws OutOfResourceException
+	 *             This is a runtime exception, so it is not necessary to catch
+	 *             it if the client guarantees that the total number of
+	 *             concurrent UART resources is not exceeded.
+	 * @see Uart
 	 */
-	public Uart openUart(int rx, int tx, int baud, Parity parity,
-			StopBits stopbits) throws ConnectionLostException;
-
 	public Uart openUart(DigitalInput.Spec rx, DigitalOutput.Spec tx, int baud,
 			Parity parity, StopBits stopbits) throws ConnectionLostException;
 
 	/**
-	 * Opens an spi channel using the indicated slave pin.
+	 * Shorthand for
+	 * {@link #openUart(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, int, Parity, StopBits)}
+	 * , where the input pins use their default specs. {@link #INVALID_PIN} can
+	 * be used on either pin if a TX- or RX-only UART is needed.
 	 * 
-	 * TODO(arshan): option to pass in an SpiMaster as well, so that one master
-	 * can drive multiple devices
-	 * 
-	 * @param miso
-	 * @param mosi
-	 * @param clk
-	 * @param select
-	 * @param speed
-	 * @return
+	 * @see #openUart(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.DigitalOutput.Spec, int, Parity, StopBits)
 	 */
-	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int[] slaveSelect,
-			SpiMaster.Rate rate) throws ConnectionLostException;
-
-	public SpiMaster openSpiMaster(int miso, int mosi, int clk, int slaveSelect,
-			SpiMaster.Rate rate) throws ConnectionLostException;
-
-	public SpiMaster openSpiMaster(DigitalInput.Spec miso, DigitalOutput.Spec mosi,
-			DigitalOutput.Spec clk, DigitalOutput.Spec[] slaveSelect,
-			SpiMaster.Config config) throws ConnectionLostException;
+	public Uart openUart(int rx, int tx, int baud, Parity parity,
+			StopBits stopbits) throws ConnectionLostException;
 
 	/**
-	 * The pins for Twi are static.
+	 * Open a SPI master module, enabling communication with multiple
+	 * SPI-enabled slave modules.
+	 * <p>
+	 * SPI is a common hardware communication protocol, enabling full-duplex,
+	 * synchronous point-to-multi-point data transfer. It requires MOSI, MISO
+	 * and CLK lines shared by all nodes, as well as a SS line per slave,
+	 * connected between this slave and a respective pin on the master. The MISO
+	 * line should operate in pull-up mode, using either the internal pull-up or
+	 * an external resistor.
+	 * <p>
+	 * Note that not every pin can be used for SPI MISO, MOSI or CLK. In
+	 * addition, the total number of concurrent SPI modules in use is limited.
+	 * See board documentation for the legal pins and limit on concurrent usage.
+	 * <p>
+	 * The SPI module will operate, and the pins will work in their respective
+	 * modes until close() is invoked on the returned interface. It is illegal
+	 * to use pins that have already been opened and has not been closed. A
+	 * connection must have been established prior to calling this method, by
+	 * invoking {@link #waitForConnect()}.
 	 * 
-	 * @param speed
-	 * @return
+	 * @param miso
+	 *            Pin specification for the MISO (Master In Slave Out) pin,
+	 *            consisting of the pin number, as labeled on the board, and the
+	 *            mode, which determines whether the pin will be floating,
+	 *            pull-up or pull-down. See {@link DigitalInput.Spec.Mode} for
+	 *            more information. null can be passed to designate that we do
+	 *            not want RX input to this module.
+	 * @param mosi
+	 *            Pin specification for the MOSI (Master Out Slave In) pin,
+	 *            consisting of the pin number, as labeled on the board, and the
+	 *            mode, which determines whether the pin will be normal or
+	 *            open-drain. See {@link DigitalOutput.Spec.Mode} for more
+	 *            information. null can be passed to designate that we do not
+	 *            want TX output to this module.
+	 * @param clk
+	 *            Pin specification for the CLK pin, consisting of the pin
+	 *            number, as labeled on the board, and the mode, which
+	 *            determines whether the pin will be normal or open-drain. See
+	 *            {@link DigitalOutput.Spec.Mode} for more information. null can
+	 *            be passed to designate that we do not want TX output to this
+	 *            module.
+	 * @param slaveSelect
+	 *            An array of pin specifications for each of the slaves' SS
+	 *            (Slave Select) pin. The index of this array designates the
+	 *            slave index, used later to refer to this slave. The spec is
+	 *            consisting of the pin number, as labeled on the board, and the
+	 *            mode, which determines whether the pin will be normal or
+	 *            open-drain. See {@link DigitalOutput.Spec.Mode} for more
+	 *            information. null can be passed to designate that we do not
+	 *            want TX output to this module.
+	 * @param config
+	 *            The configuration of the SPI module. See
+	 *            {@link SpiMaster.Config} for details.
+	 * @return Interface of the assigned module.
 	 * @throws ConnectionLostException
-	 * @throws InvalidOperationException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @throws OutOfResourceException
+	 *             This is a runtime exception, so it is not necessary to catch
+	 *             it if the client guarantees that the total number of
+	 *             concurrent SPI resources is not exceeded.
+	 * @see SpiMaster
+	 */
+	public SpiMaster openSpiMaster(DigitalInput.Spec miso,
+			DigitalOutput.Spec mosi, DigitalOutput.Spec clk,
+			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
+			throws ConnectionLostException;
+
+/**
+	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
+	 * where the pins are all open with the default modes and default configuration values are used.
+	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
+	 *      ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)
+	 */
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
+			int[] slaveSelect, SpiMaster.Rate rate)
+			throws ConnectionLostException;
+
+/**
+	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
+	 * where the pins are all open with the default modes and default configuration values are used.
+	 * In this version, a single slave is used.
+	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
+	 *      ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)
+	 */
+	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
+			int slaveSelect, SpiMaster.Rate rate)
+			throws ConnectionLostException;
+
+	/**
+	 * Open a TWI (Two-Wire Interface, such as I2C/SMBus) master module,
+	 * enabling communication with multiple TWI-enabled slave modules.
+	 * <p>
+	 * TWI is a common hardware communication protocol, enabling half-duplex,
+	 * synchronous point-to-multi-point data transfer. It requires a physical
+	 * connection of two lines (SDA, SCL) shared by all the bus nodes, where the
+	 * SDA is open-drain and externally pulled-up.
+	 * <p>
+	 * Note that there is a fixed number of TWI modules, and the pins they use
+	 * are static. Client has to make sure these pins are not already opened
+	 * before calling this method. See board documentation for the number of
+	 * modules and the respective pins they use.
+	 * <p>
+	 * The TWI module will operate, and the pins will work in their respective
+	 * modes until close() is invoked on the returned interface. It is illegal
+	 * to use pins that have already been opened and has not been closed. A
+	 * connection must have been established prior to calling this method, by
+	 * invoking {@link #waitForConnect()}.
+	 * 
+	 * @param twiNum
+	 *            The TWI module index to use. Will also determine the pins
+	 *            used.
+	 * @param rate
+	 *            The clock rate. Can be 100KHz / 400KHz / 1MHz.
+	 * @param smbus
+	 *            When true, will use SMBus voltage levels. When false, I2C
+	 *            voltage levels.
+	 * @return Interface of the assigned module.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see TwiMaster
 	 */
 	public TwiMaster openTwiMaster(int twiNum, Rate rate, boolean smbus)
 			throws ConnectionLostException;
-
 }

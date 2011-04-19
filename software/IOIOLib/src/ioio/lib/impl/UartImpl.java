@@ -76,10 +76,10 @@ public class UartImpl extends AbstractResource implements DataModuleListener, Se
 		incoming_.close();
 		outgoing_.close();
 		ioio_.closeUart(uartNum_);
-		if (rxPinNum_ != IOIO.INVALID_PIN_NUMBER) {
+		if (rxPinNum_ != IOIO.INVALID_PIN) {
 			ioio_.closePin(rxPinNum_);
 		}
-		if (txPinNum_ != IOIO.INVALID_PIN_NUMBER) {
+		if (txPinNum_ != IOIO.INVALID_PIN) {
 			ioio_.closePin(txPinNum_);
 		}
 	}
