@@ -103,7 +103,6 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	public void disconnect() {
 		connection_.disconnect();
 	}
-	
 
 	@Override
 	public void disconnected() {
@@ -174,6 +173,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	synchronized public void softReset() throws ConnectionLostException {
+		checkState();
 		try {
 			protocol_.softReset();
 		} catch (IOException e) {
@@ -183,6 +183,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	synchronized public void hardReset() throws ConnectionLostException {
+		checkState();
 		try {
 			protocol_.hardReset();
 		} catch (IOException e) {
@@ -205,6 +206,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	synchronized public DigitalInput openDigitalInput(DigitalInput.Spec spec)
 			throws ConnectionLostException {
+		checkState();
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
@@ -230,6 +232,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public DigitalOutput openDigitalOutput(
 			DigitalOutput.Spec spec, boolean startValue)
 			throws ConnectionLostException {
+		checkState();
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
@@ -257,6 +260,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	synchronized public AnalogInput openAnalogInput(int pin)
 			throws ConnectionLostException {
+		checkState();
 		PinFunctionMap.checkSupportsAnalogInput(pin);
 		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
@@ -279,6 +283,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	synchronized public PwmOutput openPwmOutput(DigitalOutput.Spec spec,
 			int freqHz) throws ConnectionLostException {
+		checkState();
 		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
 		int pwmNum = pwmAllocator_.allocateModule();
@@ -308,15 +313,16 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
-		return openUart(rx == INVALID_PIN ? null
-				: new DigitalInput.Spec(rx), tx == INVALID_PIN ? null
-				: new DigitalOutput.Spec(tx), baud, parity, stopbits);
+		return openUart(rx == INVALID_PIN ? null : new DigitalInput.Spec(rx),
+				tx == INVALID_PIN ? null : new DigitalOutput.Spec(tx), baud,
+				parity, stopbits);
 	}
 
 	@Override
 	synchronized public Uart openUart(DigitalInput.Spec rx,
 			DigitalOutput.Spec tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
+		checkState();
 		if (rx != null) {
 			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
 			checkPinFree(rx.pin);
@@ -357,6 +363,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	synchronized public TwiMaster openTwiMaster(int twiNum, Rate rate,
 			boolean smbus) throws ConnectionLostException {
+		checkState();
 		checkTwiFree(twiNum);
 		checkPinFree(Constants.TWI_PINS[twiNum][0]);
 		checkPinFree(Constants.TWI_PINS[twiNum][1]);
@@ -398,6 +405,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			DigitalOutput.Spec mosi, DigitalOutput.Spec clk,
 			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
 			throws ConnectionLostException {
+		checkState();
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
 		checkPinFree(mosi.pin);
@@ -436,6 +444,16 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private void checkTwiFree(int twi) {
 		if (openTwi_[twi]) {
 			throw new IllegalArgumentException("TWI already open: " + twi);
+		}
+	}
+
+	private void checkState() throws ConnectionLostException {
+		if (state_ == State.INIT) {
+			throw new IllegalStateException(
+					"Connection has not yet been established");
+		}
+		if (state_ == State.DEAD) {
+			throw new ConnectionLostException();
 		}
 	}
 }

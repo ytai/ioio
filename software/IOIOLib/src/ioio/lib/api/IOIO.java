@@ -133,7 +133,8 @@ public interface IOIO {
 	 * the connection.
 	 * <p>
 	 * It is equivalent to calling {@link Closeable#close()} on every interface
-	 * obtained from this instance.
+	 * obtained from this instance. A connection must have been established
+	 * prior to calling this method, by invoking {@link #waitForConnect()}.
 	 * 
 	 * @throws ConnectionLostException
 	 *             Connection was lost before or during the execution of this
@@ -146,7 +147,9 @@ public interface IOIO {
 	 * Equivalent to disconnecting and reconnecting the board power supply.
 	 * <p>
 	 * The connection will be dropped and not reestablished. Full boot sequence
-	 * will take place, so firmware upgrades can be performed.
+	 * will take place, so firmware upgrades can be performed. A connection must
+	 * have been established prior to calling this method, by invoking
+	 * {@link #waitForConnect()}.
 	 * 
 	 * @throws ConnectionLostException
 	 *             Connection was lost before or during the execution of this
