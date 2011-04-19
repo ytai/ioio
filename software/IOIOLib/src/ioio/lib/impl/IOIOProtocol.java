@@ -105,7 +105,7 @@ public class IOIOProtocol {
 	
 	private void writeByte(int b) throws IOException {
 		assert(b >= 0 && b < 256);
-		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
+//		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
 		out_.write(b);
 	}
 	
@@ -345,7 +345,7 @@ public class IOIOProtocol {
 			try {
 				int b = in_.read();
 				if (b == -1) throw new IOException("Unexpected stream closure");
-				Log.v("IOIOProtocol", "received: 0x" + Integer.toHexString(b));
+				// Log.v("IOIOProtocol", "received: 0x" + Integer.toHexString(b));
 				return b;
 			} catch (IOException e) {
 				Log.i("IOIOProtocol", "IOIO disconnected");

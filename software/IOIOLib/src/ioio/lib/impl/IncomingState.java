@@ -309,7 +309,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleReportDigitalInStatus(int pin, boolean level) {
-		logMethod("handleReportDigitalInStatus", pin, level);
+		//logMethod("handleReportDigitalInStatus", pin, level);
 		intputPinStates_[pin].setValue(level ? 1 : 0);
 	}
 

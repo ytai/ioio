@@ -53,7 +53,7 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 
 	@Override
 	synchronized public void setValue(int value) {
-		Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
+		// Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
 		assert(value >= 0 || value < 1024);
 		value_ = value; 
 		if (!valid_) {
