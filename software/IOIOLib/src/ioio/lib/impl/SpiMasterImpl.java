@@ -114,7 +114,11 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 
 		synchronized (this) {
 			pendingRequests_.add(result);
-			outgoing_.write(p);
+			try {
+				outgoing_.write(p);
+			} catch (IOException e) {
+				Log.e("SpiMasterImpl", "Exception caught", e);
+			}
 		}
 
 		synchronized (result) {
@@ -123,6 +127,13 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 			}
 			checkState();
 		}
+	}
+
+	@Override
+	public void writeRead(byte[] writeData, int writeSize, int totalSize,
+			byte[] readData, int readSize) throws ConnectionLostException,
+			InterruptedException {
+		writeRead(0, writeData, writeSize, totalSize, readData, readSize);
 	}
 
 	@Override
@@ -163,4 +174,5 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 			Log.e("SpiImpl", "Caught exception", e);
 		}
 	}
+
 }

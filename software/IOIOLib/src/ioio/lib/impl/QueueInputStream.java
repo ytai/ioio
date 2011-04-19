@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import android.util.Log;
+
 public class QueueInputStream extends InputStream {
 	private final BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
@@ -46,13 +48,16 @@ public class QueueInputStream extends InputStream {
 		try {
 			return queue_.take();
 		} catch (InterruptedException e) {
-			return -1;
+			throw new IOException("Interrupted");
 		}
 	}
 	
 	public void write(byte[] data, int size) {
 		for (int i = 0; i < size; ++i) {
-			queue_.add(data[i]);
+			if (!queue_.add(data[i])) {
+				Log.e("QueueInputStream", "Buffer overflow, discarding data");
+				break;
+			}
 		}
 	}
 

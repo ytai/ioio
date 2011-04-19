@@ -60,14 +60,19 @@ public class FlowControlledPacketSender {
 				wait();
 			}
 		} catch (InterruptedException e) {
+			throw new IOException("Interrupted");
 		}
 	}
 
-	synchronized public void write(Packet packet) {
+	synchronized public void write(Packet packet) throws IOException {
 		if (closed_) {
 			throw new IllegalStateException("Stream has been closed");
 		}
-		queue_.add(packet);
+		try {
+			queue_.put(packet);
+		} catch (InterruptedException e) {
+			throw new IOException("Interrupted");
+		}
 		notifyAll();
 	}
 

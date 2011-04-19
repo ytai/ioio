@@ -76,7 +76,7 @@ import java.io.Closeable;
  * }
  * </pre>
  * 
- * TODO(ytai): check what happens if using IOIO before waitForConnect().
+ * @see IOIOFactory#create()
  */
 public interface IOIO {
 	/** An invalid pin number. */
@@ -324,7 +324,7 @@ public interface IOIO {
 	 * UART is a very common hardware communication protocol, enabling full-
 	 * duplex, asynchronous point-to-point data transfer. It typically serves
 	 * for opening consoles or as a basis for higher-level protocols, such as
-	 * MIDI.
+	 * MIDI RS-232, and RS-485.
 	 * <p>
 	 * Note that not every pin can be used for UART RX or TX. In addition, the
 	 * total number of concurrent UART modules in use is limited. See board
@@ -450,7 +450,7 @@ public interface IOIO {
 			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
 			throws ConnectionLostException;
 
-/**
+    /**
 	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
 	 * where the pins are all open with the default modes and default configuration values are used.
 	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
@@ -461,7 +461,7 @@ public interface IOIO {
 			int[] slaveSelect, SpiMaster.Rate rate)
 			throws ConnectionLostException;
 
-/**
+    /**
 	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
 	 * where the pins are all open with the default modes and default configuration values are used.
 	 * In this version, a single slave is used.

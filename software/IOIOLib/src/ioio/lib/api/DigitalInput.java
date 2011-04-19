@@ -33,34 +33,110 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.io.Closeable;
 
 /**
- * Define the basic functions that must be supported by all Digital inputs.
+ * A pin used for digital input.
+ * <p>
+ * A digital input pin can be used to read logic-level signals. DigitalInput
+ * instances are obtained by calling {@link IOIO#openDigitalInput(Spec)}.
+ * <p>
+ * The value of the pin is obtained by calling {@link #read()}. It is also
+ * possible for the client to block until a certain level is sensed, by using
+ * {@link #waitForValue(boolean)}.
+ * <p>
+ * The instance is alive since its creation. The first {@link #read()} call
+ * block for a few milliseconds until the initial value is updated. If the
+ * connection with the IOIO drops at any point, the instance transitions to a
+ * disconnected state, in which every attempt to use the pin (except
+ * {@link #close()}) will throw a {@link ConnectionLostException}. Whenever
+ * {@link #close()} is invoked the instance may no longer be used. Any resources
+ * associated with it are freed and can be reused.
+ * <p>
+ * Typical usage:
  * 
- * TODO(XXX): change notification. TODO(arshan): reflect hw capabilities
- * 
- * @author arshan
- * 
+ * <pre>
+ * DigitalInput button = ioio.openDigitalInput(10);  // used an external pull-up
+ * button.waitForValue(false);  // wait for press
+ * ...
+ * button.close();  // pin 10 can now be used for something else.
+ * </pre>
  */
 public interface DigitalInput extends Closeable {
+	/**
+	 * A digital input pin specification, used when opening digital inputs.
+	 */
 	static public class Spec {
+		/** Input pin mode. */
 		public enum Mode {
-			FLOATING, PULL_UP, PULL_DOWN
+			/**
+			 * Pin is floating. When the pin is left disconnected the value
+			 * sensed is undefined. Use this mode when an external pull-up or
+			 * pull-down resistor is used or when interfacing push-pull type
+			 * logic circuits.
+			 */
+			FLOATING,
+			/**
+			 * Internal pull-up resistor is used. When the pin is left
+			 * disconnected, a logical "HIGH" (true) will be sensed. This is
+			 * useful for interfacing with open drain circuits or for
+			 * interacting with a switch connected between the pin and ground.
+			 */
+			PULL_UP,
+			/**
+			 * Internal pull-down resistor is used. When the pin is left
+			 * disconnected, a logical "LOW" (false) will be sensed. This is
+			 * useful for interacting with a switch connected between the pin
+			 * and Vdd.
+			 */
+			PULL_DOWN
 		}
 
+		/** The pin number, as labeled on the board. */
 		public int pin;
+		/** The pin mode. */
 		public Mode mode;
 
+		/**
+		 * Constructor.
+		 * 
+		 * @param pin
+		 *            Pin number, as labeled on the board.
+		 * @param mode
+		 *            Pin mode.
+		 */
 		public Spec(int pin, Mode mode) {
 			this.pin = pin;
 			this.mode = mode;
 		}
 
+		/** Shorthand for Spec(pin, Mode.FLOATING). */
 		public Spec(int pin) {
 			this(pin, Mode.FLOATING);
 		}
 	}
 
+	/**
+	 * Read the value sensed on the pin. May block for a few milliseconds if
+	 * called right after creation of the instance. If this is a problem, the
+	 * calling thread may be interrupted.
+	 * 
+	 * @return True for logical "HIGH", false for logical "LOW".
+	 * @throws InterruptedException
+	 *             The calling thread has been interrupted.
+	 * @throws ConnectionLostException
+	 *             The connection with the IOIO has been lost.
+	 */
 	public boolean read() throws InterruptedException, ConnectionLostException;
 
+	/**
+	 * Block until a desired logical level is sensed. The calling thread can be
+	 * interrupted for aborting this operation.
+	 * 
+	 * @param value
+	 *            The desired logical level. true for "HIGH", false for "LOW".
+	 * @throws InterruptedException
+	 *             The calling thread has been interrupted.
+	 * @throws ConnectionLostException
+	 *             The connection with the IOIO has been lost.
+	 */
 	public void waitForValue(boolean value) throws InterruptedException,
 			ConnectionLostException;
 }

@@ -29,7 +29,8 @@
 package ioio.lib.api.exception;
 
 /**
- * The connection between Android and the IOIO has been lost.
+ * Thrown when the connection between Android and IOIO has been lost or
+ * disconnected.
  */
 public class ConnectionLostException extends Exception {
 	private static final long serialVersionUID = 7422862446246046772L;

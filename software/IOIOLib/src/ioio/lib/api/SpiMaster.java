@@ -28,54 +28,159 @@
  */
 package ioio.lib.api;
 
+import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.exception.ConnectionLostException;
 
+/**
+ * An interface for controlling an SPI module, in SPI bus-master mode, enabling
+ * communication with multiple SPI-enabled slave modules.
+ * <p>
+ * SPI is a common hardware communication protocol, enabling full-duplex,
+ * synchronous point-to-multi-point data transfer. It requires MOSI, MISO and
+ * CLK lines shared by all nodes, as well as a SS line per slave, connected
+ * between this slave and a respective pin on the master. The MISO line should
+ * operate in pull-up mode, using either the internal pull-up or an external
+ * resistor. SpiMaster instances are obtained by calling
+ * {@link IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)}.
+ * <p>
+ * The SPI protocol is comprised of simultaneous sending and receiving of data
+ * between the bus master and a single slave. By the very nature of this
+ * protocol, the amount of bytes sent is equal to the amount of bytes received.
+ * However, by padding the sent data with garbage data, and by ignoring the
+ * leading bytes of the received data arbitrarily-sized packets can be sent and
+ * received.
+ * <p>
+ * A very common practice for SPI-based slave devices (although not always the
+ * case), is to have a fixed request and response length and a fixed lag between
+ * them, based on the request type. For example, an SPI-based sensor may define
+ * the the protocol for obtaining its measured value is by sending a 2-byte
+ * message, whereas the returned 3-byte value has its first byte overlapping the
+ * second value of the response, as illustrated below:
+ * 
+ * <pre>
+ * Master: M1   M2   GG   GG
+ * Slave:  GG   S1   S2   S3
+ * </pre>
+ * 
+ * M1, M2: the master's request<br>
+ * S1, S2, S3: the slave's response<br>
+ * GG: garbage bytes used for padding.
+ * <p>
+ * The IOIO SPI interface supports such fixed length message protocols using a
+ * single method, {@link #writeRead(int, byte[], int, int, byte[], int), which
+ * gets the request data, and the lengths of the request, the response and the
+ * lag between them.
+ * 
+ * TODO(ytai): make SPI use lag rather than length.
+ * 
+ * <p>
+ * The instance is alive since its creation. If the connection with the IOIO
+ * drops at any point, the instance transitions to a disconnected state, in 
+ * which every attempt to use it (except {@link #close()}) will throw a
+ * {@link ConnectionLostException}. Whenever {@link #close()} is invoked the
+ * instance may no longer be used. Any resources associated with it are freed
+ * and can be reused.
+ * <p>
+ * Typical usage (single slave, as per the example above):
+ * 
+ * <pre>
+ * // MISO, MOSI, CLK, SS on pins 3, 4, 5, 6, respectively.
+ * SpiMaster spi = ioio.openSpiMaster(3, 4, 5, 6, SpiMaster.Rate.RATE_125K);
+ * final byte[] request = new byte[]{ 0x23, 0x45 };
+ * final byte[] response = new byte[3];
+ * spi.writeRead(request, 2, 4, response, 3);
+ * ...
+ * spi.close();  // free SPI module and pins
+ * </pre>
+ * 
+ * @see IOIO#openSpiMaster(ioio.lib.api.DigitalInput.Spec,
+ *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
+ *      ioio.lib.api.DigitalOutput.Spec[], Config)
+ */
 public interface SpiMaster {
+	/** Possible data rates for SPI, in Hz. */
 	enum Rate {
-	    RATE_31K,
-	    RATE_35K,
-	    RATE_41K,
-	    RATE_50K,
-	    RATE_62K,
-	    RATE_83K,
-	    RATE_125K,
-	    RATE_142K,
-	    RATE_166K,
-	    RATE_200K,
-	    RATE_250K,
-	    RATE_333K,
-	    RATE_500K,
-	    RATE_571K,
-	    RATE_666K,
-	    RATE_800K,
-	    RATE_1M,
-	    RATE_1_3M,
-	    RATE_2M,
-	    RATE_2_2M,
-	    RATE_2_6M,
-	    RATE_3_2M,
-	    RATE_4M,
-	    RATE_5_3M,
-	    RATE_8M
+		RATE_31K, RATE_35K, RATE_41K, RATE_50K, RATE_62K, RATE_83K, RATE_125K, RATE_142K, RATE_166K, RATE_200K, RATE_250K, RATE_333K, RATE_500K, RATE_571K, RATE_666K, RATE_800K, RATE_1M, RATE_1_3M, RATE_2M, RATE_2_2M, RATE_2_6M, RATE_3_2M, RATE_4M, RATE_5_3M, RATE_8M
 	}
-	
+
+	/** SPI configuration structure. */
 	static class Config {
+		/** Data rate. */
 		public Rate rate;
+		/** Whether to invert clock polarity. */
 		public boolean invertClk;
+		/**
+		 * Whether to do the input and output sampling on the trailing clock
+		 * edge.
+		 */
 		public boolean sampleOnTrailing;
-		
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param rate
+		 *            Data rate.
+		 * @param invertClk
+		 *            Whether to invert clock polarity.
+		 * @param sampleOnTrailing
+		 *            Whether to do the input and output sampling on the
+		 *            trailing clock edge.
+		 */
 		public Config(Rate rate, boolean invertClk, boolean sampleOnTrailing) {
 			this.rate = rate;
 			this.invertClk = invertClk;
 			this.sampleOnTrailing = sampleOnTrailing;
 		}
 
+		/**
+		 * Constructor with common defaults. Equivalent to Config(rate, false,
+		 * false)
+		 * 
+		 * @see #Config(Rate, boolean, boolean)
+		 */
 		public Config(Rate rate) {
 			this(rate, false, false);
 		}
 	}
-	
-	
-	public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize,
-			byte[] readData, int readSize) throws ConnectionLostException, InterruptedException;
+
+	/**
+	 * Perform a single SPI transaction which includes optional transmission and
+	 * optional reception of data to a single slave. This is a blocking
+	 * operation that can take a few milliseconds to a few tens of milliseconds.
+	 * To abort this operation, client can interrupt the blocked thread.
+	 * 
+	 * @param slave
+	 *            The slave index. It is determined by the index of its
+	 *            slave-select pin, as per the array passed to
+	 *            {@link IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)}
+	 *            .
+	 * @param writeData
+	 *            A byte array of data to write.
+	 * @param writeSize
+	 *            Number of bytes to write. Valid values are 0 to totalSize.
+	 * @param totalSize
+	 *            Total transaction length, in bytes. Valid values are 1 to 64.
+	 * @param readData
+	 *            An array where the response is to be stored.
+	 * @param readSize
+	 *            The number of expected response bytes. Valid values are 0 to
+	 *            totalSize.
+	 * @throws ConnectionLostException
+	 *             Connection to the IOIO has been lost.
+	 * @throws InterruptedException
+	 *             Calling thread has been interrupted.
+	 */
+	public void writeRead(int slave, byte[] writeData, int writeSize,
+			int totalSize, byte[] readData, int readSize)
+			throws ConnectionLostException, InterruptedException;
+
+	/**
+	 * Shorthand for {@link #writeRead(int, byte[], int, int, byte[], int)} for
+	 * the single-slave case.
+	 * 
+	 * @see #writeRead(int, byte[], int, int, byte[], int)
+	 */
+	public void writeRead(byte[] writeData, int writeSize, int totalSize,
+			byte[] readData, int readSize) throws ConnectionLostException,
+			InterruptedException;
 }

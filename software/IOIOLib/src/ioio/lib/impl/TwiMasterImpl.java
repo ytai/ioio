@@ -98,7 +98,11 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 
 		synchronized (this) {
 			pendingRequests_.add(result);
-			outgoing_.write(p);
+			try {
+				outgoing_.write(p);
+			} catch (IOException e) {
+				Log.e("SpiMasterImpl", "Exception caught", e);
+			}
 		}
 
 		synchronized (result) {

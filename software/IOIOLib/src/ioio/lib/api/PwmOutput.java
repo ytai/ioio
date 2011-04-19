@@ -28,44 +28,94 @@
  */
 package ioio.lib.api;
 
-
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.Closeable;
 
 /**
- * An interface to control the PWM output on a IOIO board.
- *
- * Typical usage: (Simplified, no exception handling)
- * PwmOutput pwmOutput = ioio.openPwmOutput(...);
- * pwmOutput.setPulseWidth(15000);
- * // Use pwm for a while...
- * pwmOutput.close();  // release the resource.
- *
- * @author birmiwal
+ * A pin used for PWM (Pulse-Width Modulation) output.
+ * <p>
+ * A PWM pin produces a logic-level PWM signal. These signals are typically used
+ * for simulating analog outputs for controlling the intensity of LEDs, the
+ * rotation speed of motors, etc. They are also frequently used for controlling
+ * hobby servo motors. PwmOutput instances are obtained by calling
+ * {@link IOIO#openPwmOutput(ioio.lib.api.DigitalOutput.Spec, int)}.
+ * <p>
+ * When used for motors and LEDs, a frequency of several KHz is typically used,
+ * where there is a trade-off between switching power-loses and smoothness of
+ * operation. The pulse width is typically set by specifying the duty cycle,
+ * with the {@link #setDutyCycle(float)} method. A duty cycle of 0 is "off", a
+ * duty cycle of 1 is "on", and every intermediate value produces an
+ * intermediate intensity. Please note that any devices consuming more than 20mA
+ * of current (e.g. motors) should not by directly connected the the IOIO pins,
+ * but rather through an amplification circuit suited for the specific load.
+ * <p>
+ * When used for hobby servos, the PWM signal is rather used for encoding of the
+ * desired angle the motor should go to. By standard, a 100Hz signal is used and
+ * the pulse width is varied between 1ms and 2ms (corresponding to both extremes
+ * of the shaft angle), using {@link #setPulseWidth(int)}.
+ * <p>
+ * The instance is alive since its creation. If the connection with the IOIO
+ * drops at any point, the instance transitions to a disconnected state, in
+ * which every attempt to use the pin (except {@link #close()}) will throw a
+ * {@link ConnectionLostException}. Whenever {@link #close()} is invoked the
+ * instance may no longer be used. Any resources associated with it are freed
+ * and can be reused.
+ * <p>
+ * Typical usage (fading LED):
+ * 
+ * <pre>
+ * PwmOutput servo = ioio.openPwmOutput(12, 1000);  // LED anode on pin 12
+ * ...
+ * servo.setDutyCycle(0.0f);  // LED off
+ * ... 
+ * servo.setDutyCycle(0.5f);  // 50% intensity
+ * ... 
+ * servo.setDutyCycle(1.0f);  // 100% intensity
+ * ... 
+ * servo.close();  // pin 10 can now be used for something else.
+ * </pre>
+ * <p>
+ * Typical usage (servo):
+ * 
+ * <pre>
+ * PwmOutput servo = ioio.openPwmOutput(12, 100);
+ * ...
+ * servo.setPulseWidth(1000);  // 1000us = 1ms = one extreme
+ * ... 
+ * servo.setPulseWidth(1500);  // 1500us = 1.5ms = center
+ * ... 
+ * servo.setPulseWidth(2000);  // 2000us = 2ms = other extreme
+ * ... 
+ * servo.close();  // pin 10 can now be used for something else.
+ * </pre>
+ * 
+ * @see IOIO#openPwmOutput(ioio.lib.api.DigitalOutput.Spec, int)
  */
 public interface PwmOutput extends Closeable {
-    /**
-     * Sets the duty cycle of the output of the PWM.
-     *
-     * This is identical of calling setPulseWidth with (pulseWidthUs = 1000000*dutyCycle/freqHz)
-     *
-     * @param dutyCycle valid values from 0.0 to 1.0.
-     * @throws ConnectionLostException in case connection was lost before running this method.
-     * @throws InvalidStateException In case the pin has been closed.
-     */
-    public void setDutyCycle(float dutyCycle) throws ConnectionLostException;
+	/**
+	 * Sets the duty cycle of the PWM output. The duty cycle is defined to be
+	 * the pulse width divided by the total cycle period. For absolute control
+	 * of the pulse with, consider using {@link #setPulseWidth(int)}.
+	 * 
+	 * @param dutyCycle
+	 *            The duty cycle, as a real value from 0.0 to 1.0.
+	 * @throws ConnectionLostException
+	 *             The connection to the IOIO has been lost.
+	 * @see #setPulseWidth(int)
+	 */
+	public void setDutyCycle(float dutyCycle) throws ConnectionLostException;
 
-    /**
-     * Sets the width of the pulse (high) in micro seconds.
-     *
-     * This is identical of calling setDutyCycle with (dutyCycle = pulseWidthUs*freqHz/1000000)
-     * If the pulseWidthUs is greater than the cycle-time, then an IllegalArgumentException is thrown.
-     *
-     * @param pulseWidthUs time in micro seconds.
-     * 
-     * @throws ConnectionLostException in case connection was lost before running this method.
-     * @throws InvalidStateException In case the pin has been closed.
-     */
-    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
+	/**
+	 * Sets the pulse width of the PWM output. The pulse width is duration of
+	 * the high-time within a single period of the signal. For relative control
+	 * of the pulse with, consider using {@link #setDutyCycle(float)}.
+	 * 
+	 * @param pulseWidthUs
+	 *            The pulse width, in microsecond units.
+	 * @throws ConnectionLostException
+	 *             The connection to the IOIO has been lost.
+	 * @see #setDutyCycle(float)
+	 */
+	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
 }

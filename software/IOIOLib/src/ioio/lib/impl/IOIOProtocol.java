@@ -203,11 +203,11 @@ public class IOIOProtocol {
 
 	synchronized public void uartConfigure(int uartNum, int rate, boolean speed4x,
 			Uart.StopBits stopbits, Uart.Parity parity) throws IOException {
-		int parbits = parity == Uart.Parity.EVEN_PARITY ? 1
-				: (parity == Uart.Parity.ODD_PARITY ? 2 : 0);
+		int parbits = parity == Uart.Parity.EVEN ? 1
+				: (parity == Uart.Parity.ODD ? 2 : 0);
 		writeByte(UART_CONFIG);
 		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
-				| (stopbits == Uart.StopBits.TWO_STOP_BITS ? 0x04 : 0x00)
+				| (stopbits == Uart.StopBits.TWO ? 0x04 : 0x00)
 				| parbits);
 		writeTwoBytes(rate);
 	}

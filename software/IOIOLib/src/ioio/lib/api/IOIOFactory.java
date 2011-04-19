@@ -31,15 +31,38 @@ package ioio.lib.api;
 import ioio.lib.impl.IOIOImpl;
 import ioio.lib.impl.SocketIOIOConnection;
 
-
 /**
- * Factory class for getting a handle to the IOIO
+ * Factory class for creating instances of the IOIO interface.
+ * <p>
+ * This class acts as the single entry-point to the IOIO API. It creates the
+ * bootstrapping between a specific implementation of the IOIO interface and any
+ * dependencies it might have, such as the underlying connection logic.
+ * <p>
+ * Typical usage:
  * 
- * @author arshan
+ * <pre>
+ * IOIO ioio = IOIOFactory.create();
+ * try {
+ *   ioio.waitForConnect();
+ *   ...
+ *   ioio.disconnect();
+ * } catch (ConnectionLostException e) {
+ * } finally {
+ *   ioio.waitForDisconnect();
+ * }
+ * </pre>
  */
 public class IOIOFactory {
-	private static final int IOIO_PORT = 4545;  
-	
+	/** The TCP port used for communicating with the IOIO board. */
+	private static final int IOIO_PORT = 4545;
+
+	/**
+	 * Create a IOIO instance. This specific implementation creates a IOIO
+	 * instance which works with the actual IOIO board connected via a TCP
+	 * connection (typically over a wired USB connection).
+	 * 
+	 * @return The IOIO instance.
+	 */
 	public static IOIO create() {
 		return new IOIOImpl(new SocketIOIOConnection(IOIO_PORT));
 	}

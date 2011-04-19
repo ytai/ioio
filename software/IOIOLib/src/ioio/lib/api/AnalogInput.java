@@ -34,18 +34,73 @@ import java.io.Closeable;
 import ioio.lib.api.exception.ConnectionLostException;
 
 /**
- * Define the basic functions that must be supported by all Analog inputs.
+ * A pin used for analog input.
+ * <p>
+ * An analog input pin can be used to measure voltage. AnalogInput instances are
+ * obtained by calling {@link IOIO#openAnalogInput(int)}.
+ * <p>
+ * Floating-point values scaled from 0 to 1 can be obtained by calling
+ * {@link #read()}. Absolute voltage levels can be obtained by calling
+ * {@link #getVoltage()}.
+ * <p>
+ * The instance is alive since its creation. The first {@link #read()} call
+ * block for a few milliseconds until the initial value is updated. If the
+ * connection with the IOIO drops at any point, the instance transitions to a
+ * disconnected state, in which every attempt to use the pin (except
+ * {@link #close()}) will throw a {@link ConnectionLostException}. Whenever
+ * {@link #close()} is invoked the instance may no longer be used. Any resources
+ * associated with it are freed and can be reused.
+ * <p>
+ * Typical usage:
  * 
- * TODO: consider reflecting the capabilities of ADC as well? ie. bitsAccuracy
- * TODO: threshold boundary detection and notification
+ * <pre>
+ * AnalogInput potentiometer = ioio.openAnalogInput(40);
+ * float value = potentiometer.read();
+ * ...
+ * potentiometer.close();  // pin 40 can now be used for something else.
+ * </pre>
  * 
- * @author arshan
+ * @see IOIO#openAnalogInput(int)
  */
 public interface AnalogInput extends Closeable {
+	/**
+	 * Gets the analog input reading, as an absolute voltage in Volt units.
+	 * <p>
+	 * It typically takes a few milliseconds between when the instance is
+	 * created and until the first value can be read. In this case, the method
+	 * may block shortly. If this is a problem, the calling thread can be
+	 * interrupted.
+	 * <p>
+	 * If a scaled value is desired, consider using {@link #read()}. 
+	 * 
+	 * @return The voltage, in Volt units.
+	 * @throws InterruptedException The calling thread has been interrupted.
+	 * @throws ConnectionLostException The connection with the IOIO is lost.
+	 * @see #read()
+	 */
 	public float getVoltage() throws InterruptedException,
 			ConnectionLostException;
 
+	/**
+	 * Gets the maximum value against which {@link #read()} values are scaled.
+	 * @return The voltage, in Volts.
+	 */
 	public float getReference();
 
+	/**
+	 * Gets the analog input reading, as a scaled real value between 0 and 1.
+	 * <p>
+	 * It typically takes a few milliseconds between when the instance is
+	 * created and until the first value can be read. In this case, the method
+	 * may block shortly. If this is a problem, the calling thread can be
+	 * interrupted.
+	 * <p>
+	 * If an absolute value is desired, consider using {@link #getVoltage()}.
+	 * 
+	 * @return The voltage, in scaled units.
+	 * @throws InterruptedException The calling thread has been interrupted.
+	 * @throws ConnectionLostException The connection with the IOIO is lost.
+	 * @see #getVoltage()
+	 */
 	public float read() throws InterruptedException, ConnectionLostException;
 }

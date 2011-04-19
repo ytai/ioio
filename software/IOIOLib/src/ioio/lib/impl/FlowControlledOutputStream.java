@@ -70,7 +70,11 @@ public class FlowControlledOutputStream extends OutputStream {
 		if (closed_) {
 			throw new IOException("Stream has been closed");
 		}
-		queue_.add((byte) oneByte);
+		try {
+			queue_.put((byte) oneByte);
+		} catch (InterruptedException e) {
+			throw new IOException("Interrupted");
+		}
 		notifyAll();
 	}
 
