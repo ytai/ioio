@@ -321,7 +321,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleReportAnalogInStatus(int pins[], int values[]) {
-		logMethod("handleReportAnalogInStatus", pins, values);
+		//logMethod("handleReportAnalogInStatus", pins, values);
 		for (int i = 0; i < pins.length; ++i) {
 			intputPinStates_[pins[i]].setValue(values[i]);
 		}		

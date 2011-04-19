@@ -28,12 +28,11 @@
  */
 package ioio.lib.impl;
 
-import java.io.IOException;
-
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.InputPinListener;
-import android.util.Log;
+
+import java.io.IOException;
 
 public class DigitalInputImpl extends AbstractPin implements DigitalInput,
 		InputPinListener {

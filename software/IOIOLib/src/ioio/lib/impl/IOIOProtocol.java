@@ -364,6 +364,7 @@ public class IOIOProtocol {
 		@Override
 		public void run() {
 			super.run();
+			setPriority(MAX_PRIORITY);
 			int arg1;
 			int arg2;
 			int numPins;
