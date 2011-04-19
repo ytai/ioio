@@ -143,9 +143,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized void closeUart(int uartNum) {
 		uartAllocator_.releaseModule(uartNum);
 		try {
-			// TODO(ytai): uartClose()
-			protocol_.uartConfigure(uartNum, 0, false,
-					Uart.StopBits.ONE, Uart.Parity.NONE);
+			protocol_.uartClose(uartNum);
 		} catch (IOException e) {
 		}
 	}

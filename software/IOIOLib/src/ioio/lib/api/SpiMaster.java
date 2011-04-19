@@ -69,9 +69,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * The IOIO SPI interface supports such fixed length message protocols using a
  * single method, {@link #writeRead(int, byte[], int, int, byte[], int), which
  * gets the request data, and the lengths of the request, the response and the
- * lag between them.
- * 
- * TODO(ytai): make SPI use lag rather than length.
+ * total transaction bytes.
  * 
  * <p>
  * The instance is alive since its creation. If the connection with the IOIO

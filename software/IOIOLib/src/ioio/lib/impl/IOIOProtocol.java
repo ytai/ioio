@@ -211,6 +211,13 @@ public class IOIOProtocol {
 				| parbits);
 		writeTwoBytes(rate);
 	}
+	
+	synchronized public void uartClose(int uartNum) throws IOException {
+		writeByte(UART_CONFIG);
+		writeByte(uartNum << 6);
+		writeTwoBytes(0);
+	}
+
 
 	synchronized public void setPinUartRx(int pin, int uartNum, boolean enable) throws IOException {
 		writeByte(SET_PIN_UART_RX);

@@ -317,7 +317,6 @@ public class IncomingState implements IncomingHandler {
 	public void handleReportPeriodicDigitalInStatus(int frameNum,
 			boolean[] values) {
 		logMethod("handleReportPeriodicDigitalInStatus", frameNum, values);
-		// TODO Auto-generated method stub
 	}
 
 	@Override
