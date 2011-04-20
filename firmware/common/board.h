@@ -78,8 +78,10 @@
 // numbering scheme will have identical firmware variant designators.
 #if IOIO_VER == 10
   #define BOARD_VARIANT 0
-#elif IOIO_VER >= 10 && IOIO_VER <= 14
+#elif IOIO_VER >= 10 && IOIO_VER <= 12
   #define BOARD_VARIANT 1
+#elif IOIO_VER >= 13 && IOIO_VER <= 15
+  #define BOARD_VARIANT 2
 #endif
 
 #define BOARD_VARIANT_STRING _TOSTRING(BOARD_VARIANT)
