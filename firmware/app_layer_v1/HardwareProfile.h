@@ -36,7 +36,7 @@
 #define GetInstructionClock()       (GetSystemClock() / 2)
 
 // Define the baud rate constants
-#define BAUDRATE2       38400
+#define BAUDRATE2       115200
 #define BRG_DIV2        4
 #define BRGH2           1
 
