@@ -43,6 +43,7 @@ void SetDigitalOutLevel(int pin, int value) {
 }
 
 void SetChangeNotify(int pin, int changeNotify) {
+  int cnie_backup = _CNIE;
   log_printf("SetChangeNotify(%d, %d)", pin, changeNotify);
   SAVE_PIN_FOR_LOG(pin);
   _CNIE = 0;
@@ -51,7 +52,7 @@ void SetChangeNotify(int pin, int changeNotify) {
     PinSetCnforce(pin);
     _CNIF = 1;  // force a status message on the new pin
   }
-  _CNIE = 1;
+  _CNIE = cnie_backup;
 }
 
 static void SendDigitalInStatusMessage(int pin, int value) {
