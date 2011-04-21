@@ -102,11 +102,19 @@ public class IOIOProtocol {
 		0x02,  // 5333.333
 		0x01   // 8000
 	};
-	
-	private void writeByte(int b) throws IOException {
+
+	private byte[] buf_ = new byte[128];
+	private int pos_ = 0;
+
+	private void writeByte(int b) {
 		assert(b >= 0 && b < 256);
 //		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
-		out_.write(b);
+		buf_[pos_++] = (byte) b;
+	}
+
+	private void flush() throws IOException {
+		out_.write(buf_, 0, pos_);
+		pos_ = 0;
 	}
 	
 	private void writeTwoBytes(int i) throws IOException {
@@ -124,29 +132,34 @@ public class IOIOProtocol {
 
 	synchronized public void softReset() throws IOException {
 		writeByte(SOFT_RESET);
+		flush();
 	}
 	
 	synchronized public void setDigitalOutLevel(int pin, boolean level) throws IOException  {
 		writeByte(SET_DIGITAL_OUT_LEVEL);
 		writeByte(pin << 2 | (level ? 1 : 0));
+		flush();
 	}
 
 	synchronized public void setPinPwm(int pin, int pwmNum) throws IOException { 
 		writeByte(SET_PIN_PWM);
 		writeByte(pin);
 		writeByte(pwmNum);
+		flush();
 	}
 
 	synchronized public void setPwmDutyCycle(int pwmNum, int dutyCycle, int fraction) throws IOException { 
 		writeByte(SET_PWM_DUTY_CYCLE);
 		writeByte(pwmNum << 2 | fraction);
 		writeTwoBytes(dutyCycle);
+		flush();
 	}
 
 	synchronized public void setPwmPeriod(int pwmNum, int period, boolean scale256) throws IOException {
 		writeByte(SET_PWM_PERIOD);
 		writeByte((pwmNum << 1) | (scale256 ? 1 : 0));
 		writeTwoBytes(period);
+		flush();
 	}
 
 	synchronized public void i2cWriteRead(int i2cNum, boolean tenBitAddr, int address,
@@ -159,6 +172,7 @@ public class IOIOProtocol {
 		for (int i = 0; i < writeSize; ++i) {
 			writeByte(writeData[i]);
 		}
+		flush();
 	}
 
 	synchronized public void setPinDigitalOut(int pin, boolean value, DigitalOutput.Spec.Mode mode) throws IOException { 
@@ -166,6 +180,7 @@ public class IOIOProtocol {
 		writeByte((pin << 2)
 				| (mode == DigitalOutput.Spec.Mode.OPEN_DRAIN ? 0x01 : 0x00)
 				| (value ? 0x02 : 0x00));
+		flush();
 	}
 
 	synchronized public void setPinDigitalIn(int pin, DigitalInput.Spec.Mode mode) throws IOException {
@@ -177,11 +192,13 @@ public class IOIOProtocol {
 		}
 		writeByte(SET_PIN_DIGITAL_IN);
 		writeByte((pin << 2) | pull);
+		flush();
 	}
 
 	synchronized public void setChangeNotify(int pin, boolean changeNotify) throws IOException {
 		writeByte(SET_CHANGE_NOTIFY);
 		writeByte((pin << 2) | (changeNotify ? 0x01 : 0x00));
+		flush();
 	}
 
 	synchronized public void registerPeriodicDigitalSampling(int pin, int freqScale) throws IOException {
@@ -191,6 +208,7 @@ public class IOIOProtocol {
 	synchronized public void setPinAnalogIn(int pin) throws IOException { 
 		writeByte(SET_PIN_ANALOG_IN);
 		writeByte(pin);
+		flush();
 	}
 
 	synchronized public void uartData(int uartNum, int numBytes, byte data[]) throws IOException {
@@ -199,6 +217,7 @@ public class IOIOProtocol {
 		for (int i = 0; i < numBytes; ++i) {
 			writeByte(data[i]);
 		}
+		flush();
 	}
 
 	synchronized public void uartConfigure(int uartNum, int rate, boolean speed4x,
@@ -210,12 +229,14 @@ public class IOIOProtocol {
 				| (stopbits == Uart.StopBits.TWO ? 0x04 : 0x00)
 				| parbits);
 		writeTwoBytes(rate);
+		flush();
 	}
 	
 	synchronized public void uartClose(int uartNum) throws IOException {
 		writeByte(UART_CONFIG);
 		writeByte(uartNum << 6);
 		writeTwoBytes(0);
+		flush();
 	}
 
 
@@ -223,12 +244,14 @@ public class IOIOProtocol {
 		writeByte(SET_PIN_UART_RX);
 		writeByte(pin);
 		writeByte((enable ? 0x80 : 0x00) | uartNum);
+		flush();
 	}
 
 	synchronized public void setPinUartTx(int pin, int uartNum, boolean enable) throws IOException {
 		writeByte(SET_PIN_UART_TX);
 		writeByte(pin);
 		writeByte((enable ? 0x80 : 0x00) | uartNum);
+		flush();
 	}
 
 	synchronized public void spiConfigureMaster(int spiNum,
@@ -237,18 +260,21 @@ public class IOIOProtocol {
 		writeByte((spiNum << 5) | SCALE_DIV[config.rate.ordinal()]);
 		writeByte((config.sampleOnTrailing ? 0x00 : 0x02)
 				| (config.invertClk ? 0x01 : 0x00));
+		flush();
 	}
 
 	synchronized public void spiClose(int spiNum) throws IOException {
 		writeByte(SPI_CONFIGURE_MASTER);
 		writeByte(spiNum << 5);
 		writeByte(0x00);
+		flush();
 	}
 
 	synchronized public void setPinSpi(int pin, int mode, boolean enable, int spiNum) throws IOException {
 		writeByte(SET_PIN_SPI);
 		writeByte(pin);
 		writeByte((1 << 4) | (mode << 2) | spiNum);
+		flush();
 	}
 	
 	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[],
@@ -267,17 +293,20 @@ public class IOIOProtocol {
 		for (int i = 0; i < dataBytes; ++i) {
 			writeByte(data[i]);
 		}
+		flush();
 	}
 
 	synchronized public void i2cConfigureMaster(int i2cNum, Rate rate, boolean smbusLevels) throws IOException {
 		int rateBits = (rate == Rate.RATE_1MHz ? 3 : (rate == Rate.RATE_400KHz ? 2 : 1));
 		writeByte(I2C_CONFIGURE_MASTER);
 		writeByte((smbusLevels ? 0x80 : 0) | (rateBits << 5) | i2cNum);
+		flush();
 	}
 	
 	synchronized public void i2cClose(int i2cNum) throws IOException {
 		writeByte(I2C_CONFIGURE_MASTER);
 		writeByte(i2cNum);
+		flush();
 	}
 	
 	public interface IncomingHandler {
