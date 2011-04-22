@@ -71,25 +71,26 @@ public class FlowControlledOutputStream extends OutputStream {
 			throw new IOException("Stream has been closed");
 		}
 		try {
-			queue_.put((byte) oneByte);
+			while (!queue_.offer((byte) oneByte)) {
+				wait();
+			}
+			notifyAll();
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
-		notifyAll();
 	}
 
 	synchronized public void readyToSend(int numBytes) {
-		assert(numBytes >= readyToSend_);
-		readyToSend_ = numBytes;
+		readyToSend_ += numBytes;
 		notifyAll();
 	}
-	
+
 	@Override
 	synchronized public void close() {
 		closed_ = true;
 		thread_.interrupt();
 	}
-	
+
 	synchronized public void kill() {
 		thread_.interrupt();
 	}
@@ -105,7 +106,8 @@ public class FlowControlledOutputStream extends OutputStream {
 						while (readyToSend_ == 0 || queue_.isEmpty()) {
 							FlowControlledOutputStream.this.wait();
 						}
-						toSend = Math.min(maxPacket_, Math.min(readyToSend_, queue_.size()));
+						toSend = Math.min(maxPacket_,
+								Math.min(readyToSend_, queue_.size()));
 						for (int i = 0; i < toSend; ++i) {
 							packet_[i] = queue_.remove();
 						}

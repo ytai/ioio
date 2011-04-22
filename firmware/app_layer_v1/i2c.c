@@ -124,15 +124,31 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
   Set_MI2CIF[i2c_num](0);  // clear interrupt
   ByteQueueInit(&i2c->tx_queue, i2c->tx_buffer, TX_BUF_SIZE);
   ByteQueueInit(&i2c->rx_queue, i2c->rx_buffer, RX_BUF_SIZE);
+  i2c->num_tx_since_last_report = 0;
   i2c->num_messages_rx_queue = 0;
   i2c->message_state = STATE_START;
   if (rate) {
+    i2c->num_tx_since_last_report = TX_BUF_SIZE;
     regs->brg = brg_values[rate - 1];
     regs->con = (1 << 15)               // enable
                 | ((rate != 2) << 9)    // disable slew rate unless 400KHz mode
                 | (smbus_levels << 8);  // use SMBus levels
     Set_MI2CIF[i2c_num](1);  // signal interrupt
   }
+}
+
+static void I2CReportTxStatus(int i2c_num) {
+  int report;
+  I2C_STATE* i2c = &i2c_states[i2c_num];
+  BYTE prev = SyncInterruptLevel(4);
+  report = i2c->num_tx_since_last_report;
+  i2c->num_tx_since_last_report = 0;
+  SyncInterruptLevel(prev);
+  OUTGOING_MESSAGE msg;
+  msg.type = I2C_REPORT_TX_STATUS;
+  msg.args.i2c_report_tx_status.i2c_num = i2c_num;
+  msg.args.i2c_report_tx_status.bytes_remaining = report;
+  AppProtocolSendMessage(&msg);
 }
 
 void I2CTasks() {
@@ -186,21 +202,6 @@ void I2CWriteRead(int i2c_num, unsigned int addr, const void* data,
   ByteQueuePushBuffer(&i2c->tx_queue, data, write_bytes);
   Set_MI2CIE[i2c_num](1);
   SyncInterruptLevel(prev);
-}
-
-void I2CReportTxStatus(int i2c_num) {
-  int remaining;
-  I2C_STATE* i2c = &i2c_states[i2c_num];
-  BYTE_QUEUE* q = &i2c->tx_queue;
-  BYTE prev = SyncInterruptLevel(4);
-  remaining = ByteQueueRemaining(q);
-  i2c->num_tx_since_last_report = 0;
-  SyncInterruptLevel(prev);
-  OUTGOING_MESSAGE msg;
-  msg.type = I2C_REPORT_TX_STATUS;
-  msg.args.i2c_report_tx_status.i2c_num = i2c_num;
-  msg.args.i2c_report_tx_status.bytes_remaining = remaining;
-  AppProtocolSendMessage(&msg);
 }
 
 static void MI2CInterrupt(int i2c_num) {

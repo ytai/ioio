@@ -301,8 +301,6 @@ static BOOL MessageDone() {
                  rx_msg.args.uart_config.parity);
       if (!rx_msg.args.uart_config.rate) {
         Echo();
-      } else {
-        UARTReportTxStatus(rx_msg.args.uart_config.uart_num);
       }
       break;
 
@@ -365,7 +363,6 @@ static BOOL MessageDone() {
           && rx_msg.args.spi_configure_master.div == 0) {
         Echo();
       }
-      SPIReportTxStatus(rx_msg.args.spi_configure_master.spi_num);
       break;
 
     case SET_PIN_SPI:
@@ -394,7 +391,6 @@ static BOOL MessageDone() {
       if (!rx_msg.args.i2c_configure_master.rate) {
         Echo();
       }
-      I2CReportTxStatus(rx_msg.args.i2c_configure_master.i2c_num);
       break;
 
     case I2C_WRITE_READ:

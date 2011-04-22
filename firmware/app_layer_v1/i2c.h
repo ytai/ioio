@@ -37,7 +37,6 @@ void I2CTasks();
 void I2CConfigMaster(int i2c_num, int rate, int smbus_levels);
 void I2CWriteRead(int i2c_num, unsigned int addr, const void* data,
                   int write_bytes, int read_bytes);
-void I2CReportTxStatus(int i2c_num);
 
 
 

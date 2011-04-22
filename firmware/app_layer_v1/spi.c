@@ -118,6 +118,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   spi->num_messages_rx_queue = 0;
   spi->packet_state = PACKET_STATE_IDLE;
   if (scale && div) {
+    spi->num_tx_since_last_report = TX_BUF_SIZE;
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)
                      | (clk_pol << 6)
@@ -130,6 +131,20 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
     Set_SPIIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
                         // written
   }
+}
+
+static void SPIReportTxStatus(int spi_num) {
+  int report;
+  SPI_STATE* spi = &spis[spi_num];
+  BYTE prev = SyncInterruptLevel(4);
+  report = spi->num_tx_since_last_report;
+  spi->num_tx_since_last_report = 0;
+  SyncInterruptLevel(prev);
+  OUTGOING_MESSAGE msg;
+  msg.type = SPI_REPORT_TX_STATUS;
+  msg.args.spi_report_tx_status.spi_num = spi_num;
+  msg.args.spi_report_tx_status.bytes_remaining = report;
+  AppProtocolSendMessage(&msg);
 }
 
 void SPITasks() {
@@ -163,21 +178,6 @@ void SPITasks() {
       SPIReportTxStatus(i);
     }
   }
-}
-
-void SPIReportTxStatus(int spi_num) {
-  int remaining;
-  SPI_STATE* spi = &spis[spi_num];
-  BYTE_QUEUE* q = &spi->tx_queue;
-  BYTE prev = SyncInterruptLevel(4);
-  remaining = ByteQueueRemaining(q);
-  spi->num_tx_since_last_report = 0;
-  SyncInterruptLevel(prev);
-  OUTGOING_MESSAGE msg;
-  msg.type = SPI_REPORT_TX_STATUS;
-  msg.args.spi_report_tx_status.spi_num = spi_num;
-  msg.args.spi_report_tx_status.bytes_remaining = remaining;
-  AppProtocolSendMessage(&msg);
 }
 
 static void SPIInterrupt(int spi_num) {

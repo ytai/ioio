@@ -93,7 +93,22 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
     Set_URXIE[uart_num](1);  // enable RX int.
     regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
+    uart->num_tx_since_last_report = TX_BUF_SIZE;
   }
+}
+
+static void UARTReportTxStatus(int uart_num) {
+  int report;
+  UART_STATE* uart = &uarts[uart_num];
+  BYTE prev = SyncInterruptLevel(4);
+  report = uart->num_tx_since_last_report;
+  uart->num_tx_since_last_report = 0;
+  SyncInterruptLevel(prev);
+  OUTGOING_MESSAGE msg;
+  msg.type = UART_REPORT_TX_STATUS;
+  msg.args.uart_report_tx_status.uart_num = uart_num;
+  msg.args.uart_report_tx_status.bytes_remaining = report;
+  AppProtocolSendMessage(&msg);
 }
 
 void UARTTasks() {
@@ -121,21 +136,6 @@ void UARTTasks() {
       UARTReportTxStatus(i);
     }
   }
-}
-
-void UARTReportTxStatus(int uart_num) {
-  int remaining;
-  UART_STATE* uart = &uarts[uart_num];
-  BYTE_QUEUE* q = &uart->tx_queue;
-  BYTE prev = SyncInterruptLevel(4);
-  remaining = ByteQueueRemaining(q);
-  uart->num_tx_since_last_report = 0;
-  SyncInterruptLevel(prev);
-  OUTGOING_MESSAGE msg;
-  msg.type = UART_REPORT_TX_STATUS;
-  msg.args.uart_report_tx_status.uart_num = uart_num;
-  msg.args.uart_report_tx_status.bytes_remaining = remaining;
-  AppProtocolSendMessage(&msg);
 }
 
 static void TXInterrupt(int uart_num) {

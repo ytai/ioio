@@ -237,7 +237,7 @@ public class IncomingState implements IncomingHandler {
 	
 	@Override
 	public void handleUartData(int uartNum, int numBytes, byte[] data) {
-		logMethod("handleUartData", uartNum, numBytes, data);
+		//logMethod("handleUartData", uartNum, numBytes, data);
 		uartStates_[uartNum].dataReceived(data, numBytes);
 	}
 
@@ -303,7 +303,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleSpiData(int spiNum, int ssPin, byte[] data, int dataBytes) {
-		logMethod("handleSpiData", spiNum, ssPin, data, dataBytes);
+		//logMethod("handleSpiData", spiNum, ssPin, data, dataBytes);
 		spiStates_[spiNum].dataReceived(data, dataBytes);
 	}
 
