@@ -406,8 +406,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		checkState();
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
+		PinFunctionMap.checkSupportsPeripheralInput(miso.pin);
 		checkPinFree(mosi.pin);
+		PinFunctionMap.checkSupportsPeripheralOutput(mosi.pin);
 		checkPinFree(clk.pin);
+		PinFunctionMap.checkSupportsPeripheralOutput(clk.pin);
 		for (int i = 0; i < slaveSelect.length; ++i) {
 			checkPinFree(slaveSelect[i].pin);
 			ssPins[i] = slaveSelect[i].pin;
