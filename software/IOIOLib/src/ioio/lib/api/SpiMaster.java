@@ -73,7 +73,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * 
  * <p>
  * The instance is alive since its creation. If the connection with the IOIO
- * drops at any point, the instance transitions to a disconnected state, in 
+ * drops at any point, the instance transitions to a disconnected state, in
  * which every attempt to use it (except {@link #close()}) will throw a
  * {@link ConnectionLostException}. Whenever {@link #close()} is invoked the
  * instance may no longer be used. Any resources associated with it are freed
@@ -99,6 +99,21 @@ public interface SpiMaster extends Closeable {
 	/** Possible data rates for SPI, in Hz. */
 	enum Rate {
 		RATE_31K, RATE_35K, RATE_41K, RATE_50K, RATE_62K, RATE_83K, RATE_125K, RATE_142K, RATE_166K, RATE_200K, RATE_250K, RATE_333K, RATE_500K, RATE_571K, RATE_666K, RATE_800K, RATE_1M, RATE_1_3M, RATE_2M, RATE_2_2M, RATE_2_6M, RATE_3_2M, RATE_4M, RATE_5_3M, RATE_8M
+	}
+
+	/** An object that can be waited on for asynchronous calls. */
+	public interface Result {
+		/**
+		 * Wait until the asynchronous call which returned this instance is
+		 * complete.
+		 * 
+		 * @throws ConnectionLostException
+		 *             Connection with the IOIO has been lost.
+		 * @throws InterruptedException
+		 *             This operation has been interrupted.
+		 */
+		public void waitReady() throws ConnectionLostException,
+				InterruptedException;
 	}
 
 	/** SPI configuration structure. */
@@ -181,4 +196,15 @@ public interface SpiMaster extends Closeable {
 	public void writeRead(byte[] writeData, int writeSize, int totalSize,
 			byte[] readData, int readSize) throws ConnectionLostException,
 			InterruptedException;
+
+	/**
+	 * The same as {@link #writeRead(int, byte[], int, int, byte[], int)}, but
+	 * returns immediately and retuns a {@link Result} object that can be waited
+	 * on.
+	 * 
+	 * @see #writeRead(int, byte[], int, int, byte[], int)
+	 */
+	public Result writeReadAsync(int slave, byte[] writeData, int writeSize,
+			int totalSize, byte[] readData, int readSize)
+			throws ConnectionLostException;
 }

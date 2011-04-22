@@ -66,7 +66,7 @@ public class AbstractResource implements Closeable, DisconnectListener {
 		ioio_.removeDisconnectListener(this);
 	}
 	
-	protected void checkState() throws ConnectionLostException {
+	protected synchronized void checkState() throws ConnectionLostException {
 		if (state_ == State.CLOSED) {
 			throw new IllegalStateException("Trying to use a closed resouce");
 		} else if (state_ == State.DISCONNECTED) {

@@ -44,9 +44,22 @@ import android.util.Log;
 
 public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		DataModuleListener, Sender {
-	class SpiResult {
-		boolean ready_ = false;
-		public byte[] data_;
+	public class SpiResult implements Result {
+		boolean ready_;
+		final byte[] data_;
+		
+		SpiResult(byte[] data) {
+			data_ = data;
+		}
+
+		@Override
+		public synchronized void waitReady() throws ConnectionLostException,
+				InterruptedException {
+			while (!ready_ && state_ != State.DISCONNECTED) {
+				wait();
+			}
+			checkState();
+		}
 	}
 
 	class OutgoingPacket implements Packet {
@@ -63,7 +76,8 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	private final Queue<SpiResult> pendingRequests_ = new LinkedList<SpiMasterImpl.SpiResult>();
-	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
+	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
+			this);
 
 	private final int spiNum_;
 	private final Map<Integer, Integer> ssPinToIndex_;
@@ -101,9 +115,17 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	public void writeRead(int slave, byte[] writeData, int writeSize,
 			int totalSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException {
+		Result result = writeReadAsync(slave, writeData, writeSize,
+				totalSize, readData, readSize);
+		result.waitReady();
+	}
+
+	@Override
+	public SpiResult writeReadAsync(int slave, byte[] writeData,
+			int writeSize, int totalSize, byte[] readData, int readSize)
+			throws ConnectionLostException {
 		checkState();
-		SpiResult result = new SpiResult();
-		result.data_ = readData;
+		SpiResult result = new SpiResult(readData);
 
 		OutgoingPacket p = new OutgoingPacket();
 		p.writeSize_ = writeSize;
@@ -120,13 +142,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 				Log.e("SpiMasterImpl", "Exception caught", e);
 			}
 		}
-
-		synchronized (result) {
-			while (!result.ready_ && state_ != State.DISCONNECTED) {
-				result.wait();
-			}
-			checkState();
-		}
+		return result;
 	}
 
 	@Override
@@ -159,7 +175,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		ioio_.closePin(mosiPinNum_);
 		ioio_.closePin(misoPinNum_);
 		ioio_.closePin(clkPinNum_);
-		for (int pin: indexToSsPin_) {
+		for (int pin : indexToSsPin_) {
 			ioio_.closePin(pin);
 		}
 	}

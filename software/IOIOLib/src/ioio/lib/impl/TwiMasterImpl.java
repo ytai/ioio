@@ -40,31 +40,47 @@ import java.util.Queue;
 
 import android.util.Log;
 
-public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataModuleListener, Sender {
-	class TwiResult {
+public class TwiMasterImpl extends AbstractResource implements TwiMaster,
+		DataModuleListener, Sender {
+	class TwiResult implements Result {
 		boolean ready_ = false;
-		public boolean success_;
-		public byte[] data_;
+		boolean success_;
+		final byte[] data_;
+		
+		public TwiResult(byte[] data) {
+			data_ = data;
+		}
+
+		@Override
+		public synchronized boolean waitReady() throws ConnectionLostException,
+				InterruptedException {
+			while (!ready_ && state_ != State.DISCONNECTED) {
+				wait();
+			}
+			checkState();
+			return success_;
+		}
 	}
-	
+
 	class OutgoingPacket implements Packet {
 		int writeSize_;
 		byte[] writeData_;
 		boolean tenBitAddr_;
 		int addr_;
 		int readSize_;
-		
+
 		@Override
 		public int getSize() {
 			return writeSize_ + 4;
 		}
-		
+
 	}
-	
+
 	private final Queue<TwiResult> pendingRequests_ = new LinkedList<TwiMasterImpl.TwiResult>();
-	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
+	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
+			this);
 	private final int twiNum_;
-	
+
 	TwiMasterImpl(IOIOImpl ioio, int twiNum) throws ConnectionLostException {
 		super(ioio);
 		twiNum_ = twiNum;
@@ -74,7 +90,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 	synchronized public void disconnected() {
 		super.disconnected();
 		outgoing_.kill();
-		for (TwiResult tr: pendingRequests_) {
+		for (TwiResult tr : pendingRequests_) {
 			synchronized (tr) {
 				tr.notify();
 			}
@@ -82,13 +98,21 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 	}
 
 	@Override
-	public boolean writeRead(int address, boolean tenBitAddr,
-			byte[] writeData, int writeSize, byte[] readData, int readSize)
+	public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
+			int writeSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException {
+		Result result = writeReadAsync(address, tenBitAddr, writeData,
+				writeSize, readData, readSize);
+		return result.waitReady();
+	}
+
+	@Override
+	public Result writeReadAsync(int address, boolean tenBitAddr,
+			byte[] writeData, int writeSize, byte[] readData, int readSize)
+			throws ConnectionLostException {
 		checkState();
-		TwiResult result = new TwiResult();
-		result.data_ = readData;
-		
+		TwiResult result = new TwiResult(readData);
+
 		OutgoingPacket p = new OutgoingPacket();
 		p.writeSize_ = writeSize;
 		p.writeData_ = writeData;
@@ -104,14 +128,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 				Log.e("SpiMasterImpl", "Exception caught", e);
 			}
 		}
-
-		synchronized (result) {
-			while (!result.ready_ && state_ != State.DISCONNECTED) {
-				result.wait();
-			}
-			checkState();
-		}
-		return result.success_;
+		return result;
 	}
 
 	@Override
@@ -131,7 +148,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 	synchronized public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
-	
+
 	@Override
 	synchronized public void close() {
 		super.close();

@@ -85,6 +85,23 @@ public interface TwiMaster extends Closeable {
 		RATE_100KHz, RATE_400KHz, RATE_1MHz
 	}
 
+	/** An object that can be waited on for asynchronous calls. */
+	public interface Result {
+		/**
+		 * Wait until the asynchronous call which returned this instance is
+		 * complete.
+		 * 
+		 * @return true if TWI transaction succeeded.
+		 * 
+		 * @throws ConnectionLostException
+		 *             Connection with the IOIO has been lost.
+		 * @throws InterruptedException
+		 *             This operation has been interrupted.
+		 */
+		public boolean waitReady() throws ConnectionLostException,
+				InterruptedException;
+	}
+
 	/**
 	 * Perform a single TWI transaction which includes optional transmission and
 	 * optional reception of data to a single slave. This is a blocking
@@ -115,4 +132,16 @@ public interface TwiMaster extends Closeable {
 	public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
 			int writeSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException;
+
+	/**
+	 * Asynchronous version of
+	 * {@link #writeRead(int, boolean, byte[], int, byte[], int)}. Returns
+	 * immediately and provides a {@link Result} object on which the client can
+	 * wait for the result.
+	 * 
+	 * @see #writeRead(int, boolean, byte[], int, byte[], int)
+	 */
+	public Result writeReadAsync(int address, boolean tenBitAddr,
+			byte[] writeData, int writeSize, byte[] readData, int readSize)
+			throws ConnectionLostException;
 }
