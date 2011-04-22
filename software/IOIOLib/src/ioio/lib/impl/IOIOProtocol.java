@@ -230,7 +230,6 @@ public class IOIOProtocol {
 					"A maximum of 64 bytes can be sent in one uartData message. Got: "
 							+ numBytes);
 		}
-		Log.i("IOIOProtocol", "UART " + uartNum + " Sending " + numBytes);
 		writeByte(UART_DATA);
 		writeByte((numBytes - 1) | uartNum << 6);
 		for (int i = 0; i < numBytes; ++i) {
