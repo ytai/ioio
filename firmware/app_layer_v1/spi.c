@@ -143,7 +143,7 @@ static void SPIReportTxStatus(int spi_num) {
   OUTGOING_MESSAGE msg;
   msg.type = SPI_REPORT_TX_STATUS;
   msg.args.spi_report_tx_status.spi_num = spi_num;
-  msg.args.spi_report_tx_status.bytes_remaining = report;
+  msg.args.spi_report_tx_status.bytes_to_add = report;
   AppProtocolSendMessage(&msg);
 }
 

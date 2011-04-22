@@ -55,7 +55,7 @@ public class IncomingState implements IncomingHandler {
 	
 	interface DataModuleListener {
 		void dataReceived(byte[] data, int size);
-		void reportBufferRemaining(int bytesRemaining);
+		void reportAdditionalBuffer(int bytesRemaining);
 	}
 	
 	class InputPinState {
@@ -115,7 +115,7 @@ public class IncomingState implements IncomingHandler {
 
 		public void reportBufferRemaining(int bytesRemaining) {
 			assert(currentOpen_);
-			listeners_.peek().reportBufferRemaining(bytesRemaining);
+			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
 		}
 	}
 	

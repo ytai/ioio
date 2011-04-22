@@ -147,7 +147,7 @@ static void I2CReportTxStatus(int i2c_num) {
   OUTGOING_MESSAGE msg;
   msg.type = I2C_REPORT_TX_STATUS;
   msg.args.i2c_report_tx_status.i2c_num = i2c_num;
-  msg.args.i2c_report_tx_status.bytes_remaining = report;
+  msg.args.i2c_report_tx_status.bytes_to_add = report;
   AppProtocolSendMessage(&msg);
 }
 

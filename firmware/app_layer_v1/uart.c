@@ -107,7 +107,7 @@ static void UARTReportTxStatus(int uart_num) {
   OUTGOING_MESSAGE msg;
   msg.type = UART_REPORT_TX_STATUS;
   msg.args.uart_report_tx_status.uart_num = uart_num;
-  msg.args.uart_report_tx_status.bytes_remaining = report;
+  msg.args.uart_report_tx_status.bytes_to_add = report;
   AppProtocolSendMessage(&msg);
 }
 

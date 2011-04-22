@@ -147,7 +147,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	@Override
-	synchronized public void reportBufferRemaining(int bytesRemaining) {
+	synchronized public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
 

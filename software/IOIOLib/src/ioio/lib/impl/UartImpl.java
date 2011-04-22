@@ -101,7 +101,7 @@ public class UartImpl extends AbstractResource implements DataModuleListener, Se
 	}
 
 	@Override
-	public void reportBufferRemaining(int bytesRemaining) {
+	public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
 }

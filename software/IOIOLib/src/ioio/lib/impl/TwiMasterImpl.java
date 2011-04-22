@@ -128,7 +128,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster, DataMo
 	}
 
 	@Override
-	synchronized public void reportBufferRemaining(int bytesRemaining) {
+	synchronized public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
 	

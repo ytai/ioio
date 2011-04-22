@@ -130,7 +130,7 @@ typedef struct PACKED {
 // uart report tx status
 typedef struct PACKED {
   BYTE uart_num : 2;
-  WORD bytes_remaining : 14;
+  WORD bytes_to_add : 14;
 } UART_REPORT_TX_STATUS_ARGS;
 
 // set pin analog in
@@ -185,7 +185,7 @@ typedef struct PACKED {
 // spi report tx status
 typedef struct PACKED {
   BYTE spi_num : 2;
-  WORD bytes_remaining : 14;
+  WORD bytes_to_add : 14;
 } SPI_REPORT_TX_STATUS_ARGS;
 
 // spi data
@@ -262,7 +262,7 @@ typedef struct PACKED {
 // i2c report tx status
 typedef struct PACKED {
   BYTE i2c_num : 2;
-  WORD bytes_remaining : 14;
+  WORD bytes_to_add : 14;
 } I2C_REPORT_TX_STATUS_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
