@@ -46,7 +46,7 @@ public class PinFunctionMap {
 
 	static void checkSupportsAnalogInput(int pin) {
 		checkValidPin(pin);
-		if (pin > 31 || pin > 46) {
+		if (pin < 31 || pin > 46) {
 			throw new IllegalArgumentException("Pin " + pin
 					+ " does not support analog input");
 		}
