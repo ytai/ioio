@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
 		private ResourceAllocator alloc_ = new ResourceAllocator();
 		private TestProvider provider_;
 		private TestThread[] workers_ = new TestThread[4];
-		
+
 		@Override
 		public void run() {
 			super.run();
@@ -49,8 +49,8 @@ public class MainActivity extends Activity {
 						break;
 					}
 					ioio_ = IOIOFactory.create();
-					provider_ = new TestProvider(MainActivity.this,
-							ioio_, alloc_);
+					provider_ = new TestProvider(MainActivity.this, ioio_,
+							alloc_);
 				}
 				try {
 					ioio_.waitForConnect();
@@ -66,12 +66,15 @@ public class MainActivity extends Activity {
 				} finally {
 					try {
 						ioio_.waitForDisconnect();
+						Log.i("TortureTest",
+								"IOIO disconnected, killing workers");
 						for (int i = 0; i < workers_.length; ++i) {
 							if (workers_[i] != null) {
 								workers_[i].interrupt();
 								workers_[i].join();
 							}
 						}
+						Log.i("TortureTest", "All workers dead");
 					} catch (InterruptedException e) {
 					}
 				}

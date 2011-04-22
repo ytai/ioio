@@ -1,5 +1,6 @@
 package ioio.tests.torture;
 
+import android.util.Log;
 import ioio.lib.api.exception.ConnectionLostException;
 
 class TestThread extends Thread {
@@ -17,8 +18,11 @@ class TestThread extends Thread {
 				TestRunner runner = provider_.newTest();
 				runner.run();
 			} catch (InterruptedException e) {
+				Log.i("TortureTest", "TestThread interrupted, exiting.");
 				break;
 			} catch (ConnectionLostException e) {
+				Log.i("TortureTest",
+						"IOIO connection lost, TestThread exiting.");
 				break;
 			}
 		}

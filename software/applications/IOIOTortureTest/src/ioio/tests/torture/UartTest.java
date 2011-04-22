@@ -70,18 +70,16 @@ public class UartTest implements Test<Boolean> {
 				byte value = (byte) rand.nextInt();
 				out.write(value);
 			}
-		} catch (IOException e) {
+			reader.join();
+		} catch (Exception e) {
+			try {
+				in.close();
+			} catch (IOException e1) {
+			}
 			reader.interrupt();
+			reader.join();
 			throw new ConnectionLostException(e);
 		} finally {
-			try {
-				reader.join();
-			} catch (InterruptedException e) {
-				try {
-					in.close();
-				} catch (IOException e1) {
-				}
-			}
 			uart.close();
 		}
 		if (bytesVerified_ != BYTE_COUNT) {

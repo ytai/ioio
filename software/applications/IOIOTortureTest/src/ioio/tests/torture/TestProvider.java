@@ -44,7 +44,7 @@ class TestProvider {
 				(TextView) activity.findViewById(R.id.digital_latency_max) },
 				(TextView) activity.findViewById(R.id.digital_latency_count));
 	}
-
+	
 	public synchronized TestRunner newTest() throws InterruptedException {
 		int selection = random_.nextInt(5);
 		switch (selection) {
