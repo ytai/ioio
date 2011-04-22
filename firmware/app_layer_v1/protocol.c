@@ -301,8 +301,9 @@ static BOOL MessageDone() {
                  rx_msg.args.uart_config.parity);
       if (!rx_msg.args.uart_config.rate) {
         Echo();
+      } else {
+        UARTReportTxStatus(rx_msg.args.uart_config.uart_num);
       }
-      UARTReportTxStatus(rx_msg.args.uart_config.uart_num);
       break;
 
     case SET_PIN_UART_RX:
