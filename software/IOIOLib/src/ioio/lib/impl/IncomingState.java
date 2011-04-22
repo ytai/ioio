@@ -113,7 +113,7 @@ public class IncomingState implements IncomingHandler {
 			listeners_.peek().dataReceived(data, size);
 		}
 
-		public void reportBufferRemaining(int bytesRemaining) {
+		public void reportAdditionalBuffer(int bytesRemaining) {
 			assert(currentOpen_);
 			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
 		}
@@ -255,7 +255,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleSpiOpen(int spiNum) {
-		logMethod("handleSpiConfigureMaster", spiNum);
+		logMethod("handleSpiOpen", spiNum);
 		spiStates_[spiNum].openNextListener();
 	}
 	
@@ -292,13 +292,13 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleUartReportTxStatus(int uartNum, int bytesRemaining) {
 		logMethod("handleUartReportTxStatus", uartNum, bytesRemaining);
-		uartStates_[uartNum].reportBufferRemaining(bytesRemaining);
+		uartStates_[uartNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
 	@Override
 	public void handleI2cReportTxStatus(int i2cNum, int bytesRemaining) {
 		logMethod("handleI2cReportTxStatus", i2cNum, bytesRemaining);
-		twiStates_[i2cNum].reportBufferRemaining(bytesRemaining);
+		twiStates_[i2cNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
 	@Override
@@ -330,7 +330,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleSpiReportTxStatus(int spiNum, int bytesRemaining) {
 		logMethod("handleSpiReportTxStatus", spiNum, bytesRemaining);
-		spiStates_[spiNum].reportBufferRemaining(bytesRemaining);
+		spiStates_[spiNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
 	@Override

@@ -117,7 +117,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   spi->num_tx_since_last_report = 0;
   spi->num_messages_rx_queue = 0;
   spi->packet_state = PACKET_STATE_IDLE;
-  if (scale && div) {
+  if (scale || div) {
     spi->num_tx_since_last_report = TX_BUF_SIZE;
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)

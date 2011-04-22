@@ -349,8 +349,8 @@ static BOOL MessageDone() {
 
     case SPI_CONFIGURE_MASTER:
       CHECK(rx_msg.args.spi_configure_master.spi_num < NUM_SPI_MODULES);
-      if (rx_msg.args.spi_configure_master.scale != 0
-          || rx_msg.args.spi_configure_master.div != 0) {
+      if (rx_msg.args.spi_configure_master.scale
+          || rx_msg.args.spi_configure_master.div) {
         Echo();
       }
       SPIConfigMaster(rx_msg.args.spi_configure_master.spi_num,
@@ -359,8 +359,8 @@ static BOOL MessageDone() {
                       rx_msg.args.spi_configure_master.smp_end,
                       rx_msg.args.spi_configure_master.clk_edge,
                       rx_msg.args.spi_configure_master.clk_pol);
-      if (rx_msg.args.spi_configure_master.scale == 0
-          && rx_msg.args.spi_configure_master.div == 0) {
+      if (!rx_msg.args.spi_configure_master.scale
+          && !rx_msg.args.spi_configure_master.div) {
         Echo();
       }
       break;

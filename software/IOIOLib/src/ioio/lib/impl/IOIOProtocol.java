@@ -561,7 +561,7 @@ public class IOIOProtocol {
 						for (int i = 0; i < (arg1 & 0x3F) + 1; ++i) {
 							data[i] = (byte) readByte();
 						}
-						handler_.handleSpiData(arg1 >> 6, arg2, data,
+						handler_.handleSpiData(arg1 >> 6, arg2 & 0x3F, data,
 								(arg1 & 0x3F) + 1);
 						break;
 
@@ -569,16 +569,16 @@ public class IOIOProtocol {
 						arg1 = readByte();
 						arg2 = readByte();
 						handler_.handleSpiReportTxStatus(arg1 & 0x03,
-								(arg1 >> 2) | (arg2 << 8));
+								(arg1 >> 2) | (arg2 << 6));
 						break;
 
 					case SPI_CONFIGURE_MASTER:
 						arg1 = readByte();
 						arg2 = readByte();
 						if ((arg1 & 0x1F) == 0) {
-							handler_.handleSpiClose((arg1 >> 3) & 0x03);
+							handler_.handleSpiClose((arg1 >> 5) & 0x03);
 						} else {
-							handler_.handleSpiOpen((arg1 >> 3) & 0x03);
+							handler_.handleSpiOpen((arg1 >> 5) & 0x03);
 						}
 						break;
 
@@ -610,7 +610,7 @@ public class IOIOProtocol {
 						arg1 = readByte();
 						arg2 = readByte();
 						handler_.handleI2cReportTxStatus(arg1 & 0x03,
-								(arg1 >> 2) | (arg2 << 8));
+								(arg1 >> 2) | (arg2 << 6));
 						break;
 
 					default:

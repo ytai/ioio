@@ -461,9 +461,10 @@ public interface IOIO {
 			int[] slaveSelect, SpiMaster.Rate rate)
 			throws ConnectionLostException;
 
-    /**
+	/**
 	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
-	 * where the pins are all open with the default modes and default configuration values are used.
+	 * where the MISO pins is opened with pull up, and the other pins are open
+	 * with the default modes and default configuration values are used.
 	 * In this version, a single slave is used.
 	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
 	 *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,

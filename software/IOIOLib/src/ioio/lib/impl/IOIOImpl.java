@@ -393,7 +393,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		for (int i = 0; i < slaveSelect.length; ++i) {
 			slaveSpecs[i] = new DigitalOutput.Spec(slaveSelect[i]);
 		}
-		return openSpiMaster(new DigitalInput.Spec(miso),
+		return openSpiMaster(new DigitalInput.Spec(miso, Mode.PULL_UP),
 				new DigitalOutput.Spec(mosi), new DigitalOutput.Spec(clk),
 				slaveSpecs, new SpiMaster.Config(rate));
 	}
