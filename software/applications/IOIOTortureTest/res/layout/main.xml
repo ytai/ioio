@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+    a:orientation="vertical"
+    a:layout_width="fill_parent"
+    a:layout_height="fill_parent"
     >
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Accuracy" android:textStyle="bold" android:textSize="3mm"></TextView>
-<TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent">
-    <TableRow android:layout_height="wrap_content" android:layout_width="fill_parent">
-        <TextView android:textStyle="bold" android:text="Test Name" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:text="Passed" android:layout_height="wrap_content" android:id="@+id/textView2" android:layout_width="wrap_content" android:textColor="#00ff00" android:textStyle="bold" android:padding="0.5mm"></TextView>
-        <TextView android:textColor="#ff0000" android:textStyle="bold" android:text="Failed" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:text="count" android:id="@+id/textView1" android:textColor="#ffff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:textStyle="bold"></TextView>
+<TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Accuracy" a:textStyle="bold" a:textSize="3mm"></TextView>
+<TableLayout a:layout_height="wrap_content" a:layout_width="fill_parent">
+    <TableRow a:layout_height="wrap_content" a:layout_width="fill_parent">
+        <TextView a:textStyle="bold" a:text="Test Name" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:text="Passed" a:layout_height="wrap_content" a:id="@+id/textView2" a:layout_width="wrap_content" a:textColor="#00ff00" a:textStyle="bold" a:padding="0.5mm"></TextView>
+        <TextView a:textColor="#ff0000" a:textStyle="bold" a:text="Failed" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:text="count" a:id="@+id/textView1" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:textStyle="bold"></TextView>
     </TableRow>
-    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:text="Digital I/O" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textColor="#00ff00" android:text="0" android:layout_height="wrap_content" android:id="@+id/digital_io_pass" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textColor="#ff0000" android:text="0" android:layout_height="wrap_content" android:id="@+id/digital_io_fail" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:textColor="#ffff00" android:padding="0.5mm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_io_count"></TextView>
+    <TableRow a:layout_width="wrap_content" a:layout_height="wrap_content">
+        <TextView a:text="Digital I/O" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textColor="#00ff00" a:text="0" a:layout_height="wrap_content" a:id="@+id/digital_io_pass" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textColor="#ff0000" a:text="0" a:layout_height="wrap_content" a:id="@+id/digital_io_fail" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:padding="0.5mm" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_io_count"></TextView>
     </TableRow>
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
-        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:text="Analog Input"></TextView>
-        <TextView android:text="0" android:textColor="#00ff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/analog_input_pass"></TextView>
-        <TextView android:text="0" android:textColor="#ff0000" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/analog_input_fail"></TextView>
-        <TextView android:text="0" android:textColor="#ffff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/analog_io_count"></TextView>
+    <TableRow a:layout_height="wrap_content" a:layout_width="wrap_content">
+        <TextView a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:text="Analog Input"></TextView>
+        <TextView a:text="0" a:textColor="#00ff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/analog_input_pass"></TextView>
+        <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/analog_input_fail"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/analog_io_count"></TextView>
     </TableRow>
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
-        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:text="PWM Output"></TextView>
-        <TextView android:text="0" android:textColor="#00ff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/pwm_pass"></TextView>
-        <TextView android:text="0" android:textColor="#ff0000" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/pwm_fail"></TextView>
-        <TextView android:text="0" android:textColor="#ffff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/pwm_count"></TextView>
+    <TableRow a:layout_height="wrap_content" a:layout_width="wrap_content">
+        <TextView a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:text="PWM Output"></TextView>
+        <TextView a:text="0" a:textColor="#00ff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/pwm_pass"></TextView>
+        <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/pwm_fail"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/pwm_count"></TextView>
     </TableRow>
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
-        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:text="UART"></TextView>
-        <TextView android:text="0" android:textColor="#00ff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/uart_pass"></TextView>
-        <TextView android:text="0" android:textColor="#ff0000" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/uart_fail"></TextView>
-        <TextView android:text="0" android:textColor="#ffff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/uart_count"></TextView>
+    <TableRow a:layout_height="wrap_content" a:layout_width="wrap_content">
+        <TextView a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:text="UART"></TextView>
+        <TextView a:text="0" a:textColor="#00ff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/uart_pass"></TextView>
+        <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/uart_fail"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/uart_count"></TextView>
     </TableRow>
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
-        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:text="SPI"></TextView>
-        <TextView android:text="0" android:textColor="#00ff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/spi_pass"></TextView>
-        <TextView android:text="0" android:textColor="#ff0000" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/spi_fail"></TextView>
-        <TextView android:text="0" android:textColor="#ffff00" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm" android:id="@+id/spi_count"></TextView>
+    <TableRow a:layout_height="wrap_content" a:layout_width="wrap_content">
+        <TextView a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:text="SPI"></TextView>
+        <TextView a:text="0" a:textColor="#00ff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/spi_pass"></TextView>
+        <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/spi_fail"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/spi_count"></TextView>
     </TableRow>
 </TableLayout>
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Latency" android:textStyle="bold" android:textSize="3mm"></TextView>
-<TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent">
-    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:textStyle="bold" android:text="Test Name" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="min" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="25%" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="50%" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="75%" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="max" android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="0.5mm"></TextView>
-        <TextView android:textStyle="bold" android:text="count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffff00" android:padding="0.5mm"></TextView>
+<TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Latency" a:textStyle="bold" a:textSize="3mm"></TextView>
+<TableLayout a:layout_height="wrap_content" a:layout_width="fill_parent">
+    <TableRow a:layout_width="wrap_content" a:layout_height="wrap_content">
+        <TextView a:textStyle="bold" a:text="Test Name" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="min" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="25%" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="50%" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="75%" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="max" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm"></TextView>
+        <TextView a:textStyle="bold" a:text="count" a:layout_width="wrap_content" a:layout_height="wrap_content" a:textColor="#ffff00" a:padding="0.5mm"></TextView>
     </TableRow>
-    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Digital Latency" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_min" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_p25" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_p50" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_p75" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_max" android:padding="0.5mm"></TextView>
-        <TextView android:text="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/digital_latency_count" android:textColor="#ffff00" android:padding="0.5mm"></TextView>
+    <TableRow a:layout_width="wrap_content" a:layout_height="wrap_content">
+        <TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Digital Latency" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_min" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_p25" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_p50" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_p75" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_max" a:padding="0.5mm"></TextView>
+        <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_count" a:textColor="#ffff00" a:padding="0.5mm"></TextView>
     </TableRow>
 </TableLayout>
 </LinearLayout>

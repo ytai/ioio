@@ -54,10 +54,7 @@ class ResourceAllocator {
 	public synchronized void freeAll() {
 		pinPairs_.clear();
 		for(int pin = 1; pin <= 47; pin += 2) {
-			// TODO: fix
-			if (pin != 7 && pin != 9) {
-				freePinPair(pin);
-			}
+			freePinPair(pin);
 		}
 		peripherals_ = new int[] { 9, 4, 3 };
 	}
