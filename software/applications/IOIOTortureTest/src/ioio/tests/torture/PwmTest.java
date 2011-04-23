@@ -76,6 +76,6 @@ public class PwmTest implements Test<Boolean> {
 			highCount += in.read() ? 1 : 0;
 			Thread.sleep(1);
 		}
-		return Math.abs((highCount / 500.f) - dc) < 0.1;
+		return Math.abs((highCount / 500.f) - dc) < 0.2;
 	}
 }
