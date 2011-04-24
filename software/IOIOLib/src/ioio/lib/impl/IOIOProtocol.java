@@ -534,14 +534,6 @@ public class IOIOProtocol {
 						}
 						break;
 
-					case SET_PIN_UART_RX:
-						readTwoBytes();
-						break;
-
-					case SET_PIN_UART_TX:
-						readTwoBytes();
-						break;
-
 					case SPI_DATA:
 						arg1 = readByte();
 						arg2 = readByte();
@@ -567,10 +559,6 @@ public class IOIOProtocol {
 						} else {
 							handler_.handleSpiOpen((arg1 >> 5) & 0x03);
 						}
-						break;
-
-					case SET_PIN_SPI:
-						readTwoBytes();
 						break;
 
 					case I2C_CONFIGURE_MASTER:

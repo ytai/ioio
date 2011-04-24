@@ -91,12 +91,12 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
-  sizeof(SET_PIN_UART_RX_ARGS),
-  sizeof(SET_PIN_UART_TX_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(SPI_DATA_ARGS),
   sizeof(SPI_REPORT_TX_STATUS_ARGS),
   sizeof(SPI_CONFIGURE_MASTER_ARGS),
-  sizeof(SET_PIN_SPI_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
@@ -307,7 +307,6 @@ static BOOL MessageDone() {
       SetPinUartRx(rx_msg.args.set_pin_uart_rx.pin,
                    rx_msg.args.set_pin_uart_rx.uart_num,
                    rx_msg.args.set_pin_uart_rx.enable);
-      Echo();
       break;
 
     case SET_PIN_UART_TX:
@@ -316,7 +315,6 @@ static BOOL MessageDone() {
       SetPinUartTx(rx_msg.args.set_pin_uart_tx.pin,
                    rx_msg.args.set_pin_uart_tx.uart_num,
                    rx_msg.args.set_pin_uart_tx.enable);
-      Echo();
       break;
 
     case SPI_MASTER_REQUEST:
@@ -374,7 +372,6 @@ static BOOL MessageDone() {
                 rx_msg.args.set_pin_spi.spi_num,
                 rx_msg.args.set_pin_spi.mode,
                 rx_msg.args.set_pin_spi.enable);
-      Echo();
       break;
 
     case I2C_CONFIGURE_MASTER:
