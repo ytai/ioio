@@ -266,6 +266,13 @@ typedef struct PACKED {
   WORD bytes_to_add : 14;
 } I2C_REPORT_TX_STATUS_ARGS;
 
+// set analog pin sampling
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 1;
+  BYTE enable : 1;
+} SET_ANALOG_IN_SAMPLING_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -292,6 +299,7 @@ typedef struct PACKED {
     SET_PIN_SPI_ARGS                         set_pin_spi;
     I2C_CONFIGURE_MASTER_ARGS                i2c_configure_master;
     I2C_WRITE_READ_ARGS                      i2c_write_read;
+    SET_ANALOG_IN_SAMPLING_ARGS              set_analog_pin_sampling;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -328,7 +336,6 @@ typedef enum {
   REGISTER_PERIOD_DIGITAL_SAMPLING  = 0x06,
   REPORT_PERIODIC_DIGITAL_IN_STATUS = 0x07,
   SET_PIN_PWM                       = 0x08,
-  REPORT_ANALOG_IN_FORMAT           = 0x08,
   SET_PWM_DUTY_CYCLE                = 0x09,
   REPORT_ANALOG_IN_STATUS           = 0x09,
   SET_PWM_PERIOD                    = 0x0A,
@@ -347,6 +354,8 @@ typedef enum {
   I2C_WRITE_READ                    = 0x15,
   I2C_RESULT                        = 0x15,
   I2C_REPORT_TX_STATUS              = 0x16,
+  SET_ANALOG_IN_SAMPLING            = 0x17,
+  REPORT_ANALOG_IN_FORMAT           = 0x17,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

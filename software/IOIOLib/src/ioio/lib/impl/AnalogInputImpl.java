@@ -28,6 +28,8 @@
  */
 package ioio.lib.impl;
 
+import java.io.IOException;
+
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.InputPinListener;
@@ -75,5 +77,14 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 	public synchronized void disconnected() {
 		super.disconnected();
 		notifyAll();
+	}
+
+	@Override
+	public synchronized void close() {
+		super.close();
+		try {
+			ioio_.protocol_.setAnalogInSampling(pinNum_, false);
+		} catch (IOException e) {
+		}
 	}
 }

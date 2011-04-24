@@ -177,39 +177,33 @@ static inline void ADCTrigger() {
   }
 }
 
-void ADCSetScan(int pin) {
+void ADCSetScan(int pin, int enable) {
   int channel = PinToAnalogChannel(pin);
   int mask;
   if (channel == -1) return;
   mask = 1 << channel;
-  if (mask & analog_scan_bitmask) return;
+  if (!!(mask & analog_scan_bitmask) == enable) return;
 
-  if (analog_scan_num_channels) {
-    // already running, just add the new channel
-    _T2IE = 0;
-    ++analog_scan_num_channels;
-    analog_scan_bitmask |= mask;
-    _T2IE = 1;
+  if (enable) {
+    if (analog_scan_num_channels) {
+      // already running, just add the new channel
+      _T2IE = 0;
+      ++analog_scan_num_channels;
+      analog_scan_bitmask |= mask;
+      _T2IE = 1;
+    } else {
+      // first channel, start running
+      analog_scan_num_channels = 1;
+      analog_scan_bitmask = mask;
+      ADCStart();
+    }
   } else {
-    // first channel, start running
-    analog_scan_num_channels = 1;
-    analog_scan_bitmask = mask;
-    ADCStart();
+    // if this was the last channel, the next T2 interrupt will stop the sampling
+    _T2IE = 0;
+    --analog_scan_num_channels;
+    analog_scan_bitmask &= ~mask;
+    _T2IE = 1;
   }
-}
-
-void ADCClrScan(int pin) {
-  int channel = PinToAnalogChannel(pin);
-  int mask;
-  if (channel == -1) return;
-  mask = 1 << channel;
-  if (!(mask & analog_scan_bitmask)) return;
-
-  // if this was the last channel, the next T2 interrupt will stop the sampling
-  _T2IE = 0;
-  --analog_scan_num_channels;
-  analog_scan_bitmask &= ~mask;
-  _T2IE = 1;
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T2Interrupt() {

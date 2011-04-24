@@ -64,7 +64,7 @@ static void PinsInit() {
 void SetPinDigitalOut(int pin, int value, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
   SAVE_PIN_FOR_LOG(pin);
-  ADCClrScan(pin);
+  ADCSetScan(pin, 0);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
@@ -78,7 +78,7 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
 void SetPinDigitalIn(int pin, int pull) {
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
   SAVE_PIN_FOR_LOG(pin);
-  ADCClrScan(pin);
+  ADCSetScan(pin, 0);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
@@ -146,7 +146,7 @@ void SetPinAnalogIn(int pin) {
   PinSetCnpd(pin, 0);
   PinSetAnsel(pin, 1);
   PinSetTris(pin, 1);
-  ADCSetScan(pin);
+  ADCSetScan(pin, 0);
 }
 
 void SetPinSpi(int pin, int spi_num, int mode, int enable) {

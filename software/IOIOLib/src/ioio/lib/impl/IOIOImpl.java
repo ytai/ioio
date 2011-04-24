@@ -266,6 +266,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		incomingState_.addInputPinListener(pin, result);
 		try {
 			protocol_.setPinAnalogIn(pin);
+			protocol_.setAnalogInSampling(pin, true);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}

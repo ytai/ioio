@@ -72,6 +72,7 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_WRITE_READ_ARGS),
   sizeof(RESERVED_ARGS),
+  sizeof(SET_ANALOG_IN_SAMPLING_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -85,7 +86,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
   sizeof(UART_REPORT_TX_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
@@ -100,6 +101,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
+  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -408,6 +410,12 @@ static BOOL MessageDone() {
                      rx_msg.args.i2c_write_read.write_size,
                      rx_msg.args.i2c_write_read.read_size);
       }
+      break;
+
+    case SET_ANALOG_IN_SAMPLING:
+      CHECK(rx_msg.args.set_analog_pin_sampling.pin < NUM_PINS);
+      ADCSetScan(rx_msg.args.set_analog_pin_sampling.pin,
+                 rx_msg.args.set_analog_pin_sampling.enable);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

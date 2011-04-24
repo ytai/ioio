@@ -55,7 +55,6 @@ public class IOIOProtocol {
 	static final int REGISTER_PERIOD_DIGITAL_SAMPLING  = 0x06;
 	static final int REPORT_PERIODIC_DIGITAL_IN_STATUS = 0x07;
 	static final int SET_PIN_PWM                       = 0x08;
-	static final int REPORT_ANALOG_IN_FORMAT           = 0x08;
 	static final int SET_PWM_DUTY_CYCLE                = 0x09;
 	static final int REPORT_ANALOG_IN_STATUS           = 0x09;
 	static final int SET_PWM_PERIOD                    = 0x0A;
@@ -74,6 +73,8 @@ public class IOIOProtocol {
 	static final int I2C_WRITE_READ                    = 0x15;
 	static final int I2C_RESULT                        = 0x15;
 	static final int I2C_REPORT_TX_STATUS              = 0x16;
+	static final int SET_ANALOG_IN_SAMPLING            = 0x17;
+	static final int REPORT_ANALOG_IN_FORMAT           = 0x17;
 	
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -221,6 +222,12 @@ public class IOIOProtocol {
 	synchronized public void setPinAnalogIn(int pin) throws IOException {
 		writeByte(SET_PIN_ANALOG_IN);
 		writeByte(pin);
+		flush();
+	}
+
+	synchronized public void setAnalogInSampling(int pin, boolean enable) throws IOException {
+		writeByte(SET_ANALOG_IN_SAMPLING);
+		writeByte((enable ? 0x80 : 0x00) | (pin & 0x3F));
 		flush();
 	}
 

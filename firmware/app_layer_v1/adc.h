@@ -45,10 +45,10 @@
 // Will stop sampling on all pins.
 void ADCInit();
 
-// Set a pin to be periodically samples.
+// Set / un-set a pin to be periodically samples.
 // Call will be ignored if pin does not sopprt analog input, or is already set
 // for sampling.
-void ADCSetScan(int pin);
+void ADCSetScan(int pin, int enable);
 
 // Stop sampling a pin.
 // Call will be ignored if pin does not support analog input, or is not being
