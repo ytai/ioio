@@ -40,92 +40,96 @@ import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 
 public class IncomingState implements IncomingHandler {
 	enum ConnectionState {
-		INIT,
-		CONNECTED,
-		DISCONNECTED
+		INIT, CONNECTED, DISCONNECTED
 	}
-	
+
+	enum InterfaceSupportState {
+		INIT, SUPPORTED, NOT_SUPPORTED
+	}
+
 	interface InputPinListener {
 		void setValue(int value);
 	}
-	
+
 	interface DisconnectListener {
 		void disconnected();
 	}
-	
+
 	interface DataModuleListener {
 		void dataReceived(byte[] data, int size);
+
 		void reportAdditionalBuffer(int bytesRemaining);
 	}
-	
+
 	class InputPinState {
 		private Queue<InputPinListener> listeners_ = new LinkedList<InputPinListener>();
 		private boolean currentOpen_ = false;
-		
+
 		void pushListener(InputPinListener listener) {
 			listeners_.add(listener);
 		}
-		
+
 		void closeCurrentListener() {
 			if (currentOpen_) {
 				currentOpen_ = false;
 				listeners_.remove();
 			}
 		}
-		
+
 		void openNextListener() {
-			assert(!listeners_.isEmpty());
+			assert (!listeners_.isEmpty());
 			if (!currentOpen_) {
 				currentOpen_ = true;
 			}
 		}
-		
+
 		void setValue(int v) {
-			assert(currentOpen_);
+			assert (currentOpen_);
 			listeners_.peek().setValue(v);
 		}
 	}
-	
+
 	class DataModuleState {
 		private Queue<DataModuleListener> listeners_ = new LinkedList<IncomingState.DataModuleListener>();
 		private boolean currentOpen_ = false;
-		
+
 		void pushListener(DataModuleListener listener) {
 			listeners_.add(listener);
 		}
-		
+
 		void closeCurrentListener() {
 			if (currentOpen_) {
 				currentOpen_ = false;
 				listeners_.remove();
 			}
 		}
-		
+
 		void openNextListener() {
-			assert(!listeners_.isEmpty());
+			assert (!listeners_.isEmpty());
 			if (!currentOpen_) {
 				currentOpen_ = true;
 			}
 		}
-		
+
 		void dataReceived(byte[] data, int size) {
-			assert(currentOpen_);
+			assert (currentOpen_);
 			listeners_.peek().dataReceived(data, size);
 		}
 
 		public void reportAdditionalBuffer(int bytesRemaining) {
-			assert(currentOpen_);
+			assert (currentOpen_);
 			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
 		}
 	}
-	
+
 	private final InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
 	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
 	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
-	
+	private InterfaceSupportState interfaceSupport_ = InterfaceSupportState.INIT;
+
 	public IncomingState() {
 		for (int i = 0; i < intputPinStates_.length; ++i) {
 			intputPinStates_[i] = new InputPinState();
@@ -140,8 +144,9 @@ public class IncomingState implements IncomingHandler {
 			spiStates_[i] = new DataModuleState();
 		}
 	}
-	
-	synchronized public void waitConnect() throws InterruptedException, ConnectionLostException {
+
+	synchronized public void waitConnect() throws InterruptedException,
+			ConnectionLostException {
 		while (connection_ == ConnectionState.INIT) {
 			wait();
 		}
@@ -149,42 +154,60 @@ public class IncomingState implements IncomingHandler {
 			throw new ConnectionLostException();
 		}
 	}
-	
+
+	synchronized public boolean waitForInterfaceSupport()
+			throws InterruptedException, ConnectionLostException {
+		if (connection_ == ConnectionState.INIT) {
+			throw new IllegalStateException(
+					"Have to connect before waiting for interface support");
+		}
+		while (connection_ == ConnectionState.CONNECTED
+				&& interfaceSupport_ == InterfaceSupportState.INIT) {
+			wait();
+		}
+		if (connection_ == ConnectionState.DISCONNECTED) {
+			throw new ConnectionLostException();
+		}
+		return interfaceSupport_ == InterfaceSupportState.SUPPORTED;
+	}
+
 	synchronized public void waitDisconnect() throws InterruptedException {
 		while (connection_ != ConnectionState.DISCONNECTED) {
 			wait();
 		}
 	}
-	
+
 	public void addInputPinListener(int pin, InputPinListener listener) {
 		intputPinStates_[pin].pushListener(listener);
 	}
-	
+
 	public void addUartListener(int uartNum, DataModuleListener listener) {
 		uartStates_[uartNum].pushListener(listener);
 	}
-	
+
 	public void addTwiListener(int twiNum, DataModuleListener listener) {
 		twiStates_[twiNum].pushListener(listener);
 	}
-	
+
 	public void addSpiListener(int spiNum, DataModuleListener listener) {
 		spiStates_[spiNum].pushListener(listener);
 	}
-	
-	synchronized public void addDisconnectListener(DisconnectListener listener) throws ConnectionLostException {
+
+	synchronized public void addDisconnectListener(DisconnectListener listener)
+			throws ConnectionLostException {
 		checkNotDisconnected();
 		disconnectListeners_.add(listener);
 	}
-	
-	synchronized public void removeDisconnectListener(DisconnectListener listener) {
+
+	synchronized public void removeDisconnectListener(
+			DisconnectListener listener) {
 		disconnectListeners_.remove(listener);
 	}
-	
+
 	@Override
 	synchronized public void handleConnectionLost() {
 		logMethod("handleConnectionLost");
-		for (DisconnectListener listener: disconnectListeners_) {
+		for (DisconnectListener listener : disconnectListeners_) {
 			listener.disconnected();
 		}
 		disconnectListeners_.clear();
@@ -195,18 +218,26 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleSoftReset() {
 		logMethod("handleSoftReset");
-		for (InputPinState pinState: intputPinStates_) {
+		for (InputPinState pinState : intputPinStates_) {
 			pinState.closeCurrentListener();
 		}
-		for (DataModuleState uartState: uartStates_) {
+		for (DataModuleState uartState : uartStates_) {
 			uartState.closeCurrentListener();
 		}
-		for (DataModuleState twiState: twiStates_) {
+		for (DataModuleState twiState : twiStates_) {
 			twiState.closeCurrentListener();
 		}
-		for (DataModuleState spiState: spiStates_) {
+		for (DataModuleState spiState : spiStates_) {
 			spiState.closeCurrentListener();
 		}
+	}
+
+	@Override
+	synchronized public void handleCheckInterfaceResponse(boolean supported) {
+		logMethod("handleCheckInterfaceResponse", supported);
+		interfaceSupport_ = supported ? InterfaceSupportState.SUPPORTED
+				: InterfaceSupportState.NOT_SUPPORTED;
+		notifyAll();
 	}
 
 	@Override
@@ -222,7 +253,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale) {
 		logMethod("handleRegisterPeriodicDigitalSampling", pin, freqScale);
-		assert(false);
+		assert (false);
 	}
 
 	@Override
@@ -234,10 +265,10 @@ public class IncomingState implements IncomingHandler {
 			intputPinStates_[pin].closeCurrentListener();
 		}
 	}
-	
+
 	@Override
 	public void handleUartData(int uartNum, int numBytes, byte[] data) {
-		//logMethod("handleUartData", uartNum, numBytes, data);
+		// logMethod("handleUartData", uartNum, numBytes, data);
 		uartStates_[uartNum].dataReceived(data, numBytes);
 	}
 
@@ -258,7 +289,6 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleSpiOpen", spiNum);
 		spiStates_[spiNum].openNextListener();
 	}
-	
 
 	@Override
 	public void handleSpiClose(int spiNum) {
@@ -281,9 +311,10 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleEstablishConnection(int hardwareId, int bootloaderId,
 			int firmwareId) {
-		logMethod("handleEstablishConnection", hardwareId, bootloaderId, firmwareId);
+		logMethod("handleEstablishConnection", hardwareId, bootloaderId,
+				firmwareId);
 		// TODO: check versions, close on failure
-		synchronized(this) {
+		synchronized (this) {
 			connection_ = ConnectionState.CONNECTED;
 			notifyAll();
 		}
@@ -291,25 +322,25 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleUartReportTxStatus(int uartNum, int bytesRemaining) {
-		//logMethod("handleUartReportTxStatus", uartNum, bytesRemaining);
+		// logMethod("handleUartReportTxStatus", uartNum, bytesRemaining);
 		uartStates_[uartNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
 	@Override
 	public void handleI2cReportTxStatus(int i2cNum, int bytesRemaining) {
-		//logMethod("handleI2cReportTxStatus", i2cNum, bytesRemaining);
+		// logMethod("handleI2cReportTxStatus", i2cNum, bytesRemaining);
 		twiStates_[i2cNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
 	@Override
 	public void handleSpiData(int spiNum, int ssPin, byte[] data, int dataBytes) {
-		//logMethod("handleSpiData", spiNum, ssPin, data, dataBytes);
+		// logMethod("handleSpiData", spiNum, ssPin, data, dataBytes);
 		spiStates_[spiNum].dataReceived(data, dataBytes);
 	}
 
 	@Override
 	public void handleReportDigitalInStatus(int pin, boolean level) {
-		//logMethod("handleReportDigitalInStatus", pin, level);
+		// logMethod("handleReportDigitalInStatus", pin, level);
 		intputPinStates_[pin].setValue(level ? 1 : 0);
 	}
 
@@ -321,15 +352,15 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleReportAnalogInStatus(int pins[], int values[]) {
-		//logMethod("handleReportAnalogInStatus", pins, values);
+		// logMethod("handleReportAnalogInStatus", pins, values);
 		for (int i = 0; i < pins.length; ++i) {
 			intputPinStates_[pins[i]].setValue(values[i]);
-		}		
+		}
 	}
 
 	@Override
 	public void handleSpiReportTxStatus(int spiNum, int bytesRemaining) {
-		//logMethod("handleSpiReportTxStatus", spiNum, bytesRemaining);
+		// logMethod("handleSpiReportTxStatus", spiNum, bytesRemaining);
 		spiStates_[spiNum].reportAdditionalBuffer(bytesRemaining);
 	}
 
@@ -338,13 +369,13 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cResult", i2cNum, size, data);
 		twiStates_[i2cNum].dataReceived(data, size);
 	}
-	
+
 	private void checkNotDisconnected() throws ConnectionLostException {
 		if (connection_ == ConnectionState.DISCONNECTED) {
 			throw new ConnectionLostException();
 		}
 	}
-	
+
 	private void logMethod(String name, Object... args) {
 		StringBuffer msg = new StringBuffer(name);
 		msg.append('(');
@@ -355,7 +386,7 @@ public class IncomingState implements IncomingHandler {
 			msg.append(args[i]);
 		}
 		msg.append(')');
-		
+
 		Log.v("IncomingState", msg.toString());
 	}
 }

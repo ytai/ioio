@@ -72,7 +72,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_WRITE_READ_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(SET_ANALOG_IN_SAMPLING_ARGS)
+  sizeof(SET_ANALOG_IN_SAMPLING_ARGS),
+  sizeof(CHECK_INTERFACE_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -101,7 +102,8 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
-  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS)
+  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
+  sizeof(CHECK_INTERFACE_RESPONSE_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
@@ -416,6 +418,10 @@ static BOOL MessageDone() {
       CHECK(rx_msg.args.set_analog_pin_sampling.pin < NUM_PINS);
       ADCSetScan(rx_msg.args.set_analog_pin_sampling.pin,
                  rx_msg.args.set_analog_pin_sampling.enable);
+      break;
+
+    case CHECK_INTERFACE:
+      CheckInterface(rx_msg.args.check_interface.interface_id);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

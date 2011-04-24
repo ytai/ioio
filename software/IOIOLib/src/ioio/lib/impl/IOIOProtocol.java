@@ -75,6 +75,8 @@ public class IOIOProtocol {
 	static final int I2C_REPORT_TX_STATUS              = 0x16;
 	static final int SET_ANALOG_IN_SAMPLING            = 0x17;
 	static final int REPORT_ANALOG_IN_FORMAT           = 0x17;
+	static final int CHECK_INTERFACE                   = 0x18;
+	static final int CHECK_INTERFACE_RESPONSE          = 0x18;
 	
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -137,6 +139,19 @@ public class IOIOProtocol {
 
 	synchronized public void softReset() throws IOException {
 		writeByte(SOFT_RESET);
+		flush();
+	}
+	
+	synchronized public void checkInterface(byte[] interfaceId)
+			throws IOException {
+		if (interfaceId.length != 8) {
+			throw new IllegalArgumentException(
+					"interface ID must be exactly 8 bytes long");
+		}
+		writeByte(CHECK_INTERFACE);
+		for (int i = 0; i < 8; ++i) {
+			writeByte(interfaceId[i]);
+		}
 		flush();
 	}
 
@@ -348,6 +363,8 @@ public class IOIOProtocol {
 		public void handleConnectionLost();
 
 		public void handleSoftReset();
+		
+		public void handleCheckInterfaceResponse(boolean supported);
 
 		public void handleSetChangeNotify(int pin, boolean changeNotify);
 
@@ -594,6 +611,11 @@ public class IOIOProtocol {
 						arg2 = readByte();
 						handler_.handleI2cReportTxStatus(arg1 & 0x03,
 								(arg1 >> 2) | (arg2 << 6));
+						break;
+						
+					case CHECK_INTERFACE_RESPONSE:
+						arg1 = readByte();
+						handler_.handleCheckInterfaceResponse((arg1 & 0x01) == 1);
 						break;
 
 					default:

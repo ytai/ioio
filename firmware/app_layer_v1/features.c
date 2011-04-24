@@ -29,6 +29,8 @@
 
 #include "features.h"
 
+#include <string.h>
+
 #include "Compiler.h"
 #include "pins.h"
 #include "logging.h"
@@ -211,6 +213,14 @@ void SoftReset() {
   I2CInit();
   // TODO: reset all peripherals!
   SRbits.IPL = ipl_backup;  // enable interrupts
+}
+
+void CheckInterface(BYTE interface_id[8]) {
+  OUTGOING_MESSAGE msg;
+  msg.type = CHECK_INTERFACE_RESPONSE;
+  msg.args.check_interface_response.supported
+      = (memcmp(interface_id, PROTOCOL_IID_IOIO0001, 8) == 0);
+  AppProtocolSendMessage(&msg);
 }
 
 // BOOKMARK(add_feature): Add feature implementation.

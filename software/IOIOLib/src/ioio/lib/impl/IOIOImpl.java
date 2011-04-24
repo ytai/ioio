@@ -39,6 +39,7 @@ import ioio.lib.api.TwiMaster;
 import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
@@ -49,6 +50,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	enum State {
 		INIT, CONNECTED, DEAD
 	}
+
+	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] {
+		'I', 'O', 'I', 'O', '0', '0', '0', '1' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
@@ -68,7 +72,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	synchronized public void waitForConnect() throws ConnectionLostException {
+	synchronized public void waitForConnect() throws ConnectionLostException,
+			IncompatibilityException {
 		if (state_ == State.CONNECTED) {
 			return;
 		}
@@ -89,6 +94,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				throw e;
 			}
 			incomingState_.waitConnect();
+			checkInterfaceVersion();
 			state_ = State.CONNECTED;
 			Log.i("IOIOImpl", "IOIO connection established");
 		} catch (ConnectionLostException e) {
@@ -111,6 +117,20 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	public void waitForDisconnect() throws InterruptedException {
 		incomingState_.waitDisconnect();
+	}
+	
+	private void checkInterfaceVersion() throws IncompatibilityException,
+			ConnectionLostException, InterruptedException {
+		try {
+			protocol_.checkInterface(REQUIRED_INTERFACE_ID);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+		if (!incomingState_.waitForInterfaceSupport()) {
+			throw new IncompatibilityException(
+					"IOIO firmware does not support required firmware: "
+							+ new String(REQUIRED_INTERFACE_ID));
+		}
 	}
 
 	synchronized void removeDisconnectListener(DisconnectListener listener) {

@@ -32,6 +32,7 @@ import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart.Parity;
 import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.api.exception.OutOfResourceException;
 
 import java.io.Closeable;
@@ -94,10 +95,13 @@ public interface IOIO {
 	 * @throws ConnectionLostException
 	 *             An error occurred during connection or disconnect() has been
 	 *             called during connection.
+	 * @throws IncompatibilityException
+	 *             An incompatible board firmware of hardware has been detected.
 	 * @see #disconnect()
 	 * @see #waitForDisconnect()
 	 */
-	public void waitForConnect() throws ConnectionLostException;
+	public void waitForConnect() throws ConnectionLostException,
+			IncompatibilityException;
 
 	/**
 	 * Closes the connection to the board, or aborts a connection process

@@ -33,7 +33,9 @@
 
 #define PACKED __attribute__ ((packed))
 
-#define IOIO_MAGIC               0x4F494F49L
+#define IOIO_MAGIC 0x4F494F49L
+
+#define PROTOCOL_IID_IOIO0001 "IOIO0001"
 
 // hard reset
 typedef struct PACKED {
@@ -273,6 +275,17 @@ typedef struct PACKED {
   BYTE enable : 1;
 } SET_ANALOG_IN_SAMPLING_ARGS;
 
+// check interface
+typedef struct PACKED {
+  BYTE interface_id[8];
+} CHECK_INTERFACE_ARGS;
+
+// check interface response
+typedef struct PACKED {
+  BYTE supported : 1;
+  BYTE : 7;
+} CHECK_INTERFACE_RESPONSE_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -300,6 +313,7 @@ typedef struct PACKED {
     I2C_CONFIGURE_MASTER_ARGS                i2c_configure_master;
     I2C_WRITE_READ_ARGS                      i2c_write_read;
     SET_ANALOG_IN_SAMPLING_ARGS              set_analog_pin_sampling;
+    CHECK_INTERFACE_ARGS                     check_interface;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -319,6 +333,7 @@ typedef struct PACKED {
     SPI_DATA_ARGS                           spi_data;
     I2C_RESULT_ARGS                         i2c_result;
     I2C_REPORT_TX_STATUS_ARGS               i2c_report_tx_status;
+    CHECK_INTERFACE_RESPONSE_ARGS           check_interface_response;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -356,6 +371,8 @@ typedef enum {
   I2C_REPORT_TX_STATUS              = 0x16,
   SET_ANALOG_IN_SAMPLING            = 0x17,
   REPORT_ANALOG_IN_FORMAT           = 0x17,
+  CHECK_INTERFACE                   = 0x18,
+  CHECK_INTERFACE_RESPONSE          = 0x18,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
