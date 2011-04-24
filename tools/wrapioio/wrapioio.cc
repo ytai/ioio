@@ -27,57 +27,53 @@
  * or implied.
  */
 
-// Capabilities and features of specific board versions.
+// wrapioio
+// This utility wraps a ioio image file with metadata required for the IOIOManager application
+// in order to properly stage this image for installation.
 //
-// Provides:
-// NUM_PINS         - The number of physical pins on the board, including the
-//                    on-board LED.
-// NUM_PWM_MODULES  - The number of available PWM modules.
-// NUM_UART_MODULES - The number of available UART modules.
-// NUM_SPI_MODULES  - The number of available SPI modules.
-// NUM_I2C_MODULES  - The number of available I2C modules.
+// Usage: wrapioio <platform> <infile> <outfile>
+//
+// The platform is a unique identifier of the hardware and bootloader ABI this image has been
+// built for. It is a 8-character ASCII string, where the first 4 characters designate the
+// authority who defined the hardware/ABI specification and the last 4 characters are a unique
+// designator of this particular specification.
+//
+// The input format is a ioio file, as produced by the hex2ioio tool. 
+//
+// The output format is currently only the platform ID followed by the ioio file, but this is
+// likely to change in the future. 
 
-#ifndef __BOARD_H__
-#define __BOARD_H__
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <stdint.h>
+#include <cstring>
+#include <cstdlib>
 
-#define _STRINGIFY(x) #x
-#define _TOSTRING(x) _STRINGIFY(x)
+using namespace std;
 
-#ifndef IOIO_VER
-#error Must define IOIO_VER
-#endif
+void usage() {
+  cerr << "Usage: wrapioio <platform> <in> <out>" << endl;
+  exit(1);
+}
 
-// number of pins of each board
-#if IOIO_VER == 10
-  #define NUM_PINS 50
-#elif IOIO_VER >= 11 && IOIO_VER <= 14
-  #define NUM_PINS 49
-#else
-  #error Unknown board
-#endif
+int main(int argc, const char* argv[]) {
+  if (argc != 4 || strlen(argv[1]) != 8) usage();
 
-// assert MCU
-#if IOIO_VER >= 10 && IOIO_VER <= 12
-  #ifndef __PIC24FJ128DA106__
-    #error Board and MCU mismatch - expecting PIC24FJ128DA106
-  #endif
-#elif IOIO_VER >= 13 && IOIO_VER <= 15
-  #ifndef __PIC24FJ128DA206__
-    #error Board and MCU mismatch - expecting PIC24FJ128DA106
-  #endif
-#else
-  #error Unknown board
-#endif
+  ofstream outfile(argv[3], ios::out | ios::binary);
+  outfile.write(argv[1], 8);
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
-  #define NUM_PWM_MODULES 9
-  #define NUM_UART_MODULES 4
-  #define NUM_SPI_MODULES 3
-  #define NUM_I2C_MODULES 3
-  #define NUM_INCAP_MODULES 9
-#else
-  #error Unknown MCU
-#endif
+  ifstream infile(argv[2], ios::in | ios::binary);
 
+  while (true) {
+    int c = infile.get();
+    if (infile.eof()) break;
+    outfile.put(c);
+  }
+  
+  infile.close();
+  outfile.close();
 
-#endif  // __BOARD_H__
+  cerr << "Success!" << endl;
+  return 0;
+}

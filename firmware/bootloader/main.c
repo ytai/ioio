@@ -79,6 +79,25 @@
   #error Unsupported target
 #endif
 
+// platform ID:
+// the platform ID is what maintains compatibility between the application
+// firmware image and the board / bootloader.
+// any application firmware image is given a platform ID for which it was built,
+// similarly, the bootloader holds a platform ID uniquely designating its own
+// binary interface and the underlying hardware.
+// the bootloader will only attempt to install a firmware image with a matching
+// platform ID.
+// boards that are completely electrically equivalent and have the same pin
+// numbering scheme and the same bootloader interface, will have identical
+// platform IDs.
+#if IOIO_VER == 10
+  #define PLATFORM_ID "IOIO0000"
+#elif IOIO_VER >= 10 && IOIO_VER <= 12
+  #define PLATFORM_ID "IOIO0001"
+#elif IOIO_VER >= 13 && IOIO_VER <= 15
+  #define PLATFORM_ID "IOIO0002"
+#endif
+
 #define FINGERPRINT_SIZE 16
 #define MAX_PATH 64
 
@@ -256,7 +275,7 @@ int main() {
       case MAIN_STATE_FIND_PATH_DONE:
         fingerprint_size = 0;
         strcpy(filepath, manager_path);
-        strcat(filepath, "/files/image." BOARD_VARIANT_STRING ".fp");
+        strcat(filepath, "/files/" PLATFORM_ID ".fp");
         f = ADBFileRead(filepath, &FileRecvFingerprint);
         state = MAIN_STATE_WAIT_RECV_FP;
         break;
@@ -278,7 +297,7 @@ int main() {
         } else {
           IOIOFileInit();
           strcpy(filepath, manager_path);
-          strcat(filepath, "/files/image." BOARD_VARIANT_STRING ".ioio");
+          strcat(filepath, "/files/" PLATFORM_ID ".ioio");
           f = ADBFileRead(filepath, &FileRecvImage);
           state = MAIN_STATE_WAIT_RECV_IMAGE;
         }

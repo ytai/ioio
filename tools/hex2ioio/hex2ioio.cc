@@ -29,7 +29,7 @@
 
 // hex2ioio
 // This utility translate a hex file into a IOIO application firmware image.
-// Usage: hex2ioio <variant> <infile> <outfile>
+// Usage: hex2ioio <infile> <outfile>
 //
 // The input format is a standard hex, as produced by the C30 compiler. This
 // program does some sanity checking on it, but not full validation.
@@ -42,7 +42,6 @@
 // The file starts with 4B "IOIO".
 // Then followed by a 4B (little endian) format version code.
 // Currently version must be 1.
-// Next is a 4B (little endian) board variant this firmware is intended for.
 //
 // The rest of the file is a sequnence of blocks, each 196B long, containing:
 //   1. 4B address (little endian)
@@ -80,7 +79,7 @@ class block_t {
 typedef map<uint32_t, block_t> memory_map_t;
 
 void usage() {
-cerr << "Usage: hex2ioio <variant> <in> <out>" << endl;
+cerr << "Usage: hex2ioio <in> <out>" << endl;
   exit(1);
 }
 
@@ -113,12 +112,12 @@ uint16_t read16(const char *& p) {
 }
 
 int main(int argc, const char* argv[]) {
-  if (argc != 4) usage();
+  if (argc != 3) usage();
 
   memory_map_t memory_map;
 
   // process input hex file into memory map
-  ifstream infile(argv[2], ios::in);
+  ifstream infile(argv[1], ios::in);
 
   bool got_eof_rec = false;
   uint16_t address_hi = 0;
@@ -161,11 +160,9 @@ int main(int argc, const char* argv[]) {
   cerr << "Read " << memory_map.size() << " blocks" << endl;
 
   // write memory map to output file
-  ofstream outfile(argv[3], ios::out | ios::binary);
+  ofstream outfile(argv[2], ios::out | ios::binary);
   outfile.write("IOIO", 4);
   outfile.write("\1\0\0\0", 4);
-  int variant = atoi(argv[1]);
-  outfile.write((const char *) &variant, 4);
   for (memory_map_t::const_iterator iter = memory_map.begin(); iter != memory_map.end(); ++iter) {
     outfile.write(reinterpret_cast<const char*>(&iter->first), 4);
     iter->second.serialize(outfile);
