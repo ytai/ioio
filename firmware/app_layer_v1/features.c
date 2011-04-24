@@ -100,10 +100,10 @@ void SetPinDigitalIn(int pin, int pull) {
   PinSetTris(pin, 1);
 }
 
-void SetPinPwm(int pin, int pwm_num) {
+void SetPinPwm(int pin, int pwm_num, int enable) {
   log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
   SAVE_PIN_FOR_LOG(pin);
-  PinSetRpor(pin, pwm_num == 0x0F ? 0 : (pwm_num == 8 ? 35 : 18 + pwm_num));
+  PinSetRpor(pin, enable ? (pwm_num == 8 ? 35 : 18 + pwm_num) : 0);
 }
 
 void SetPinUartRx(int pin, int uart_num, int enable) {

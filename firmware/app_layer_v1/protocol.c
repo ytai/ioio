@@ -254,9 +254,9 @@ static BOOL MessageDone() {
 
     case SET_PIN_PWM:
       CHECK(rx_msg.args.set_pin_pwm.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWM_MODULES
-            || rx_msg.args.set_pin_pwm.pwm_num == 0xF);
-      SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwm_num);
+      CHECK(rx_msg.args.set_pin_pwm.pwm_num < NUM_PWM_MODULES);
+      SetPinPwm(rx_msg.args.set_pin_pwm.pin, rx_msg.args.set_pin_pwm.pwm_num,
+                rx_msg.args.set_pin_pwm.enable);
       break;
 
     case SET_PWM_DUTY_CYCLE:

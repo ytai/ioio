@@ -108,7 +108,8 @@ typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
   BYTE pwm_num : 4;
-  BYTE : 4;
+  BYTE : 3;
+  BYTE enable : 1;
 } SET_PIN_PWM_ARGS;
 
 // set pwm duty cycle

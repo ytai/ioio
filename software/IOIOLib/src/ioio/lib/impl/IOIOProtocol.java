@@ -146,10 +146,11 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void setPinPwm(int pin, int pwmNum) throws IOException {
+	synchronized public void setPinPwm(int pin, int pwmNum, boolean enable)
+			throws IOException {
 		writeByte(SET_PIN_PWM);
-		writeByte(pin);
-		writeByte(pwmNum);
+		writeByte(pin & 0x3F);
+		writeByte((enable ? 0x80 : 0x00) | (pwmNum & 0x0F));
 		flush();
 	}
 

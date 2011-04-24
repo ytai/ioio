@@ -300,7 +300,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
-			protocol_.setPinPwm(spec.pin, pwmNum);
+			protocol_.setPinPwm(spec.pin, pwmNum, true);
 			protocol_.setPwmPeriod(pwmNum, period, scale256);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
