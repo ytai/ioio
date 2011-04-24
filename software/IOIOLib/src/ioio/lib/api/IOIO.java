@@ -94,9 +94,10 @@ public interface IOIO {
 	 * 
 	 * @throws ConnectionLostException
 	 *             An error occurred during connection or disconnect() has been
-	 *             called during connection.
+	 *             called during connection. The instance state is disconnected.
 	 * @throws IncompatibilityException
 	 *             An incompatible board firmware of hardware has been detected.
+	 *             The instance state is disconnected.
 	 * @see #disconnect()
 	 * @see #waitForDisconnect()
 	 */

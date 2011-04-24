@@ -86,15 +86,17 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			try {
 				Log.d("IOIOImpl", "Waiting for underlying connection");
 				connection_.waitForConnect();
-				Log.d("IOIOImpl", "Waiting for handshake");
 				protocol_ = new IOIOProtocol(connection_.getInputStream(),
 						connection_.getOutputStream(), incomingState_);
 			} catch (ConnectionLostException e) {
 				incomingState_.handleConnectionLost();
 				throw e;
 			}
-			incomingState_.waitConnect();
+			Log.d("IOIOImpl", "Waiting for handshake");
+			incomingState_.waitConnectionEstablished();
+			Log.d("IOIOImpl", "Querying for required interface ID");
 			checkInterfaceVersion();
+			Log.d("IOIOImpl", "Required interface ID is supported");
 			state_ = State.CONNECTED;
 			Log.i("IOIOImpl", "IOIO connection established");
 		} catch (ConnectionLostException e) {
@@ -127,6 +129,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 		if (!incomingState_.waitForInterfaceSupport()) {
+			disconnect();
+			Log.e("IOIOImpl", "Required interface ID is not supported");
 			throw new IncompatibilityException(
 					"IOIO firmware does not support required firmware: "
 							+ new String(REQUIRED_INTERFACE_ID));
@@ -470,12 +474,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	private void checkState() throws ConnectionLostException {
-		if (state_ == State.INIT) {
-			throw new IllegalStateException(
-					"Connection has not yet been established");
-		}
 		if (state_ == State.DEAD) {
 			throw new ConnectionLostException();
+		}
+		if (state_ != State.CONNECTED) {
+			throw new IllegalStateException(
+					"Connection has not yet been established");
 		}
 	}
 }

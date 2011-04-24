@@ -40,11 +40,7 @@ import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 
 public class IncomingState implements IncomingHandler {
 	enum ConnectionState {
-		INIT, CONNECTED, DISCONNECTED
-	}
-
-	enum InterfaceSupportState {
-		INIT, SUPPORTED, NOT_SUPPORTED
+		INIT, ESTABLISHED, CONNECTED, DISCONNECTED, UNSUPPORTED_IID
 	}
 
 	interface InputPinListener {
@@ -128,7 +124,6 @@ public class IncomingState implements IncomingHandler {
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
-	private InterfaceSupportState interfaceSupport_ = InterfaceSupportState.INIT;
 
 	public IncomingState() {
 		for (int i = 0; i < intputPinStates_.length; ++i) {
@@ -145,7 +140,7 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 
-	synchronized public void waitConnect() throws InterruptedException,
+	synchronized public void waitConnectionEstablished() throws InterruptedException,
 			ConnectionLostException {
 		while (connection_ == ConnectionState.INIT) {
 			wait();
@@ -161,14 +156,13 @@ public class IncomingState implements IncomingHandler {
 			throw new IllegalStateException(
 					"Have to connect before waiting for interface support");
 		}
-		while (connection_ == ConnectionState.CONNECTED
-				&& interfaceSupport_ == InterfaceSupportState.INIT) {
+		while (connection_ == ConnectionState.ESTABLISHED) {
 			wait();
 		}
 		if (connection_ == ConnectionState.DISCONNECTED) {
 			throw new ConnectionLostException();
 		}
-		return interfaceSupport_ == InterfaceSupportState.SUPPORTED;
+		return connection_ == ConnectionState.CONNECTED;
 	}
 
 	synchronized public void waitDisconnect() throws InterruptedException {
@@ -235,8 +229,8 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	synchronized public void handleCheckInterfaceResponse(boolean supported) {
 		logMethod("handleCheckInterfaceResponse", supported);
-		interfaceSupport_ = supported ? InterfaceSupportState.SUPPORTED
-				: InterfaceSupportState.NOT_SUPPORTED;
+		connection_ = supported ? ConnectionState.CONNECTED
+				: ConnectionState.UNSUPPORTED_IID;
 		notifyAll();
 	}
 
