@@ -457,18 +457,10 @@ public class IOIOProtocol {
 						handler_.handleSoftReset();
 						break;
 
-					case SET_PIN_DIGITAL_OUT:
-						readByte();
-						break;
-
 					case REPORT_DIGITAL_IN_STATUS:
 						arg1 = readByte();
 						handler_.handleReportDigitalInStatus(arg1 >> 2,
 								(arg1 & 0x01) == 1);
-						break;
-
-					case SET_PIN_DIGITAL_IN:
-						readByte();
 						break;
 
 					case SET_CHANGE_NOTIFY:
@@ -521,10 +513,6 @@ public class IOIOProtocol {
 						arg2 = readByte();
 						handler_.handleUartReportTxStatus(arg1 & 0x03,
 								(arg1 >> 2) | (arg2 << 6));
-						break;
-
-					case SET_PIN_ANALOG_IN:
-						readByte();
 						break;
 
 					case UART_DATA:

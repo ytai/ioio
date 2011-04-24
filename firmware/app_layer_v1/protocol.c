@@ -79,16 +79,16 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
 const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ESTABLISH_CONNECTION_ARGS),
   sizeof(SOFT_RESET_ARGS),
-  sizeof(SET_PIN_DIGITAL_OUT_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(REPORT_DIGITAL_IN_STATUS_ARGS),
-  sizeof(SET_PIN_DIGITAL_IN_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
   sizeof(UART_REPORT_TX_STATUS_ARGS),
-  sizeof(SET_PIN_ANALOG_IN_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
   sizeof(SET_PIN_UART_RX_ARGS),
@@ -227,7 +227,6 @@ static BOOL MessageDone() {
       SetPinDigitalOut(rx_msg.args.set_pin_digital_out.pin,
                        rx_msg.args.set_pin_digital_out.value,
                        rx_msg.args.set_pin_digital_out.open_drain);
-      Echo();
       break;
 
     case SET_DIGITAL_OUT_LEVEL:
@@ -240,7 +239,6 @@ static BOOL MessageDone() {
       CHECK(rx_msg.args.set_pin_digital_in.pin < NUM_PINS);
       CHECK(rx_msg.args.set_pin_digital_in.pull < 3);
       SetPinDigitalIn(rx_msg.args.set_pin_digital_in.pin, rx_msg.args.set_pin_digital_in.pull);
-      Echo();
       break;
 
     case SET_CHANGE_NOTIFY:
@@ -277,7 +275,6 @@ static BOOL MessageDone() {
 
     case SET_PIN_ANALOG_IN:
       CHECK(rx_msg.args.set_pin_analog_in.pin < NUM_PINS);
-      Echo();
       SetPinAnalogIn(rx_msg.args.set_pin_analog_in.pin);
       break;
 
