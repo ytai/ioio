@@ -45,7 +45,7 @@ typedef struct {
 } BYTE_QUEUE;
 
 #define DEFINE_STATIC_BYTE_QUEUE(name, size)              \
-  static BYTE name##_buf[size];                           \
+  static BYTE name##_buf[size] __attribute__((far));      \
   static BYTE_QUEUE name = { name##_buf, size, 0, 0, 0 }
 
 static inline void ByteQueueClear(BYTE_QUEUE* q) {

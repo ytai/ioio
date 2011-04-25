@@ -108,7 +108,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   // Array is indexed by message type enum.
 };
 
-DEFINE_STATIC_BYTE_QUEUE(tx_queue, 1024);
+DEFINE_STATIC_BYTE_QUEUE(tx_queue, 4096);
 static int bytes_transmitted;
 
 typedef enum {
