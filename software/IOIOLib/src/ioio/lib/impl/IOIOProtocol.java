@@ -44,41 +44,41 @@ import java.util.Set;
 import android.util.Log;
 
 public class IOIOProtocol {
-	static final int HARD_RESET                        = 0x00;
-	static final int ESTABLISH_CONNECTION              = 0x00;
-	static final int SOFT_RESET                        = 0x01;
-	static final int SET_PIN_DIGITAL_OUT               = 0x02;
-	static final int SET_DIGITAL_OUT_LEVEL             = 0x03;
-	static final int REPORT_DIGITAL_IN_STATUS          = 0x03;
-	static final int SET_PIN_DIGITAL_IN                = 0x04;
-	static final int SET_CHANGE_NOTIFY                 = 0x05;
-	static final int REGISTER_PERIOD_DIGITAL_SAMPLING  = 0x06;
-	static final int REPORT_PERIODIC_DIGITAL_IN_STATUS = 0x07;
-	static final int SET_PIN_PWM                       = 0x08;
-	static final int SET_PWM_DUTY_CYCLE                = 0x09;
-	static final int REPORT_ANALOG_IN_STATUS           = 0x09;
-	static final int SET_PWM_PERIOD                    = 0x0A;
-	static final int UART_REPORT_TX_STATUS             = 0x0A;
-	static final int SET_PIN_ANALOG_IN                 = 0x0B;
-	static final int UART_DATA                         = 0x0C;
-	static final int UART_CONFIG                       = 0x0D;
-	static final int UART_STATUS                       = 0x0D;
-	static final int SET_PIN_UART                      = 0x0E;
-	static final int SPI_MASTER_REQUEST                = 0x10;
-	static final int SPI_DATA                          = 0x10;
-	static final int SPI_REPORT_TX_STATUS              = 0x11;
-	static final int SPI_CONFIGURE_MASTER              = 0x12;
-	static final int SPI_STATUS                        = 0x12;
-	static final int SET_PIN_SPI                       = 0x13;
-	static final int I2C_CONFIGURE_MASTER              = 0x14;
-	static final int I2C_STATUS                        = 0x14;
-	static final int I2C_WRITE_READ                    = 0x15;
-	static final int I2C_RESULT                        = 0x15;
-	static final int I2C_REPORT_TX_STATUS              = 0x16;
-	static final int SET_ANALOG_IN_SAMPLING            = 0x17;
-	static final int REPORT_ANALOG_IN_FORMAT           = 0x17;
-	static final int CHECK_INTERFACE                   = 0x18;
-	static final int CHECK_INTERFACE_RESPONSE          = 0x18;
+	static final int HARD_RESET                          = 0x00;
+	static final int ESTABLISH_CONNECTION                = 0x00;
+	static final int SOFT_RESET                          = 0x01;
+	static final int CHECK_INTERFACE                     = 0x02;
+	static final int CHECK_INTERFACE_RESPONSE            = 0x02;
+	static final int SET_PIN_DIGITAL_OUT                 = 0x03;
+	static final int SET_DIGITAL_OUT_LEVEL               = 0x04;
+	static final int REPORT_DIGITAL_IN_STATUS            = 0x04;
+	static final int SET_PIN_DIGITAL_IN                  = 0x05;
+	static final int REPORT_PERIODIC_DIGITAL_IN_STATUS   = 0x05;
+	static final int SET_CHANGE_NOTIFY                   = 0x06;
+	static final int REGISTER_PERIODIC_DIGITAL_SAMPLING  = 0x07;
+	static final int SET_PIN_PWM                         = 0x08;
+	static final int SET_PWM_DUTY_CYCLE                  = 0x09;
+	static final int SET_PWM_PERIOD                      = 0x0A;
+	static final int SET_PIN_ANALOG_IN                   = 0x0B;
+	static final int REPORT_ANALOG_IN_STATUS             = 0x0B;
+	static final int SET_ANALOG_IN_SAMPLING              = 0x0C;
+	static final int REPORT_ANALOG_IN_FORMAT             = 0x0C;
+	static final int UART_CONFIG                         = 0x0D;
+	static final int UART_STATUS                         = 0x0D;
+	static final int UART_DATA                           = 0x0E;
+	static final int SET_PIN_UART                        = 0x0F;
+	static final int UART_REPORT_TX_STATUS               = 0x0F;
+	static final int SPI_CONFIGURE_MASTER                = 0x10;
+	static final int SPI_STATUS                          = 0x10;
+	static final int SPI_MASTER_REQUEST                  = 0x11;
+	static final int SPI_DATA                            = 0x11;
+	static final int SET_PIN_SPI                         = 0x12;
+	static final int SPI_REPORT_TX_STATUS                = 0x12;
+	static final int I2C_CONFIGURE_MASTER                = 0x13;
+	static final int I2C_STATUS                          = 0x13;
+	static final int I2C_WRITE_READ                      = 0x14;
+	static final int I2C_RESULT                          = 0x14;
+	static final int I2C_REPORT_TX_STATUS                = 0x15;
 	
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -488,7 +488,7 @@ public class IOIOProtocol {
 								(arg1 & 0x01) == 1);
 						break;
 
-					case REGISTER_PERIOD_DIGITAL_SAMPLING:
+					case REGISTER_PERIODIC_DIGITAL_SAMPLING:
 						// TODO: implement
 						break;
 

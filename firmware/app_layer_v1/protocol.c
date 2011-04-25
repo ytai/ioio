@@ -51,29 +51,26 @@
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(HARD_RESET_ARGS),
   sizeof(SOFT_RESET_ARGS),
+  sizeof(CHECK_INTERFACE_ARGS),
   sizeof(SET_PIN_DIGITAL_OUT_ARGS),
   sizeof(SET_DIGITAL_OUT_LEVEL_ARGS),
   sizeof(SET_PIN_DIGITAL_IN_ARGS),
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
-  sizeof(RESERVED_ARGS),
   sizeof(SET_PIN_PWM_ARGS),
   sizeof(SET_PWM_DUTY_CYCLE_ARGS),
   sizeof(SET_PWM_PERIOD_ARGS),
   sizeof(SET_PIN_ANALOG_IN_ARGS),
-  sizeof(UART_DATA_ARGS),
+  sizeof(SET_ANALOG_IN_SAMPLING_ARGS),
   sizeof(UART_CONFIG_ARGS),
+  sizeof(UART_DATA_ARGS),
   sizeof(SET_PIN_UART_ARGS),
-  sizeof(RESERVED_ARGS),
-  sizeof(SPI_MASTER_REQUEST_ARGS),
-  sizeof(RESERVED_ARGS),
   sizeof(SPI_CONFIGURE_MASTER_ARGS),
+  sizeof(SPI_MASTER_REQUEST_ARGS),
   sizeof(SET_PIN_SPI_ARGS),
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_WRITE_READ_ARGS),
-  sizeof(RESERVED_ARGS),
-  sizeof(SET_ANALOG_IN_SAMPLING_ARGS),
-  sizeof(CHECK_INTERFACE_ARGS)
+  sizeof(RESERVED_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -81,6 +78,7 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
 const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ESTABLISH_CONNECTION_ARGS),
   sizeof(SOFT_RESET_ARGS),
+  sizeof(CHECK_INTERFACE_RESPONSE_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(REPORT_DIGITAL_IN_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
@@ -88,22 +86,19 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(REPORT_ANALOG_IN_STATUS_ARGS),
-  sizeof(UART_REPORT_TX_STATUS_ARGS),
-  sizeof(RESERVED_ARGS),
-  sizeof(UART_DATA_ARGS),
+  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
   sizeof(UART_STATUS_ARGS),
-  sizeof(RESERVED_ARGS),
-  sizeof(RESERVED_ARGS),
+  sizeof(UART_DATA_ARGS),
+  sizeof(UART_REPORT_TX_STATUS_ARGS),
+  sizeof(SPI_STATUS_ARGS),
   sizeof(SPI_DATA_ARGS),
   sizeof(SPI_REPORT_TX_STATUS_ARGS),
-  sizeof(SPI_STATUS_ARGS),
-  sizeof(RESERVED_ARGS),
   sizeof(I2C_STATUS_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
-  sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
-  sizeof(CHECK_INTERFACE_RESPONSE_ARGS)
+
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
