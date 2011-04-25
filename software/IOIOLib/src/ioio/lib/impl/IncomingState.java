@@ -124,6 +124,9 @@ public class IncomingState implements IncomingHandler {
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
+	public String hardwareId_;
+	public String bootloaderId_;
+	public String firmwareId_;
 
 	public IncomingState() {
 		for (int i = 0; i < intputPinStates_.length; ++i) {
@@ -306,10 +309,14 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleEstablishConnection(byte[] hardwareId,
 			byte[] bootloaderId, byte[] firmwareId) {
+		hardwareId_ = new String(hardwareId);
+		bootloaderId_ = new String(bootloaderId);
+		firmwareId_ = new String(firmwareId);
+
 		Log.i("IncomingState", "IOIO Connection established. Hardware ID: "
-				+ new String(hardwareId) + " Bootloader ID: "
-				+ new String(bootloaderId) + " Firmware ID: "
-				+ new String(firmwareId));
+				+ hardwareId_ + " Bootloader ID: "
+				+ bootloaderId_ + " Firmware ID: "
+				+ firmwareId_);
 		synchronized (this) {
 			connection_ = ConnectionState.CONNECTED;
 			notifyAll();

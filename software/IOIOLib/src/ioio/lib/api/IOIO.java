@@ -84,6 +84,22 @@ public interface IOIO {
 	public static final int INVALID_PIN = -1;
 	/** The pin number used to designate the on-board 'stat' LED. */
 	public static final int LED_PIN = 0;
+	
+	/**
+	 * A versioned component in the system.
+	 * 
+	 * @see IOIO#getImplVersion(VersionType)
+	 */
+	public enum VersionType {
+		/** Hardware version. */
+		HARDWARE_VER,
+		/** Bootloader version. */
+		BOOTLOADER_VER,
+		/** Application layer firmware version. */
+		APP_FIRMWARE_VER,
+		/** IOIOLib version. */
+		IOIOLIB_VER
+	}
 
 	/**
 	 * Establishes connection with the IOIO board.
@@ -162,6 +178,22 @@ public interface IOIO {
 	 * @see #softReset()
 	 */
 	public void hardReset() throws ConnectionLostException;
+	
+	/**
+	 * Query the implementation version of the system's components. The
+	 * implementation version uniquely identifies a hardware revision or a
+	 * software build. Returned version IDs are always 8-character long,
+	 * according to the IOIO versioning system: first 4 characters are the
+	 * version authority and last 4 characters are the revision.
+	 * 
+	 * @param v
+	 *            The component whose version we query.
+	 * @return An 8-character implementation version ID.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 */
+	public String getImplVersion(VersionType v) throws ConnectionLostException;
 
 	/**
 	 * Open a pin for digital input.

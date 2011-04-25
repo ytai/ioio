@@ -214,6 +214,22 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
+	public String getImplVersion(VersionType v) throws ConnectionLostException {
+		checkState();
+		switch (v) {
+		case HARDWARE_VER:
+			return incomingState_.hardwareId_;
+		case BOOTLOADER_VER:
+			return incomingState_.bootloaderId_;
+		case APP_FIRMWARE_VER:
+			return incomingState_.firmwareId_;
+		case IOIOLIB_VER:
+			return "IOIO0100";
+		}
+		return null;
+	}
+
+	@Override
 	public DigitalInput openDigitalInput(int pin)
 			throws ConnectionLostException {
 		return openDigitalInput(new DigitalInput.Spec(pin));

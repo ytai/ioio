@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
     a:orientation="vertical"
-    a:layout_width="fill_parent"
-    a:layout_height="fill_parent"
-    >
+    a:layout_height="fill_parent" a:layout_width="fill_parent">
 <TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Accuracy" a:textStyle="bold" a:textSize="3mm"></TextView>
 <TableLayout a:layout_height="wrap_content" a:layout_width="fill_parent">
     <TableRow a:layout_height="wrap_content" a:layout_width="fill_parent">
@@ -64,4 +62,6 @@
         <TextView a:text="0" a:layout_width="wrap_content" a:layout_height="wrap_content" a:id="@+id/digital_latency_count" a:textColor="#ffff00" a:padding="0.5mm"></TextView>
     </TableRow>
 </TableLayout>
+<TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Versions" a:textStyle="bold" a:textSize="3mm"></TextView>
+<TextView a:text="" a:id="@+id/versions" a:layout_width="wrap_content" a:layout_height="wrap_content" a:layout_gravity="bottom"></TextView>
 </LinearLayout>
