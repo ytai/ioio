@@ -302,12 +302,14 @@ public class IncomingState implements IncomingHandler {
 		twiStates_[i2cNum].closeCurrentListener();
 	}
 
+
 	@Override
-	public void handleEstablishConnection(int hardwareId, int bootloaderId,
-			int firmwareId) {
-		logMethod("handleEstablishConnection", hardwareId, bootloaderId,
-				firmwareId);
-		// TODO: check versions, close on failure
+	public void handleEstablishConnection(byte[] hardwareId,
+			byte[] bootloaderId, byte[] firmwareId) {
+		Log.i("IncomingState", "IOIO Connection established. Hardware ID: "
+				+ new String(hardwareId) + " Bootloader ID: "
+				+ new String(bootloaderId) + " Firmware ID: "
+				+ new String(firmwareId));
 		synchronized (this) {
 			connection_ = ConnectionState.CONNECTED;
 			notifyAll();

@@ -90,12 +90,17 @@
 // boards that are completely electrically equivalent and have the same pin
 // numbering scheme and the same bootloader interface, will have identical
 // platform IDs.
-#if IOIO_VER == 10
+//
+// note that when BLAPI changes, this list will need to be completely rebuilt
+// with new numbers per hardware version.
+#if BOARD_VER == BOARD_SPRK0010
   #define PLATFORM_ID "IOIO0000"
-#elif IOIO_VER >= 10 && IOIO_VER <= 12
+#elif BOARD_VER >= BOARD_SPRK0011 && BOARD_VER <= BOARD_SPRK0012
   #define PLATFORM_ID "IOIO0001"
-#elif IOIO_VER >= 13 && IOIO_VER <= 15
+#elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
   #define PLATFORM_ID "IOIO0002"
+#else
+  #error Unknown board version - cannot determine platform ID
 #endif
 
 #define FINGERPRINT_SIZE 16

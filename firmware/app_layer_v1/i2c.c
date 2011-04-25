@@ -31,7 +31,7 @@
 
 #include <assert.h>
 #include "Compiler.h"
-#include "board.h"
+#include "platform.h"
 #include "sync.h"
 #include "byte_queue.h"
 #include "logging.h"

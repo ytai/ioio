@@ -37,17 +37,9 @@
 
 #include "GenericTypeDefs.h"
 
-// The bootloader (BLAPI) version.
-// TODO: top 8 bits are lost with this reading method.
-extern __prog__ const WORD BootloaderVer;
-#define BLAPI_VER_1 1
-
-// The hardware version.
-// TODO: top 8 bits are lost with this reading method.
-extern __prog__ const WORD HardwareVer;
-#define HARDWARE_VER_IOIO_V12 0
-#define HARDWARE_VER_IOIO_V13 1
-
+// Returns the implementation IDs of the hardware and the bootloader.
+// Each version is comprised of 4 bytes authrity, followed by 4 bytes revision.
+void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]);
 
 // Needs to be called by the application periodically in order to provide
 // context for the service provided by the bootloader API (BLAPI).

@@ -30,7 +30,7 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#include "board.h"
+#include "platform.h"
 
 extern unsigned int CNENB;
 extern unsigned int CNENC;

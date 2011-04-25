@@ -32,7 +32,7 @@
 #include <assert.h>
 
 #include "Compiler.h"
-#include "board.h"
+#include "platform.h"
 #include "logging.h"
 #include "pp_util.h"
 

@@ -39,7 +39,7 @@
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="V1.2-release" type="2">
+    <conf name="IOIO0001" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
@@ -63,9 +63,9 @@
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="0"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="optimization-level" value="0"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -83,8 +83,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -121,7 +121,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_p24FJ128DA206.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
@@ -158,30 +158,30 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x2abf7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="UCNFG1" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
-    <conf name="V1.3-release" type="2">
+    <conf name="IOIO0002" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ128DA106</targetDevice>
+        <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
@@ -202,9 +202,9 @@
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="0"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="optimization-level" value="0"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -222,8 +222,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -260,7 +260,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_p24FJ128DA206.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
@@ -297,21 +297,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x2abf7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="UCNFG1" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>

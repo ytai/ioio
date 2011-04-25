@@ -27,57 +27,54 @@
  * or implied.
  */
 
-// Capabilities and features of specific board versions.
-//
-// Provides:
-// NUM_PINS         - The number of physical pins on the board, including the
-//                    on-board LED.
-// NUM_PWM_MODULES  - The number of available PWM modules.
-// NUM_UART_MODULES - The number of available UART modules.
-// NUM_SPI_MODULES  - The number of available SPI modules.
-// NUM_I2C_MODULES  - The number of available I2C modules.
+// Board implementation designators.
 
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#define _STRINGIFY(x) #x
-#define _TOSTRING(x) _STRINGIFY(x)
+#define BOARD_SPRK_BASE 1000  // base number for SparkFun's boards
+#define BOARD_SPRK0010 BOARD_SPRK_BASE + 10
+#define BOARD_SPRK0011 BOARD_SPRK_BASE + 11
+#define BOARD_SPRK0012 BOARD_SPRK_BASE + 12
+#define BOARD_SPRK0013 BOARD_SPRK_BASE + 13
+#define BOARD_SPRK0014 BOARD_SPRK_BASE + 14
+#define BOARD_SPRK0015 BOARD_SPRK_BASE + 15
+// add more boards here!
 
-#ifndef IOIO_VER
-#error Must define IOIO_VER
+#ifndef BOARD_VER
+#error Must define BOARD_VER
 #endif
 
-// number of pins of each board
-#if IOIO_VER == 10
-  #define NUM_PINS 50
-#elif IOIO_VER >= 11 && IOIO_VER <= 14
-  #define NUM_PINS 49
-#else
-  #error Unknown board
-#endif
-
-// assert MCU
-#if IOIO_VER >= 10 && IOIO_VER <= 12
+// sanity assert MCU
+#if BOARD_VER >= BOARD_SPRK0010 && BOARD_VER <= BOARD_SPRK0012
   #ifndef __PIC24FJ128DA106__
     #error Board and MCU mismatch - expecting PIC24FJ128DA106
   #endif
-#elif IOIO_VER >= 13 && IOIO_VER <= 15
+#elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
   #ifndef __PIC24FJ128DA206__
-    #error Board and MCU mismatch - expecting PIC24FJ128DA106
+    #error Board and MCU mismatch - expecting PIC24FJ128DA206
   #endif
 #else
   #error Unknown board
 #endif
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
-  #define NUM_PWM_MODULES 9
-  #define NUM_UART_MODULES 4
-  #define NUM_SPI_MODULES 3
-  #define NUM_I2C_MODULES 3
-  #define NUM_INCAP_MODULES 9
+// hardware implementation versions
+// Each version is an 8-byte ASCII string, comprised of 4 bytes authrity
+// followed by 4 bytes revision.
+#if BOARD_VER == BOARD_SPRK0010
+  #define HW_IMPL_VER "SPRK0010"
+#elif BOARD_VER == BOARD_SPRK0011
+  #define HW_IMPL_VER "SPRK0011"
+#elif BOARD_VER == BOARD_SPRK0012
+  #define HW_IMPL_VER "SPRK0012"
+#elif BOARD_VER == BOARD_SPRK0013
+  #define HW_IMPL_VER "SPRK0013"
+#elif BOARD_VER == BOARD_SPRK0014
+  #define HW_IMPL_VER "SPRK0014"
+#elif BOARD_VER == BOARD_SPRK0015
+  #define HW_IMPL_VER "SPRK0015"
 #else
-  #error Unknown MCU
+  #error Unknown board
 #endif
-
 
 #endif  // __BOARD_H__

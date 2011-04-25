@@ -31,7 +31,7 @@
 
 #include <assert.h>
 #include "byte_queue.h"
-#include "board.h"
+#include "platform.h"
 #include "logging.h"
 #include "pins.h"
 #include "pp_util.h"

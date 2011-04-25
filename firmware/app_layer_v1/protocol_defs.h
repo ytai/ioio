@@ -45,9 +45,9 @@ typedef struct PACKED {
 // establish connection
 typedef struct PACKED {
   DWORD magic;
-  DWORD hardware : 24;
-  DWORD bootloader : 24;
-  DWORD firmware : 24;
+  BYTE hw_impl_ver[8];
+  BYTE bl_impl_ver[8];
+  BYTE fw_impl_ver[8];
 } ESTABLISH_CONNECTION_ARGS;
 
 // soft reset

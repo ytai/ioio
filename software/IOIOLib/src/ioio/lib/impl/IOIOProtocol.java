@@ -351,8 +351,8 @@ public class IOIOProtocol {
 	}
 
 	public interface IncomingHandler {
-		public void handleEstablishConnection(int hardwareId, int bootloaderId,
-				int firmwareId);
+		public void handleEstablishConnection(byte[] hardwareId, byte[] bootloaderId,
+				byte[] firmwareId);
 
 		public void handleConnectionLost();
 
@@ -439,12 +439,10 @@ public class IOIOProtocol {
 			}
 		}
 
-		private int readTwoBytes() throws IOException {
-			return readByte() | (readByte() << 8);
-		}
-
-		private int readThreeBytes() throws IOException {
-			return readByte() | (readByte() << 8) | (readByte() << 16);
+		private void readBytes(int size, byte[] buffer) throws IOException {
+			for (int i = 0; i < size; ++i) {
+				buffer[i] = (byte) readByte();
+			}
 		}
 
 		@Override
@@ -464,9 +462,12 @@ public class IOIOProtocol {
 							throw new IOException(
 									"Bad establish connection magic");
 						}
-						int hardwareId = readThreeBytes();
-						int bootloaderId = readThreeBytes();
-						int firmwareId = readThreeBytes();
+						byte[] hardwareId = new byte[8];
+						byte[] bootloaderId = new byte[8];
+						byte[] firmwareId = new byte[8];
+						readBytes(8, hardwareId);
+						readBytes(8, bootloaderId);
+						readBytes(8, firmwareId);
 
 						handler_.handleEstablishConnection(hardwareId,
 								bootloaderId, firmwareId);

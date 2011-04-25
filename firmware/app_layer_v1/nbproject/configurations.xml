@@ -12,7 +12,6 @@
       </logicalFolder>
       <itemPath>HardwareProfile.h</itemPath>
       <itemPath>adc.h</itemPath>
-      <itemPath>../common/board.h</itemPath>
       <itemPath>byte_queue.h</itemPath>
       <itemPath>digital.h</itemPath>
       <itemPath>features.h</itemPath>
@@ -20,6 +19,7 @@
       <itemPath>incap.h</itemPath>
       <itemPath>../common/logging.h</itemPath>
       <itemPath>pins.h</itemPath>
+      <itemPath>../common/platform.h</itemPath>
       <itemPath>pp_util.h</itemPath>
       <itemPath>protocol.h</itemPath>
       <itemPath>protocol_defs.h</itemPath>
@@ -67,15 +67,15 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
       <itemPath>README</itemPath>
-      <itemPath>../blapi/app_common.gld</itemPath>
-      <itemPath>../blapi/app_p24FJ128DA106.gld</itemPath>
-      <itemPath>../blapi/app_p24FJ128DA206.gld</itemPath>
-      <itemPath>../blapi/app_p24FJ256DA206.gld</itemPath>
+      <itemPath>../blapi/app_BLAPI_1.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0000.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0001.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0002.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="V1.2-release" type="2">
+    <conf name="IOIO0001" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
@@ -95,14 +95,14 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="IOIO_VER=12"/>
+        <property key="preprocessor-macros" value="PLATFORM=1001"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-procedural-abstraction" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -119,8 +119,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -157,12 +157,12 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_p24FJ128DA106.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
-    <conf name="V1.3-release" type="2">
+    <conf name="IOIO0002" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
@@ -182,14 +182,14 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="IOIO_VER=13"/>
+        <property key="preprocessor-macros" value="PLATFORM=1002"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-procedural-abstraction" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -206,8 +206,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -244,7 +244,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_p24FJ128DA206.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
       <PM3PlatformTool>
       </PM3PlatformTool>

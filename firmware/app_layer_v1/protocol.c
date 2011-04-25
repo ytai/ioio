@@ -38,7 +38,7 @@
 #include "adc.h"
 #include "digital.h"
 #include "logging.h"
-#include "board.h"
+#include "platform.h"
 #include "uart.h"
 #include "spi.h"
 #include "i2c.h"
@@ -46,7 +46,7 @@
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
-#define FIRMWARE_ID              0x00000001LL
+#define FW_IMPL_VER "IOIO0100"
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(HARD_RESET_ARGS),
@@ -154,9 +154,9 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  msg.args.establish_connection.hardware = HardwareVer;
-  msg.args.establish_connection.bootloader = BootloaderVer;
-  msg.args.establish_connection.firmware = FIRMWARE_ID;
+  BootloaderVersions(msg.args.establish_connection.hw_impl_ver,
+                     msg.args.establish_connection.bl_impl_ver);
+  memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
   AppProtocolSendMessage(&msg);
 }
 

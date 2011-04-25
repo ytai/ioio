@@ -27,9 +27,19 @@
  * or implied.
  */
 
+#include <string.h>
+
 #include "adb_private.h"
 #include "adb_file_private.h"
 #include "bootloader_private.h"
+#include "board.h"
+
+#define BL_IMPL_VER "IOIO0100"
+
+void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]) {
+  memcpy(hwImplVer, HW_IMPL_VER, 8);
+  memcpy(blImplVer, BL_IMPL_VER, 8);
+}
 
 BOOL BootloaderTasks() {
   BOOL connected = ADBTasks();

@@ -85,7 +85,7 @@ typedef struct {
 #define MAKE_CN_INFO(num, bit) { &CNEN##num, &CNPU##num, &CNPD##num, (1 << bit), ~(1 << bit) }
 #define MAKE_RPOR(num) (((unsigned char*) &RPOR0) + num)
 
-#if IOIO_VER >= 10 && IOIO_VER <= 14
+#if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0002
   const PORT_INFO port_info[NUM_PINS] = {
     MAKE_PORT_INFO(F, 3),   // LED
     MAKE_PORT_INFO(C, 12),  // 1
@@ -117,9 +117,9 @@ typedef struct {
     MAKE_PORT_INFO(G, 6),   // 27
     MAKE_PORT_INFO(G, 7),   // 28
     MAKE_PORT_INFO(G, 8),   // 29
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
     { 0, 0, 0, 0, 0, 0}, // MCLR (30)
-  #endif  // IOIO_VER == 10
+  #endif
     MAKE_PORT_INFO(G, 9),   // 30 (31)
     MAKE_PORT_INFO(B, 5),   // 31 (32)
     MAKE_PORT_INFO(B, 4),   // 32 (33)
@@ -172,9 +172,9 @@ typedef struct {
     MAKE_CN_INFO(1, 8),  // 27
     MAKE_CN_INFO(1, 9),  // 28
     MAKE_CN_INFO(1, 10),  // 29
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
     { 0, 0, 0, 0, 0}, // MCLR (30)
-  #endif  // IOIO_VER == 10
+  #endif
     MAKE_CN_INFO(1, 11),  // 30 (31)
     MAKE_CN_INFO(1, 7),  // 31 (32)
     MAKE_CN_INFO(1, 6),  // 32 (33)
@@ -201,7 +201,7 @@ typedef struct {
     -1, 37, 24, 23, 22, 25, 20, -1,
     -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, 21, 26, 19,
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
                             -1,
   #endif
                             27, 18,
@@ -209,7 +209,7 @@ typedef struct {
      9, -1, -1, -1, -1, 14, 29, 10,
     17  };
 
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
     static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
 /* B */ {37, 36, 35, 34, 33, 32, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47},
@@ -219,7 +219,7 @@ typedef struct {
 /* F */ {17, 18, -1,  0, 48, 49, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 /* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 31, -1, -1, -1, -1, -1, -1}
     };
-  #elif IOIO_VER >= 11 && IOIO_VER <= 14
+  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
     static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
 /* B */ {36, 35, 34, 33, 32, 31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46},
@@ -231,25 +231,25 @@ typedef struct {
     };
   #endif
 
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
     static const signed char analog_to_pin[16] = {
       37, 36, 35, 34, 33, 32, 38, 39,
       40, 41, 42, 43, 44, 45, 46, 47
     };
-  #elif IOIO_VER >= 11 && IOIO_VER <= 14
+  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
     static const signed char analog_to_pin[16] = {
       36, 35, 34, 33, 32, 31, 37, 38,
       39, 40, 41, 42, 43, 44, 45, 46
     };  
   #endif
 
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
     #define MIN_ANALOG_PIN 32
-  #elif IOIO_VER >= 11 && IOIO_VER <= 14
+  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
     #define MIN_ANALOG_PIN 31
   #endif
 
-  #if IOIO_VER >= 10 && IOIO_VER <= 14
+  #if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0002
     static const int pin_to_analog[16] = {
        5 , 4 , 3 , 2 , 1 , 0 , 6 , 7 ,
        8 , 9 , 10, 11, 12, 13, 14, 15
@@ -265,9 +265,9 @@ typedef struct {
     0            , 0            , 0            , 0            ,
     0            , 0            , 0            , MAKE_RPOR(21),
     MAKE_RPOR(26), MAKE_RPOR(19),
-  #if IOIO_VER == 10
+  #if PLATFORM == PLATFORM_IOIO0000
                                   0, // MCLR (30)
-  #endif  // IOIO_VER == 10
+  #endif
                                   MAKE_RPOR(27), MAKE_RPOR(18),
     MAKE_RPOR(28), 0            , MAKE_RPOR(13), MAKE_RPOR(1) ,
     MAKE_RPOR(0) , MAKE_RPOR(6) , MAKE_RPOR(7) , MAKE_RPOR(8) ,
@@ -275,7 +275,7 @@ typedef struct {
     0            , MAKE_RPOR(14), MAKE_RPOR(29), MAKE_RPOR(10),
     MAKE_RPOR(17)
   };
-#endif  // IOIO_VER >= 10 && IOIO_VER <= 14
+#endif
 
 void PinSetTris(int pin, int val) {
   const PORT_INFO* info = &port_info[pin];

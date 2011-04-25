@@ -31,7 +31,7 @@
 
 #include "Compiler.h"
 #include "logging.h"
-#include "board.h"
+#include "platform.h"
 
 typedef struct {
   unsigned int con1;
