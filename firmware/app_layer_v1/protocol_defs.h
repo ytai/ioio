@@ -167,23 +167,15 @@ typedef struct PACKED {
   WORD rate;
 } UART_CONFIG_ARGS;
 
-// set pin uart rx
+// set pin uart
 typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
   BYTE uart_num : 2;
-  BYTE : 5;
+  BYTE : 4;
+  BYTE dir : 1;
   BYTE enable : 1;
-} SET_PIN_UART_RX_ARGS;
-
-// set pin uart tx
-typedef struct PACKED {
-  BYTE pin : 6;
-  BYTE : 2;
-  BYTE uart_num : 2;
-  BYTE : 5;
-  BYTE enable : 1;
-} SET_PIN_UART_TX_ARGS;
+} SET_PIN_UART_ARGS;
 
 // spi report tx status
 typedef struct PACKED {
@@ -305,8 +297,7 @@ typedef struct PACKED {
     SET_PIN_ANALOG_IN_ARGS                   set_pin_analog_in;
     UART_DATA_ARGS                           uart_data;
     UART_CONFIG_ARGS                         uart_config;
-    SET_PIN_UART_RX_ARGS                     set_pin_uart_rx;
-    SET_PIN_UART_TX_ARGS                     set_pin_uart_tx;
+    SET_PIN_UART_ARGS                        set_pin_uart;
     SPI_MASTER_REQUEST_ARGS                  spi_master_request;
     SPI_CONFIGURE_MASTER_ARGS                spi_configure_master;
     SET_PIN_SPI_ARGS                         set_pin_spi;
@@ -358,8 +349,7 @@ typedef enum {
   SET_PIN_ANALOG_IN                 = 0x0B,
   UART_DATA                         = 0x0C,
   UART_CONFIG                       = 0x0D,
-  SET_PIN_UART_RX                   = 0x0E,
-  SET_PIN_UART_TX                   = 0x0F,
+  SET_PIN_UART                      = 0x0E,
   SPI_MASTER_REQUEST                = 0x10,
   SPI_DATA                          = 0x10,
   SPI_REPORT_TX_STATUS              = 0x11,

@@ -63,8 +63,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_ANALOG_IN_ARGS),
   sizeof(UART_DATA_ARGS),
   sizeof(UART_CONFIG_ARGS),
-  sizeof(SET_PIN_UART_RX_ARGS),
-  sizeof(SET_PIN_UART_TX_ARGS),
+  sizeof(SET_PIN_UART_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(SPI_MASTER_REQUEST_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(SPI_CONFIGURE_MASTER_ARGS),
@@ -305,20 +305,13 @@ static BOOL MessageDone() {
       }
       break;
 
-    case SET_PIN_UART_RX:
-      CHECK(rx_msg.args.set_pin_uart_rx.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_uart_rx.uart_num < NUM_UART_MODULES);
-      SetPinUartRx(rx_msg.args.set_pin_uart_rx.pin,
-                   rx_msg.args.set_pin_uart_rx.uart_num,
-                   rx_msg.args.set_pin_uart_rx.enable);
-      break;
-
-    case SET_PIN_UART_TX:
-      CHECK(rx_msg.args.set_pin_uart_tx.pin < NUM_PINS);
-      CHECK(rx_msg.args.set_pin_uart_tx.uart_num < NUM_UART_MODULES);
-      SetPinUartTx(rx_msg.args.set_pin_uart_tx.pin,
-                   rx_msg.args.set_pin_uart_tx.uart_num,
-                   rx_msg.args.set_pin_uart_tx.enable);
+    case SET_PIN_UART:
+      CHECK(rx_msg.args.set_pin_uart.pin < NUM_PINS);
+      CHECK(rx_msg.args.set_pin_uart.uart_num < NUM_UART_MODULES);
+      SetPinUart(rx_msg.args.set_pin_uart.pin,
+                 rx_msg.args.set_pin_uart.uart_num,
+                 rx_msg.args.set_pin_uart.dir,
+                 rx_msg.args.set_pin_uart.enable);
       break;
 
     case SPI_MASTER_REQUEST:

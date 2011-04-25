@@ -62,8 +62,7 @@ public class IOIOProtocol {
 	static final int SET_PIN_ANALOG_IN                 = 0x0B;
 	static final int UART_DATA                         = 0x0C;
 	static final int UART_CONFIG                       = 0x0D;
-	static final int SET_PIN_UART_RX                   = 0x0E;
-	static final int SET_PIN_UART_TX                   = 0x0F;
+	static final int SET_PIN_UART                      = 0x0E;
 	static final int SPI_MASTER_REQUEST                = 0x10;
 	static final int SPI_DATA                          = 0x10;
 	static final int SPI_REPORT_TX_STATUS              = 0x11;
@@ -280,19 +279,11 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void setPinUartRx(int pin, int uartNum, boolean enable)
+	synchronized public void setPinUart(int pin, int uartNum, boolean tx, boolean enable)
 			throws IOException {
-		writeByte(SET_PIN_UART_RX);
+		writeByte(SET_PIN_UART);
 		writeByte(pin);
-		writeByte((enable ? 0x80 : 0x00) | uartNum);
-		flush();
-	}
-
-	synchronized public void setPinUartTx(int pin, int uartNum, boolean enable)
-			throws IOException {
-		writeByte(SET_PIN_UART_TX);
-		writeByte(pin);
-		writeByte((enable ? 0x80 : 0x00) | uartNum);
+		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | uartNum);
 		flush();
 	}
 

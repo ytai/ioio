@@ -363,12 +363,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			if (rx != null) {
 				openPins_[rx.pin] = true;
 				protocol_.setPinDigitalIn(rx.pin, rx.mode);
-				protocol_.setPinUartRx(rx.pin, uartNum, true);
+				protocol_.setPinUart(rx.pin, uartNum, false, true);
 			}
 			if (tx != null) {
 				openPins_[tx.pin] = true;
 				protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
-				protocol_.setPinUartTx(tx.pin, uartNum, true);
+				protocol_.setPinUart(tx.pin, uartNum, true, true);
 			}
 			boolean speed4x = true;
 			int rate = Math.round(4000000.0f / baud) - 1;
