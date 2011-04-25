@@ -68,8 +68,10 @@ public class IOIOProtocol {
 	static final int SPI_DATA                          = 0x10;
 	static final int SPI_REPORT_TX_STATUS              = 0x11;
 	static final int SPI_CONFIGURE_MASTER              = 0x12;
+	static final int SPI_STATUS                        = 0x12;
 	static final int SET_PIN_SPI                       = 0x13;
 	static final int I2C_CONFIGURE_MASTER              = 0x14;
+	static final int I2C_STATUS                        = 0x14;
 	static final int I2C_WRITE_READ                    = 0x15;
 	static final int I2C_RESULT                        = 0x15;
 	static final int I2C_REPORT_TX_STATUS              = 0x16;
@@ -567,19 +569,18 @@ public class IOIOProtocol {
 								(arg1 >> 2) | (arg2 << 6));
 						break;
 
-					case SPI_CONFIGURE_MASTER:
+					case SPI_STATUS:
 						arg1 = readByte();
-						arg2 = readByte();
-						if ((arg1 & 0x1F) == 0) {
-							handler_.handleSpiClose((arg1 >> 5) & 0x03);
+						if ((arg1 & 0x80) != 0) {
+							handler_.handleSpiOpen(arg1 & 0x03);
 						} else {
-							handler_.handleSpiOpen((arg1 >> 5) & 0x03);
+							handler_.handleSpiClose(arg1 & 0x03);
 						}
 						break;
 
-					case I2C_CONFIGURE_MASTER:
+					case I2C_STATUS:
 						arg1 = readByte();
-						if (((arg1 >> 5) & 0x03) != 0) {
+						if ((arg1 & 0x80) != 0) {
 							handler_.handleI2cOpen(arg1 & 0x03);
 						} else {
 							handler_.handleI2cClose(arg1 & 0x03);

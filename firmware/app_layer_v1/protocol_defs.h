@@ -224,6 +224,13 @@ typedef struct PACKED {
   BYTE : 5;
 } SPI_CONFIGURE_MASTER_ARGS;
 
+// spi status
+typedef struct PACKED {
+  BYTE spi_num : 2;
+  BYTE : 5;
+  BYTE enabled : 1;
+} SPI_STATUS_ARGS;
+
 // set pin spi
 typedef struct PACKED {
   BYTE pin : 6;
@@ -241,6 +248,13 @@ typedef struct PACKED {
   BYTE rate : 2;
   BYTE smbus_levels : 1;
 } I2C_CONFIGURE_MASTER_ARGS;
+
+// i2c status
+typedef struct PACKED {
+  BYTE i2c_num : 2;
+  BYTE : 5;
+  BYTE enabled : 1;
+} I2C_STATUS_ARGS;
 
 // i2c write read
 typedef struct PACKED {
@@ -333,6 +347,8 @@ typedef struct PACKED {
     I2C_REPORT_TX_STATUS_ARGS               i2c_report_tx_status;
     CHECK_INTERFACE_RESPONSE_ARGS           check_interface_response;
     UART_STATUS_ARGS                        uart_status;
+    SPI_STATUS_ARGS                         spi_status;
+    I2C_STATUS_ARGS                         i2c_status;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -363,8 +379,10 @@ typedef enum {
   SPI_DATA                          = 0x10,
   SPI_REPORT_TX_STATUS              = 0x11,
   SPI_CONFIGURE_MASTER              = 0x12,
+  SPI_STATUS                        = 0x12,
   SET_PIN_SPI                       = 0x13,
   I2C_CONFIGURE_MASTER              = 0x14,
+  I2C_STATUS                        = 0x14,
   I2C_WRITE_READ                    = 0x15,
   I2C_RESULT                        = 0x15,
   I2C_REPORT_TX_STATUS              = 0x16,

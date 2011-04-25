@@ -103,6 +103,14 @@ void SPIInit() {
   }
 }
 
+static inline void SPISendStatus(int spi_num, int enabled) {
+  OUTGOING_MESSAGE msg;
+  msg.type = SPI_STATUS;
+  msg.args.spi_status.spi_num = spi_num;
+  msg.args.spi_status.enabled = enabled;
+  AppProtocolSendMessage(&msg);
+}
+
 void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
                int clk_pol) {
   volatile SPIREG* regs = spi_reg[spi_num];
@@ -118,6 +126,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   spi->num_messages_rx_queue = 0;
   spi->packet_state = PACKET_STATE_IDLE;
   if (scale || div) {
+    SPISendStatus(spi_num, 1);
     spi->num_tx_since_last_report = TX_BUF_SIZE;
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)
@@ -130,6 +139,8 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
                      | (5 << 2);  // int. when TX FIFO is empty
     Set_SPIIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
                         // written
+  } else {
+    SPISendStatus(spi_num, 0);
   }
 }
 

@@ -113,6 +113,14 @@ void I2CInit() {
   }
 }
 
+static inline void I2CSendStatus(int i2c_num, int enabled) {
+  OUTGOING_MESSAGE msg;
+  msg.type = I2C_STATUS;
+  msg.args.i2c_status.i2c_num = i2c_num;
+  msg.args.i2c_status.enabled = enabled;
+  AppProtocolSendMessage(&msg);
+}
+
 void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
   volatile I2CREG* regs = i2c_reg[i2c_num];
   I2C_STATE* i2c = i2c_states + i2c_num;
@@ -128,12 +136,15 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
   i2c->num_messages_rx_queue = 0;
   i2c->message_state = STATE_START;
   if (rate) {
+    I2CSendStatus(i2c_num, 1);
     i2c->num_tx_since_last_report = TX_BUF_SIZE;
     regs->brg = brg_values[rate - 1];
     regs->con = (1 << 15)               // enable
                 | ((rate != 2) << 9)    // disable slew rate unless 400KHz mode
                 | (smbus_levels << 8);  // use SMBus levels
     Set_MI2CIF[i2c_num](1);  // signal interrupt
+  } else {
+    I2CSendStatus(i2c_num, 0);
   }
 }
 

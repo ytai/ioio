@@ -97,9 +97,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(SPI_DATA_ARGS),
   sizeof(SPI_REPORT_TX_STATUS_ARGS),
-  sizeof(SPI_CONFIGURE_MASTER_ARGS),
+  sizeof(SPI_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(I2C_CONFIGURE_MASTER_ARGS),
+  sizeof(I2C_STATUS_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
   sizeof(REPORT_ANALOG_IN_FORMAT_ARGS),
@@ -335,20 +335,12 @@ static BOOL MessageDone() {
 
     case SPI_CONFIGURE_MASTER:
       CHECK(rx_msg.args.spi_configure_master.spi_num < NUM_SPI_MODULES);
-      if (rx_msg.args.spi_configure_master.scale
-          || rx_msg.args.spi_configure_master.div) {
-        Echo();
-      }
       SPIConfigMaster(rx_msg.args.spi_configure_master.spi_num,
                       rx_msg.args.spi_configure_master.scale,
                       rx_msg.args.spi_configure_master.div,
                       rx_msg.args.spi_configure_master.smp_end,
                       rx_msg.args.spi_configure_master.clk_edge,
                       rx_msg.args.spi_configure_master.clk_pol);
-      if (!rx_msg.args.spi_configure_master.scale
-          && !rx_msg.args.spi_configure_master.div) {
-        Echo();
-      }
       break;
 
     case SET_PIN_SPI:
@@ -367,15 +359,9 @@ static BOOL MessageDone() {
 
     case I2C_CONFIGURE_MASTER:
       CHECK(rx_msg.args.i2c_configure_master.i2c_num < NUM_I2C_MODULES);
-      if (rx_msg.args.i2c_configure_master.rate) {
-        Echo();
-      }
       I2CConfigMaster(rx_msg.args.i2c_configure_master.i2c_num,
                       rx_msg.args.i2c_configure_master.rate,
                       rx_msg.args.i2c_configure_master.smbus_levels);
-      if (!rx_msg.args.i2c_configure_master.rate) {
-        Echo();
-      }
       break;
 
     case I2C_WRITE_READ:
