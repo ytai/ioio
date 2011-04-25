@@ -73,6 +73,14 @@ void UARTInit() {
   }
 }
 
+static inline void UARTSendStatus(int uart_num, int enabled) {
+  OUTGOING_MESSAGE msg;
+  msg.type = UART_STATUS;
+  msg.args.uart_status.uart_num = uart_num;
+  msg.args.uart_status.enabled = enabled;
+  AppProtocolSendMessage(&msg);
+}
+
 void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
   volatile UART* regs = uart_reg[uart_num];
   UART_STATE* uart = &uarts[uart_num];
@@ -87,6 +95,7 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
   ByteQueueInit(&uart->tx_queue, uart->tx_buffer, TX_BUF_SIZE);
   uart->num_tx_since_last_report = 0;
   if (rate) {
+    UARTSendStatus(uart_num, 1);
     regs->uxbrg = rate;
     Set_URXIF[uart_num](0);  // clear RX int.
     Set_UTXIF[uart_num](0);  // clear TX int.
@@ -94,6 +103,8 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
     regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
     uart->num_tx_since_last_report = TX_BUF_SIZE;
+  } else {
+    UARTSendStatus(uart_num, 0);
   }
 }
 

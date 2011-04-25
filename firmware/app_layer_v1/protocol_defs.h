@@ -167,6 +167,13 @@ typedef struct PACKED {
   WORD rate;
 } UART_CONFIG_ARGS;
 
+// uart status
+typedef struct PACKED {
+  BYTE uart_num : 2;
+  BYTE : 5;
+  BYTE enabled : 1;
+} UART_STATUS_ARGS;
+
 // set pin uart
 typedef struct PACKED {
   BYTE pin : 6;
@@ -325,6 +332,7 @@ typedef struct PACKED {
     I2C_RESULT_ARGS                         i2c_result;
     I2C_REPORT_TX_STATUS_ARGS               i2c_report_tx_status;
     CHECK_INTERFACE_RESPONSE_ARGS           check_interface_response;
+    UART_STATUS_ARGS                        uart_status;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -349,6 +357,7 @@ typedef enum {
   SET_PIN_ANALOG_IN                 = 0x0B,
   UART_DATA                         = 0x0C,
   UART_CONFIG                       = 0x0D,
+  UART_STATUS                       = 0x0D,
   SET_PIN_UART                      = 0x0E,
   SPI_MASTER_REQUEST                = 0x10,
   SPI_DATA                          = 0x10,

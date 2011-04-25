@@ -92,7 +92,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(UART_REPORT_TX_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(UART_DATA_ARGS),
-  sizeof(UART_CONFIG_ARGS),
+  sizeof(UART_STATUS_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(SPI_DATA_ARGS),
@@ -292,17 +292,11 @@ static BOOL MessageDone() {
     case UART_CONFIG:
       CHECK(rx_msg.args.uart_config.uart_num < NUM_UART_MODULES);
       CHECK(rx_msg.args.uart_config.parity < 3);
-      if (rx_msg.args.uart_config.rate) {
-        Echo();
-      }
       UARTConfig(rx_msg.args.uart_config.uart_num,
                  rx_msg.args.uart_config.rate,
                  rx_msg.args.uart_config.speed4x,
                  rx_msg.args.uart_config.two_stop_bits,
                  rx_msg.args.uart_config.parity);
-      if (!rx_msg.args.uart_config.rate) {
-        Echo();
-      }
       break;
 
     case SET_PIN_UART:

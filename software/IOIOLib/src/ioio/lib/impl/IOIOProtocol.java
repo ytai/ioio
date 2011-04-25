@@ -62,6 +62,7 @@ public class IOIOProtocol {
 	static final int SET_PIN_ANALOG_IN                 = 0x0B;
 	static final int UART_DATA                         = 0x0C;
 	static final int UART_CONFIG                       = 0x0D;
+	static final int UART_STATUS                       = 0x0D;
 	static final int SET_PIN_UART                      = 0x0E;
 	static final int SPI_MASTER_REQUEST                = 0x10;
 	static final int SPI_DATA                          = 0x10;
@@ -540,13 +541,12 @@ public class IOIOProtocol {
 								data);
 						break;
 
-					case UART_CONFIG:
+					case UART_STATUS:
 						arg1 = readByte();
-						arg2 = readTwoBytes();
-						if (arg2 != 0) {
-							handler_.handleUartOpen(arg1 >> 6);
+						if ((arg1 & 0x80) != 0) {
+							handler_.handleUartOpen(arg1 & 0x03);
 						} else {
-							handler_.handleUartClose(arg1 >> 6);
+							handler_.handleUartClose(arg1 & 0x03);
 						}
 						break;
 
