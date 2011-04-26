@@ -254,7 +254,7 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleAnalogPinNotify(int pin, boolean open) {
+	public void handleAnalogPinStatus(int pin, boolean open) {
 		logMethod("handleAnalogPinStatus", pin, open);
 		if (open) {
 			intputPinStates_[pin].openNextListener();

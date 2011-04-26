@@ -369,7 +369,7 @@ public class IOIOProtocol {
 		public void handleReportPeriodicDigitalInStatus(int frameNum,
 				boolean values[]);
 
-		public void handleAnalogPinNotify(int pin, boolean open);
+		public void handleAnalogPinStatus(int pin, boolean open);
 
 		public void handleReportAnalogInStatus(int pins[], int values[]);
 
@@ -505,10 +505,10 @@ public class IOIOProtocol {
 						}
 						findDelta(newFormat);
 						for (Integer i : removedPins_) {
-							handler_.handleAnalogPinNotify(i, false);
+							handler_.handleAnalogPinStatus(i, false);
 						}
 						for (Integer i : addedPins_) {
-							handler_.handleAnalogPinNotify(i, true);
+							handler_.handleAnalogPinStatus(i, true);
 						}
 						analogFramePins_ = newFormat;
 						break;
