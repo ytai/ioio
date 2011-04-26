@@ -248,6 +248,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
+		addDisconnectListener(result);
 		openPins_[spec.pin] = true;
 		incomingState_.addInputPinListener(spec.pin, result);
 		try {
@@ -274,6 +275,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
+		addDisconnectListener(result);
 		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalOut(spec.pin, startValue, spec.mode);
@@ -302,6 +304,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		PinFunctionMap.checkSupportsAnalogInput(pin);
 		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
+		addDisconnectListener(result);
 		openPins_[pin] = true;
 		incomingState_.addInputPinListener(pin, result);
 		try {
@@ -338,6 +341,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period,
 				effectivePeriodMicroSec);
+		addDisconnectListener(pwm);
 		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
@@ -374,6 +378,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		int txPin = tx != null ? tx.pin : INVALID_PIN;
 		int uartNum = uartAllocator_.allocateModule();
 		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
+		addDisconnectListener(uart);
 		incomingState_.addUartListener(uartNum, uart);
 		try {
 			if (rx != null) {
@@ -410,6 +415,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		openPins_[Constants.TWI_PINS[twiNum][1]] = true;
 		openTwi_[twiNum] = true;
 		TwiMasterImpl twi = new TwiMasterImpl(this, twiNum);
+		addDisconnectListener(twi);
 		incomingState_.addTwiListener(twiNum, twi);
 		try {
 			protocol_.i2cConfigureMaster(twiNum, rate, smbus);
@@ -459,6 +465,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		int spiNum = spiAllocator_.allocateModule();
 		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin,
 				clk.pin, ssPins);
+		addDisconnectListener(spi);
 		incomingState_.addSpiListener(spiNum, spi);
 		try {
 			protocol_.setPinDigitalIn(miso.pin, miso.mode);

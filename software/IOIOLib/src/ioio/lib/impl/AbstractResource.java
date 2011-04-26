@@ -30,8 +30,7 @@ package ioio.lib.impl;
 
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DisconnectListener;
-
-import java.io.Closeable;
+import ioio.lib.api.Closeable;
 
 public class AbstractResource implements Closeable, DisconnectListener {
 	enum State {
@@ -45,7 +44,6 @@ public class AbstractResource implements Closeable, DisconnectListener {
 
 	public AbstractResource(IOIOImpl ioio) throws ConnectionLostException {
 		ioio_ = ioio;
-		ioio_.addDisconnectListener(this);
 	}
 	
 	@Override
