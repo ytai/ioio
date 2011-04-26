@@ -58,6 +58,10 @@ class HistogramAggregator implements TestResultAggregator<List<Float>> {
 				}
 				setText(percentiles_[i], String.valueOf(Math.round(next.getKey())));
 			}
+		} else {
+			for (int i = 0; i < percentiles_.length; ++i) {
+				setText(percentiles_[i], "-");
+			}
 		}
 		setText(totalView_, String.valueOf(total_));
 	}

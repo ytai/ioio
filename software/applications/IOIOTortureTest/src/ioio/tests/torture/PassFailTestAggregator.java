@@ -17,6 +17,7 @@ public class PassFailTestAggregator implements TestResultAggregator<Boolean> {
 		passTextView_ = pass;
 		failTextView_ = fail;
 		countTextView_ = count;
+		clear();
 	}
 
 	@Override
