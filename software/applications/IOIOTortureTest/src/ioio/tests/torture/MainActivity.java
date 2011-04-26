@@ -4,6 +4,7 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.IncompatibilityException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -62,6 +63,9 @@ public class MainActivity extends Activity {
 						workers_[i].start();
 					}
 				} catch (ConnectionLostException e) {
+				} catch (IncompatibilityException e) {
+					Log.e("TortureTest", "Incompatibility detected", e);
+					break;
 				} catch (Exception e) {
 					Log.e("TortureTest", "Unexpected exception caught", e);
 					ioio_.disconnect();

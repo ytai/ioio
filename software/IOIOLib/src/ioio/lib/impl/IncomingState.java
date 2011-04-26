@@ -318,7 +318,7 @@ public class IncomingState implements IncomingHandler {
 				+ bootloaderId_ + " Firmware ID: "
 				+ firmwareId_);
 		synchronized (this) {
-			connection_ = ConnectionState.CONNECTED;
+			connection_ = ConnectionState.ESTABLISHED;
 			notifyAll();
 		}
 	}
