@@ -147,6 +147,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closePin(int pin) {
+		if (state_ == State.DEAD) {
+			return;
+		}
 		if (openPins_[pin]) {
 			try {
 				protocol_.setPinDigitalIn(pin, DigitalInput.Spec.Mode.FLOATING);
@@ -157,6 +160,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closePwm(int pwmNum) {
+		if (state_ == State.DEAD) {
+			return;
+		}
 		pwmAllocator_.releaseModule(pwmNum);
 		try {
 			protocol_.setPwmPeriod(pwmNum, 0, false);
@@ -165,6 +171,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closeUart(int uartNum) {
+		if (state_ == State.DEAD) {
+			return;
+		}
 		uartAllocator_.releaseModule(uartNum);
 		try {
 			protocol_.uartClose(uartNum);
@@ -173,6 +182,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closeTwi(int twiNum) {
+		if (state_ == State.DEAD) {
+			return;
+		}
 		if (!openTwi_[twiNum]) {
 			throw new IllegalStateException("TWI not open: " + twiNum);
 		}
@@ -186,6 +198,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closeSpi(int spiNum) {
+		if (state_ == State.DEAD) {
+			return;
+		}
 		spiAllocator_.releaseModule(spiNum);
 		try {
 			protocol_.spiClose(spiNum);
@@ -199,6 +214,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.softReset();
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 	}
@@ -209,6 +225,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.hardReset();
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 	}
@@ -255,6 +272,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setChangeNotify(spec.pin, true);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return result;
@@ -280,6 +298,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.setPinDigitalOut(spec.pin, startValue, spec.mode);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return result;
@@ -311,6 +330,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			protocol_.setPinAnalogIn(pin);
 			protocol_.setAnalogInSampling(pin, true);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return result;
@@ -348,6 +368,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			protocol_.setPinPwm(spec.pin, pwmNum, true);
 			protocol_.setPwmPeriod(pwmNum, period, scale256);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return pwm;
@@ -399,6 +420,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			}
 			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits, parity);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return uart;
@@ -420,6 +442,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.i2cConfigureMaster(twiNum, rate, smbus);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return twi;
@@ -454,13 +477,17 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
 		PinFunctionMap.checkSupportsPeripheralInput(miso.pin);
+		openPins_[miso.pin] = true;
 		checkPinFree(mosi.pin);
 		PinFunctionMap.checkSupportsPeripheralOutput(mosi.pin);
+		openPins_[mosi.pin] = true;
 		checkPinFree(clk.pin);
 		PinFunctionMap.checkSupportsPeripheralOutput(clk.pin);
+		openPins_[clk.pin] = true;
 		for (int i = 0; i < slaveSelect.length; ++i) {
 			checkPinFree(slaveSelect[i].pin);
 			ssPins[i] = slaveSelect[i].pin;
+			openPins_[ssPins[i]] = true;
 		}
 		int spiNum = spiAllocator_.allocateModule();
 		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin,
@@ -479,6 +506,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			}
 			protocol_.spiConfigureMaster(spiNum, config);
 		} catch (IOException e) {
+			state_ = State.DEAD;
 			throw new ConnectionLostException(e);
 		}
 		return spi;
