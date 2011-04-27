@@ -15,4 +15,9 @@ class TypedTestRunner<E> implements TestRunner {
 	public void run() throws ConnectionLostException, InterruptedException {
 		agg_.addResult(test_.run());
 	}
+
+	@Override
+	public String testClassName() {
+		return test_.getClass().getName();
+	}
 }

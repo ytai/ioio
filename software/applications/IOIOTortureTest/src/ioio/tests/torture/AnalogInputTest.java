@@ -24,8 +24,24 @@ public class AnalogInputTest implements Test<Boolean> {
 	public Boolean run() throws ConnectionLostException {
 		Log.i("IOIOTortureTest", "Starting AnalogInputTest on pins: " + pin1_
 				+ ", " + pin2_);
-		AnalogInput in = ioio_.openAnalogInput(pin1_);
-		DigitalOutput out = ioio_.openDigitalOutput(pin2_);
+		try {
+			if (!runTest(pin1_, pin2_)) {
+				return false;
+			}
+			if (!runTest(pin2_, pin1_)) {
+				return false;
+			}
+		} finally {
+			alloc_.freePinPair(pin1_);
+		}
+		Log.i("IOIOTortureTest", "Passed AnalogInputTest on pins: " + pin1_
+				+ ", " + pin2_);
+		return true;
+	}
+	
+	private boolean runTest(int inPin, int outPin) throws ConnectionLostException {
+		AnalogInput in = ioio_.openAnalogInput(inPin);
+		DigitalOutput out = ioio_.openDigitalOutput(outPin);
 		try {
 			boolean value = false;
 			for (int i = 0; i < 10; ++i) {
@@ -33,33 +49,20 @@ public class AnalogInputTest implements Test<Boolean> {
 				Thread.sleep(100);
 				if (value && in.read() < 0.7 || !value && in.read() > 0.3) {
 					Log.w("IOIOTortureTest", "Failed AnalogInputTest input: "
-							+ pin1_ + ", output: " + pin2_);
-					return false;
-				}
-				value = !value;
-			}
-			in.close();
-			out.close();
-			in = ioio_.openAnalogInput(pin2_);
-			out = ioio_.openDigitalOutput(pin1_);
-			for (int i = 0; i < 10; ++i) {
-				out.write(value);
-				Thread.sleep(50);
-				if (value && in.read() < 0.7 || !value && in.read() > 0.3) {
-					Log.w("IOIOTortureTest", "Failed AnalogInputTest input: "
-							+ pin2_ + ", output: " + pin1_);
+							+ inPin + ", output: " + outPin);
 					return false;
 				}
 				value = !value;
 			}
 		} catch (InterruptedException e) {
 		} finally {
-			in.close();
-			out.close();
-			alloc_.freePinPair(pin1_);
+			if (in != null) {
+				in.close();
+			}
+			if (out != null) {
+				out.close();
+			}
 		}
-		Log.i("IOIOTortureTest", "Passed AnalogInputTest on pins: " + pin1_
-				+ ", " + pin2_);
 		return true;
 	}
 }

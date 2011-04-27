@@ -7,6 +7,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -58,6 +59,7 @@ public class MainActivity extends Activity {
 				try {
 					ioio_.waitForConnect();
 					showVersions();
+					//Debug.startMethodTracing();
 					for (int i = 0; i < workers_.length; ++i) {
 						workers_[i] = new TestThread(provider_);
 						workers_[i].start();
@@ -71,6 +73,7 @@ public class MainActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} finally {
+					//Debug.stopMethodTracing();
 					try {
 						ioio_.waitForDisconnect();
 						Log.i("TortureTest",
