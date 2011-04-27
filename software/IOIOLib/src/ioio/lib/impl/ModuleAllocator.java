@@ -70,29 +70,25 @@ public class ModuleAllocator {
     /**
      * @return a module id that was allocated, or {@code null} if nothing was available
      */
-    public Integer allocateModule() {
+    public synchronized Integer allocateModule() {
         if (availableModuleIds_.isEmpty()) {
         	throw new OutOfResourceException("No more resources of the requested type: " + name_);
         }
-        synchronized (availableModuleIds_) {
-            Integer moduleId = availableModuleIds_.iterator().next();
-            availableModuleIds_.remove(moduleId);
-            allocatedModuleIds_.add(moduleId);
-            return moduleId;
-        }
+        Integer moduleId = availableModuleIds_.iterator().next();
+        availableModuleIds_.remove(moduleId);
+        allocatedModuleIds_.add(moduleId);
+        return moduleId;
     }
 
     /**
      * @param moduleId the moduleId to be released; throws {@link IllegalArgumentException} if
      *     a moduleId is re-returned, or an invalid moduleId is provided
      */
-    public void releaseModule(int moduleId) {
+    public synchronized void releaseModule(int moduleId) {
         if (!allocatedModuleIds_.contains(moduleId)) {
             throw new IllegalArgumentException("moduleId: " + moduleId+ "; not yet allocated");
         }
-        synchronized (availableModuleIds_) {
-            availableModuleIds_.add(moduleId);
-            allocatedModuleIds_.remove(moduleId);
-        }
+        availableModuleIds_.add(moduleId);
+        allocatedModuleIds_.remove(moduleId);
     }
 }
