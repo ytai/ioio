@@ -38,7 +38,7 @@
 #include "protocol.h"
 #include "sync.h"
 
-#define RX_BUF_SIZE 128
+#define RX_BUF_SIZE 256
 #define TX_BUF_SIZE 256
 
 typedef enum {
@@ -51,9 +51,12 @@ typedef struct {
   PACKET_STATE packet_state;
   int num_tx_since_last_report;
   BYTE cur_msg_dest;
-  BYTE cur_msg_total_size;
-  BYTE cur_msg_data_size;
-  BYTE cur_msg_trim_rx;
+  BYTE cur_msg_total_tx;  // total number of bytes left to send
+  BYTE cur_msg_data_tx;   // number of *non-garbage* bytes left to send
+  BYTE cur_msg_trim_rx;   // number of *garbage* bytes left to read
+  BYTE cur_msg_total_rx;  // number of total bytes left to read
+  BYTE cur_msg_rx_size;   // number of bytes to send back
+  BYTE can_send;          // number of bytes available in the FIFO
 
   // message format:
   // BYTE dest
@@ -136,7 +139,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
                      | ((3 - scale));
     regs->spixcon2 = 0x0001;  // enhanced buffer mode
     regs->spixstat = (1 << 15)  // enable
-                     | (5 << 2);  // int. when TX FIFO is empty
+                     | (1 << 2);  // int. when RX FIFO is non-empty
     Set_SPIIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
                         // written
   } else {
@@ -197,84 +200,80 @@ static void SPIInterrupt(int spi_num) {
   BYTE_QUEUE* tx_queue = &spi->tx_queue;
   BYTE_QUEUE* rx_queue = &spi->rx_queue;
   int bytes_to_write;
-  int max_bytes_to_write = 7;
-  int total_rx_bytes;
 
-  // can't have incoming data on idle state. if we do - it's a bug
-  assert(spi->packet_state != PACKET_STATE_IDLE
-         || reg->spixstat & (1 << 5));
-  
-  // read incoming data into rx_queue
-  while (!(reg->spixstat & (1 << 5))) {
-    BYTE rx_byte = reg->spixbuf;
-    if (spi->cur_msg_trim_rx) {
-      --spi->cur_msg_trim_rx;
-    } else {
-      ByteQueuePushByte(rx_queue, rx_byte);
-    }
-  }
-  
-  switch (spi->packet_state) {
-    case PACKET_STATE_IDLE:
-      assert(ByteQueueSize(tx_queue));
+  // packet initialiation if needed
+  if (spi->packet_state == PACKET_STATE_IDLE) {
+      assert(ByteQueueSize(tx_queue) >= 4);
+      // can't have incoming data on idle state. if we do - it's a bug
+      assert(reg->spixstat & (1 << 5));
       spi->cur_msg_dest = ByteQueuePullByte(tx_queue);
-      spi->cur_msg_total_size = ByteQueuePullByte(tx_queue);
-      spi->cur_msg_data_size = ByteQueuePullByte(tx_queue);
+      spi->cur_msg_total_tx = ByteQueuePullByte(tx_queue);
+      spi->cur_msg_total_rx = spi->cur_msg_total_tx;
+      spi->cur_msg_data_tx = ByteQueuePullByte(tx_queue);
       spi->cur_msg_trim_rx = ByteQueuePullByte(tx_queue);
+      spi->can_send = 8;
       spi->num_tx_since_last_report += 4;
 
       // write packet header to rx_queue, if non-empty
-      total_rx_bytes = spi->cur_msg_total_size - spi->cur_msg_trim_rx;
-      if (total_rx_bytes > 0) {
+      spi->cur_msg_rx_size = spi->cur_msg_total_rx - spi->cur_msg_trim_rx;
+      if (spi->cur_msg_rx_size > 0) {
         ByteQueuePushByte(rx_queue, spi->cur_msg_dest);
-        ByteQueuePushByte(rx_queue, total_rx_bytes);
+        ByteQueuePushByte(rx_queue, spi->cur_msg_rx_size);
       }
-      
+
       PinSetLat(spi->cur_msg_dest, 0);  // activate SS
-      ++max_bytes_to_write;  // we can write 8 bytes the first time, since the
-                             // shift register is empty.
       spi->packet_state = PACKET_STATE_IN_PROGRESS;
-      // fall-through on purpose
-      
-    case PACKET_STATE_IN_PROGRESS:
-      bytes_to_write = spi->cur_msg_total_size;
-      if (bytes_to_write > max_bytes_to_write)  {
-        bytes_to_write = max_bytes_to_write;
+  } else {
+    // read as much incoming data as possible into rx_queue
+    Set_SPIIF[spi_num](0);
+    while (!(reg->spixstat & (1 << 5))) {
+      BYTE rx_byte = reg->spixbuf;
+      if (spi->cur_msg_trim_rx) {
+        --spi->cur_msg_trim_rx;
       } else {
-        // this is the end of the packet, we want next interrupt to occur after
-        // last byte finished sending.
-        reg->spixstat = (1 << 15)  // enable
-                        | (5 << 2);  // int. when last byte shifted
-          spi->packet_state = PACKET_STATE_DONE;
+        ByteQueuePushByte(rx_queue, rx_byte);
       }
-      Set_SPIIF[spi_num](0);
-      while (bytes_to_write-- > 0) {
-        BYTE tx_byte = 0xFF;
-        if (spi->cur_msg_data_size) {
-          tx_byte = ByteQueuePullByte(tx_queue);
-          --spi->cur_msg_data_size;
-          ++spi->num_tx_since_last_report;
-        }
-        reg->spixbuf = tx_byte;
-        --spi->cur_msg_total_size;
+      --spi->cur_msg_total_rx;
+      ++spi->can_send;  // for every byte read we can write one
+    }
+    if (!spi->cur_msg_total_rx) {
+      spi->packet_state = PACKET_STATE_DONE;
+    }
+  }
+
+  // send as much data as possible
+  if (spi->packet_state == PACKET_STATE_IN_PROGRESS) {
+    bytes_to_write = spi->cur_msg_total_tx;
+    if (bytes_to_write > spi->can_send)  {
+      bytes_to_write = spi->can_send;
+    }
+    while (bytes_to_write-- > 0) {
+      BYTE tx_byte = 0xFF;
+      if (spi->cur_msg_data_tx) {
+        tx_byte = ByteQueuePullByte(tx_queue);
+        --spi->cur_msg_data_tx;
+        ++spi->num_tx_since_last_report;
       }
-      break;
-      
-    case PACKET_STATE_DONE:
-      PinSetLat(spi->cur_msg_dest, 1);  // deactivate SS
+      reg->spixbuf = tx_byte;
+      --spi->cur_msg_total_tx;
+      --spi->can_send;
+    }
+  }
+
+  // finalize packet if needed
+  if (spi->packet_state == PACKET_STATE_DONE) {
+    PinSetLat(spi->cur_msg_dest, 1);  // deactivate SS
+    if (spi->cur_msg_rx_size) {
       ++spi->num_messages_rx_queue;
-      reg->spixstat = (1 << 15)  // enable
-                      | (6 << 2);  // int. when TX FIFO empty
-      Set_SPIIE[spi_num](ByteQueueSize(tx_queue));
-      spi->packet_state = PACKET_STATE_IDLE;
-      break;
+    }
+    spi->packet_state = PACKET_STATE_IDLE;
+    Set_SPIIE[spi_num](ByteQueueSize(tx_queue) > 0);
+    Set_SPIIF[spi_num](1);
   }
 }
 
 void SPITransmit(int spi_num, int dest, const void* data, int data_size,
                  int total_size, int trim_rx) {
-  log_printf("SPITransmit(%d, %d, %p, %d, %d, %d)", spi_num, dest, data,
-             data_size, total_size, trim_rx);
   BYTE_QUEUE* q = &spis[spi_num].tx_queue;
   BYTE prev = SyncInterruptLevel(4);
   ByteQueuePushByte(q, dest);

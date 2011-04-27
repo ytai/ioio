@@ -98,6 +98,24 @@ public class SpiTest implements Test<Boolean> {
 						}
 					}
 				}
+				// send a write-only and a read-only request every 10 requests
+				if (i % 10 == 0) {
+					spi.writeRead(request, request.length, request.length,
+							null, 0);
+					spi.writeRead(null, 0, response.length, response,
+							response.length);
+					for (int j = 0; j < response.length; ++j) {
+						if (response[j] != (byte) 0xFF) {
+							Log.w("IOIOTortureTest",
+									"Failed SpiTest (read-only) on pins: "
+											+ pin1_ + ", " + pin2_ + ", "
+											+ pin3_ + ", " + pin4_);
+							Log.w("IOIOTortureTest",
+									" got: " + Arrays.toString(response));
+							return false;
+						}
+					}
+				}
 			}
 			return true;
 		} finally {

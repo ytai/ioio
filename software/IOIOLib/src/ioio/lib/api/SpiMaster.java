@@ -161,6 +161,7 @@ public interface SpiMaster extends Closeable {
 	 * optional reception of data to a single slave. This is a blocking
 	 * operation that can take a few milliseconds to a few tens of milliseconds.
 	 * To abort this operation, client can interrupt the blocked thread.
+	 * If readSize is 0, the call returns immediately.
 	 * 
 	 * @param slave
 	 *            The slave index. It is determined by the index of its
@@ -199,8 +200,9 @@ public interface SpiMaster extends Closeable {
 
 	/**
 	 * The same as {@link #writeRead(int, byte[], int, int, byte[], int)}, but
-	 * returns immediately and retuns a {@link Result} object that can be waited
-	 * on.
+	 * returns immediately and returns a {@link Result} object that can be
+	 * waited on.
+	 * If readSize is 0, the result object is ready immediately.
 	 * 
 	 * @see #writeRead(int, byte[], int, int, byte[], int)
 	 */
