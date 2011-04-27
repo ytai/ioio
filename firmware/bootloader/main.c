@@ -253,9 +253,51 @@ void RecvDumpsys(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
+// When IOIO gets reset for an unexpected reason, its default behavior is to
+// restart normally. This is desired in most cases.
+// For debug purposes, however, we want to know what went wrong. With defining
+// SIGANAL_AFTER_BAD_RESET, on any reset other than power-on, IOIO will blink
+// a 16-bit code (long-1 short-0) to designtae the error.
+// One very useful case is catching failed asserts. Their blink code will start
+// with short-long-...
+#ifdef SIGNAL_AFTER_BAD_RESET
+static void Delay(unsigned long time) {
+  while (time-- > 0);
+}
+
+static void SignalBit(int bit) {
+  _LATF3 = 0;
+  Delay(bit ? 900000UL : 100000UL);
+  _LATF3 = 1;
+  Delay(bit ? 100000UL : 900000UL);
+}
+
+static void SignalWord(unsigned int word) {
+  int i;
+  for (i = 0; i < 16; ++i) {
+    SignalBit(word & 0x8000);
+    word <<= 1;
+  }
+}
+
+static void SignalRcon() {
+  _LATF3 = 1;
+  _TRISF3 = 0;
+  while (1) {
+   SignalWord(RCON);
+   Delay(8000000UL);
+  }
+}
+#endif
+
 int main() {
   ADB_FILE_HANDLE f;
   ADB_CHANNEL_HANDLE h;
+#ifdef SIGNAL_AFTER_BAD_RESET
+  if (RCON != 0x03) {
+    SignalBadReset();
+  }
+#endif
   InitializeSystem();
   BootloaderInit();
 
