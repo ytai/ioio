@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
 		private boolean abort_ = false;
 		private ResourceAllocator alloc_ = new ResourceAllocator();
 		private TestProvider provider_;
-		private TestThread[] workers_ = new TestThread[4];
+		private TestThread[] workers_ = new TestThread[8];
 
 		@Override
 		public void run() {

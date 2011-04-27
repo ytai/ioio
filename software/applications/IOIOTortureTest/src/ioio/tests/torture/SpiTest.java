@@ -5,6 +5,7 @@ import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.tests.torture.ResourceAllocator.PeripheralType;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import android.util.Log;
@@ -59,7 +60,7 @@ public class SpiTest implements Test<Boolean> {
 		final int SEED = 17;
 
 		SpiMaster spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPin,
-				SpiMaster.Rate.RATE_1M);
+				SpiMaster.Rate.RATE_500K);
 
 		try {
 			Random rand = new Random(SEED);
@@ -77,6 +78,10 @@ public class SpiTest implements Test<Boolean> {
 									"Failed SpiTest (contents) on pins: "
 											+ pin1_ + ", " + pin2_ + ", "
 											+ pin3_ + ", " + pin4_);
+							Log.w("IOIOTortureTest",
+									"Requested: " + Arrays.toString(request)
+											+ " got: "
+											+ Arrays.toString(response));
 							return false;
 						}
 					} else {
@@ -85,6 +90,10 @@ public class SpiTest implements Test<Boolean> {
 									"Failed SpiTest (suffix) on pins: " + pin1_
 											+ ", " + pin2_ + ", " + pin3_
 											+ ", " + pin4_);
+							Log.w("IOIOTortureTest",
+									"Requested: " + Arrays.toString(request)
+											+ " got: "
+											+ Arrays.toString(response));
 							return false;
 						}
 					}
