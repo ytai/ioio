@@ -5,6 +5,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.IncompatibilityException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,6 +91,8 @@ public class IOIOTestBed extends Activity {
 					runTest();
 				} catch (ConnectionLostException e) {
 					Log.e(LOG_TAG, "Failed to connect", e);
+				} catch (IncompatibilityException e) {
+					Log.e(LOG_TAG, "Incompatbile firmware!", e);
 				}
 				if (ledThread != null) {
 					Log.i(LOG_TAG, "Joining LED thread...");
