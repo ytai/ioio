@@ -38,7 +38,7 @@
 #include "protocol.h"
 #include "sync.h"
 
-#define RX_BUF_SIZE 128
+#define RX_BUF_SIZE 256
 #define TX_BUF_SIZE 256
 
 typedef struct {
