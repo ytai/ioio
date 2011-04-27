@@ -30,44 +30,48 @@ package ioio.lib.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import android.util.Log;
 
 public class QueueInputStream extends InputStream {
-	private final BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
+	private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
 	private boolean closed_ = false;
 
 	@Override
-	public int read() throws IOException {
-		if (closed_) {
-			throw new IOException("Stream has been closed");
-		}
+	synchronized public int read() throws IOException {
 		try {
-			return queue_.take();
+			while (!closed_ && queue_.isEmpty()) {
+				wait();
+			}
+			if (closed_) {
+				throw new IOException("Stream has been closed");
+			}
+			return queue_.remove();
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
 	}
-	
-	public void write(byte[] data, int size) {
+
+	synchronized public void write(byte[] data, int size) {
 		for (int i = 0; i < size; ++i) {
 			if (!queue_.add(data[i])) {
 				Log.e("QueueInputStream", "Buffer overflow, discarding data");
 				break;
 			}
 		}
+		notifyAll();
 	}
 
 	@Override
-	public int available() throws IOException {
+	synchronized public int available() throws IOException {
 		return queue_.size();
 	}
 
 	@Override
-	public void close() {
+	synchronized public void close() {
 		closed_ = true;
 	}
 

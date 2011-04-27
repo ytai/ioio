@@ -7,7 +7,6 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.widget.TextView;
 

@@ -55,7 +55,7 @@ public class PwmImpl extends AbstractResource implements PwmOutput {
 	}
 
 	@Override
-	public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
+	synchronized public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
 		checkState();
 		assert(dutyCycle <= 1 && dutyCycle >= 0);
 		int pw, fraction;

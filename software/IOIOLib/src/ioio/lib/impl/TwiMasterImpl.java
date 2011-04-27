@@ -35,8 +35,8 @@ import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
 
@@ -76,7 +76,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster,
 
 	}
 
-	private final Queue<TwiResult> pendingRequests_ = new LinkedList<TwiMasterImpl.TwiResult>();
+	private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<TwiMasterImpl.TwiResult>();
 	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
 			this);
 	private final int twiNum_;
@@ -132,7 +132,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster,
 	}
 
 	@Override
-	synchronized public void dataReceived(byte[] data, int size) {
+	public void dataReceived(byte[] data, int size) {
 		TwiResult result = pendingRequests_.remove();
 		synchronized (result) {
 			result.ready_ = true;
@@ -145,7 +145,7 @@ public class TwiMasterImpl extends AbstractResource implements TwiMaster,
 	}
 
 	@Override
-	synchronized public void reportAdditionalBuffer(int bytesRemaining) {
+	public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
 

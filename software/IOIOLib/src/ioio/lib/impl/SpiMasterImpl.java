@@ -36,9 +36,9 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
 
@@ -75,7 +75,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		}
 	}
 
-	private final Queue<SpiResult> pendingRequests_ = new LinkedList<SpiMasterImpl.SpiResult>();
+	private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<SpiMasterImpl.SpiResult>();
 	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
 			this);
 
@@ -153,7 +153,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	@Override
-	synchronized public void dataReceived(byte[] data, int size) {
+	public void dataReceived(byte[] data, int size) {
 		SpiResult result = pendingRequests_.remove();
 		synchronized (result) {
 			result.ready_ = true;
@@ -163,7 +163,7 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	@Override
-	synchronized public void reportAdditionalBuffer(int bytesRemaining) {
+	public void reportAdditionalBuffer(int bytesRemaining) {
 		outgoing_.readyToSend(bytesRemaining);
 	}
 

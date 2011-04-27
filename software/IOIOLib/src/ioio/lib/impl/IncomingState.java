@@ -28,15 +28,15 @@
  */
 package ioio.lib.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-
-import android.util.Log;
-
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
+
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import android.util.Log;
 
 public class IncomingState implements IncomingHandler {
 	enum ConnectionState {
@@ -58,7 +58,7 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	class InputPinState {
-		private Queue<InputPinListener> listeners_ = new LinkedList<InputPinListener>();
+		private Queue<InputPinListener> listeners_ = new ConcurrentLinkedQueue<InputPinListener>();
 		private boolean currentOpen_ = false;
 
 		void pushListener(InputPinListener listener) {
@@ -86,7 +86,7 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	class DataModuleState {
-		private Queue<DataModuleListener> listeners_ = new LinkedList<IncomingState.DataModuleListener>();
+		private Queue<DataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.DataModuleListener>();
 		private boolean currentOpen_ = false;
 
 		void pushListener(DataModuleListener listener) {
@@ -198,18 +198,24 @@ public class IncomingState implements IncomingHandler {
 
 	synchronized public void removeDisconnectListener(
 			DisconnectListener listener) {
-		disconnectListeners_.remove(listener);
+		if (connection_ != ConnectionState.DISCONNECTED) {
+			disconnectListeners_.remove(listener);
+		}
 	}
 
 	@Override
-	synchronized public void handleConnectionLost() {
+	public void handleConnectionLost() {
 		logMethod("handleConnectionLost");
+		synchronized (this) {
+			connection_ = ConnectionState.DISCONNECTED;
+		}
 		for (DisconnectListener listener : disconnectListeners_) {
 			listener.disconnected();
 		}
 		disconnectListeners_.clear();
-		connection_ = ConnectionState.DISCONNECTED;
-		notifyAll();
+		synchronized (this) {
+			notifyAll();
+		}
 	}
 
 	@Override

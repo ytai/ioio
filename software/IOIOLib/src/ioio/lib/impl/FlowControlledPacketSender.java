@@ -56,26 +56,29 @@ public class FlowControlledPacketSender {
 
 	synchronized public void flush() throws IOException {
 		try {
-			while (!queue_.isEmpty()) {
+			while (!closed_ && !queue_.isEmpty()) {
 				wait();
 			}
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
+		}
+		if (closed_) {
+			throw new IllegalStateException("Stream has been closed");
 		}
 	}
 
 	synchronized public void write(Packet packet) throws IOException {
-		if (closed_) {
-			throw new IllegalStateException("Stream has been closed");
-		}
 		try {
-			while (!queue_.offer(packet)) {
+			while (!closed_ && !queue_.offer(packet)) {
 				wait();
 			}
-			notifyAll();
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
+		if (closed_) {
+			throw new IllegalStateException("Stream has been closed");
+		}
+		notifyAll();
 	}
 
 	synchronized public void readyToSend(int numBytes) {

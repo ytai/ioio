@@ -58,26 +58,30 @@ public class FlowControlledOutputStream extends OutputStream {
 	@Override
 	synchronized public void flush() throws IOException {
 		try {
-			while (!queue_.isEmpty()) {
+			while (!closed_ && !queue_.isEmpty()) {
 				wait();
 			}
 		} catch (InterruptedException e) {
+			throw new IOException("Interrupted");
+		}
+		if (closed_) {
+			throw new IOException("Stream has been closed");
 		}
 	}
 
 	@Override
 	synchronized public void write(int oneByte) throws IOException {
-		if (closed_) {
-			throw new IOException("Stream has been closed");
-		}
 		try {
-			while (!queue_.offer((byte) oneByte)) {
+			while (!closed_ && !queue_.offer((byte) oneByte)) {
 				wait();
 			}
-			notifyAll();
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
+		if (closed_) {
+			throw new IOException("Stream has been closed");
+		}
+		notifyAll();
 	}
 
 	synchronized public void readyToSend(int numBytes) {
@@ -88,6 +92,7 @@ public class FlowControlledOutputStream extends OutputStream {
 	@Override
 	synchronized public void close() {
 		closed_ = true;
+		notifyAll();
 		thread_.interrupt();
 	}
 
