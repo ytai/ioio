@@ -39,7 +39,7 @@ public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 	}
 
 	@Override
-	synchronized public void write(Boolean val) throws ConnectionLostException {
+	synchronized public void write(boolean val) throws ConnectionLostException {
 		checkState();
 		try {
 			ioio_.protocol_.setDigitalOutLevel(pinNum_, val);
