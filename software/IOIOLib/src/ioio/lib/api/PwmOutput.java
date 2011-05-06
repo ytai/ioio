@@ -71,7 +71,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * ... 
  * servo.setDutyCycle(1.0f);  // 100% intensity
  * ... 
- * servo.close();  // pin 10 can now be used for something else.
+ * servo.close();  // pin 12 can now be used for something else.
  * </pre>
  * <p>
  * Typical usage (servo):
@@ -85,7 +85,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * ... 
  * servo.setPulseWidth(2000);  // 2000us = 2ms = other extreme
  * ... 
- * servo.close();  // pin 10 can now be used for something else.
+ * servo.close();  // pin 12 can now be used for something else.
  * </pre>
  * 
  * @see IOIO#openPwmOutput(ioio.lib.api.DigitalOutput.Spec, int)
