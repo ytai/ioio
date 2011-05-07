@@ -1,6 +1,7 @@
 package ioio.test_bed;
 
 import ioio.lib.api.DigitalInput;
+import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
@@ -145,7 +146,7 @@ public class IOIOTestBed extends Activity {
 					if (IGNORE_PINS_SET.contains(i)) {
 						pins.add(null);
 					} else {
-						pins.add(ioio.openDigitalInput(i));
+						pins.add(ioio.openDigitalInput(i, Mode.PULL_UP));
 					}
 				}
 				while (true) {
@@ -157,7 +158,9 @@ public class IOIOTestBed extends Activity {
 						if (pins.get(i) == null) {
 							continue;
 						}
-						if (i % 2 == 0) {
+						// even pins below 9 belong to the "odd" group and odd
+						// pins below 10 belong to the "even" group.
+						if ((i > 9) == (i % 2 == 0)) {
 							if (pins.get(i).read()) {
 								evenHigh.add(i);
 							} else {
