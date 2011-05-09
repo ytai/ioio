@@ -99,6 +99,8 @@
   #define PLATFORM_ID "IOIO0001"
 #elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
   #define PLATFORM_ID "IOIO0002"
+#elif BOARD_VER == BOARD_SPRK0016
+  #define PLATFORM_ID "IOIO0003"
 #else
   #error Unknown board version - cannot determine platform ID
 #endif

@@ -39,6 +39,7 @@
 #define BOARD_SPRK0013 BOARD_SPRK_BASE + 13
 #define BOARD_SPRK0014 BOARD_SPRK_BASE + 14
 #define BOARD_SPRK0015 BOARD_SPRK_BASE + 15
+#define BOARD_SPRK0016 BOARD_SPRK_BASE + 16
 // add more boards here!
 
 #ifndef BOARD_VER
@@ -53,6 +54,10 @@
 #elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
   #ifndef __PIC24FJ128DA206__
     #error Board and MCU mismatch - expecting PIC24FJ128DA206
+  #endif
+#elif BOARD_VER == BOARD_SPRK0016
+  #ifndef __PIC24FJ256DA206__
+    #error Board and MCU mismatch - expecting PIC24FJ256DA206
   #endif
 #else
   #error Unknown board
@@ -73,6 +78,8 @@
   #define HW_IMPL_VER "SPRK0014"
 #elif BOARD_VER == BOARD_SPRK0015
   #define HW_IMPL_VER "SPRK0015"
+#elif BOARD_VER == BOARD_SPRK0016
+  #define HW_IMPL_VER "SPRK0016"
 #else
   #error Unknown board
 #endif
