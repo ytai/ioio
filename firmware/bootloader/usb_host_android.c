@@ -58,6 +58,7 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   gc_DevData.clientDriverID = clientDriverID;
 
   // Save the endpoint addresses
+  // TODO: open both interfaces in ADK + ADB mode: ADK:0 ADB:1
   pFirstEpInfo = pDevInfo->pInterfaceList->pCurrentSetting->pEndpointList;
   if (!pFirstEpInfo) return FALSE;
   pSecondEpInfo = pFirstEpInfo->next;

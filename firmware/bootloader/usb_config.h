@@ -3,7 +3,7 @@
                                                                                 
 Software License Agreement                                                      
                                                                                 
-Copyright © 2007-2008 Microchip Technology Inc. and its licensors.  All         
+Copyright ï¿½ 2007-2008 Microchip Technology Inc. and its licensors.  All         
 rights reserved.                                                                
                                                                                 
 Microchip licenses to you the right to: (1) install Software on a single        
@@ -46,7 +46,7 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #define USB_PING_PONG_MODE  USB_PING_PONG__FULL_PING_PONG
 
-#define NUM_TPL_ENTRIES 1
+#define NUM_TPL_ENTRIES 3
 
 #define USB_ENABLE_TRANSFER_EVENT
 

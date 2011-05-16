@@ -14,8 +14,8 @@ Host application.
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the �Company�) for its PICmicro� Microcontroller is intended and
-supplied to you, the Company�s customer, for use solely and
+(the ï¿½Companyï¿½) for its PICmicroï¿½ Microcontroller is intended and
+supplied to you, the Companyï¿½s customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -24,7 +24,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN �AS IS� CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN ï¿½AS ISï¿½ CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -116,7 +116,15 @@ descriptor.  Then we check the VID and PID and make sure they appear in the TPL.
 #define SUBSUBSTATE_WAIT_FOR_GET_DEVICE_DESCRIPTOR      0x0001  //
 #define SUBSUBSTATE_GET_DEVICE_DESCRIPTOR_COMPLETE      0x0002  //
 
-#define SUBSTATE_VALIDATE_VID_PID                       0x0040  //
+#define SUBSTATE_ENABLE_ACCESSORY                       0x0040  //
+#define SUBSUBSTATE_SEND_GET_PROTOCOL                   0x0000  //
+#define SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL               0x0001  //
+#define SUBSUBSTATE_SEND_MANUFACTURER_STRING            0x0002  //
+#define SUBSUBSTATE_WAIT_FOR_MANUFACTURER_STRING        0x0003  //
+#define SUBSUBSTATE_SEND_START_ACCESSORY                0x0004  //
+#define SUBSUBSTATE_WAIT_FOR_START_ACCESSORY            0x0005  //
+
+#define SUBSTATE_VALIDATE_VID_PID                       0x0050  //
 
 /*
 *******************************************************************************
@@ -483,6 +491,7 @@ void                 _USB_ResetDATA0( BYTE endpoint );
 void                 _USB_SendToken( BYTE endpoint, BYTE tokenType );
 void                 _USB_SetBDT( BYTE  direction );
 BOOL                 _USB_TransferInProgress( void );
+BOOL                 _USB_IsAccessoryDevice( void );
 
 
 #endif // _USB_HOST_LOCAL_

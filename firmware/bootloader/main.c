@@ -110,8 +110,8 @@
 
 void InitializeSystem() {
 #ifdef ENABLE_LOGGING
-  iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-  iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
+  //iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
+  iPPSOutput(OUT_PIN_PPS_RP28,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
   UART2Init();
 #endif
   mInitAllLEDs();
@@ -362,6 +362,7 @@ int main() {
 
       case MAIN_STATE_RUN_APP:
         log_printf("Running app...");
+        while(1);
         __asm__("goto __APP_RESET");
 
       default:
