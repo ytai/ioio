@@ -119,8 +119,8 @@ descriptor.  Then we check the VID and PID and make sure they appear in the TPL.
 #define SUBSTATE_ENABLE_ACCESSORY                       0x0040  //
 #define SUBSUBSTATE_SEND_GET_PROTOCOL                   0x0000  //
 #define SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL               0x0001  //
-#define SUBSUBSTATE_SEND_MANUFACTURER_STRING            0x0002  //
-#define SUBSUBSTATE_WAIT_FOR_MANUFACTURER_STRING        0x0003  //
+#define SUBSUBSTATE_SEND_ACCESSORY_STRING               0x0002  //
+#define SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING           0x0003  //
 #define SUBSUBSTATE_SEND_START_ACCESSORY                0x0004  //
 #define SUBSUBSTATE_WAIT_FOR_START_ACCESSORY            0x0005  //
 

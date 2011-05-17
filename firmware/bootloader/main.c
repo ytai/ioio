@@ -105,6 +105,15 @@
   #error Unknown board version - cannot determine platform ID
 #endif
 
+char* accessoryDescs[6] = {
+  "IOIO Open Source Project",
+  "IOIO",
+  "IOIO for Android",
+  PLATFORM_ID,
+  "http://codaset.com/ytai/ioio/wiki/ADK",
+  "N/A"
+};
+
 #define FINGERPRINT_SIZE 16
 #define MAX_PATH 64
 
