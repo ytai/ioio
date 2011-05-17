@@ -110,6 +110,9 @@ static UINT32 local_id_counter = 1;  // used for allocating unique local ids.
 // Functions & Macros
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOL ADBSupported() {
+  return USBHostAndroidIsInterfaceSupported(ANDROID_INTERFACE_ADB);
+}
 
 static void ADBReset() {
   // close all open channels
@@ -136,7 +139,6 @@ void ADBBufferUnref() {
     ADBPacketRecv();
   }
 }
-
 
 static void ADBChannelTasks() {
   static ADB_CHANNEL_HANDLE current_channel = 0;

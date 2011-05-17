@@ -13,6 +13,7 @@
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
         <itemPath>../blapi/adb.h</itemPath>
         <itemPath>../blapi/adb_file.h</itemPath>
+        <itemPath>../blapi/adk.h</itemPath>
         <itemPath>../blapi/bootloader.h</itemPath>
         <itemPath>../blapi/flash.h</itemPath>
       </logicalFolder>
