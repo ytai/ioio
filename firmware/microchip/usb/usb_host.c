@@ -1837,7 +1837,7 @@ void USBHostTasks( void )
                                 // Set up and send GET DEVICE DESCRIPTOR
                                 pEP0Data[0] = USB_SETUP_DEVICE_TO_HOST | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
                                 pEP0Data[1] = 51;
-                                pEP0Data[2] = 0; // Index
+                                pEP0Data[2] = 0;
                                 pEP0Data[3] = 0;
                                 pEP0Data[4] = 0;
                                 pEP0Data[5] = 0;
@@ -1888,9 +1888,9 @@ void USBHostTasks( void )
                             #endif
                             pEP0Data[0] = USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
                             pEP0Data[1] = 52;
-                            pEP0Data[2] = currentDesc + 1;
+                            pEP0Data[2] = 0;
                             pEP0Data[3] = 0;
-                            pEP0Data[4] = 0;
+                            pEP0Data[4] = currentDesc;
                             pEP0Data[5] = 0;
                             pEP0Data[6] = strlen(accessoryDescs[currentDesc]) + 1;
                             pEP0Data[7] = 0;
