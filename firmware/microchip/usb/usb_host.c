@@ -66,7 +66,6 @@ Change History:
               is already attached when the host stack initializes.
 
 *******************************************************************************/
-
 #include <stdlib.h>
 #include <string.h>
 #include "GenericTypeDefs.h"
@@ -5318,7 +5317,7 @@ void _USB_SetBDT( BYTE token )
 //        UART2PutHex((pBDT->v[0]) & 0xff);
 //        UART2PutChar('-');
 //        UART2PutHex((currentPacketSize >> 24) & 0xff);
-//        UART2PutHex((pBDT->v[1] >> 16) & 0xff);
+//        UART2PutHex((currentPacketSize >> 16) & 0xff);
 //        UART2PutHex((currentPacketSize >> 8) & 0xff);
 //        UART2PutHex(currentPacketSize & 0xff);
 //        UART2PutChar('}');

@@ -17,6 +17,12 @@ _FlashErasePage     = __BLAPI_BASE + 0x28;
 _FlashWriteDWORD    = __BLAPI_BASE + 0x2C;
 _FlashWriteBlock    = __BLAPI_BASE + 0x30;
 _FlashReadDWORD     = __BLAPI_BASE + 0x34;
+_ADBAttached        = __BLAPI_BASE + 0x38;
+_ADKAttached        = __BLAPI_BASE + 0x3C;
+_ADKRead            = __BLAPI_BASE + 0x40;
+_ADKReadDone        = __BLAPI_BASE + 0x44;
+_ADKWrite           = __BLAPI_BASE + 0x48;
+_ADKWriteDone       = __BLAPI_BASE + 0x4C;
 
 /*
 ** ==================== Section Map ======================

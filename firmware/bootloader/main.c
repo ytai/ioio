@@ -322,11 +322,17 @@ int main() {
     switch(state) {
       case MAIN_STATE_WAIT_CONNECT:
         if (connected) {
-          log_printf("ADB connected!");
-          manager_path = DUMPSYS_BUSY;
-          DumpsysInit();
-          h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
-          state = MAIN_STATE_FIND_PATH;
+          log_printf("Device connected!");
+          if (ADBAttached()) {
+            log_printf("ADB attached - attempting firmware upgrade");
+            manager_path = DUMPSYS_BUSY;
+            DumpsysInit();
+            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
+            state = MAIN_STATE_FIND_PATH;
+          } else {
+            log_printf("ADB not attached - skipping boot sequence");
+            state = MAIN_STATE_RUN_APP;
+          }
         }
         break;
 
@@ -371,7 +377,6 @@ int main() {
 
       case MAIN_STATE_RUN_APP:
         log_printf("Running app...");
-        while(1);
         __asm__("goto __APP_RESET");
 
       default:

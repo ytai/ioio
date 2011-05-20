@@ -99,8 +99,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
   // Handle specific events.
   switch (event) {
    case EVENT_DETACH:
-    gc_DevData.initialized      = 0;
-    gc_DevData.ID.deviceAddress = 0;
+    memset(&gc_DevData, 0, sizeof gc_DevData);
 
     log_printf("Android Client Device Detached: address=0x%x", address);
     break;
@@ -151,8 +150,7 @@ void USBHostAndroidGetDeviceId(ANDROID_DEVICE_ID *pDevID) {
 void USBHostAndroidReset() {
   assert(USBHostAndroidIsDeviceAttached());
   USBHostResetDevice(gc_DevData.ID.deviceAddress);
-  gc_DevData.initialized      = 0;
-  gc_DevData.ID.deviceAddress = 0;
+  memset(&gc_DevData, 0, sizeof gc_DevData);
 }
 
 BYTE USBHostAndroidRead(void *buffer, DWORD length, ANDROID_INTERFACE_ID iid) {
@@ -160,7 +158,7 @@ BYTE USBHostAndroidRead(void *buffer, DWORD length, ANDROID_INTERFACE_ID iid) {
   ANDROID_INTERFACE *pInterface = &gc_DevData.interfaces[iid];
 
   // Validate the call
-  assert(USBHostAndroidIsDeviceAttached() && pInterface->flags.initialized);
+  assert(pInterface->flags.initialized);
   if (pInterface->flags.rxBusy) return USB_BUSY;
 
   log_printf("Requested read of %u bytes", (unsigned) length);
@@ -202,7 +200,7 @@ void USBHostAndroidTasks(void) {
             pInterface->flags.rxBusy = 0;
             pInterface->rxLength     = byteCount;
             pInterface->rxErrorCode  = errorCode;
-            log_print_1("Received message with %ld bytes", byteCount);
+            log_printf("Received message with %ld bytes", byteCount);
         }
       }
 
@@ -234,7 +232,7 @@ BYTE USBHostAndroidWrite(const void *buffer, DWORD length, ANDROID_INTERFACE_ID 
   ANDROID_INTERFACE *pInterface = &gc_DevData.interfaces[iid];
 
   // Validate the call
-  assert(USBHostAndroidIsDeviceAttached() && pInterface->flags.initialized);
+  assert(pInterface->flags.initialized);
   if (pInterface->flags.txBusy) return USB_BUSY;
 
   log_printf("Sending message with %u bytes: ", (unsigned) length);

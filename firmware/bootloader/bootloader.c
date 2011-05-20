@@ -28,11 +28,16 @@
  */
 
 #include <string.h>
+#include <assert.h>
 
 #include "adb_private.h"
 #include "adb_file_private.h"
 #include "bootloader_private.h"
 #include "board.h"
+#include "logging.h"
+#include "USB/usb.h"
+#include "USB/usb_host.h"
+#include "usb_host_android.h"
 
 #define BL_IMPL_VER "IOIO0100"
 
@@ -42,13 +47,67 @@ void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]) {
 }
 
 BOOL BootloaderTasks() {
-  BOOL connected = ADBTasks();
-  if (!connected) return FALSE;
-  ADBFileTasks();
-  return TRUE;
+  int res;
+  
+  USBHostTasks();
+#ifndef USB_ENABLE_TRANSFER_EVENT
+  USBHostAndroidTasks();
+#endif
+
+  res = ADBTasks();
+  if (res == 1) {
+    ADBFileTasks();
+  } else if (res == -1) {
+    log_printf("Error occured. Resetting.");
+    USBHostAndroidReset();
+    return FALSE;
+  }
+  return USBHostAndroidIsDeviceAttached();
 }
 
 void BootloaderInit() {
+  BOOL res = USBHostInit(0);
+  assert(res);
   ADBInit();
   ADBFileInit();
 }
+
+BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
+  // Handle specific events.
+  switch (event) {
+   case EVENT_VBUS_REQUEST_POWER:
+    // We'll let anything attach.
+    return TRUE;
+
+   case EVENT_VBUS_RELEASE_POWER:
+    // We aren't keeping track of power.
+    return TRUE;
+
+   case EVENT_HUB_ATTACH:
+    log_printf("***** USB Error - hubs are not supported *****");
+    return TRUE;
+
+   case EVENT_UNSUPPORTED_DEVICE:
+    log_printf("***** USB Error - device is not supported *****");
+    return TRUE;
+
+   case EVENT_CANNOT_ENUMERATE:
+    log_printf("***** USB Error - cannot enumerate device *****");
+    return TRUE;
+
+   case EVENT_CLIENT_INIT_ERROR:
+    log_printf("***** USB Error - client driver initialization error *****");
+    return TRUE;
+
+   case EVENT_OUT_OF_MEMORY:
+    log_printf("***** USB Error - out of heap memory *****");
+    return TRUE;
+
+   case EVENT_UNSPECIFIED_ERROR:   // This should never be generated.
+    log_printf("***** USB Error - unspecified *****");
+    return TRUE;
+
+   default:
+    return FALSE;
+  }
+}  // USB_ApplicationEventHandler

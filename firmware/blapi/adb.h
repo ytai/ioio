@@ -112,9 +112,10 @@ typedef int ADB_CHANNEL_HANDLE;
 // function will be called with NULL data and 0 length.
 typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
 
-// Checks whether ADB is supported. If this returns FALSE, none of the other
-// functions may be used.
-BOOL ADBSupported();
+// Checks whether ADB-capable device is attached. If this returns FALSE, none
+// of the other functions may be used. This does not mean that an ADB connection
+// has been established.
+BOOL ADBAttached();
 
 // Open a new channel to the remote end.
 // The name indicates the destination on the remote end. Names such as

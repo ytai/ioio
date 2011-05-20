@@ -62,9 +62,9 @@
 
 #include "GenericTypeDefs.h"
 
-// Checks whether ADK is supported. If this returns FALSE, none of the other
-// functions may be used.
-BOOL ADKSupported();
+// Checks whether ADK-capable device is attached. If this returns FALSE, none of
+// the other functions may be used.
+BOOL ADKAttached();
 
 // Issue a read request from the device.
 // Actual read will be done asynchronously. Client should call

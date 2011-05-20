@@ -85,6 +85,7 @@
         <itemPath>../microchip/usb/usb_host.c</itemPath>
         <itemPath>usb_host_android.c</itemPath>
       </logicalFolder>
+      <itemPath>adk.c</itemPath>
       <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
     </logicalFolder>

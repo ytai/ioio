@@ -18,6 +18,6 @@ BOOL ADKWriteDone(BYTE *errorCode) {
   return USBHostAndroidTxIsComplete(errorCode, ANDROID_INTERFACE_ADK);
 }
 
-BOOL ADKSupported() {
-  return USBHostAndroidIsInterfaceSupported(ANDROID_INTERFACE_ADK);
+BOOL ADKAttached() {
+  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADK);
 }

@@ -130,8 +130,8 @@ BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWO
 // Check whether a device is currently attached.
 #define USBHostAndroidIsDeviceAttached() (gc_DevData.initialized)
 
-// Check whether a given interface is supported
-#define USBHostAndroidIsInterfaceSupported(iid) (gc_DevData.interfaces[iid].flags.initialized)
+// Check whether a given interface is attached
+#define USBHostAndroidIsInterfaceAttached(iid) (gc_DevData.interfaces[iid].flags.initialized)
 
 // Resets the device and restarts all the attachment process.
 // Device must be attached.

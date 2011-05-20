@@ -78,6 +78,12 @@ SECTIONS
         SHORT(ABSOLUTE(_FlashWriteDWORD));     SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteDWORD) >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_FlashWriteBlock));     SHORT(0x04);  SHORT((ABSOLUTE(_FlashWriteBlock) >> 16) & 0x7F);  SHORT(0);
         SHORT(ABSOLUTE(_FlashReadDWORD));      SHORT(0x04);  SHORT((ABSOLUTE(_FlashReadDWORD)  >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADBAttached));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBAttached)     >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADKAttached));         SHORT(0x04);  SHORT((ABSOLUTE(_ADBAttached)     >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADKRead));             SHORT(0x04);  SHORT((ABSOLUTE(_ADKRead)         >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADKReadDone));         SHORT(0x04);  SHORT((ABSOLUTE(_ADKReadDone)     >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADKWrite));            SHORT(0x04);  SHORT((ABSOLUTE(_ADKWrite)        >> 16) & 0x7F);  SHORT(0);
+        SHORT(ABSOLUTE(_ADKWriteDone));        SHORT(0x04);  SHORT((ABSOLUTE(_ADKWriteDone)    >> 16) & 0x7F);  SHORT(0);
   } >blapi
 
 

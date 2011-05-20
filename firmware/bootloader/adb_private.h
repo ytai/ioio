@@ -44,9 +44,9 @@
 void ADBInit();
 
 // Call this periodically. Will not block for long.
-// Returns TRUE if an ADB connection is established, FALSE otherwise. Once a
-// connection drops, all open channels will be closed.
-BOOL ADBTasks();
+// Returns 1 if an ADB connection is established, 0 if not, -1 if an error has
+// occured. Once a connection drops, all open channels will be closed.
+int ADBTasks();
 
 
 #endif  // __ADBPRIVATE_H__
