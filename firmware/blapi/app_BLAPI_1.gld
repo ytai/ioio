@@ -23,6 +23,7 @@ _ADKRead            = __BLAPI_BASE + 0x40;
 _ADKReadDone        = __BLAPI_BASE + 0x44;
 _ADKWrite           = __BLAPI_BASE + 0x48;
 _ADKWriteDone       = __BLAPI_BASE + 0x4C;
+_BootloaderResetUSB = __BLAPI_BASE + 0x50;
 
 /*
 ** ==================== Section Map ======================

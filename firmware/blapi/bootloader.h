@@ -43,8 +43,11 @@ void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]);
 
 // Needs to be called by the application periodically in order to provide
 // context for the service provided by the bootloader API (BLAPI).
-// Returns TRUE iff an ADB connection is established.
+// Returns TRUE iff a USB device is connected.
 BOOL BootloaderTasks();
+
+// Resets USB connection. Connection will be dropped and then re-established.
+void BootloaderResetUSB();
 
 
 #endif  // __BOOTLOADER_H__

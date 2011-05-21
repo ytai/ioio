@@ -58,11 +58,15 @@ BOOL BootloaderTasks() {
   if (res == 1) {
     ADBFileTasks();
   } else if (res == -1) {
-    log_printf("Error occured. Resetting.");
+    log_printf("Error occured. Resetting USB.");
     USBHostAndroidReset();
     return FALSE;
   }
   return USBHostAndroidIsDeviceAttached();
+}
+
+void BootloaderResetUSB() {
+  USBHostShutdown();
 }
 
 void BootloaderInit() {
