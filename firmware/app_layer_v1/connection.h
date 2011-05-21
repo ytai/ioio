@@ -27,68 +27,17 @@
  * or implied.
  */
 
-#include "Compiler.h"
-#include "connection.h"
-#include "features.h"
-#include "protocol.h"
-#include "logging.h"
-#include "digital.h"
+#ifndef __CONNECTION_H__
+#define __CONNECTION_H__
 
-typedef enum {
-  STATE_WAIT_CONNECTION,
-  STATE_CONNECTED,
-  STATE_ERROR,
-  STATE_INCOMPATIBLE_DEVICE
-} STATE;
 
-STATE state = STATE_WAIT_CONNECTION;
+typedef void (*CONNECTION_CALLBACK) (const void *data, int size);
 
-void ChannelCallback(const void *data, int size) {
-  if (!AppProtocolHandleIncoming(data, size)) {
-    // got corrupt input. need to close the connection and soft reset.
-    state = STATE_ERROR;
-  }
-}
+void ConnectionInit();
+int ConnectionTasks();
+void ConnectionSetReadCallback(CONNECTION_CALLBACK cb);
+void ConnectionWrite(const void *data, int size);
+int ConnectionCanWrite();
+void ConnectionReset();
 
-int main() {
-  int led_counter = 0;
-  
-  log_init();
-  log_printf("***** Hello from app-layer! *******\r\n");
-  ConnectionSetReadCallback(&ChannelCallback);
-  ConnectionInit();
-  SoftReset();
-
-  while (1) {
-    int connected = ConnectionTasks();
-    if (connected == -1) {
-      state = STATE_INCOMPATIBLE_DEVICE;
-    } else if (connected == 0 && state > STATE_WAIT_CONNECTION) {
-      // just got disconnected
-      SoftReset();
-      state = STATE_WAIT_CONNECTION;
-    }
-    switch (state) {
-      case STATE_WAIT_CONNECTION:
-        if (connected) {
-          AppProtocolInit();
-          state = STATE_CONNECTED;
-        }
-        break;
-
-      case STATE_CONNECTED:
-        AppProtocolTasks();
-        break;
-
-      case STATE_ERROR:
-        ConnectionReset();
-        state = STATE_WAIT_CONNECTION;
-        break;
-
-      case STATE_INCOMPATIBLE_DEVICE:
-        SetDigitalOutLevel(0, (led_counter++ >> 10) & 1);
-        break;
-    }
-  }
-  return 0;
-}
+#endif  // __CONNECTION_H__

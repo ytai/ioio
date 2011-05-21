@@ -4,5 +4,6 @@
 .map
 build
 dist
+*/nbproject/*.properties
 */nbproject/private/
 

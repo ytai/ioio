@@ -61,6 +61,6 @@ USB_TPL usbTPL[] =
 {
     { INIT_VID_PID( 0x18D1ul, 0x2D00ul ), 0, 0, {0} }, // ADK without ADB
     { INIT_VID_PID( 0x18D1ul, 0x2D01ul ), 0, 0, {0} }, // ADK with ADB
-    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV} }
+    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV} } // ADB
 };
 

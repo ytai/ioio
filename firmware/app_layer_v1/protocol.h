@@ -30,16 +30,14 @@
 // IOIO application layer protocol implementation.
 //
 // Typical usage:
-// ADB_CHANNEL h = ...
-// AppProtocolInit(h);
+// AppProtocolInit();
 // while (1) {
 //   if (HasIncomingMessage()) {
 //     AppProtocolHandleIncoming(msg_data, msg_size);
 //   }
-//   AppProtocolTasks(h);
+//   AppProtocolTasks();
 // }
 //
-// TODO: decouple this module from ADB via callback functions for sending data.
 
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
@@ -50,14 +48,10 @@
 // Initialize this module.
 // This function completely resets the module's state and can be called even
 // after the module has been initialized in order to reset it.
-// h is a channel handle, which will be used for sending outgoing protocol
-// messages.
-void AppProtocolInit(ADB_CHANNEL_HANDLE h);
+void AppProtocolInit();
 
 // Call this function peridically for providing context to this module.
-// h is a channel handle, which will be used for sending outgoing protocol
-// messages.
-void AppProtocolTasks(ADB_CHANNEL_HANDLE h);
+void AppProtocolTasks();
 
 // Process incoming protocol data.
 // data may not be NULL.

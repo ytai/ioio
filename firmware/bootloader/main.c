@@ -118,11 +118,6 @@ char* accessoryDescs[6] = {
 #define MAX_PATH 64
 
 void InitializeSystem() {
-#ifdef ENABLE_LOGGING
-  //iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-  iPPSOutput(OUT_PIN_PPS_RP28,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
-  UART2Init();
-#endif
   mInitAllLEDs();
 }
 
@@ -302,6 +297,7 @@ static void SignalRcon() {
 #endif
 
 int main() {
+  log_init();
   ADB_FILE_HANDLE f;
   ADB_CHANNEL_HANDLE h;
 #ifdef SIGNAL_AFTER_BAD_RESET

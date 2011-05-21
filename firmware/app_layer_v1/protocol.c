@@ -43,6 +43,7 @@
 #include "spi.h"
 #include "i2c.h"
 #include "sync.h"
+#include "connection.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
@@ -144,7 +145,7 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
   }
 }
 
-void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
+void AppProtocolInit() {
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;
@@ -183,11 +184,11 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
   SyncInterruptLevel(prev);
 }
 
-void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
+void AppProtocolTasks() {
   UARTTasks();
   SPITasks();
   I2CTasks();
-  if (ADBChannelReady(h)) {
+  if (ConnectionCanWrite()) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
     int size;
@@ -197,7 +198,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
     }
     ByteQueuePeek(&tx_queue, &data, &size);
     if (size > 0) {
-      ADBWrite(h, data, size);
+      ConnectionWrite(data, size);
       bytes_transmitted = size;
     }
     SyncInterruptLevel(prev);
