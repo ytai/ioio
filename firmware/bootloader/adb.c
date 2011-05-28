@@ -27,6 +27,8 @@
  * or implied.
  */
 
+#define _VERBOSE_DEBUGGING
+
 #include <string.h>
 #include <assert.h>
 
@@ -133,8 +135,9 @@ void ADBBufferRef() {
 
 void ADBBufferUnref() {
   assert(adb_buffer_refcount);
-  assert(adb_conn_state == ADB_CONN_STATE_CONNECTED);
-  if (--adb_buffer_refcount == 0) {
+  --adb_buffer_refcount;
+  if (adb_conn_state != ADB_CONN_STATE_CONNECTED) return;
+  if (adb_buffer_refcount == 0) {
     adb_buffer_refcount = 1;
     ADBPacketRecv();
   }
@@ -305,6 +308,7 @@ int ADBTasks() {
   ADB_RESULT adb_res;
   UINT32 cmd, arg0, arg1, data_len;
   void* recv_data;
+
 
   if (adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH) {
     if (!ADBAttached()) {
