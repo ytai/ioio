@@ -66,4 +66,15 @@ public class IOIOFactory {
 	public static IOIO create() {
 		return new IOIOImpl(new SocketIOIOConnection(IOIO_PORT));
 	}
+	
+	/**
+	 * Create a IOIO instance with a user-provided underlying connection. This
+	 * method should be used for establishing a non-standard connection to the
+	 * IOIO board.
+	 * 
+	 * @return The IOIO instance.
+	 */
+	public static IOIO create(IOIOConnection connection) {
+		return new IOIOImpl(connection);
+	}
 }

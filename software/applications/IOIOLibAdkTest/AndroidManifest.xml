@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:a="http://schemas.android.com/apk/res/android"
+      package="ioio.examples.adk"
+      a:versionCode="1"
+      a:versionName="1.0">
+    <uses-sdk a:minSdkVersion="10" />
+
+    <application a:icon="@drawable/icon" a:label="@string/app_name">
+ 		<uses-library a:name="com.android.future.usb.accessory" />
+        <activity a:name=".IOIOLibAdkTestMainActivity"
+                  a:label="@string/app_name" a:launchMode="singleInstance">
+            <intent-filter>
+				<action a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+                <action a:name="android.intent.action.MAIN" />
+                <category a:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+			<meta-data a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+				a:resource="@xml/accessory_filter" />
+        </activity>
+
+    </application>
+</manifest>

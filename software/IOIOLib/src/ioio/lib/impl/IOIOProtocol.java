@@ -107,19 +107,21 @@ public class IOIOProtocol {
 		0x02,  // 5333.333
 		0x01   // 8000
 	};
+	
+	private static final String TAG = "IOIOProtocol";
 
-	private byte[] buf_ = new byte[128];
+	private byte[] outbuf_ = new byte[128];
 	private int pos_ = 0;
 
 	private void writeByte(int b) {
 		assert(b >= 0 && b < 256);
-//		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
-		buf_[pos_++] = (byte) b;
+		//Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
+		outbuf_[pos_++] = (byte) b;
 	}
 
 	private void flush() throws IOException {
 		try {
-			out_.write(buf_, 0, pos_);
+			out_.write(outbuf_, 0, pos_);
 		} finally {
 			pos_ = 0;
 		}
@@ -401,6 +403,10 @@ public class IOIOProtocol {
 	}
 
 	class IncomingThread extends Thread {
+		private int readOffset_ = 0;
+		private int validBytes_ = 0;
+		private byte[] inbuf_ = new byte[64];
+		
 		private int[] analogFramePins_ = new int[0];
 		private Set<Integer> removedPins_ = new HashSet<Integer>(
 				Constants.NUM_ANALOG_PINS);
@@ -425,18 +431,24 @@ public class IOIOProtocol {
 			}
 		}
 
-		private int readByte() throws IOException {
-			try {
-				int b = in_.read();
-				if (b == -1)
-					throw new IOException("Unexpected stream closure");
-				// Log.v("IOIOProtocol", "received: 0x" +
-				// Integer.toHexString(b));
-				return b;
-			} catch (IOException e) {
-				Log.i("IOIOProtocol", "IOIO disconnected");
-				throw e;
+		
+		private void fillBuf() throws IOException {
+			validBytes_ = in_.read(inbuf_, 0, inbuf_.length);
+			if (0 >= validBytes_) {
+				Log.i(TAG, "IOIO disconnected");
+				throw new IOException("Unexpected stream closure");
 			}
+			//Log.v(TAG, "received " + validBytes_ + " bytes");
+			readOffset_ = 0;
+		}
+		
+		private int readByte() throws IOException {
+			if (readOffset_ == validBytes_) {
+				fillBuf();
+			}
+			int b = inbuf_[readOffset_++];
+			//Log.v(TAG, "received: 0x" + Integer.toHexString(b));
+			return b;
 		}
 
 		private void readBytes(int size, byte[] buffer) throws IOException {
@@ -616,7 +628,7 @@ public class IOIOProtocol {
 						IOException e = new IOException(
 								"Received unexpected command: 0x"
 										+ Integer.toHexString(arg1));
-						Log.e("IOIOProtocol", "Protocol error", e);
+						Log.e(TAG, "Protocol error", e);
 						throw e;
 					}
 				}

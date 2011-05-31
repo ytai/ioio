@@ -45,7 +45,7 @@ STATE state = STATE_WAIT_CONNECTION;
 
 void ChannelCallback(const void *data, int size) {
   if (!AppProtocolHandleIncoming(data, size)) {
-    // got corrupt input. need to close the connection and soft reset.
+    log_printf("Got corrupt input. Closing the connection and soft reset.");
     state = STATE_ERROR;
   }
 }
@@ -55,8 +55,8 @@ int main() {
   
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
-  ConnectionSetReadCallback(&ChannelCallback);
   ConnectionInit();
+  ConnectionSetReadCallback(&ChannelCallback);
   SoftReset();
 
   while (1) {
@@ -64,13 +64,14 @@ int main() {
     if (connected == -1) {
       state = STATE_INCOMPATIBLE_DEVICE;
     } else if (connected == 0 && state > STATE_WAIT_CONNECTION) {
-      // just got disconnected
+      log_printf("Disconnected");
       SoftReset();
       state = STATE_WAIT_CONNECTION;
     }
     switch (state) {
       case STATE_WAIT_CONNECTION:
         if (connected) {
+          log_printf("Connected");
           AppProtocolInit();
           state = STATE_CONNECTED;
         }

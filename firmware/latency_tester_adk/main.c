@@ -32,8 +32,7 @@
 #include <PPS.h>
 #include <string.h>
 
-#include "blapi/adk.h"
-#include "blapi/bootloader.h"
+#include "connection.h"
 
 #include "Compiler.h"
 
@@ -104,7 +103,8 @@ BOOL recv_command(char command_id) {
   }
 }
 
-void HandleIncoming(const BYTE* data, DWORD data_len) {
+void HandleIncoming(const void* buf, int data_len) {
+  const BYTE* data = (const BYTE*) buf;
   while (data_len > 0) {
     switch (main_state) {
       case MAIN_STATE_RECV_SIZES:
@@ -189,12 +189,10 @@ void HandleIncoming(const BYTE* data, DWORD data_len) {
 }
 
 static BYTE __attribute__((far)) download_buffer[4096];
-static BYTE __attribute__((far)) incoming_buffer[1024];
 
 int main() {
-  int write_ready = 1, read_ready = 1;
+  int write_ready = 1;
   int i;
-  BYTE error;
   iPPSOutput(OUT_PIN_PPS_RP28,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43 on the PIC, 4 on IOIO V1.0 board)
   UART2Init();
 
@@ -203,44 +201,27 @@ int main() {
   for (i = 0; i < sizeof download_buffer; ++i) {
     download_buffer[i] = i % 256;
   }
+  ConnectionInit();
+  ConnectionSetReadCallback(&HandleIncoming);
 
   while (1) {
     BOOL connected;
 
-    BootloaderTasks();
-    connected = ADKAttached();
+    connected = ConnectionTasks();
     if (!connected) {
       main_state = MAIN_STATE_WAIT_CONNECT;
       break;
     } else {
-      if (read_ready) {
-        ADKRead(incoming_buffer, sizeof incoming_buffer);
-        read_ready = 0;
-      } else {
-        DWORD num_read;
-        if (ADKReadDone(&error, &num_read)) {
-          HandleIncoming(incoming_buffer, num_read);
-          read_ready = 1;
-        }
-      }
-      
       if (write_ready) {
         if (send_byte) {
-          ADKWrite(&to_send, 1);
+          ConnectionWrite(&to_send, 1);
           send_byte = FALSE;
           write_ready = 0;
         }
       } else {
         // check if a previous write completed
-        if (ADKWriteDone(&error)) {
+        if (ConnectionCanWrite()) {
           write_ready = 1;
-          if (error == 0) {
-//            UART2PrintString("OK\r\n");
-          } else {
-            UART2PrintString("Write failed eventually with code: 0x");
-            UART2PutHex(error);
-            UART2PrintString("\r\n");
-          }
         }
       }
     }
@@ -256,18 +237,9 @@ int main() {
       case MAIN_STATE_TEST_DOWNLOAD:
         if (remaining_download_packets > 0) {
           if (write_ready) {
-            int res = ADKWrite(download_buffer, packet_size);
-            if (0 == res) {
-//              UART2PrintString("Wrote 0x");
-//              UART2PutHexWord(size);
-//              UART2PrintString("\r\n");
-              write_ready = 0;
-              --remaining_download_packets;
-            } else {
-              UART2PrintString("Write failed immediately with code: 0x");
-              UART2PutHex(res);
-              UART2PrintString("\r\n");
-            }
+            ConnectionWrite(download_buffer, packet_size);
+            write_ready = 0;
+            --remaining_download_packets;
           }
         } else {
           send_byte = TRUE;
@@ -280,15 +252,9 @@ int main() {
       case MAIN_STATE_TEST_BOTH:
         if (remaining_download_packets > 0) {
           if (write_ready) {
-            int res = ADKWrite(download_buffer, packet_size);
-            if (0 == res) {
-              write_ready = 0;
-              --remaining_download_packets;
-            } else {
-              UART2PrintString("Write failed immediately with code: 0x");
-              UART2PutHex(res);
-              UART2PrintString("\r\n");
-            }
+            ConnectionWrite(download_buffer, packet_size);
+            write_ready = 0;
+            --remaining_download_packets;
           }
         } else {
           UART2PrintString("download done... ");
@@ -312,7 +278,6 @@ int main() {
           i = 1000000L;
           LATFbits.LATF3 = 1;
           while (i--);
-          BootloaderTasks();
         }
         break;
 

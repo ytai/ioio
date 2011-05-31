@@ -63,6 +63,10 @@ int ConnectionTasks() {
 
       case ADK_CONNECTED:
         if (ADKReadDone(&result, &bytes_read)) {
+          if (result != 0) {
+            log_printf("ADKRead failed with code 0x%x. Resetting USB.", result);
+            BootloaderResetUSB();
+          }
           if (callback) {
             callback(incoming_buffer, bytes_read);
           }

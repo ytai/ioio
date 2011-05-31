@@ -27,8 +27,6 @@
  * or implied.
  */
 
-#define _VERBOSE_DEBUGGING
-
 #include <string.h>
 #include <assert.h>
 

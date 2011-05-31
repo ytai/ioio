@@ -59,5 +59,15 @@ void log_init() {
   UART2Init();
 }
 
+// directs stderr writes to UART2
+int write(int handle, void *buffer, unsigned int len) {
+  if (handle == 2) {
+    int i;
+    for (i = 0; i < len; ++i)
+      UART2PutChar(((char *) buffer)[i]);
+  }
+  return(len);
+}
 
 #endif  // DEBUG_MODE
+

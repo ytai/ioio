@@ -1,8 +1,9 @@
 package ioio.latency_tester;
 
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import ioio.lib.adk.BaseIOIOAdkActivity;
+import ioio.lib.api.IOIOConnection;
+import ioio.lib.api.exception.ConnectionLostException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,17 +11,12 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Random;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
-
-public class LatencyTesterActivity extends Activity {
+public class LatencyTesterActivity extends BaseIOIOAdkActivity {
 	private static final String LOG_TAG = "IOIO_LATENCY_TEST";
 
 	private static final int UP_THROUGHPUT_START_BYTE = (int) 'U';
@@ -40,26 +36,18 @@ public class LatencyTesterActivity extends Activity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Log.i(LOG_TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+	}
 
-		if (getIntent().getAction().equals(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)) {
-			Log.i(LOG_TAG, "attached");
-			progress = ProgressDialog.show(LatencyTesterActivity.this,
-					"Testing...", "");
-
-			updateProgressMessage("Connecting to accessory");
-			UsbManager manager = UsbManager
-					.getInstance(LatencyTesterActivity.this);
-			UsbAccessory ioio = UsbManager.getAccessory(getIntent());
-			ParcelFileDescriptor openAccessory = manager.openAccessory(ioio);
-			updateProgressMessage("Connected...");
-
-			FileDescriptor fd = openAccessory.getFileDescriptor();
-			thread = new LatencyCheckerThread(new FileInputStream(fd),
-					new FileOutputStream(fd));
-			thread.start();
-		}
+	@Override
+	public void onResume() {
+		super.onResume();
+		progress = ProgressDialog.show(LatencyTesterActivity.this,
+				"Starting", "");
+		thread = new LatencyCheckerThread(createIOIOConnection());
+		thread.start();
 	}
 
 	private void updateProgressMessage(final String msg) {
@@ -72,18 +60,23 @@ public class LatencyTesterActivity extends Activity {
 	}
 
 	private class LatencyCheckerThread extends Thread {
-		private InputStream in;
-		private OutputStream out;
+		private IOIOConnection con_;
 
-		public LatencyCheckerThread(InputStream is, OutputStream os) {
-			in = is;
-			out = os;
+		public LatencyCheckerThread(IOIOConnection con) {
+			con_ = con;
 		}
 
 		@Override
 		public void run() {
 			super.run();
 			try {
+				Log.i(LOG_TAG, "staring thread");
+				updateProgressMessage("Connecting to accessory...");
+				con_.waitForConnect();
+				updateProgressMessage("Connected...");
+				InputStream in = con_.getInputStream();
+				OutputStream out = con_.getOutputStream();
+
 				byte[] sizes = new byte[4];
 				sizes[0] = (byte) (MAX_PACKET_SIZE >> 8);
 				sizes[1] = (byte) MAX_PACKET_SIZE;
@@ -102,16 +95,12 @@ public class LatencyTesterActivity extends Activity {
 						|| !testLatencyError(in, out)) {
 					Log.w(LOG_TAG, "Failure in one of the tests");
 				}
+				Log.i(LOG_TAG, "thread done");
+			} catch (ConnectionLostException e) {
+				Log.i(LOG_TAG, "diconnected");
 			} catch (IOException e) {
-				Log.e(LOG_TAG, e.getMessage());
+				Log.i(LOG_TAG, "diconnected");
 			}
-
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					progress.dismiss();
-				}
-			});
 		}
 
 		private boolean testUploadThroughput(InputStream in, OutputStream out)

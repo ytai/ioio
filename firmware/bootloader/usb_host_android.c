@@ -235,7 +235,9 @@ BYTE USBHostAndroidWrite(const void *buffer, DWORD length, ANDROID_INTERFACE_ID 
   assert(pInterface->flags.initialized);
   if (pInterface->flags.txBusy) return USB_BUSY;
 
-  log_printf("Sending message with %u bytes: ", (unsigned) length);
+  log_printf("Sending message with %u bytes to endpoint 0x%x: ",
+             (unsigned) length,
+             pInterface->outEndpoint);
   log_print_buf(buffer, length);
 
   // Set the busy flag and start a new OUT transfer.

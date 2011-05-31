@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      android:versionCode="1"
-      android:versionName="1.0" package="ioio.latency_tester">
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
+<manifest xmlns:a="http://schemas.android.com/apk/res/android"
+      a:versionCode="1"
+      a:versionName="1.0" package="ioio.latency_tester">
+    <application a:icon="@drawable/icon" a:label="@string/app_name">
 
 
-      <uses-library android:name="com.android.future.usb.accessory" />
-        <activity android:name=".LatencyTesterActivity"
-                  android:label="@string/app_name">
+      <uses-library a:name="com.android.future.usb.accessory" />
+        <activity a:name=".LatencyTesterActivity"
+                  a:label="@string/app_name"><!--  a:launchMode="singleInstance" -->
             <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+                <action a:name="android.intent.action.MAIN" />
+                <category a:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
-                android:resource="@xml/accessory_filter" />
+            <meta-data a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+                a:resource="@xml/accessory_filter" />
         </activity>
 
     </application>
 
-	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	<uses-permission a:name="android.permission.INTERNET"></uses-permission>
 </manifest> 
