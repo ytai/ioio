@@ -607,7 +607,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0013.gld"/>
+        <appendMe value="-Tboot_IOIO0012.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
