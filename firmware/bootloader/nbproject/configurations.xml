@@ -26,11 +26,11 @@
         <itemPath>xml.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
-        <itemPath>microchip/include/Compiler.h</itemPath>
-        <itemPath>microchip/include/GenericTypeDefs.h</itemPath>
-        <itemPath>microchip/include/struct_queue.h</itemPath>
-        <itemPath>microchip/include/timer.h</itemPath>
-        <itemPath>microchip/include/uart2.h</itemPath>
+        <itemPath>../microchip/include/Compiler.h</itemPath>
+        <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
+        <itemPath>../microchip/include/struct_queue.h</itemPath>
+        <itemPath>../microchip/include/timer.h</itemPath>
+        <itemPath>../microchip/include/uart2.h</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
         <itemPath>../microchip/include/USB/usb.h</itemPath>
@@ -93,11 +93,11 @@
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
-      <itemPath>boot_BLAPI_1.gld</itemPath>
-      <itemPath>boot_IOIO0000.gld</itemPath>
-      <itemPath>boot_IOIO0001.gld</itemPath>
-      <itemPath>boot_IOIO0002.gld</itemPath>
-      <itemPath>boot_IOIO0003.gld</itemPath>
+      <itemPath>boot_BLAPI_2.gld</itemPath>
+      <itemPath>boot_IOIO0010.gld</itemPath>
+      <itemPath>boot_IOIO0011.gld</itemPath>
+      <itemPath>boot_IOIO0012.gld</itemPath>
+      <itemPath>boot_IOIO0013.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -172,8 +172,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -184,7 +184,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0001.gld"/>
+        <appendMe value="-Tboot_IOIO0011.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -313,8 +313,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -325,7 +325,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0002.gld"/>
+        <appendMe value="-Tboot_IOIO0012.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -404,7 +404,7 @@
         <property key="scalar-model" value="large-scalar"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1015"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1014"/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -454,8 +454,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -466,7 +466,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0002.gld"/>
+        <appendMe value="-Tboot_IOIO0012.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -545,7 +545,7 @@
         <property key="scalar-model" value="large-scalar"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1016"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1015"/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -595,8 +595,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -607,7 +607,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0003.gld"/>
+        <appendMe value="-Tboot_IOIO0013.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -736,8 +736,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -748,7 +748,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-Tboot_IOIO0003.gld"/>
+        <appendMe value="-Tboot_IOIO0013.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>

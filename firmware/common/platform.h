@@ -46,6 +46,10 @@
 #define PLATFORM_IOIO0001 PLATFORM_IOIO_BASE + 1
 #define PLATFORM_IOIO0002 PLATFORM_IOIO_BASE + 2
 #define PLATFORM_IOIO0003 PLATFORM_IOIO_BASE + 3
+#define PLATFORM_IOIO0010 PLATFORM_IOIO_BASE + 10
+#define PLATFORM_IOIO0011 PLATFORM_IOIO_BASE + 11
+#define PLATFORM_IOIO0012 PLATFORM_IOIO_BASE + 12
+#define PLATFORM_IOIO0013 PLATFORM_IOIO_BASE + 13
 // add more platforms here!
 
 #ifndef PLATFORM
@@ -69,6 +73,22 @@
   #ifndef __PIC24FJ256DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
+#elif PLATFORM == PLATFORM_IOIO0010
+  #ifndef __PIC24FJ256DA206__
+    #error Platform and MCU mismatch - expecting PIC24FJ256DA206
+  #endif
+#elif PLATFORM == PLATFORM_IOIO0011
+  #ifndef __PIC24FJ128DA106__
+    #error Platform and MCU mismatch - expecting PIC24FJ128DA106
+  #endif
+#elif PLATFORM == PLATFORM_IOIO0012
+  #ifndef __PIC24FJ128DA206__
+    #error Platform and MCU mismatch - expecting PIC24FJ128DA206
+  #endif
+#elif PLATFORM == PLATFORM_IOIO0013
+  #ifndef __PIC24FJ256DA206__
+    #error Platform and MCU mismatch - expecting PIC24FJ256DA206
+  #endif
 #else
   #error Unknown platform
 #endif
@@ -77,6 +97,10 @@
 #if PLATFORM == PLATFORM_IOIO0000
   #define NUM_PINS 50
 #elif PLATFORM >= PLATFORM_IOIO0001 && PLATFORM <= PLATFORM_IOIO0003
+  #define NUM_PINS 49
+#elif PLATFORM == PLATFORM_IOIO0010
+  #define NUM_PINS 50
+#elif PLATFORM >= PLATFORM_IOIO0011 && PLATFORM <= PLATFORM_IOIO0013
   #define NUM_PINS 49
 #else
   #error Unknown platform

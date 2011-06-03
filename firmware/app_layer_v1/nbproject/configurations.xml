@@ -69,16 +69,16 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
       <itemPath>README</itemPath>
-      <itemPath>../blapi/app_BLAPI_1.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0000.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0001.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0002.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0003.gld</itemPath>
+      <itemPath>../blapi/app_BLAPI_2.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0010.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0011.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0012.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0013.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="IOIO0001" type="2">
+    <conf name="IOIO0011" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
@@ -98,7 +98,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1001"/>
+        <property key="preprocessor-macros" value="PLATFORM=1011"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -148,8 +148,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -160,14 +160,14 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0001.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0011.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
-    <conf name="IOIO0002" type="2">
+    <conf name="IOIO0012" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
@@ -187,7 +187,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1002"/>
+        <property key="preprocessor-macros" value="PLATFORM=1012"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -237,8 +237,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -249,14 +249,14 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0012.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
-    <conf name="IOIO0003" type="2">
+    <conf name="IOIO0013" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256DA206</targetDevice>
@@ -276,7 +276,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1003"/>
+        <property key="preprocessor-macros" value="PLATFORM=1013"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -326,8 +326,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -338,7 +338,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0003.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0013.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>

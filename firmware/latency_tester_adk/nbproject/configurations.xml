@@ -37,16 +37,16 @@
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
-      <itemPath>../blapi/app_BLAPI_1.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0000.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0001.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0002.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0003.gld</itemPath>
+      <itemPath>../blapi/app_BLAPI_2.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0010.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0011.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0012.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0013.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="IOIO0001" type="2">
+    <conf name="IOIO0011" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
@@ -129,7 +129,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0001.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0011.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -188,7 +188,7 @@
         <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
-    <conf name="IOIO0002" type="2">
+    <conf name="IOIO0012" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
@@ -271,7 +271,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0012.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>

@@ -94,13 +94,13 @@
 // note that when BLAPI changes, this list will need to be completely rebuilt
 // with new numbers per hardware version.
 #if BOARD_VER == BOARD_SPRK0010
-  #define PLATFORM_ID "IOIO0000"
+  #define PLATFORM_ID "IOIO0010"
 #elif BOARD_VER >= BOARD_SPRK0011 && BOARD_VER <= BOARD_SPRK0012
-  #define PLATFORM_ID "IOIO0001"
+  #define PLATFORM_ID "IOIO0011"
 #elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
-  #define PLATFORM_ID "IOIO0002"
+  #define PLATFORM_ID "IOIO0012"
 #elif BOARD_VER == BOARD_SPRK0016
-  #define PLATFORM_ID "IOIO0003"
+  #define PLATFORM_ID "IOIO0013"
 #else
   #error Unknown board version - cannot determine platform ID
 #endif

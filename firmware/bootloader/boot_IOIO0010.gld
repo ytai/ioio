@@ -1,8 +1,8 @@
 /*
-** Linker script for PIC24FJ128DA106
+** Linker script for PIC24FJ256DA206
 */
 
-OUTPUT_ARCH("24FJ128DA106")
+OUTPUT_ARCH("24FJ256DA206")
 CRT0_STARTUP(crt0_extended.o)
 CRT1_STARTUP(crt1_extended.o)
 
@@ -21,18 +21,18 @@ MEMORY
   program (xr) : ORIGIN = 0x200,         LENGTH = 0x4C80
   blapi:       : ORIGIN = 0x4F80,        LENGTH = 0x80
   app_ivt      : ORIGIN = 0x5000,        LENGTH = 0x10C
-  CONFIG4      : ORIGIN = 0x157F8,       LENGTH = 0x2
-  CONFIG3      : ORIGIN = 0x157FA,       LENGTH = 0x2
-  CONFIG2      : ORIGIN = 0x157FC,       LENGTH = 0x2
-  CONFIG1      : ORIGIN = 0x157FE,       LENGTH = 0x2
+  CONFIG4      : ORIGIN = 0x2ABF8,       LENGTH = 0x2
+  CONFIG3      : ORIGIN = 0x2ABFA,       LENGTH = 0x2
+  CONFIG2      : ORIGIN = 0x2ABFC,       LENGTH = 0x2
+  CONFIG1      : ORIGIN = 0x2ABFE,       LENGTH = 0x2
 }
 
-__CONFIG4 = 0x157F8;
-__CONFIG3 = 0x157FA;
-__CONFIG2 = 0x157FC;
-__CONFIG1 = 0x157FE;
+__CONFIG4 = 0x2ABF8;
+__CONFIG3 = 0x2ABFA;
+__CONFIG2 = 0x2ABFC;
+__CONFIG1 = 0x2ABFE;
 
-INCLUDE boot_BLAPI_1.gld
+INCLUDE boot_BLAPI_2.gld
 
 /*
 ** ============== Equates for SFR Addresses =============

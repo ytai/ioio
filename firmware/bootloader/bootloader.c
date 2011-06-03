@@ -39,7 +39,7 @@
 #include "USB/usb_host.h"
 #include "usb_host_android.h"
 
-#define BL_IMPL_VER "IOIO0100"
+#define BL_IMPL_VER "IOIO0200"
 
 void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]) {
   memcpy(hwImplVer, HW_IMPL_VER, 8);
