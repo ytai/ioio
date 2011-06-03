@@ -6,12 +6,13 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.util.AbstractIOIOAdkActivity;
 import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class IOIOSimpleApp extends AbstractIOIOActivity {
+public class IOIOSimpleApp extends AbstractIOIOAdkActivity {
 	private TextView textView_;
 	private SeekBar seekBar_;
 	private ToggleButton toggleButton_;

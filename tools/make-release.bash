@@ -31,6 +31,7 @@ copysoftware IOIOLib
 copysoftware IOIOLibAdk
 copysoftware applications/IOIOTortureTest
 copysoftware applications/HelloIOIO
+copysoftware applications/IOIOSimpleApp
 
 (cd $tempdir ; zip -qr $1 *)
 cp $tempdir/$1.zip release/
