@@ -47,7 +47,7 @@
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
-#define FW_IMPL_VER "IOIO0100"
+#define FW_IMPL_VER "IOIO0101"
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(HARD_RESET_ARGS),
