@@ -1,9 +1,9 @@
 package ioio.examples.hello;
 
-import ioio.examples.hello.R;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.util.AbstractIOIOAdkActivity;
 import android.os.Bundle;
 import android.widget.ToggleButton;
 
@@ -15,7 +15,7 @@ import android.widget.ToggleButton;
  * the {@link AbstractIOIOActivity} class. For a more advanced use case, see the
  * HelloIOIOPower example.
  */
-public class MainActivity extends AbstractIOIOActivity {
+public class MainActivity extends AbstractIOIOAdkActivity {
 	private ToggleButton button_;
 
 	/**

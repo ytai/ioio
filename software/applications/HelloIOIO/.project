@@ -32,6 +32,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>IOIOLibAdk_src</name>
+			<type>2</type>
+			<locationURI>_android_IOIOLibAdk_e3f717cf/src</locationURI>
+		</link>
+		<link>
 			<name>IOIOLib_src</name>
 			<type>2</type>
 			<locationURI>_android_IOIOLib_a09f8619/src</locationURI>
