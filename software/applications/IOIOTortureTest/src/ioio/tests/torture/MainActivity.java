@@ -3,10 +3,11 @@ package ioio.tests.torture;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.util.AbstractIOIOAdkActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class MainActivity extends AbstractIOIOActivity {
+public class MainActivity extends AbstractIOIOAdkActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
