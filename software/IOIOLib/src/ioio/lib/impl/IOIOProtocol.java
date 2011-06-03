@@ -451,6 +451,7 @@ public class IOIOProtocol {
 				fillBuf();
 			}
 			int b = inbuf_[readOffset_++];
+			b &= 0xFF;  // make unsigned
 			//Log.v(TAG, "received: 0x" + Integer.toHexString(b));
 			return b;
 		}
