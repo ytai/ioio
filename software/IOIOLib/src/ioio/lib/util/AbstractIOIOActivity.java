@@ -20,9 +20,9 @@ import android.util.Log;
  * with the IOIO is established, and the {@link IOIOThread#loop()} method, which
  * gets called repetitively as long as the IOIO is connected. Both methods
  * should access the {@link IOIOThread#ioio_} field for controlling the IOIO.
- * 
  */
 public abstract class AbstractIOIOActivity extends Activity {
+	private static final String TAG = "AbstractIOIOAdkActivity";
 	private IOIOThread ioio_thread_;
 
 	/**
@@ -42,12 +42,16 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 */
 	@Override
 	protected void onPause() {
+		Log.v(TAG, "onPause");
 		super.onPause();
+		Log.v(TAG, "aborting");
 		ioio_thread_.abort();
+		Log.v(TAG, "joining");
 		try {
 			ioio_thread_.join();
 		} catch (InterruptedException e) {
 		}
+		Log.v(TAG, "joined");
 	}
 
 	/**
@@ -57,6 +61,16 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 * @return An implementation of {@link IOIOThread}
 	 */
 	protected abstract IOIOThread createIOIOThread();
+
+	/**
+	 * Subclasses may override this method for alternate creation modes of the
+	 * IOIO instance.
+	 * 
+	 * @return A IOIO instance.
+	 */
+	protected IOIO createIOIO() {
+		return IOIOFactory.create();
+	}
 
 	/**
 	 * An abstract class, which facilitates a thread dedicated for IOIO
@@ -77,7 +91,9 @@ public abstract class AbstractIOIOActivity extends Activity {
 						if (abort_) {
 							break;
 						}
-						ioio_ = IOIOFactory.create();
+						Log.v(TAG, "Creating IOIO");
+						ioio_ = createIOIO();
+						Log.v(TAG, "Created IOIO");
 					}
 					ioio_.waitForConnect();
 					setup();
@@ -85,19 +101,21 @@ public abstract class AbstractIOIOActivity extends Activity {
 						loop();
 					}
 				} catch (ConnectionLostException e) {
+					Log.v(TAG, "Caught ConnectionLostException");
 					if (abort_) {
 						break;
 					}
 				} catch (Exception e) {
-					Log.e("AbstractIOIOActivity",
-							"Unexpected exception caught", e);
+					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
 					try {
+						Log.v(TAG, "Waiting for disconnect");
 						ioio_.waitForDisconnect();
 					} catch (InterruptedException e) {
 					}
+					Log.v(TAG, "thread done");
 				}
 			}
 		}
@@ -122,6 +140,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 
 		/** Not relevant to subclasses. */
 		public synchronized final void abort() {
+			Log.v(TAG, "abort()");
 			abort_ = true;
 			if (ioio_ != null) {
 				ioio_.disconnect();

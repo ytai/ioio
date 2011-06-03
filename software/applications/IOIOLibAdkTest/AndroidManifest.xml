@@ -7,7 +7,7 @@
 
     <application a:icon="@drawable/icon" a:label="@string/app_name">
  		<uses-library a:name="com.android.future.usb.accessory" />
-        <activity a:name=".IOIOLibAdkTestMainActivity"
+        <activity a:name="AdkBlinkMainActivity"
                   a:label="@string/app_name" a:launchMode="singleInstance">
             <intent-filter>
 				<action a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />

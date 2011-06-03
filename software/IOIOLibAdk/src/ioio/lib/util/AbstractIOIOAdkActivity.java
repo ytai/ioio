@@ -19,7 +19,7 @@
  * the IOIO open source project.
  */
 
-package ioio.lib.adk;
+package ioio.lib.util;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOConnection;
@@ -46,8 +46,69 @@ import android.util.Log;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
-public class BaseIOIOAdkActivity extends Activity {
-	private static final String TAG = "BaseIOIOAdkActivity";
+/**
+ * This class provides the same functionality as {@link AbstractIOIOActivity},
+ * but establishes the IOIO connection using the OpenAccessory protocol ("ADK"),
+ * rather than using the default TCP connection.
+ * <p>
+ * Implementations extending this class must delegate all {@link Activity}
+ * methods to this class (for example, if the implementation overrides
+ * onPause(), it must call super.onPause() as first thing.
+ * <p>
+ * There is some setup required to make your application play nicely with ADK.
+ * First, you need an {@code AndroidManifest.xml} file similar to the following:
+ * 
+ * <pre>
+ * {@code<?xml version="1.0" encoding="utf-8"?>
+ * <manifest xmlns:a="http://schemas.android.com/apk/res/android"
+ *       package="ioio.examples.adk"
+ *       a:versionCode="1"
+ *       a:versionName="1.0">
+ *     <uses-sdk a:minSdkVersion="10" />
+ * 
+ *     <application a:icon="@drawable/icon" a:label="@string/app_name">
+ *         <uses-library a:name="com.android.future.usb.accessory" />
+ *         <activity a:name=".IOIOLibAdkTestMainActivity"
+ *                 a:label="@string/app_name" a:launchMode="singleInstance">
+ *             <intent-filter>
+ *                 <action a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+ *                 <action a:name="android.intent.action.MAIN" />
+ *                 <category a:name="android.intent.category.LAUNCHER" />
+ *             </intent-filter>
+ *             <meta-data a:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+ *                     a:resource="@xml/accessory_filter" />
+ *         </activity>
+ *     </application>
+ * </manifest>}
+ * </pre>
+ * 
+ * An in addition, create a file called {@code accessory_filter.xml}, in a
+ * directory called {@code xml} under {@code res}. The content of this file
+ * should be:
+ * 
+ * <pre>
+ * {@code
+ * <?xml version="1.0" encoding="utf-8"?>
+ * <resources>
+ *     <usb-accessory model="IOIO" />
+ * </resources>
+ * }
+ * </pre>
+ * 
+ * <h2>Known Limitations</h2>
+ * Due to current limitations in the accessory library in the Android O/S
+ * (V2.3.4 at the time of writing), it is impossible to gracefully close a
+ * connection to an accessory from within the application. For that reason,
+ * exiting your application will not properly disconnect from the IOIO, and upon
+ * re-entry an attempt to establish a new connection will block indenfinitely.
+ * The workaround is to physically disconnect (or power off) the IOIO, which
+ * will cause a proper closure of the connection.
+ * <p>
+ * For more information on how to use this class, see
+ * {@link AbstractIOIOActivity}.
+ */
+public abstract class AbstractIOIOAdkActivity extends AbstractIOIOActivity {
+	private static final String TAG = "AbstractIOIOAdkActivity";
 
 	private static final String ACTION_USB_PERMISSION = "ioio.lib.adk.action.USB_PERMISSION";
 
@@ -55,10 +116,10 @@ public class BaseIOIOAdkActivity extends Activity {
 	private PendingIntent mPermissionIntent;
 	private boolean mPermissionRequestPending;
 
-	UsbAccessory mAccessory;
-	ParcelFileDescriptor mFileDescriptor;
-	FileInputStream mInputStream;
-	FileOutputStream mOutputStream;
+	private UsbAccessory mAccessory;
+	private ParcelFileDescriptor mFileDescriptor;
+	private FileInputStream mInputStream;
+	private FileOutputStream mOutputStream;
 
 	private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 		@Override
@@ -88,7 +149,7 @@ public class BaseIOIOAdkActivity extends Activity {
 
 	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		mUsbManager = UsbManager.getInstance(this);
@@ -114,7 +175,7 @@ public class BaseIOIOAdkActivity extends Activity {
 	}
 
 	@Override
-	public void onResume() {
+	protected void onResume() {
 		super.onResume();
 
 		if (mInputStream != null && mOutputStream != null) {
@@ -141,13 +202,13 @@ public class BaseIOIOAdkActivity extends Activity {
 	}
 
 	@Override
-	public void onPause() {
+	protected void onPause() {
 		super.onPause();
 		closeAccessory();
 	}
 
 	@Override
-	public void onDestroy() {
+	protected void onDestroy() {
 		unregisterReceiver(mUsbReceiver);
 		super.onDestroy();
 	}
@@ -167,7 +228,7 @@ public class BaseIOIOAdkActivity extends Activity {
 			Log.d(TAG, "accessory open fail");
 		}
 	}
-	
+
 	protected synchronized IOIO createIOIO() {
 		return IOIOFactory.create(createIOIOConnection());
 	}
@@ -175,16 +236,16 @@ public class BaseIOIOAdkActivity extends Activity {
 	protected IOIOConnection createIOIOConnection() {
 		return new IOIOConnection() {
 			private boolean mDisconnected = false;
-			
+
 			@Override
 			public void waitForConnect() throws ConnectionLostException {
-				synchronized (BaseIOIOAdkActivity.this) {
+				synchronized (AbstractIOIOAdkActivity.this) {
 					if (mDisconnected) {
 						throw new ConnectionLostException();
 					}
 					while (mFileDescriptor == null && !mDisconnected) {
 						try {
-							BaseIOIOAdkActivity.this.wait();
+							AbstractIOIOAdkActivity.this.wait();
 						} catch (InterruptedException e) {
 						}
 					}
@@ -193,17 +254,18 @@ public class BaseIOIOAdkActivity extends Activity {
 					}
 				}
 			}
-			
+
 			@Override
-			public OutputStream getOutputStream() throws ConnectionLostException {
+			public OutputStream getOutputStream()
+					throws ConnectionLostException {
 				return mOutputStream;
 			}
-			
+
 			@Override
 			public InputStream getInputStream() throws ConnectionLostException {
 				return mInputStream;
 			}
-			
+
 			@Override
 			public void disconnect() {
 				mDisconnected = true;
