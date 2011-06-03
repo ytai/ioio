@@ -32,11 +32,14 @@ public class IOIOLibAdkTestMainActivity extends BaseIOIOAdkActivity {
 	public void onPause() {
 		Log.d(TAG, "onPause");
 		super.onPause();
+		Log.d(TAG, "aborting");
 		thread_.abort();
+		Log.d(TAG, "joining");
 		try {
 			thread_.join();
 		} catch (InterruptedException e) {
 		}
+		Log.d(TAG, "joined");
 	}
 	
 	protected class IOIOThread extends Thread {
@@ -52,7 +55,9 @@ public class IOIOLibAdkTestMainActivity extends BaseIOIOAdkActivity {
 						if (abort_) {
 							break;
 						}
+						Log.d(TAG, "Creating IOIO");
 						ioio_ = createIOIO();
+						Log.d(TAG, "Created IOIO");
 					}
 					ioio_.waitForConnect();
 					setup();
@@ -60,19 +65,21 @@ public class IOIOLibAdkTestMainActivity extends BaseIOIOAdkActivity {
 						loop();
 					}
 				} catch (ConnectionLostException e) {
+					Log.d(TAG, "Caught ConnectionLostException");
 					if (abort_) {
 						break;
 					}
 				} catch (Exception e) {
-					Log.e("AbstractIOIOActivity",
-							"Unexpected exception caught", e);
+					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
 					try {
+						Log.d(TAG, "Waiting for disconnect");
 						ioio_.waitForDisconnect();
 					} catch (InterruptedException e) {
 					}
+					Log.d(TAG, "thread done");
 				}
 			}
 		}
@@ -84,6 +91,7 @@ public class IOIOLibAdkTestMainActivity extends BaseIOIOAdkActivity {
 		}
 
 		public synchronized final void abort() {
+			Log.d(TAG, "abort()");
 			abort_ = true;
 			if (ioio_ != null) {
 				ioio_.disconnect();

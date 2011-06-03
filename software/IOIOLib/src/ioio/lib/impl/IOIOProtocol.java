@@ -433,13 +433,17 @@ public class IOIOProtocol {
 
 		
 		private void fillBuf() throws IOException {
-			validBytes_ = in_.read(inbuf_, 0, inbuf_.length);
-			if (0 >= validBytes_) {
+			try {
+				validBytes_ = in_.read(inbuf_, 0, inbuf_.length);
+				if (validBytes_ <= 0) {
+					throw new IOException("Unexpected stream closure");
+				}
+				//Log.v(TAG, "received " + validBytes_ + " bytes");
+				readOffset_ = 0;
+			} catch (IOException e) {
 				Log.i(TAG, "IOIO disconnected");
-				throw new IOException("Unexpected stream closure");
+				throw e;
 			}
-			//Log.v(TAG, "received " + validBytes_ + " bytes");
-			readOffset_ = 0;
 		}
 		
 		private int readByte() throws IOException {

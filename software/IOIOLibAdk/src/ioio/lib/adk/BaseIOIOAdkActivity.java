@@ -169,13 +169,6 @@ public class BaseIOIOAdkActivity extends Activity {
 	}
 	
 	protected synchronized IOIO createIOIO() {
-		while (mFileDescriptor == null) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-			}
-		}
-
 		return IOIOFactory.create(createIOIOConnection());
 	}
 
