@@ -29,13 +29,12 @@
 
 //
 // This module implements the ADB protocol (host side).
-// It hides the underlying USB layer completely and exposes a simple API that
-// enables the client to open several independent communication channels with
-// the remote side. These communication channels can correspond to virtual TCP
-// ports on the remote side, a command shell, etc. Each such communication
-// channel is able to process a single buffer of outgoing data at a given moment
-// as well as calls back a client-provided function as soon as incoming data
-// arrives.
+// It exposes a simple API that enables the client to open several independent
+// communication channels with the remote side. These communication channels can
+// correspond to virtual TCP ports on the remote side, a command shell, etc.
+// Each such communication channel is able to process a single buffer of
+// outgoing data at a given moment as well as calls back a client-provided
+// function as soon as incoming data arrives.
 // The number of concurrently open channels is limited by ADB_MAX_CHANNELS.
 //
 // Closing of a channel:
@@ -48,8 +47,8 @@
 // Error handling:
 // ---------------
 // This module automatically attempts to establish a connection with the remote
-// end as soon as USB layer is attached. When the connection drops, the
-// connection will be dropped, and re-established when possible.
+// end as soon as the USB layer is attached. When the undeerlying connection
+// drops, the ADB connection will be dropped, and re-established when possible.
 // The client should check the return code on every call to ADBTasks(). When the
 // connection drops, all state is lost and any open channels are closed. They
 // will be notified of the closure as mentioned in the above section.
@@ -110,7 +109,8 @@ typedef int ADB_CHANNEL_HANDLE;
 // the ADBBufferRef() function documentation.
 // When a channel is closed by the remote end (or its open is rejected), this
 // function will be called with NULL data and 0 length.
-typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data,
+                                   UINT32 data_len);
 
 // Checks whether ADB-capable device is attached. If this returns FALSE, none
 // of the other functions may be used. This does not mean that an ADB connection
