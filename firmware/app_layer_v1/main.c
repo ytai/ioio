@@ -52,7 +52,12 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     }
   } else {
     // connection closed, soft reset and re-establish
-    state = STATE_INIT;
+    if (state == STATE_CONNECTED) {
+      log_printf("ADB channel closed");
+      SoftReset();
+    }
+    h = ADBOpen("tcp:4545", &ChannelCallback);
+    state = STATE_WAIT_CHANNEL_OPEN;
   }
 }
 
@@ -62,28 +67,32 @@ int main() {
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
 
+  SoftReset();
   while (1) {
     BOOL adb_connected = BootloaderTasks();
     if (!adb_connected && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
+      log_printf("ADB disconnected");
+      SoftReset();
       state = STATE_INIT;
     }
     switch (state) {
       case STATE_INIT:
-        SoftReset();
         h = ADB_INVALID_CHANNEL_HANDLE;
         state = STATE_WAIT_CONNECTION;
         break;
 
       case STATE_WAIT_CONNECTION:
         if (adb_connected) {
+          log_printf("ADB connected");
           h = ADBOpen("tcp:4545", &ChannelCallback);
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
 
       case STATE_WAIT_CHANNEL_OPEN:
-        if (ADBChannelReady(h)) {
+       if (ADBChannelReady(h)) {
+          log_printf("ADB channel open");
           AppProtocolInit(h);
           state = STATE_CONNECTED;
         }
