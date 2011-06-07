@@ -81,9 +81,9 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
         <targetHeader></targetHeader>
-        <platformTool>PM3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -160,6 +160,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
@@ -168,9 +170,9 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
-        <platformTool>PM3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -183,7 +185,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1003"/>
+        <property key="preprocessor-macros" value="PLATFORM=1002"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -245,8 +247,10 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0003.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
@@ -255,9 +259,9 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256DA206</targetDevice>
         <targetHeader></targetHeader>
-        <platformTool>PM3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -320,20 +324,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
         <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0003.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
