@@ -94,9 +94,11 @@ public abstract class AbstractIOIOActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} finally {
-					try {
-						ioio_.waitForDisconnect();
-					} catch (InterruptedException e) {
+					if (ioio_ != null) {
+						try {
+							ioio_.waitForDisconnect();
+						} catch (InterruptedException e) {
+						}
 					}
 				}
 			}
