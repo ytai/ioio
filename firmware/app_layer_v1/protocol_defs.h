@@ -299,6 +299,33 @@ typedef struct PACKED {
   BYTE : 7;
 } CHECK_INTERFACE_RESPONSE_ARGS;
 
+// icsp six
+typedef struct PACKED {
+    DWORD inst : 24;
+} ICSP_SIX_ARGS;
+
+// icsp regout
+typedef struct PACKED {
+} ICSP_REGOUT_ARGS;
+
+// icsp result
+typedef struct PACKED {
+    WORD reg;
+} ICSP_RESULT_ARGS;
+
+// icsp programming enter
+typedef struct PACKED {
+} ICSP_PROG_ENTER_ARGS;
+
+// icsp programming exit
+typedef struct PACKED {
+} ICSP_PROG_EXIT_ARGS;
+
+// icsp configure
+typedef struct PACKED {
+    BYTE enable : 1;
+} ICSP_CONFIG_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -326,6 +353,11 @@ typedef struct PACKED {
     I2C_WRITE_READ_ARGS                      i2c_write_read;
     SET_ANALOG_IN_SAMPLING_ARGS              set_analog_pin_sampling;
     CHECK_INTERFACE_ARGS                     check_interface;
+    ICSP_SIX_ARGS                            icsp_six;
+    ICSP_REGOUT_ARGS                         icsp_regout;
+    ICSP_PROG_ENTER_ARGS                     icsp_prog_enter;
+    ICSP_PROG_EXIT_ARGS                      icsp_prog_exit;
+    ICSP_CONFIG_ARGS                         icsp_config;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -349,6 +381,7 @@ typedef struct PACKED {
     UART_STATUS_ARGS                        uart_status;
     SPI_STATUS_ARGS                         spi_status;
     I2C_STATUS_ARGS                         i2c_status;
+    ICSP_RESULT_ARGS                        icsp_result;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -396,6 +429,13 @@ typedef enum {
   I2C_WRITE_READ                      = 0x14,
   I2C_RESULT                          = 0x14,
   I2C_REPORT_TX_STATUS                = 0x15,
+
+  ICSP_SIX                            = 0x16,
+  ICSP_REGOUT                         = 0x17,
+  ICSP_RESULT                         = 0x17,
+  ICSP_PROG_ENTER                     = 0x18,
+  ICSP_PROG_EXIT                      = 0x19,
+  ICSP_CONFIG                         = 0x1A,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

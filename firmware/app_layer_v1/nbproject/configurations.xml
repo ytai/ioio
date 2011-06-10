@@ -16,6 +16,7 @@
       <itemPath>digital.h</itemPath>
       <itemPath>features.h</itemPath>
       <itemPath>i2c.h</itemPath>
+      <itemPath>icsp.h</itemPath>
       <itemPath>incap.h</itemPath>
       <itemPath>../common/logging.h</itemPath>
       <itemPath>pins.h</itemPath>
@@ -26,6 +27,7 @@
       <itemPath>pwm.h</itemPath>
       <itemPath>spi.h</itemPath>
       <itemPath>sync.h</itemPath>
+      <itemPath>../microchip/include/timer.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>../microchip/include/uart2.h</itemPath>
@@ -51,6 +53,7 @@
       <itemPath>digital.c</itemPath>
       <itemPath>features.c</itemPath>
       <itemPath>i2c.c</itemPath>
+      <itemPath>icsp.c</itemPath>
       <itemPath>incap.c</itemPath>
       <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
