@@ -49,7 +49,7 @@
 
 // TODO: do not use delay
 
-//static int num_tx_since_last_report;
+static int num_rx_since_last_report;
 static BYTE_QUEUE rx_queue;
 //static BYTE_QUEUE tx_queue;
 static BYTE rx_buffer[RX_BUF_SIZE];
@@ -144,12 +144,28 @@ void ICSPConfigure(int enable) {
   }
 }
 
+static void ICSPReportRxStatus() {
+  int report;
+  report = num_rx_since_last_report;
+  num_rx_since_last_report = 0;
+  OUTGOING_MESSAGE msg;
+  msg.type = ICSP_REPORT_RX_STATUS;
+  msg.args.icsp_report_rx_status.bytes_to_add = report;
+  AppProtocolSendMessage(&msg);
+}
+
 void ICSPTasks() {
   while (ByteQueueSize(&rx_queue)) {
     OUTGOING_MESSAGE msg;
     msg.type = ICSP_RESULT;
     ByteQueuePullToBuffer(&rx_queue, &msg.args.icsp_result.reg, 2);
+    num_rx_since_last_report += 2;
     log_printf("ICSP read word: 0x%04x", msg.args.icsp_result.reg);
     AppProtocolSendMessage(&msg);
   }
+  if (num_rx_since_last_report > RX_BUF_SIZE / 2) {
+    ICSPReportRxStatus();
+  }
 }
+
+

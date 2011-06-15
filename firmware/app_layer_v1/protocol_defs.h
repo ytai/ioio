@@ -304,6 +304,11 @@ typedef struct PACKED {
     DWORD inst : 24;
 } ICSP_SIX_ARGS;
 
+// icsp report rx status
+typedef struct PACKED {
+    WORD bytes_to_add;
+} ICSP_REPORT_RX_STATUS_ARGS;
+
 // icsp regout
 typedef struct PACKED {
 } ICSP_REGOUT_ARGS;
@@ -382,6 +387,7 @@ typedef struct PACKED {
     SPI_STATUS_ARGS                         spi_status;
     I2C_STATUS_ARGS                         i2c_status;
     ICSP_RESULT_ARGS                        icsp_result;
+    ICSP_REPORT_RX_STATUS_ARGS              icsp_report_rx_status;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -431,6 +437,7 @@ typedef enum {
   I2C_REPORT_TX_STATUS                = 0x15,
 
   ICSP_SIX                            = 0x16,
+  ICSP_REPORT_RX_STATUS               = 0x16,
   ICSP_REGOUT                         = 0x17,
   ICSP_RESULT                         = 0x17,
   ICSP_PROG_ENTER                     = 0x18,
