@@ -107,7 +107,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -170,8 +170,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -184,6 +184,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-Tboot_IOIO0001.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
         <property key="UART 3" value="true"/>
@@ -246,7 +248,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -323,6 +325,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-Tboot_IOIO0002.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
         <property key="UART 3" value="true"/>
@@ -385,7 +389,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -462,6 +466,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-Tboot_IOIO0002.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
         <property key="UART 3" value="true"/>
@@ -524,7 +530,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -587,8 +593,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -601,6 +607,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-Tboot_IOIO0003.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
         <property key="UART 3" value="true"/>
@@ -663,7 +671,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion>3.24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -726,8 +734,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -740,6 +748,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-Tboot_IOIO0003.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
         <property key="UART 3" value="true"/>
