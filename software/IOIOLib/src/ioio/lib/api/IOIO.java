@@ -547,4 +547,27 @@ public interface IOIO {
 	 */
 	public TwiMaster openTwiMaster(int twiNum, Rate rate, boolean smbus)
 			throws ConnectionLostException;
+
+	/**
+	 * Open an ICSP channel, enabling Flash programming of an external PIC MCU,
+	 * and in particular, another IOIO board.
+	 * <p>
+	 * ICSP (In-Circuit Serial Programming) is a protocol intended for
+	 * programming of PIC MCUs. It is a serial protocol over three wires: PGC
+	 * (clock), PGD (data) and MCLR (reset), where PGC and MCLR are controlled
+	 * by the master and PGD is shared by the master and slave, depending on the
+	 * transaction state.
+	 * <p>
+	 * Note that there is only one ICSP modules, and the pins it uses are
+	 * static. Client has to make sure that the ICSP module is not already in
+	 * use, as well as those dedicated pins. See board documentation for the
+	 * actual pins used for ICSP.
+	 * 
+	 * @return Interface of the ICSP module.
+	 * @see IcspMaster
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 */
+	public IcspMaster openIcspMaster() throws ConnectionLostException;
 }

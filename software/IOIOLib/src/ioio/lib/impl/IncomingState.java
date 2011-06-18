@@ -54,7 +54,7 @@ public class IncomingState implements IncomingHandler {
 	interface DataModuleListener {
 		void dataReceived(byte[] data, int size);
 
-		void reportAdditionalBuffer(int bytesRemaining);
+		void reportAdditionalBuffer(int bytesToAdd);
 	}
 
 	class InputPinState {
@@ -122,6 +122,7 @@ public class IncomingState implements IncomingHandler {
 	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
 	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
+	private final DataModuleState icspState_ = new DataModuleState();
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -185,6 +186,10 @@ public class IncomingState implements IncomingHandler {
 	public void addTwiListener(int twiNum, DataModuleListener listener) {
 		twiStates_[twiNum].pushListener(listener);
 	}
+	
+	public void addIcspListener(DataModuleListener listener) {
+		icspState_.pushListener(listener);
+	}
 
 	public void addSpiListener(int spiNum, DataModuleListener listener) {
 		spiStates_[spiNum].pushListener(listener);
@@ -233,6 +238,7 @@ public class IncomingState implements IncomingHandler {
 		for (DataModuleState spiState : spiStates_) {
 			spiState.closeCurrentListener();
 		}
+		icspState_.closeCurrentListener();
 	}
 
 	@Override
@@ -301,7 +307,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleI2cOpen(int i2cNum) {
-		logMethod("handleI2cConfigureMaster", i2cNum);
+		logMethod("handleI2cOpen", i2cNum);
 		twiStates_[i2cNum].openNextListener();
 	}
 
@@ -310,7 +316,18 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cClose", i2cNum);
 		twiStates_[i2cNum].closeCurrentListener();
 	}
+	
+	@Override
+	public void handleIcspOpen() {
+		logMethod("handleIcspOpen");
+		icspState_.openNextListener();
+	}
 
+	@Override
+	public void handleIcspClose() {
+		logMethod("handleIcspClose");
+		icspState_.closeCurrentListener();
+	}
 
 	@Override
 	public void handleEstablishConnection(byte[] hardwareId,
@@ -348,6 +365,12 @@ public class IncomingState implements IncomingHandler {
 	}
 
 	@Override
+	public void handleIcspReportRxStatus(int bytesRemaining) {
+		// logMethod("handleIcspReportRxStatus", bytesRemaining);
+		icspState_.reportAdditionalBuffer(bytesRemaining);
+	}
+
+	@Override
 	public void handleReportDigitalInStatus(int pin, boolean level) {
 		// logMethod("handleReportDigitalInStatus", pin, level);
 		intputPinStates_[pin].setValue(level ? 1 : 0);
@@ -377,6 +400,12 @@ public class IncomingState implements IncomingHandler {
 	public void handleI2cResult(int i2cNum, int size, byte[] data) {
 		logMethod("handleI2cResult", i2cNum, size, data);
 		twiStates_[i2cNum].dataReceived(data, size);
+	}
+
+	@Override
+	public void handleIcspResult(int size, byte[] data) {
+		logMethod("handleIcspResult", size, data);
+		icspState_.dataReceived(data, size);
 	}
 
 	private void checkNotDisconnected() throws ConnectionLostException {

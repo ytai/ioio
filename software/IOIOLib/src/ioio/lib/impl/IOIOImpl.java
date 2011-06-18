@@ -33,6 +33,7 @@ import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
+import ioio.lib.api.IcspMaster;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster;
@@ -58,6 +59,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private final IncomingState incomingState_ = new IncomingState();
 	private final boolean openPins_[] = new boolean[Constants.NUM_PINS];
 	private final boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
+	private boolean openIcsp_ = false;
 	private final ModuleAllocator pwmAllocator_ = new ModuleAllocator(
 			Constants.NUM_PWM_MODULES, "PWM");
 	private final ModuleAllocator uartAllocator_ = new ModuleAllocator(
@@ -181,6 +183,19 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		openPins_[Constants.TWI_PINS[twiNum][1]] = false;
 		try {
 			protocol_.i2cClose(twiNum);
+		} catch (IOException e) {
+		}
+	}
+
+	synchronized void closeIcsp() {
+		if (!openIcsp_) {
+			throw new IllegalStateException("ICSP not open");
+		}
+		openIcsp_ = false;
+		openPins_[Constants.ICSP_PINS[0]] = false;
+		openPins_[Constants.ICSP_PINS[1]] = false;
+		try {
+			protocol_.icspClose();
 		} catch (IOException e) {
 		}
 	}
@@ -431,6 +446,31 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		return twi;
 	}
 
+
+	@Override
+	synchronized public IcspMaster openIcspMaster()
+			throws ConnectionLostException {
+		checkState();
+		checkIcspFree();
+		checkPinFree(Constants.ICSP_PINS[0]);
+		checkPinFree(Constants.ICSP_PINS[1]);
+		checkPinFree(Constants.ICSP_PINS[2]);
+		openPins_[Constants.ICSP_PINS[0]] = true;
+		openPins_[Constants.ICSP_PINS[1]] = true;
+		openPins_[Constants.ICSP_PINS[2]] = true;
+		openIcsp_ = true;
+		IcspMasterImpl icsp = new IcspMasterImpl(this);
+		addDisconnectListener(icsp);
+		incomingState_.addIcspListener(icsp);
+		try {
+			protocol_.icspOpen();
+		} catch (IOException e) {
+			icsp.close();
+			throw new ConnectionLostException(e);
+		}
+		return icsp;
+	}
+	
 	@Override
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
 			int slaveSelect, SpiMaster.Rate rate)
@@ -500,6 +540,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private void checkTwiFree(int twi) {
 		if (openTwi_[twi]) {
 			throw new IllegalArgumentException("TWI already open: " + twi);
+		}
+	}
+
+	private void checkIcspFree() {
+		if (openIcsp_) {
+			throw new IllegalArgumentException("ICSP already open");
 		}
 	}
 

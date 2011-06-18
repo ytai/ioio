@@ -39,4 +39,5 @@ class Constants {
 	static final int PACKET_BUFFER_SIZE = 256;
 	
 	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
+	static final int[] ICSP_PINS = new int[] { 36, 37, 38 };
 }
