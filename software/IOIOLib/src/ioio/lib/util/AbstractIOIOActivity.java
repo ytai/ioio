@@ -66,6 +66,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 		/** Subclasses should use this field for controlling the IOIO. */
 		protected IOIO ioio_;
 		private boolean abort_ = false;
+		private boolean connected_ = true;
 
 		/** Not relevant to subclasses. */
 		@Override
@@ -80,10 +81,12 @@ public abstract class AbstractIOIOActivity extends Activity {
 						ioio_ = IOIOFactory.create();
 					}
 					ioio_.waitForConnect();
+					connected_ = true;
 					setup();
-					while (true) {
+					while (!abort_) {
 						loop();
 					}
+					ioio_.disconnect();
 				} catch (ConnectionLostException e) {
 					if (abort_) {
 						break;
@@ -123,6 +126,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 */
 		protected void loop() throws ConnectionLostException,
 				InterruptedException {
+			sleep(100000);
 		}
 
 		/** Not relevant to subclasses. */
@@ -131,7 +135,9 @@ public abstract class AbstractIOIOActivity extends Activity {
 			if (ioio_ != null) {
 				ioio_.disconnect();
 			}
-			interrupt();
+			if (connected_) {
+				interrupt();
+			}
 		}
 	}
 }
