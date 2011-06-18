@@ -36,6 +36,7 @@
 #define IOIO_MAGIC 0x4F494F49L
 
 #define PROTOCOL_IID_IOIO0001 "IOIO0001"
+#define PROTOCOL_IID_IOIO0002 "IOIO0002"
 
 // hard reset
 typedef struct PACKED {

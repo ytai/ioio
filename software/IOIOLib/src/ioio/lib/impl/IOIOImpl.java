@@ -53,7 +53,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] {
-		'I', 'O', 'I', 'O', '0', '0', '0', '1' };
+		'I', 'O', 'I', 'O', '0', '0', '0', '2' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
