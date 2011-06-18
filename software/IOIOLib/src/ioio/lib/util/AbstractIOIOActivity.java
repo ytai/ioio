@@ -88,6 +88,9 @@ public abstract class AbstractIOIOActivity extends Activity {
 					if (abort_) {
 						break;
 					}
+				} catch (InterruptedException e) {
+					ioio_.disconnect();
+					break;
 				} catch (Exception e) {
 					Log.e("AbstractIOIOActivity",
 							"Unexpected exception caught", e);
@@ -108,7 +111,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * this will include opening pins and modules using the openXXX()
 		 * methods of the {@link #ioio_} field.
 		 */
-		protected void setup() throws ConnectionLostException {
+		protected void setup() throws ConnectionLostException,
+				InterruptedException {
 		}
 
 		/**
@@ -117,7 +121,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * Typically, this will be the main logic of the application, processing
 		 * inputs and producing outputs.
 		 */
-		protected void loop() throws ConnectionLostException {
+		protected void loop() throws ConnectionLostException,
+				InterruptedException {
 		}
 
 		/** Not relevant to subclasses. */
@@ -126,6 +131,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 			if (ioio_ != null) {
 				ioio_.disconnect();
 			}
+			interrupt();
 		}
 	}
 }

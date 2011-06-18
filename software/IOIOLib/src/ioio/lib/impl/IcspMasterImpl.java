@@ -33,6 +33,7 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 
 	@Override
 	synchronized public void enterProgramming() throws ConnectionLostException {
+		checkState();
 		try {
 			ioio_.protocol_.icspEnter();
 		} catch (IOException e) {
@@ -42,6 +43,7 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 
 	@Override
 	synchronized public void exitProgramming() throws ConnectionLostException {
+		checkState();
 		try {
 			ioio_.protocol_.icspExit();
 		} catch (IOException e) {
@@ -52,6 +54,7 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	@Override
 	synchronized public void executeInstruction(int instruction)
 			throws ConnectionLostException {
+		checkState();
 		try {
 			ioio_.protocol_.icspSix(instruction);
 		} catch (IOException e) {
@@ -62,9 +65,11 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	@Override
 	synchronized public void readVisi() throws ConnectionLostException,
 			InterruptedException {
-		while (rxRemaining_ < 2) {
+		checkState();
+		while (rxRemaining_ < 2 && state_ == State.OPEN) {
 			wait();
 		}
+		checkState();
 		rxRemaining_ -= 2;
 		try {
 			ioio_.protocol_.icspRegout();
@@ -84,4 +89,9 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 		ioio_.closeIcsp();
 	}
 
+	@Override
+	public synchronized void disconnected() {
+		super.disconnected();
+		notifyAll();
+	}
 }
