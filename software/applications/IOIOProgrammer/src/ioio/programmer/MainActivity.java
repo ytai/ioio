@@ -31,6 +31,11 @@ package ioio.programmer;
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
+import ioio.programmer.IOIOFileProgrammer.ProgressListener;
+import ioio.programmer.IOIOFileReader.FormatException;
+
+import java.io.IOException;
+
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -50,51 +55,75 @@ public class MainActivity extends AbstractIOIOActivity {
 		return new MainIOIOThread();
 	}
 
-	class MainIOIOThread extends IOIOThread {
+	class MainIOIOThread extends IOIOThread implements ProgressListener {
+		private int nTotalBlocks_;
+		private int nBlocksDone_;
+
 		@Override
 		protected void setup() throws ConnectionLostException,
 				InterruptedException {
 			IcspMaster icsp = ioio_.openIcspMaster();
-			icsp.enterProgramming();
-			Scripts.chipErase(icsp);
-			int[] buf1 = new int[64];
-			int b = 0;
-			for (int i = 0; i < buf1.length; ++i) {
-				buf1[i] = (b++ << 16) | (b++ << 8) | b++; 
+			setText("Waiting for slave...");
+			while (true) {
+				icsp.enterProgramming();
+				int id = Scripts.getDeviceId(icsp);
+				if ((id & 0xFF00) == 0x4100) {
+					setText("\nConnected: 0x" + Integer.toHexString(id));
+					break;
+				}
+				sleep(100);
+				icsp.exitProgramming();
 			}
-			Scripts.writeBlock(icsp, 0x000000, buf1);
-
-			int[] buf2 = new int[16];
-			Scripts.readBlock(icsp, 0x000000, 16, buf2);
-			StringBuffer strbuf = new StringBuffer();
-			for (int i : buf2) {
-				strbuf.append("0x" + Integer.toHexString(i) + "\n");
+			try {
+				nTotalBlocks_ = IOIOFileProgrammer
+						.countBlocks(new IOIOFileReader(getAssets().open(
+								"test.ioio")));
+				appendText("\nErasing...");
+				Scripts.chipErase(icsp);
+				appendText("\nProgramming...");
+				nBlocksDone_ = 0;
+				IOIOFileProgrammer.programIOIOFile(icsp, new IOIOFileReader(
+						getAssets().open("test.ioio")), this);
+				appendText("\nVerifying...");
+				nBlocksDone_ = 0;
+				if (IOIOFileProgrammer.verifyIOIOFile(icsp, new IOIOFileReader(
+						getAssets().open("test.ioio")), this)) {
+					appendText(" PASS");
+				} else {
+					appendText(" FAIL");
+				}
+			} catch (FormatException e) {
+			} catch (IOException e) {
+			} finally {
+				icsp.exitProgramming();
+				icsp.close();
 			}
-			setText(strbuf.toString());
-//			Scripts.entrySequence(icsp);
-//			icsp.executeInstruction(0x212340); // mov #0x1234, w0
-//			icsp.executeInstruction(0x883C20); // mov w0, 0x784 (VISI)
-//			icsp.executeInstruction(0x000000); // nop
-//			try {
-//				icsp.readVisi();
-//				setText("Success: got 0x"
-//						+ Integer.toHexString(icsp.getResultQueue()
-//								.take()));
-//			} catch (InterruptedException e) {
-//			}
-//			int id = Scripts.getDeviceId(icsp);
-//			setText("ID: 0x" + Integer.toHexString(id));
-			icsp.exitProgramming();
-			icsp.close();
 		}
-		
+
+		@Override
+		public void blockDone() {
+			++nBlocksDone_;
+			appendText(" "
+					+ Integer.toString(100 * nBlocksDone_ / nTotalBlocks_)
+					+ "%");
+		}
+
 	}
-	
+
 	private void setText(final String text) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				textView_.setText(text);
+			}
+		});
+	}
+
+	private void appendText(final String text) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				textView_.append(text);
 			}
 		});
 	}

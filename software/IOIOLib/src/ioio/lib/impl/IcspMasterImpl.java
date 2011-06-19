@@ -49,7 +49,7 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	@Override
 	synchronized public void dataReceived(byte[] data, int size) {
 		assert (size == 2);
-		int result = (((int) data[1]) << 8) | data[0];
+		int result = (byteToInt(data[1]) << 8) | byteToInt(data[0]);
 		resultQueue_.add(result);
 	}
 
@@ -121,5 +121,9 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	public synchronized void disconnected() {
 		super.disconnected();
 		notifyAll();
+	}
+	
+	private static int byteToInt(byte b) {
+		return ((int) b) & 0xFF;
 	}
 }

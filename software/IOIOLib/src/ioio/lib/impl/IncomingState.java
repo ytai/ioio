@@ -404,7 +404,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleIcspResult(int size, byte[] data) {
-		logMethod("handleIcspResult", size, data);
+		// logMethod("handleIcspResult", size, data);
 		icspState_.dataReceived(data, size);
 	}
 
