@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+    a:orientation="vertical"
+    a:layout_width="fill_parent"
+    a:layout_height="fill_parent"
+    >
+<TextView  
+    a:layout_width="fill_parent" 
+    a:layout_height="wrap_content" a:text="@string/firmwareTitle"/>
+<ListView a:layout_height="wrap_content" a:layout_width="fill_parent"
+	a:id="@+id/firmwareListView"></ListView>
+</LinearLayout>

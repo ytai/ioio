@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/addFromStorageMenuItem" android:title="@string/add_from_storage"></item>
+    <item android:id="@+id/addByScanMenuItem" android:title="@string/add_by_scan"></item>
+    <item android:id="@+id/clearActiveBundle" android:title="@string/clear_active_bundle"></item>
+</menu>
