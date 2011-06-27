@@ -7,4 +7,5 @@
     <string name="add_by_scan">Add by Scanning a QR Code</string>
     <string name="clear_active_bundle">Clear Active Bundle</string>
     <string name="select_file">Select File</string>
+    <string name="remove_item">Remove</string>
 </resources>

@@ -140,6 +140,20 @@ public class FirmwareManager {
 		editor.commit();
 	}
 
+	public void removeAppBundle(String name) throws IOException {
+		File bundleDir = new File(appLayerDir_.getAbsolutePath() + '/' + name);
+		if (!bundleDir.exists() || !bundleDir.isDirectory()) {
+			throw new IllegalArgumentException(
+					"Bundle does not exist or is not a directory: " + name);
+		}
+		if (name.equals(activeBundleName_)) {
+			clearActiveBundle();
+		}
+		if (!recursiveDelete(bundleDir)) {
+			throw new IOException("Recursive delete failed");
+		}
+	}
+
 	public void clearActiveBundle() throws IOException {
 		Editor editor = preferences_.edit();
 		editor.putString("activeBundleName", null);
@@ -174,5 +188,17 @@ public class FirmwareManager {
 		}
 		out.close();
 	}
-
+	
+	private static boolean recursiveDelete(File f) {
+		if (f.isDirectory()) {
+			for (File i : f.listFiles()) {
+				if (!recursiveDelete(i)) {
+					return false;
+				}
+			}
+			return f.delete();
+		} else {
+			return f.delete();
+		}
+	}
 }

@@ -9,6 +9,8 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -26,10 +29,9 @@ public class FirmwareActivity extends ListActivity {
 	private static final int ADD_FROM_FILE = 1;
 	FirmwareManager firmwareManager_;
 	private ListAdapter listAdapter_;
+	private ioio.manager.FirmwareManager.Bundle[] bundles_;
 
 	private class ListAdapter extends BaseAdapter {
-		ioio.manager.FirmwareManager.Bundle[] bundles_ = firmwareManager_
-				.getAppBundles();
 
 		@Override
 		public void notifyDataSetChanged() {
@@ -44,13 +46,6 @@ public class FirmwareActivity extends ListActivity {
 				convertView = getLayoutInflater().inflate(R.layout.list_item,
 						parent, false);
 			}
-			convertView.setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					FirmwareActivity.this.onLongClick(v, pos);
-					return true;
-				}
-			});
 			convertView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -98,8 +93,10 @@ public class FirmwareActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		try {
 			firmwareManager_ = new FirmwareManager(this);
+			bundles_ = firmwareManager_.getAppBundles();
 			listAdapter_ = new ListAdapter();
 			setListAdapter(listAdapter_);
+			registerForContextMenu(getListView());
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
@@ -174,11 +171,36 @@ public class FirmwareActivity extends ListActivity {
 		}
 	}
 
-	private void onLongClick(View v, int pos) {
-		ioio.manager.FirmwareManager.Bundle bundle = (ioio.manager.FirmwareManager.Bundle) getListView()
-				.getItemAtPosition(pos);
-		Toast.makeText(this, "long click: " + bundle.getName(),
-				Toast.LENGTH_SHORT).show();
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.list_item_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+				.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.remove_item:
+			try {
+				firmwareManager_.removeAppBundle(bundles_[(int) info.id]
+						.getName());
+				listAdapter_.notifyDataSetChanged();
+				Toast.makeText(this, "Bundle removed", Toast.LENGTH_SHORT)
+						.show();
+				return true;
+			} catch (IOException e) {
+				Log.w(TAG, e);
+				Toast.makeText(this,
+						"Failed to remove bundle: " + e.getMessage(),
+						Toast.LENGTH_SHORT).show();
+			}
+		default:
+			return super.onContextItemSelected(item);
+		}
 	}
 
 	private void onClick(View v, int pos) {
