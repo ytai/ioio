@@ -26,7 +26,8 @@ import android.widget.Toast;
 
 public class FirmwareActivity extends ListActivity {
 	private static final String TAG = "FirmwareActivity";
-	private static final int ADD_FROM_FILE = 1;
+	private static final int ADD_FROM_FILE = 0;
+	private static final int ADD_FROM_QR = 1;
 	FirmwareManager firmwareManager_;
 	private ListAdapter listAdapter_;
 	private ioio.manager.FirmwareManager.Bundle[] bundles_;
@@ -91,6 +92,7 @@ public class FirmwareActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 		try {
 			firmwareManager_ = new FirmwareManager(this);
 			bundles_ = firmwareManager_.getAppBundles();
@@ -139,7 +141,9 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void addByScan() {
-		Toast.makeText(this, "add by scan", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+		intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+		startActivityForResult(intent, ADD_FROM_QR);
 	}
 
 	private void addFromExternalStorage() {
@@ -160,6 +164,26 @@ public class FirmwareActivity extends ListActivity {
 					listAdapter_.notifyDataSetChanged();
 					Toast.makeText(this, "Bundle added", Toast.LENGTH_SHORT)
 							.show();
+				} catch (Exception e) {
+					Log.w(TAG, e);
+					Toast.makeText(this,
+							"Failed to add bundle: " + e.getMessage(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+			break;
+
+		case ADD_FROM_QR:
+			if (resultCode == RESULT_OK) {
+				try {
+					String contents = data.getStringExtra("SCAN_RESULT");
+					String format = data.getStringExtra("SCAN_RESULT_FORMAT");
+//					File file = (File) data
+//							.getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
+					// firmwareManager_.addAppBundle(file.getAbsolutePath());
+					// listAdapter_.notifyDataSetChanged();
+					Toast.makeText(this, "Format: " + format + "\nContents: " + contents,
+							Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					Log.w(TAG, e);
 					Toast.makeText(this,
