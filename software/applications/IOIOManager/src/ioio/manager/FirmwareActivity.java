@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import android.app.ListActivity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
@@ -143,7 +143,12 @@ public class FirmwareActivity extends ListActivity {
 	private void addByScan() {
 		Intent intent = new Intent("com.google.zxing.client.android.SCAN");
 		intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-		startActivityForResult(intent, ADD_FROM_QR);
+		try {
+			startActivityForResult(intent, ADD_FROM_QR);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(this, "Please install the ZXing barcode scanner",
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private void addFromExternalStorage() {
@@ -178,11 +183,12 @@ public class FirmwareActivity extends ListActivity {
 				try {
 					String contents = data.getStringExtra("SCAN_RESULT");
 					String format = data.getStringExtra("SCAN_RESULT_FORMAT");
-//					File file = (File) data
-//							.getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
+					// File file = (File) data
+					// .getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
 					// firmwareManager_.addAppBundle(file.getAbsolutePath());
 					// listAdapter_.notifyDataSetChanged();
-					Toast.makeText(this, "Format: " + format + "\nContents: " + contents,
+					Toast.makeText(this,
+							"Format: " + format + "\nContents: " + contents,
 							Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					Log.w(TAG, e);
