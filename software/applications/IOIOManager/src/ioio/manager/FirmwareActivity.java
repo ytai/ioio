@@ -103,9 +103,12 @@ public class FirmwareActivity extends ListActivity {
 			Log.w(TAG, e);
 		}
 		Intent intent = getIntent();
-		if (intent.getAction().equals(Intent.ACTION_VIEW)
-				&& intent.getScheme().equals("file")) {
-			addBundleFromFile(new File(intent.getData().getPath()));
+		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+			if (intent.getScheme().equals("file")) {
+				addBundleFromFile(new File(intent.getData().getPath()));
+			} else if (intent.getScheme().equals("http")) {
+				addBundleFromUrl(intent.getDataString());
+			}
 		}
 	}
 
@@ -168,7 +171,7 @@ public class FirmwareActivity extends ListActivity {
 		case ADD_FROM_FILE:
 			if (resultCode == RESULT_OK) {
 				File file = (File) data
-				.getSerializableExtra(FileReturner.SELECTED_FILE_EXTRA);
+						.getSerializableExtra(FileReturner.SELECTED_FILE_EXTRA);
 				addBundleFromFile(file);
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
@@ -185,11 +188,7 @@ public class FirmwareActivity extends ListActivity {
 					String contents = data.getStringExtra("SCAN_RESULT");
 					String format = data.getStringExtra("SCAN_RESULT_FORMAT");
 					if (format.equals("QR_CODE")) {
-						Intent intent = new Intent(this,
-								DownloadUrlActivity.class);
-						intent.putExtra(DownloadUrlActivity.URL_EXTRA, contents);
-						startActivityForResult(intent, ADD_FROM_FILE);
-
+						addBundleFromUrl(contents);
 					} else {
 						Toast.makeText(this,
 								"Invalid barcode - expecting a URI",
@@ -213,6 +212,12 @@ public class FirmwareActivity extends ListActivity {
 		}
 	}
 
+	private void addBundleFromUrl(String url) {
+		Intent intent = new Intent(this, DownloadUrlActivity.class);
+		intent.putExtra(DownloadUrlActivity.URL_EXTRA, url);
+		startActivityForResult(intent, ADD_FROM_FILE);
+	}
+
 	private void addBundleFromFile(File file) {
 		try {
 			ioio.manager.FirmwareManager.Bundle bundle = firmwareManager_
@@ -222,8 +227,7 @@ public class FirmwareActivity extends ListActivity {
 					Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this,
-					"Failed to add bundle: " + e.getMessage(),
+			Toast.makeText(this, "Failed to add bundle: " + e.getMessage(),
 					Toast.LENGTH_LONG).show();
 		}
 	}

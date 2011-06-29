@@ -18,7 +18,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
-				<data android:scheme="content" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
+				<data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
 			</intent-filter>
 
 		</activity>
