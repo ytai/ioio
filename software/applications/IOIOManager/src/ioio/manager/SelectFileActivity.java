@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,8 +50,10 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
 					currentDir_ = file;
 					refreshFiles();
 				} else {
-					Intent intent = new Intent();
-					intent.putExtra(SELECTED_FILE_EXTRA, file);
+					Uri.Builder builder = new Uri.Builder();
+					builder.scheme("file");
+					builder.path(file.getAbsolutePath());
+					Intent intent = new Intent(Intent.ACTION_VIEW, builder.build());
 					setResult(RESULT_OK, intent);
 					finish();
 				}

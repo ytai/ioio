@@ -13,7 +13,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.util.Log;
+import android.net.Uri;
 
 public class DownloadUrlActivity extends Activity implements Runnable,
 		FileReturner {
@@ -62,7 +62,6 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 
 	@Override
 	public void run() {
-		Log.i("xxx", "run");
 		try {
 			URL url = new URL(url_);
 			URLConnection conn = url.openConnection();
@@ -78,16 +77,16 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 				out.write(buf, 0, r);
 			}
 			out.close();
-			Intent result = new Intent();
-			result.putExtra(SELECTED_FILE_EXTRA, file);
-			setResult(RESULT_OK, result);
+			Uri.Builder builder = new Uri.Builder();
+			builder.scheme("file");
+			builder.path(file.getAbsolutePath());
+			Intent intent = new Intent(Intent.ACTION_VIEW, builder.build());
+			setResult(RESULT_OK, intent);
 		} catch (IOException e) {
 			Intent result = new Intent();
 			result.putExtra(ERROR_MESSAGE_EXTRA, e.getMessage());
 			setResult(RESULT_ERROR, result);
-			Log.w("xxx", "Thread caught exception.", e);
 		} finally {
-			Log.i("xxx", "Thread done.");
 			finish();
 		}
 	}

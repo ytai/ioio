@@ -103,13 +103,24 @@ public class FirmwareActivity extends ListActivity {
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
-		Intent intent = getIntent();
+		handleIntent(getIntent());
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		handleIntent(intent);
+	}
+
+	private void handleIntent(Intent intent) {
+		Log.e(TAG, "handleIntent(" + intent.toString() + ")");
 		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
 			if (intent.getScheme().equals("file")) {
 				addBundleFromFile(new File(intent.getData().getPath()));
 			} else if (intent.getScheme().equals("http")) {
 				addBundleFromUrl(intent.getDataString());
 			}
+			setIntent(new Intent(Intent.ACTION_MAIN));
 		}
 	}
 
@@ -175,8 +186,7 @@ public class FirmwareActivity extends ListActivity {
 		switch (requestCode) {
 		case ADD_FROM_FILE:
 			if (resultCode == RESULT_OK) {
-				File file = (File) data
-						.getSerializableExtra(FileReturner.SELECTED_FILE_EXTRA);
+				File file = (File) new File(data.getData().getPath());
 				addBundleFromFile(file);
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
@@ -199,13 +209,6 @@ public class FirmwareActivity extends ListActivity {
 								"Invalid barcode - expecting a URI",
 								Toast.LENGTH_LONG).show();
 					}
-					// File file = (File) data
-					// .getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
-					// firmwareManager_.addAppBundle(file.getAbsolutePath());
-					// listAdapter_.notifyDataSetChanged();
-					// Toast.makeText(this,
-					// "Format: " + format + "\nContents: " + contents,
-					// Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					Log.w(TAG, e);
 					Toast.makeText(this,
