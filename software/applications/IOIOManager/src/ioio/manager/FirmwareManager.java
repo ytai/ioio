@@ -6,6 +6,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -77,7 +79,7 @@ public class FirmwareManager {
 					+ " is not a directory");
 		}
 	}
-	
+
 	public Bundle addAppBundle(String path) throws IOException {
 		File inFile = new File(path);
 		String name = inFile.getName();
@@ -109,6 +111,11 @@ public class FirmwareManager {
 		File[] imageFiles = getImageFiles(bundleDir);
 		for (File f : imageFiles) {
 			copyFileToFilesDir(f, Context.MODE_WORLD_READABLE);
+			try {
+				createFingerprint(f.getName());
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		activeBundleName_ = name;
 		Editor editor = preferences_.edit();
@@ -135,8 +142,13 @@ public class FirmwareManager {
 		editor.putString("activeBundleName", null);
 		editor.commit();
 		activeBundleName_ = null;
-		File[] imageFiles = getImageFiles(activeImagesDir_);
-		for (File f : imageFiles) {
+		for (File f : getImageFiles(activeImagesDir_)) {
+			if (!f.delete()) {
+				throw new IOException("Failed to delete file: "
+						+ f.getAbsolutePath());
+			}
+		}
+		for (File f : getFingerprintFiles(activeImagesDir_)) {
 			if (!f.delete()) {
 				throw new IOException("Failed to delete file: "
 						+ f.getAbsolutePath());
@@ -154,6 +166,16 @@ public class FirmwareManager {
 		return files;
 	}
 
+	private static File[] getFingerprintFiles(File dir) {
+		File[] files = dir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String filename) {
+				return filename.endsWith(".fp");
+			}
+		});
+		return files;
+	}
+
 	private void copyFileToFilesDir(File src, int mode) throws IOException {
 		OutputStream out = context_.openFileOutput(src.getName(), mode);
 		InputStream in = new FileInputStream(src);
@@ -164,7 +186,7 @@ public class FirmwareManager {
 		}
 		out.close();
 	}
-	
+
 	private static boolean recursiveDelete(File f) {
 		if (f.isDirectory()) {
 			for (File i : f.listFiles()) {
@@ -177,4 +199,27 @@ public class FirmwareManager {
 			return f.delete();
 		}
 	}
+
+	private void createFingerprint(String filename) throws IOException,
+			NoSuchAlgorithmException {
+		String baseFilename = filename.substring(0, filename.lastIndexOf('.'));
+		InputStream in = context_.openFileInput(filename);
+		String fingerprintFilename = baseFilename + ".fp";
+		OutputStream out = context_.openFileOutput(fingerprintFilename,
+				Context.MODE_WORLD_READABLE);
+		try {
+			MessageDigest digester = MessageDigest.getInstance("MD5");
+			byte[] bytes = new byte[1024];
+			int byteCount;
+			while ((byteCount = in.read(bytes)) > 0) {
+				digester.update(bytes, 0, byteCount);
+			}
+			byte[] digest = digester.digest();
+			out.write(digest);
+		} finally {
+			in.close();
+			out.close();
+		}
+	}
+
 }
