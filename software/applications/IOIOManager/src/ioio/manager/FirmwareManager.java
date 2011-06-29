@@ -10,10 +10,8 @@ import java.io.OutputStream;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
 public class FirmwareManager {
-	private static final String TAG = "FirmwareManager";
 	private File appLayerDir_;
 	private File activeImagesDir_;
 	private String activeBundleName_;
@@ -71,32 +69,9 @@ public class FirmwareManager {
 		activeBundleName_ = preferences_.getString("activeBundleName", null);
 		if (!appLayerDir_.exists()) {
 			if (!appLayerDir_.mkdir()) {
-				throw new IOException("Failed to create directory "
+				throw new IOException("Failed to create directory: "
 						+ appLayerDir_.getAbsolutePath());
 			}
-
-			// TODO: remove
-			new File(appLayerDir_.getAbsolutePath() + "/dummy1").mkdirs();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy1/plat1.ioio")
-					.createNewFile();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy1/plat2.ioio")
-					.createNewFile();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy1/bullshit")
-					.createNewFile();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy2").mkdirs();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy2/plat1.ioio")
-					.createNewFile();
-			new File(appLayerDir_.getAbsolutePath() + "/dummy2/plat3.ioio")
-					.createNewFile();
-
-			try {
-				File outDir = new File(appLayerDir_.getAbsolutePath() + "/a");
-				outDir.mkdirs();
-				ZipExtractor.extract(new File("/mnt/sdcard/a.zip"), outDir);
-			} catch (Exception e) {
-				Log.w(TAG, "Exception caught", e);
-			}
-
 		} else if (!appLayerDir_.isDirectory()) {
 			throw new IllegalStateException(appLayerDir_.getAbsolutePath()
 					+ " is not a directory");
@@ -109,7 +84,7 @@ public class FirmwareManager {
 		name = name.substring(0, name.lastIndexOf('.'));
 		File outDir = new File(appLayerDir_.getAbsolutePath() + '/' + name);
 		if (outDir.exists()) {
-			throw new IOException("Bundle " + name + " already exists");
+			throw new IOException("Bundle already exists: " + name);
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
@@ -163,7 +138,7 @@ public class FirmwareManager {
 		File[] imageFiles = getImageFiles(activeImagesDir_);
 		for (File f : imageFiles) {
 			if (!f.delete()) {
-				throw new IOException("Failed to delete file "
+				throw new IOException("Failed to delete file: "
 						+ f.getAbsolutePath());
 			}
 		}

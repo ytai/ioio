@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -160,8 +161,12 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void addFromExternalStorage() {
-		startActivityForResult(new Intent(this, SelectFileActivity.class),
-				ADD_FROM_FILE);
+		Intent intent = new Intent(this, SelectFileActivity.class);
+		intent.putExtra(SelectFileActivity.EXTRA_START_DIR, Environment
+				.getExternalStorageDirectory().getAbsolutePath());
+		intent.putExtra(SelectFileActivity.EXTRA_SUFFIXES,
+				new String[] { ".ioiozip" });
+		startActivityForResult(intent, ADD_FROM_FILE);
 	}
 
 	@Override
