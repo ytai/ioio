@@ -5,21 +5,18 @@ import java.io.FilenameFilter;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
-public class SelectFileActivity extends ListActivity {
-
-	public static final String SELECTED_FILE_EXTRA = "SELECTED_FILE";
+public class SelectFileActivity extends ListActivity implements FileReturner {
 	private File[] files_;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected void onStart() {
+		super.onStart();
 		File directory = Environment.getExternalStorageDirectory();
 		files_ = directory.listFiles(new FilenameFilter() {
 			@Override

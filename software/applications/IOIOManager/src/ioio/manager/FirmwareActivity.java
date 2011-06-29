@@ -102,6 +102,11 @@ public class FirmwareActivity extends ListActivity {
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
+		Intent intent = getIntent();
+		if (intent.getAction().equals(Intent.ACTION_VIEW)
+				&& intent.getScheme().equals("file")) {
+			addBundleFromFile(new File(intent.getData().getPath()));
+		}
 	}
 
 	@Override
@@ -162,19 +167,15 @@ public class FirmwareActivity extends ListActivity {
 		switch (requestCode) {
 		case ADD_FROM_FILE:
 			if (resultCode == RESULT_OK) {
-				try {
-					File file = (File) data
-							.getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
-					firmwareManager_.addAppBundle(file.getAbsolutePath());
-					listAdapter_.notifyDataSetChanged();
-					Toast.makeText(this, "Bundle added", Toast.LENGTH_SHORT)
-							.show();
-				} catch (Exception e) {
-					Log.w(TAG, e);
-					Toast.makeText(this,
-							"Failed to add bundle: " + e.getMessage(),
-							Toast.LENGTH_LONG).show();
-				}
+				File file = (File) data
+				.getSerializableExtra(FileReturner.SELECTED_FILE_EXTRA);
+				addBundleFromFile(file);
+			} else if (resultCode == FileReturner.RESULT_ERROR) {
+				Toast.makeText(
+						this,
+						"Error: "
+								+ data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA),
+						Toast.LENGTH_LONG).show();
 			}
 			break;
 
@@ -183,13 +184,24 @@ public class FirmwareActivity extends ListActivity {
 				try {
 					String contents = data.getStringExtra("SCAN_RESULT");
 					String format = data.getStringExtra("SCAN_RESULT_FORMAT");
+					if (format.equals("QR_CODE")) {
+						Intent intent = new Intent(this,
+								DownloadUrlActivity.class);
+						intent.putExtra(DownloadUrlActivity.URL_EXTRA, contents);
+						startActivityForResult(intent, ADD_FROM_FILE);
+
+					} else {
+						Toast.makeText(this,
+								"Invalid barcode - expecting a URI",
+								Toast.LENGTH_LONG).show();
+					}
 					// File file = (File) data
 					// .getSerializableExtra(SelectFileActivity.SELECTED_FILE_EXTRA);
 					// firmwareManager_.addAppBundle(file.getAbsolutePath());
 					// listAdapter_.notifyDataSetChanged();
-					Toast.makeText(this,
-							"Format: " + format + "\nContents: " + contents,
-							Toast.LENGTH_LONG).show();
+					// Toast.makeText(this,
+					// "Format: " + format + "\nContents: " + contents,
+					// Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					Log.w(TAG, e);
 					Toast.makeText(this,
@@ -198,6 +210,21 @@ public class FirmwareActivity extends ListActivity {
 				}
 			}
 			break;
+		}
+	}
+
+	private void addBundleFromFile(File file) {
+		try {
+			ioio.manager.FirmwareManager.Bundle bundle = firmwareManager_
+					.addAppBundle(file.getAbsolutePath());
+			listAdapter_.notifyDataSetChanged();
+			Toast.makeText(this, "Bundle added: " + bundle.getName(),
+					Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			Log.w(TAG, e);
+			Toast.makeText(this,
+					"Failed to add bundle: " + e.getMessage(),
+					Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -216,11 +243,11 @@ public class FirmwareActivity extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.remove_item:
 			try {
-				firmwareManager_.removeAppBundle(bundles_[(int) info.id]
-						.getName());
+				String name = bundles_[(int) info.id].getName();
+				firmwareManager_.removeAppBundle(name);
 				listAdapter_.notifyDataSetChanged();
-				Toast.makeText(this, "Bundle removed", Toast.LENGTH_SHORT)
-						.show();
+				Toast.makeText(this, "Bundle removed: " + name,
+						Toast.LENGTH_SHORT).show();
 				return true;
 			} catch (IOException e) {
 				Log.w(TAG, e);
@@ -240,8 +267,7 @@ public class FirmwareActivity extends ListActivity {
 			firmwareManager_.clearActiveBundle();
 			firmwareManager_.setActiveAppBundle(bundle.getName());
 			listAdapter_.notifyDataSetChanged();
-			Toast.makeText(this,
-					"Bundle " + bundle.getName() + " set as active",
+			Toast.makeText(this, "Bundle set as active: " + bundle.getName(),
 					Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
 			Log.w(TAG, e);

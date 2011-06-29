@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="ioio.manager"
-      android:versionCode="1"
-      android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="3" />
+	package="ioio.manager" android:versionCode="1" android:versionName="1.0">
+	<uses-sdk android:minSdkVersion="3" />
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".FirmwareActivity"
-                  android:launchMode="singleTask" android:label="@string/firmwareTitle">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:label="@string/select_file" android:name="SelectFileActivity"></activity>
+	<application android:icon="@drawable/icon" android:label="@string/app_name">
+		<activity android:name=".FirmwareActivity"
+			android:launchMode="singleTask" android:label="@string/app_name"
+			android:theme="@android:style/Theme.NoTitleBar">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
 
-    </application>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
+				<data android:scheme="content" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
+			</intent-filter>
+
+		</activity>
+		<activity android:label="@string/select_file" android:name="SelectFileActivity"></activity>
+		<activity android:name="DownloadUrlActivity"
+			android:launchMode="singleTop"></activity>
+
+	</application>
 </manifest>

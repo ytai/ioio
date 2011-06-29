@@ -103,7 +103,7 @@ public class FirmwareManager {
 		}
 	}
 	
-	public void addAppBundle(String path) throws IOException {
+	public Bundle addAppBundle(String path) throws IOException {
 		File inFile = new File(path);
 		String name = inFile.getName();
 		name = name.substring(0, name.lastIndexOf('.'));
@@ -113,6 +113,7 @@ public class FirmwareManager {
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
+		return new Bundle(outDir);
 	}
 
 	public Bundle[] getAppBundles() {
