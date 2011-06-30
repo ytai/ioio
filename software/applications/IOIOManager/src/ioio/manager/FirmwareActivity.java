@@ -120,7 +120,7 @@ public class FirmwareActivity extends ListActivity {
 			} else if (intent.getScheme().equals("http")) {
 				addBundleFromUrl(intent.getDataString());
 			}
-			setIntent(new Intent(Intent.ACTION_MAIN));
+			setIntent(null);
 		}
 	}
 
@@ -276,11 +276,16 @@ public class FirmwareActivity extends ListActivity {
 		ioio.manager.FirmwareManager.Bundle bundle = (ioio.manager.FirmwareManager.Bundle) getListView()
 				.getItemAtPosition(pos);
 		try {
-			firmwareManager_.clearActiveBundle();
-			firmwareManager_.setActiveAppBundle(bundle.getName());
-			listAdapter_.notifyDataSetChanged();
-			Toast.makeText(this, "Bundle set as active: " + bundle.getName(),
-					Toast.LENGTH_SHORT).show();
+			if (bundle.isActive()) {
+				clearActiveBundle();
+			} else {
+				firmwareManager_.clearActiveBundle();
+				firmwareManager_.setActiveAppBundle(bundle.getName());
+				listAdapter_.notifyDataSetChanged();
+				Toast.makeText(this,
+						"Bundle set as active: " + bundle.getName(),
+						Toast.LENGTH_SHORT).show();
+			}
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
