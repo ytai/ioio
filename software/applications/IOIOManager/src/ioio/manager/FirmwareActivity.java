@@ -5,8 +5,10 @@ import ioio.manager.FirmwareManager.ImageFile;
 import java.io.File;
 import java.io.IOException;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
@@ -48,7 +49,7 @@ public class FirmwareActivity extends ListActivity {
 				convertView = getLayoutInflater().inflate(R.layout.list_item,
 						parent, false);
 			}
-			convertView.setOnClickListener(new OnClickListener() {
+			convertView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					FirmwareActivity.this.onClick(v, pos);
@@ -113,14 +114,30 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void handleIntent(Intent intent) {
+		final Intent fintent = intent;
 		Log.e(TAG, "handleIntent(" + intent.toString() + ")");
 		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-			if (intent.getScheme().equals("file")) {
-				addBundleFromFile(new File(intent.getData().getPath()));
-			} else if (intent.getScheme().equals("http")) {
-				addBundleFromUrl(intent.getDataString());
-			}
-			setIntent(null);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Grant Permission");
+			builder.setMessage("An application is trying to install a new"
+					+ " firmware image. Approve?");
+			builder.setPositiveButton("Yes",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (fintent.getScheme().equals("file")) {
+								addBundleFromFile(new File(fintent.getData()
+										.getPath()));
+							} else if (fintent.getScheme().equals("http")) {
+								addBundleFromUrl(fintent.getDataString());
+							}
+							setIntent(null);
+
+						}
+					});
+			builder.setNegativeButton("No", null);
+			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.show();
 		}
 	}
 
