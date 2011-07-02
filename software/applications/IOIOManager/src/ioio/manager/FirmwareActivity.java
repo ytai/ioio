@@ -201,7 +201,7 @@ public class FirmwareActivity extends ListActivity {
 		intent.putExtra(SelectFileActivity.EXTRA_START_DIR, Environment
 				.getExternalStorageDirectory().getAbsolutePath());
 		intent.putExtra(SelectFileActivity.EXTRA_SUFFIXES,
-				new String[] { ".ioiozip" });
+				new String[] { ".ioioapp" });
 		startActivityForResult(intent, ADD_FROM_FILE);
 	}
 

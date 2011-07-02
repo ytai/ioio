@@ -17,8 +17,8 @@
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
-				<data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioiozip" />
+				<data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioioapp" />
+				<data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.ioioapp" />
 			</intent-filter>
 
 		</activity>
