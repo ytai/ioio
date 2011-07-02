@@ -38,18 +38,27 @@ public class FirmwareManager {
 	}
 
 	public class Bundle {
-		private File dir_;
+		private final File dir_;
+		private final String name_; 
 
-		public Bundle(File dir) {
+		public Bundle(File dir, String name) {
 			dir_ = dir;
+			name_ = name;
+		}
+		
+		public Bundle(File dir) {
+			this(dir, dir.getName());
 		}
 
 		public String getName() {
-			return dir_.getName();
+			return name_;
 		}
 
 		public boolean isActive() {
-			return getName().equals(activeBundleName_);
+			if (name_ != null) {
+				return name_.equals(activeBundleName_);
+			}
+			return activeBundleName_ == null;
 		}
 
 		public ImageFile[] getImages() {
@@ -94,10 +103,20 @@ public class FirmwareManager {
 	}
 
 	public Bundle[] getAppBundles() {
+		Bundle unnamed = null;
+		if (activeBundleName_ == null) {
+			unnamed = new Bundle(context_.getFilesDir(), null);
+			if (unnamed.getImages().length == 0) {
+				unnamed = null;
+			}
+		}
 		File[] files = appLayerDir_.listFiles();
-		Bundle[] result = new Bundle[files.length];
-		for (int i = 0; i < result.length; ++i) {
+		Bundle[] result = new Bundle[files.length + (unnamed != null ? 1 : 0)];
+		for (int i = 0; i < files.length; ++i) {
 			result[i] = new Bundle(files[i]);
+		}
+		if (unnamed != null) {
+			result[result.length - 1] = unnamed;
 		}
 		return result;
 	}

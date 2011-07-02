@@ -8,4 +8,5 @@
     <string name="select_file">Select File</string>
     <string name="remove_item">Remove</string>
     <string name="empty_list">Firmware list is empty</string>
+    <string name="unnamed">&lt;Unnamed&gt;</string>
 </resources>

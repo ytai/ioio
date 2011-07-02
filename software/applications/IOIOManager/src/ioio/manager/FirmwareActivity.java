@@ -12,6 +12,7 @@ import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -61,8 +62,14 @@ public class FirmwareActivity extends ListActivity {
 			ioio.manager.FirmwareManager.Bundle bundle = bundles_[position];
 			((RadioButton) convertView.findViewById(R.id.checked))
 					.setChecked(bundle.isActive());
-			((TextView) convertView.findViewById(R.id.title)).setText(bundle
-					.getName());
+			String name = bundle.getName();
+			if (name == null) {
+				name = getString(R.string.unnamed);
+				((TextView) convertView.findViewById(R.id.title))
+						.setTextColor(Color.DKGRAY);
+			}
+			convertView.setLongClickable(name != null);
+			((TextView) convertView.findViewById(R.id.title)).setText(name);
 			ImageFile[] images = bundle.getImages();
 			Arrays.sort(images, new Comparator<ImageFile>() {
 				@Override
@@ -321,9 +328,14 @@ public class FirmwareActivity extends ListActivity {
 		Arrays.sort(bundles_,
 				new Comparator<ioio.manager.FirmwareManager.Bundle>() {
 					@Override
-					public int compare(
-							ioio.manager.FirmwareManager.Bundle b1,
+					public int compare(ioio.manager.FirmwareManager.Bundle b1,
 							ioio.manager.FirmwareManager.Bundle b2) {
+						if (b1.getName() == null) {
+							return -1;
+						}
+						if (b2.getName() == null) {
+							return 1;
+						}
 						return b1.getName().compareTo(b2.getName());
 					}
 				});
