@@ -4,6 +4,8 @@ import ioio.manager.FirmwareManager.ImageFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -38,7 +40,7 @@ public class FirmwareActivity extends ListActivity {
 
 		@Override
 		public void notifyDataSetChanged() {
-			bundles_ = firmwareManager_.getAppBundles();
+			getAppBundles();
 			super.notifyDataSetChanged();
 		}
 
@@ -62,6 +64,12 @@ public class FirmwareActivity extends ListActivity {
 			((TextView) convertView.findViewById(R.id.title)).setText(bundle
 					.getName());
 			ImageFile[] images = bundle.getImages();
+			Arrays.sort(images, new Comparator<ImageFile>() {
+				@Override
+				public int compare(ImageFile i1, ImageFile i2) {
+					return i1.getName().compareTo(i2.getName());
+				}
+			});
 			StringBuffer strbuf = new StringBuffer();
 			for (int i = 0; i < images.length; ++i) {
 				if (i != 0) {
@@ -97,7 +105,7 @@ public class FirmwareActivity extends ListActivity {
 		setContentView(R.layout.main);
 		try {
 			firmwareManager_ = new FirmwareManager(this);
-			bundles_ = firmwareManager_.getAppBundles();
+			getAppBundles();
 			listAdapter_ = new ListAdapter();
 			setListAdapter(listAdapter_);
 			registerForContextMenu(getListView());
@@ -306,5 +314,18 @@ public class FirmwareActivity extends ListActivity {
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
+	}
+
+	private void getAppBundles() {
+		bundles_ = firmwareManager_.getAppBundles();
+		Arrays.sort(bundles_,
+				new Comparator<ioio.manager.FirmwareManager.Bundle>() {
+					@Override
+					public int compare(
+							ioio.manager.FirmwareManager.Bundle b1,
+							ioio.manager.FirmwareManager.Bundle b2) {
+						return b1.getName().compareTo(b2.getName());
+					}
+				});
 	}
 }
