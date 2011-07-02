@@ -1,5 +1,6 @@
 package ioio.manager;
 
+import ioio.manager.FirmwareManager.ImageBundle;
 import ioio.manager.FirmwareManager.ImageFile;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class FirmwareActivity extends ListActivity {
 	private static final int ADD_FROM_QR = 1;
 	FirmwareManager firmwareManager_;
 	private ListAdapter listAdapter_;
-	private ioio.manager.FirmwareManager.Bundle[] bundles_;
+	private ImageBundle[] bundles_;
 
 	private class ListAdapter extends BaseAdapter {
 
@@ -59,7 +60,7 @@ public class FirmwareActivity extends ListActivity {
 				}
 
 			});
-			ioio.manager.FirmwareManager.Bundle bundle = bundles_[position];
+			ImageBundle bundle = bundles_[position];
 			((RadioButton) convertView.findViewById(R.id.checked))
 					.setChecked(bundle.isActive());
 			String name = bundle.getName();
@@ -260,7 +261,7 @@ public class FirmwareActivity extends ListActivity {
 
 	private void addBundleFromFile(File file) {
 		try {
-			ioio.manager.FirmwareManager.Bundle bundle = firmwareManager_
+			ImageBundle bundle = firmwareManager_
 					.addAppBundle(file.getAbsolutePath());
 			listAdapter_.notifyDataSetChanged();
 			Toast.makeText(this, "Bundle added: " + bundle.getName(),
@@ -305,7 +306,7 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void onClick(View v, int pos) {
-		ioio.manager.FirmwareManager.Bundle bundle = (ioio.manager.FirmwareManager.Bundle) getListView()
+		ImageBundle bundle = (ImageBundle) getListView()
 				.getItemAtPosition(pos);
 		try {
 			if (bundle.isActive()) {
@@ -326,10 +327,10 @@ public class FirmwareActivity extends ListActivity {
 	private void getAppBundles() {
 		bundles_ = firmwareManager_.getAppBundles();
 		Arrays.sort(bundles_,
-				new Comparator<ioio.manager.FirmwareManager.Bundle>() {
+				new Comparator<ImageBundle>() {
 					@Override
-					public int compare(ioio.manager.FirmwareManager.Bundle b1,
-							ioio.manager.FirmwareManager.Bundle b2) {
+					public int compare(ImageBundle b1,
+							ImageBundle b2) {
 						if (b1.getName() == null) {
 							return -1;
 						}

@@ -37,16 +37,16 @@ public class FirmwareManager {
 		}
 	}
 
-	public class Bundle {
+	public class ImageBundle {
 		private final File dir_;
 		private final String name_; 
 
-		public Bundle(File dir, String name) {
+		public ImageBundle(File dir, String name) {
 			dir_ = dir;
 			name_ = name;
 		}
 		
-		public Bundle(File dir) {
+		public ImageBundle(File dir) {
 			this(dir, dir.getName());
 		}
 
@@ -89,7 +89,7 @@ public class FirmwareManager {
 		}
 	}
 
-	public Bundle addAppBundle(String path) throws IOException {
+	public ImageBundle addAppBundle(String path) throws IOException {
 		File inFile = new File(path);
 		String name = inFile.getName();
 		name = name.substring(0, name.lastIndexOf('.'));
@@ -99,21 +99,21 @@ public class FirmwareManager {
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
-		return new Bundle(outDir);
+		return new ImageBundle(outDir);
 	}
 
-	public Bundle[] getAppBundles() {
-		Bundle unnamed = null;
+	public ImageBundle[] getAppBundles() {
+		ImageBundle unnamed = null;
 		if (activeBundleName_ == null) {
-			unnamed = new Bundle(context_.getFilesDir(), null);
+			unnamed = new ImageBundle(context_.getFilesDir(), null);
 			if (unnamed.getImages().length == 0) {
 				unnamed = null;
 			}
 		}
 		File[] files = appLayerDir_.listFiles();
-		Bundle[] result = new Bundle[files.length + (unnamed != null ? 1 : 0)];
+		ImageBundle[] result = new ImageBundle[files.length + (unnamed != null ? 1 : 0)];
 		for (int i = 0; i < files.length; ++i) {
-			result[i] = new Bundle(files[i]);
+			result[i] = new ImageBundle(files[i]);
 		}
 		if (unnamed != null) {
 			result[result.length - 1] = unnamed;
