@@ -177,9 +177,20 @@ public class FirmwareActivity extends ListActivity {
 		case R.id.clearActiveBundle:
 			clearActiveBundle();
 			return true;
+		case R.id.about:
+			showAboutDialog();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void showAboutDialog() {
+		new AlertDialog.Builder(this)
+			.setIcon(R.drawable.ic_dialog_about)
+			.setTitle(R.string.about_title)
+			.setView(getLayoutInflater().inflate(R.layout.about, null))
+			.show();
 	}
 
 	private void clearActiveBundle() {
@@ -261,8 +272,8 @@ public class FirmwareActivity extends ListActivity {
 
 	private void addBundleFromFile(File file) {
 		try {
-			ImageBundle bundle = firmwareManager_
-					.addAppBundle(file.getAbsolutePath());
+			ImageBundle bundle = firmwareManager_.addAppBundle(file
+					.getAbsolutePath());
 			listAdapter_.notifyDataSetChanged();
 			Toast.makeText(this, "Bundle added: " + bundle.getName(),
 					Toast.LENGTH_SHORT).show();
@@ -306,8 +317,7 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void onClick(View v, int pos) {
-		ImageBundle bundle = (ImageBundle) getListView()
-				.getItemAtPosition(pos);
+		ImageBundle bundle = (ImageBundle) getListView().getItemAtPosition(pos);
 		try {
 			if (bundle.isActive()) {
 				clearActiveBundle();
@@ -326,19 +336,17 @@ public class FirmwareActivity extends ListActivity {
 
 	private void getAppBundles() {
 		bundles_ = firmwareManager_.getAppBundles();
-		Arrays.sort(bundles_,
-				new Comparator<ImageBundle>() {
-					@Override
-					public int compare(ImageBundle b1,
-							ImageBundle b2) {
-						if (b1.getName() == null) {
-							return -1;
-						}
-						if (b2.getName() == null) {
-							return 1;
-						}
-						return b1.getName().compareTo(b2.getName());
-					}
-				});
+		Arrays.sort(bundles_, new Comparator<ImageBundle>() {
+			@Override
+			public int compare(ImageBundle b1, ImageBundle b2) {
+				if (b1.getName() == null) {
+					return -1;
+				}
+				if (b2.getName() == null) {
+					return 1;
+				}
+				return b1.getName().compareTo(b2.getName());
+			}
+		});
 	}
 }

@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IOIO Manager</string>
-    <string name="firmwareTitle">IOIO Firmware Images</string>
-    <string name="add_from_storage">Add From File</string>
-    <string name="add_by_scan">Scan QR</string>
-    <string name="clear_active_bundle">Clear Active</string>
-    <string name="select_file">Select File</string>
-    <string name="remove_item">Remove</string>
-    <string name="empty_list">Firmware list is empty</string>
-    <string name="unnamed">&lt;Unnamed&gt;</string>
-    <string name="about">About</string>
-    <string name="programmer">Programmer</string>
+	<string name="app_name">IOIO Manager</string>
+	<string name="firmwareTitle">IOIO Firmware Images</string>
+	<string name="add_from_storage">Add From File</string>
+	<string name="add_by_scan">Scan QR</string>
+	<string name="clear_active_bundle">Clear Active</string>
+	<string name="select_file">Select File</string>
+	<string name="remove_item">Remove</string>
+	<string name="empty_list">Firmware list is empty</string>
+	<string name="unnamed">&lt;Unnamed&gt;</string>
+	<string name="about">About</string>
+	<string name="programmer">Programmer</string>
+	<string name="about_title">About IOIO Manager</string>
+	<string name="about_message">IOIO Manager V1.0\nYtai Ben-Tsvi
+		2011\nPart of the IOIO open-source project.\nMore information and help
+		on:\nhttp://codaset.com/ytai/ioio/wiki
+	</string>
 </resources>
