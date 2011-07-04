@@ -9,4 +9,6 @@
     <string name="remove_item">Remove</string>
     <string name="empty_list">Firmware list is empty</string>
     <string name="unnamed">&lt;Unnamed&gt;</string>
+    <string name="about">About</string>
+    <string name="programmer">Programmer</string>
 </resources>
