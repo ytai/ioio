@@ -2,6 +2,7 @@
 <resources>
 	<string name="app_name">IOIO Manager</string>
 	<string name="firmwareTitle">IOIO Firmware Images</string>
+	<string name="programmerTitle">IOIO Programmer</string>
 	<string name="add_from_storage">Add From File</string>
 	<string name="add_by_scan">Scan QR</string>
 	<string name="clear_active_bundle">Clear Active</string>

@@ -2,9 +2,10 @@
 <LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
 	a:orientation="vertical" a:layout_width="fill_parent" a:layout_height="fill_parent">
 	<TextView a:layout_width="fill_parent" a:layout_height="wrap_content"
-		a:text="@string/firmwareTitle" a:textColor="@color/listItemTitle" a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px"/>
+		a:text="@string/firmwareTitle" a:textColor="@color/listItemTitle"
+		a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px" />
 	<ListView a:layout_height="wrap_content" a:layout_width="fill_parent"
 		a:id="@android:id/list"></ListView>
 	<TextView a:layout_width="fill_parent" a:layout_height="fill_parent"
-		a:text="@string/empty_list" a:id="@android:id/empty" a:gravity="center_vertical|center"/>
+		a:text="@string/empty_list" a:id="@android:id/empty" a:gravity="center_vertical|center" />
 </LinearLayout>

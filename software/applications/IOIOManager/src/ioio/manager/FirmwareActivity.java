@@ -180,9 +180,16 @@ public class FirmwareActivity extends ListActivity {
 		case R.id.about:
 			showAboutDialog();
 			return true;
+		case R.id.programmer:
+			startProgrammer();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void startProgrammer() {
+		startActivity(new Intent(this, ProgrammerActivity.class));
 	}
 
 	private void showAboutDialog() {
