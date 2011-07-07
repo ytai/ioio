@@ -32,10 +32,8 @@ import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
 import ioio.manager.IOIOFileProgrammer.ProgressListener;
-import ioio.manager.IOIOFileReader.FormatException;
 
 import java.io.File;
-import java.io.IOException;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -49,6 +47,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class ProgrammerActivity extends AbstractIOIOActivity {
+	enum ProgrammerState {
+		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED
+	}
+
 	// private static final String TAG = "IOIOProgrammer";
 	private static final int REQUEST_IMAGE_SELECT = 0;
 
@@ -58,8 +60,13 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	private TextView statusTextView_;
 	private TextView selectedImageTextView_;
 	private Button selectButton_;
+	private Button eraseButton_;
+	private Button programButton_;
 	private File selectedImage_;
 	private String selectedImageName_;
+	private int targetId_;
+
+	private ProgrammerState programmerState_;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +97,39 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 						REQUEST_IMAGE_SELECT);
 			}
 		});
+		eraseButton_ = (Button) findViewById(R.id.eraseButton);
+		programButton_ = (Button) findViewById(R.id.programButton);
+		setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
+	}
+
+	private void setProgrammerState(ProgrammerState state) {
+		programmerState_ = state;
+		updateButtonState();
+		switch (state) {
+		case STATE_IOIO_DISCONNECTED:
+			setStatusText("Waiting for IOIO connection...");
+			break;
+		case STATE_IOIO_CONNECTED:
+			setStatusText("Waiting for target...");
+			break;
+		case STATE_TARGET_CONNECTED:
+			setStatusText("Target connected: 0x"
+					+ Integer.toHexString(targetId_));
+			break;
+		}
+	}
+
+	private void updateButtonState() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				eraseButton_
+				.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED);
+				programButton_
+				.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED
+						&& selectedImage_ != null);
+			}
+		});
 	}
 
 	@Override
@@ -100,71 +140,74 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	class MainIOIOThread extends IOIOThread implements ProgressListener {
 		private int nTotalBlocks_;
 		private int nBlocksDone_;
+		private IcspMaster icsp_;
 
 		@Override
 		protected void setup() throws ConnectionLostException,
 				InterruptedException {
-			IcspMaster icsp = ioio_.openIcspMaster();
-			setText("Waiting for slave...");
-			while (true) {
-				icsp.enterProgramming();
-				int id = Scripts.getDeviceId(icsp);
-				if ((id & 0xFF00) == 0x4100) {
-					setText("\nConnected: 0x" + Integer.toHexString(id));
-					break;
+			setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
+			icsp_ = ioio_.openIcspMaster();
+			// try {
+			// nTotalBlocks_ = IOIOFileProgrammer
+			// .countBlocks(new IOIOFileReader(getAssets().open(
+			// "test.ioio")));
+			// appendText("\nErasing...");
+			// Scripts.chipErase(icsp);
+			// appendText("\nProgramming...");
+			// nBlocksDone_ = 0;
+			// IOIOFileProgrammer.programIOIOFile(icsp, new IOIOFileReader(
+			// getAssets().open("test.ioio")), this);
+			// appendText("\nVerifying...");
+			// nBlocksDone_ = 0;
+			// if (IOIOFileProgrammer.verifyIOIOFile(icsp, new IOIOFileReader(
+			// getAssets().open("test.ioio")), this)) {
+			// appendText(" PASS");
+			// } else {
+			// appendText(" FAIL");
+			// }
+			// } catch (FormatException e) {
+			// } catch (IOException e) {
+			// } finally {
+			// icsp.exitProgramming();
+			// icsp.close();
+			// }
+		}
+
+		@Override
+		protected void loop() throws ConnectionLostException,
+				InterruptedException {
+			switch (programmerState_) {
+			case STATE_IOIO_CONNECTED:
+			case STATE_TARGET_CONNECTED:
+				icsp_.enterProgramming();
+				targetId_ = Scripts.getDeviceId(icsp_);
+				if ((targetId_ & 0xFF00) == 0x4100) {
+					setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
+				} else {
+					setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
 				}
 				sleep(100);
-				icsp.exitProgramming();
+				icsp_.exitProgramming();
+				break;
 			}
-			try {
-				nTotalBlocks_ = IOIOFileProgrammer
-						.countBlocks(new IOIOFileReader(getAssets().open(
-								"test.ioio")));
-				appendText("\nErasing...");
-				Scripts.chipErase(icsp);
-				appendText("\nProgramming...");
-				nBlocksDone_ = 0;
-				IOIOFileProgrammer.programIOIOFile(icsp, new IOIOFileReader(
-						getAssets().open("test.ioio")), this);
-				appendText("\nVerifying...");
-				nBlocksDone_ = 0;
-				if (IOIOFileProgrammer.verifyIOIOFile(icsp, new IOIOFileReader(
-						getAssets().open("test.ioio")), this)) {
-					appendText(" PASS");
-				} else {
-					appendText(" FAIL");
-				}
-			} catch (FormatException e) {
-			} catch (IOException e) {
-			} finally {
-				icsp.exitProgramming();
-				icsp.close();
-			}
+		}
+
+		@Override
+		protected void disconnected() throws InterruptedException {
+			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 		}
 
 		@Override
 		public void blockDone() {
 			++nBlocksDone_;
-			appendText(" "
-					+ Integer.toString(100 * nBlocksDone_ / nTotalBlocks_)
-					+ "%");
 		}
 	}
 
-	private void setText(final String text) {
+	private void setStatusText(final String text) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				statusTextView_.setText(text);
-			}
-		});
-	}
-
-	private void appendText(final String text) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				statusTextView_.append(text);
 			}
 		});
 	}
@@ -210,6 +253,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		selectedImageName_ = bundleName + " / " + imageName;
 		selectedImageTextView_.setText(selectedImageName_);
 		selectedImageTextView_.setTextColor(Color.WHITE);
+		updateButtonState();
 	}
 
 	@Override
