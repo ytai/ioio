@@ -3,6 +3,7 @@ package ioio.lib.util;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.api.exception.IncompatibilityException;
 import android.app.Activity;
 import android.util.Log;
 
@@ -67,6 +68,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
 		private boolean connected_ = true;
+		private boolean notifiedIncompatible_ = false;
 
 		/** Not relevant to subclasses. */
 		@Override
@@ -81,6 +83,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 						ioio_ = IOIOFactory.create();
 					}
 					ioio_.waitForConnect();
+					notifiedIncompatible_ = false;
 					connected_ = true;
 					setup();
 					while (!abort_) {
@@ -94,6 +97,13 @@ public abstract class AbstractIOIOActivity extends Activity {
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
 					break;
+				} catch (IncompatibilityException e) {
+					Log.e("AbstractIOIOActivity",
+							"Incompatible IOIO firmware", e);
+					if (!notifiedIncompatible_) {
+						incompatible();
+						notifiedIncompatible_ = true;
+					}
 				} catch (Exception e) {
 					Log.e("AbstractIOIOActivity",
 							"Unexpected exception caught", e);
@@ -142,6 +152,16 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * The {@link #ioio_} member must not be used from within this method.
 		 */
 		protected void disconnected() throws InterruptedException {
+		}
+
+		/**
+		 * Subclasses should override this method for performing operations to
+		 * be done if an incompatible IOIO firmware is detected.
+		 * The {@link #ioio_} member must not be used from within this method.
+		 * This method will only be called once, until a compatible IOIO is
+		 * connected (i.e. {@link #setup()} gets called).
+		 */
+		protected void incompatible() {
 		}
 
 		/** Not relevant to subclasses. */
