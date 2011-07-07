@@ -101,7 +101,12 @@ public abstract class AbstractIOIOActivity extends Activity {
 					break;
 				} finally {
 					try {
-						ioio_.waitForDisconnect();
+						if (ioio_ != null) {
+							ioio_.waitForDisconnect();
+							if (connected_) {
+								disconnected();
+							}
+						}
 					} catch (InterruptedException e) {
 					}
 				}
@@ -127,6 +132,16 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected void loop() throws ConnectionLostException,
 				InterruptedException {
 			sleep(100000);
+		}
+
+		/**
+		 * Subclasses should override this method for performing operations to
+		 * be done once as soon as IOIO communication is lost or closed.
+		 * Typically, this will include GUI changes corresponding to the change.
+		 * This method will only be called if setup() has been called.
+		 * The {@link #ioio_} member must not be used from within this method.
+		 */
+		protected void disconnected() throws InterruptedException {
 		}
 
 		/** Not relevant to subclasses. */
