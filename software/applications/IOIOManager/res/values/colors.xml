@@ -4,4 +4,5 @@
 	<color name="fileListDir">#888</color>
 	<color name="fileListFile">#FFF</color>
 	<color name="listItemTitle">#FFF</color>
+	<color name="disabledText">#444</color>
 </resources>

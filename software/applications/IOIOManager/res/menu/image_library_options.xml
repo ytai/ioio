@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/addFromStorageMenuItem" android:title="@string/add_from_storage"
+		android:icon="@drawable/ic_menu_add_file"></item>
+	<item android:id="@+id/addByScanMenuItem" android:title="@string/add_by_scan"
+		android:icon="@drawable/ic_menu_add_scan"></item>
+</menu>

@@ -15,6 +15,7 @@ import android.content.SharedPreferences.Editor;
 
 public class FirmwareManager {
 	private File appLayerDir_;
+	private File imageDir_;
 	private File activeImagesDir_;
 	private String activeBundleName_;
 	private Context context_;
@@ -76,6 +77,8 @@ public class FirmwareManager {
 		activeImagesDir_ = context.getFilesDir();
 		appLayerDir_ = new File(context.getFilesDir().getAbsolutePath()
 				+ "/app_layer");
+		imageDir_ = new File(context.getFilesDir().getAbsolutePath()
+				+ "/image");
 		preferences_ = context_.getSharedPreferences("FirmwareManager", 0);
 		activeBundleName_ = preferences_.getString("activeBundleName", null);
 		if (!appLayerDir_.exists()) {
@@ -87,6 +90,15 @@ public class FirmwareManager {
 			throw new IllegalStateException(appLayerDir_.getAbsolutePath()
 					+ " is not a directory");
 		}
+		if (!imageDir_.exists()) {
+			if (!imageDir_.mkdir()) {
+				throw new IOException("Failed to create directory: "
+						+ imageDir_.getAbsolutePath());
+			}
+		} else if (!imageDir_.isDirectory()) {
+			throw new IllegalStateException(imageDir_.getAbsolutePath()
+					+ " is not a directory");
+		}
 	}
 
 	public ImageBundle addAppBundle(String path) throws IOException {
@@ -94,6 +106,19 @@ public class FirmwareManager {
 		String name = inFile.getName();
 		name = name.substring(0, name.lastIndexOf('.'));
 		File outDir = new File(appLayerDir_.getAbsolutePath() + '/' + name);
+		if (outDir.exists()) {
+			throw new IOException("Bundle already exists: " + name);
+		}
+		outDir.mkdirs();
+		ZipExtractor.extract(inFile, outDir);
+		return new ImageBundle(outDir);
+	}
+
+	public ImageBundle addImageBundle(String path) throws IOException {
+		File inFile = new File(path);
+		String name = inFile.getName();
+		name = name.substring(0, name.lastIndexOf('.'));
+		File outDir = new File(imageDir_.getAbsolutePath() + '/' + name);
 		if (outDir.exists()) {
 			throw new IOException("Bundle already exists: " + name);
 		}
@@ -117,6 +142,15 @@ public class FirmwareManager {
 		}
 		if (unnamed != null) {
 			result[result.length - 1] = unnamed;
+		}
+		return result;
+	}
+
+	public ImageBundle[] getImageBundles() {
+		File[] files = imageDir_.listFiles();
+		ImageBundle[] result = new ImageBundle[files.length];
+		for (int i = 0; i < files.length; ++i) {
+			result[i] = new ImageBundle(files[i]);
 		}
 		return result;
 	}

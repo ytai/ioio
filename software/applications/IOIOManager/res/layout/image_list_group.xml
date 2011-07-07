@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:a="http://schemas.android.com/apk/res/android"
+	a:id="@+id/programmerListGroupTitle" a:text="Group Title"
+	a:layout_width="fill_parent" a:gravity="left|center_vertical"
+	a:textColor="@color/listItemTitle" a:textSize="24sp" a:paddingLeft="50px"
+	a:height="50px"></TextView>
+	

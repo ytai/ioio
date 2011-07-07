@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+	a:orientation="vertical" a:layout_width="fill_parent" a:layout_height="fill_parent">
+	<TextView a:layout_width="fill_parent" a:layout_height="wrap_content"
+		a:text="@string/firmwareTitle" a:textColor="@color/listItemTitle"
+		a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px" />
+	<ExpandableListView a:layout_height="wrap_content"
+		a:layout_width="fill_parent" a:id="@android:id/list"></ExpandableListView>
+	<TextView a:layout_width="fill_parent" a:layout_height="fill_parent"
+		a:text="@string/empty_list" a:id="@android:id/empty" a:gravity="center_vertical|center" />
+</LinearLayout>

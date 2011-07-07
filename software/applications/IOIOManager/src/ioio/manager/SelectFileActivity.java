@@ -14,9 +14,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class SelectFileActivity extends ListActivity implements FileReturner {
@@ -36,30 +35,27 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
 		adapter_ = new FileAdapter(this, R.layout.file_list_item);
 		fileStack_.clear();
 		setListAdapter(adapter_);
-
-		getListView().setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				File file = adapter_.getItem(position);
-				if (position == 0 && !fileStack_.empty()) {
-					currentDir_ = fileStack_.pop();
-					refreshFiles();
-				} else if (file.isDirectory()) {
-					fileStack_.push(currentDir_);
-					currentDir_ = file;
-					refreshFiles();
-				} else {
-					Uri.Builder builder = new Uri.Builder();
-					builder.scheme("file");
-					builder.path(file.getAbsolutePath());
-					Intent intent = new Intent(Intent.ACTION_VIEW, builder.build());
-					setResult(RESULT_OK, intent);
-					finish();
-				}
-			}
-		});
 		refreshFiles();
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		File file = adapter_.getItem(position);
+		if (position == 0 && !fileStack_.empty()) {
+			currentDir_ = fileStack_.pop();
+			refreshFiles();
+		} else if (file.isDirectory()) {
+			fileStack_.push(currentDir_);
+			currentDir_ = file;
+			refreshFiles();
+		} else {
+			Intent intent = new Intent(Intent.ACTION_VIEW,
+					new Uri.Builder().scheme("file")
+							.path(file.getAbsolutePath()).build());
+			setResult(RESULT_OK, intent);
+			finish();
+		}
 	}
 
 	private void refreshFiles() {

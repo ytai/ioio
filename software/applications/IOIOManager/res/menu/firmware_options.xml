@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/addFromStorageMenuItem" android:title="@string/add_from_storage" android:icon="@drawable/ic_menu_add_file"></item>
-    <item android:id="@+id/addByScanMenuItem" android:title="@string/add_by_scan" android:icon="@drawable/ic_menu_add_scan"></item>
-    <item android:id="@+id/clearActiveBundle" android:title="@string/clear_active_bundle" android:icon="@drawable/ic_menu_clear"></item>
-    <item android:icon="@drawable/ic_menu_programmer" android:title="@string/programmer" android:id="@+id/programmer"></item><item android:id="@+id/about" android:title="@string/about" android:icon="@drawable/ic_menu_about"></item>
-    
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/addFromStorageMenuItem" android:title="@string/add_from_storage"
+		android:icon="@drawable/ic_menu_add_file"></item>
+	<item android:id="@+id/addByScanMenuItem" android:title="@string/add_by_scan"
+		android:icon="@drawable/ic_menu_add_scan"></item>
+	<item android:id="@+id/clearActiveBundle" android:title="@string/clear_active_bundle"
+		android:icon="@drawable/ic_menu_clear"></item>
+	<item android:icon="@drawable/ic_menu_programmer" android:title="@string/programmer"
+		android:id="@+id/programmer"></item>
+	<item android:id="@+id/about" android:title="@string/about"
+		android:icon="@drawable/ic_menu_about"></item>
 </menu>

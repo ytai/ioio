@@ -17,4 +17,12 @@
 		2011\nPart of the IOIO open-source project.\nMore information and help
 		on:\nhttp://codaset.com/ytai/ioio/wiki
 	</string>
+	<string name="no_image_selected">No image selected</string>
+	<string name="select">Select...</string>
+	<string name="program">Program</string>
+	<string name="verify">Verify</string>
+	<string name="erase">Erase</string>
+	<string name="image_library_title">Image Library</string>
+	<string name="empty_image_library">Image library is empty</string>
+	<string name="library">Library</string>
 </resources>
