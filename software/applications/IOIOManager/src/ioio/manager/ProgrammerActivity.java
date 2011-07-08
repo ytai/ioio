@@ -54,15 +54,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ProgrammerActivity extends AbstractIOIOActivity {
-	private static final String TAG = "ProgrammerActivity";
-
 	enum ProgrammerState {
 		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS
 	}
 
-	// private static final String TAG = "IOIOProgrammer";
+	private static final String TAG = "ProgrammerActivity";
 	private static final int REQUEST_IMAGE_SELECT = 0;
-
 	private static final String SELECTED_IMAGE_NAME = "SELECTED_IMAGE_NAME";
 	private static final String SELECTED_IMAGE_FILE_NAME = "SELECTED_IMAGE_FILE_NAME";
 	private static final int PROGRESS_DIALOG = 0;
@@ -75,7 +72,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	private File selectedImage_;
 	private String selectedImageName_;
 	private int targetId_;
-	boolean cancel_ = false;
+	private boolean cancel_ = false;
 
 	private ProgrammerState programmerState_;
 	private ProgrammerState desiredState_;
@@ -93,6 +90,12 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			selectedImageName_ = savedInstanceState
 					.getString(SELECTED_IMAGE_NAME);
 		}
+		desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
+		prepareGui();
+		setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
+	}
+
+	private void prepareGui() {
 		setContentView(R.layout.programmer);
 		statusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
 		selectedImageTextView_ = (TextView) findViewById(R.id.selectedImage);
@@ -124,8 +127,6 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				desiredState_ = ProgrammerState.STATE_PROGRAM_START;
 			}
 		});
-		desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
-		setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 	}
 
 	private synchronized void setProgrammerState(final ProgrammerState state) {
@@ -138,21 +139,21 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				updateButtonState();
 				switch (state) {
 				case STATE_IOIO_DISCONNECTED:
-					setStatusText("Waiting for IOIO connection...");
+					setStatusText(R.string.waiting_ioio_conn);
 					break;
 
 				case STATE_IOIO_CONNECTED:
-					setStatusText("Waiting for target...");
+					setStatusText(R.string.waiting_target);
 					break;
 
 				case STATE_TARGET_CONNECTED:
-					setStatusText("Target connected: 0x"
+					setStatusText(getString(R.string.target_connected) + "0x"
 							+ Integer.toHexString(targetId_));
 					break;
 
 				case STATE_UNKOWN_TARGET_CONNECTED:
-					setStatusText("Unkown target connected: 0x"
-							+ Integer.toHexString(targetId_));
+					setStatusText(getString(R.string.unknown_target_connected)
+							+ "0x" + Integer.toHexString(targetId_));
 					break;
 
 				case STATE_PROGRAM_START:
@@ -169,7 +170,8 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		if (id == PROGRESS_DIALOG) {
 			progressDialog_ = new ProgressDialog(this);
 			progressDialog_.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			progressDialog_.setTitle("Programming in progress");
+			progressDialog_.setTitle(R.string.programming_in_progress);
+			progressDialog_.setMessage("");
 			progressDialog_.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
@@ -189,7 +191,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			progressDialog_ = (ProgressDialog) dialog;
 			progressDialog_.setIndeterminate(true);
 			progressDialog_.setProgress(0);
-			progressDialog_.setMessage("Erasing...");
+			progressDialog_.setMessage(getString(R.string.erasing));
 			break;
 		}
 	}
@@ -204,15 +206,17 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					progressDialog_.setIndeterminate(false);
 					switch (programmerState_) {
 					case STATE_ERASE_IN_PROGRESS:
-						progressDialog_.setMessage("Erasing...");
+						progressDialog_.setMessage(getString(R.string.erasing));
 						break;
 
 					case STATE_PROGRAM_IN_PROGRESS:
-						progressDialog_.setMessage("Programming...");
+						progressDialog_
+								.setMessage(getString(R.string.programming));
 						break;
 
 					case STATE_VERIFY_IN_PROGRESS:
-						progressDialog_.setMessage("Verifying...");
+						progressDialog_
+								.setMessage(getString(R.string.verifying));
 						break;
 					}
 					progressDialog_.setMax(total);
@@ -250,30 +254,6 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				InterruptedException {
 			setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
 			icsp_ = ioio_.openIcspMaster();
-			// try {
-			// nTotalBlocks_ = IOIOFileProgrammer
-			// .countBlocks(new IOIOFileReader(getAssets().open(
-			// "test.ioio")));
-			// appendText("\nErasing...");
-			// Scripts.chipErase(icsp);
-			// appendText("\nProgramming...");
-			// nBlocksDone_ = 0;
-			// IOIOFileProgrammer.programIOIOFile(icsp, new IOIOFileReader(
-			// getAssets().open("test.ioio")), this);
-			// appendText("\nVerifying...");
-			// nBlocksDone_ = 0;
-			// if (IOIOFileProgrammer.verifyIOIOFile(icsp, new IOIOFileReader(
-			// getAssets().open("test.ioio")), this)) {
-			// appendText(" PASS");
-			// } else {
-			// appendText(" FAIL");
-			// }
-			// } catch (FormatException e) {
-			// } catch (IOException e) {
-			// } finally {
-			// icsp.exitProgramming();
-			// icsp.close();
-			// }
 		}
 
 		@Override
@@ -306,15 +286,15 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					icsp_.enterProgramming();
 					setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
 					Scripts.chipErase(icsp_);
-					toast("Success");
+					toast(R.string.success);
 				} catch (ConnectionLostException e) {
-					toast("Erase failed");
+					toast(R.string.erase_failed);
 					throw e;
 				} catch (InterruptedException e) {
-					toast("Erase failed");
+					toast(R.string.erase_failed);
 					throw e;
 				} catch (Exception e) {
-					toast("Erase failed");
+					toast(R.string.erase_failed);
 					Log.w(TAG, e);
 				} finally {
 					icsp_.exitProgramming();
@@ -336,7 +316,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					file.rewind();
 					while (file.next()) {
 						if (cancel_) {
-							toast("Aborted");
+							toast(R.string.aborted);
 							return;
 						}
 						IOIOFileProgrammer.programIOIOFileBlock(icsp_, file);
@@ -347,27 +327,27 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					file.rewind();
 					while (file.next()) {
 						if (cancel_) {
-							toast("Aborted");
+							toast(R.string.aborted);
 							return;
 						}
 						if (!IOIOFileProgrammer
 								.verifyIOIOFileBlock(icsp_, file)) {
-							toast("Verify failed!");
+							toast(R.string.verify_failed);
 							return;
 						}
 						blockDone();
 					}
-					toast("Success");
+					toast(R.string.success);
 				} catch (FormatException e) {
-					toast("Image file is corrupt");
+					toast(R.string.image_file_corrupt);
 				} catch (ConnectionLostException e) {
-					toast("Programming failed");
+					toast(R.string.programming_failed);
 					throw e;
 				} catch (InterruptedException e) {
-					toast("Programming failed");
+					toast(R.string.programming_failed);
 					throw e;
 				} catch (Exception e) {
-					toast("Programming failed");
+					toast(R.string.programming_failed);
 					Log.w(TAG, e);
 				} finally {
 					updateProgress(-1, 0);
@@ -381,7 +361,6 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 
 		@Override
 		protected void disconnected() throws InterruptedException {
-			Log.e(TAG, "disconnected()");
 			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 		}
 
@@ -391,15 +370,19 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		}
 	}
 
-	private void setStatusText(final String text) {
+	private void setStatusText(String text) {
 		statusTextView_.setText(text);
 	}
 
-	private void toast(final String text) {
+	private void setStatusText(int resid) {
+		statusTextView_.setText(resid);
+	}
+
+	private void toast(final int resid) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(ProgrammerActivity.this, text, Toast.LENGTH_LONG)
+				Toast.makeText(ProgrammerActivity.this, resid, Toast.LENGTH_LONG)
 						.show();
 			}
 		});

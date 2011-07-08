@@ -17,7 +17,7 @@ import android.net.Uri;
 
 public class DownloadUrlActivity extends Activity implements Runnable,
 		FileReturner {
-	public static final String URL_EXTRA = "ioio.manager.EXTRA_URL";
+	public static final String URL_EXTRA = "URL";
 	private ProgressDialog dialog_;
 	private String url_;
 	private Thread thread_;
@@ -29,9 +29,10 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 		url_ = intent.getStringExtra(URL_EXTRA);
 		thread_ = new Thread(this);
 		thread_.start();
-		dialog_ = ProgressDialog.show(this, "Loading",
-				"Fetching content from: " + url_ + "\n\nPress back to abort",
-				false, true, new OnCancelListener() {
+		dialog_ = ProgressDialog.show(this, getString(R.string.loading),
+				getString(R.string.fetching_content) + url_ + "\n\n"
+						+ getString(R.string.back_to_abort), false, true,
+				new OnCancelListener() {
 					@Override
 					public void onCancel(DialogInterface dialog) {
 						setResult(RESULT_CANCELED);
@@ -49,16 +50,6 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 			dialog_ = null;
 		}
 	}
-	
-//	private void done(final int result, final Intent data) {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				setResult(result, data);
-//				finish();
-//			}
-//		});
-//	}
 
 	@Override
 	public void run() {

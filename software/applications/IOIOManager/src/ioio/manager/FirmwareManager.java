@@ -40,13 +40,13 @@ public class FirmwareManager {
 
 	public class ImageBundle {
 		private final File dir_;
-		private final String name_; 
+		private final String name_;
 
 		public ImageBundle(File dir, String name) {
 			dir_ = dir;
 			name_ = name;
 		}
-		
+
 		public ImageBundle(File dir) {
 			this(dir, dir.getName());
 		}
@@ -77,14 +77,14 @@ public class FirmwareManager {
 		activeImagesDir_ = context.getFilesDir();
 		appLayerDir_ = new File(context.getFilesDir().getAbsolutePath()
 				+ "/app_layer");
-		imageDir_ = new File(context.getFilesDir().getAbsolutePath()
-				+ "/image");
+		imageDir_ = new File(context.getFilesDir().getAbsolutePath() + "/image");
 		preferences_ = context_.getSharedPreferences("FirmwareManager", 0);
 		activeBundleName_ = preferences_.getString("activeBundleName", null);
 		if (!appLayerDir_.exists()) {
 			if (!appLayerDir_.mkdir()) {
-				throw new IOException("Failed to create directory: "
-						+ appLayerDir_.getAbsolutePath());
+				throw new IOException(
+						context_.getString(R.string.failed_create_dir)
+								+ appLayerDir_.getAbsolutePath());
 			}
 		} else if (!appLayerDir_.isDirectory()) {
 			throw new IllegalStateException(appLayerDir_.getAbsolutePath()
@@ -92,8 +92,9 @@ public class FirmwareManager {
 		}
 		if (!imageDir_.exists()) {
 			if (!imageDir_.mkdir()) {
-				throw new IOException("Failed to create directory: "
-						+ imageDir_.getAbsolutePath());
+				throw new IOException(
+						context_.getString(R.string.failed_create_dir)
+								+ imageDir_.getAbsolutePath());
 			}
 		} else if (!imageDir_.isDirectory()) {
 			throw new IllegalStateException(imageDir_.getAbsolutePath()
@@ -107,7 +108,8 @@ public class FirmwareManager {
 		name = name.substring(0, name.lastIndexOf('.'));
 		File outDir = new File(appLayerDir_.getAbsolutePath() + '/' + name);
 		if (outDir.exists()) {
-			throw new IOException("Bundle already exists: " + name);
+			throw new IOException(
+					context_.getString(R.string.bundle_already_exists) + name);
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
@@ -136,7 +138,8 @@ public class FirmwareManager {
 			}
 		}
 		File[] files = appLayerDir_.listFiles();
-		ImageBundle[] result = new ImageBundle[files.length + (unnamed != null ? 1 : 0)];
+		ImageBundle[] result = new ImageBundle[files.length
+				+ (unnamed != null ? 1 : 0)];
 		for (int i = 0; i < files.length; ++i) {
 			result[i] = new ImageBundle(files[i]);
 		}
@@ -186,7 +189,8 @@ public class FirmwareManager {
 			clearActiveBundle();
 		}
 		if (!recursiveDelete(bundleDir)) {
-			throw new IOException("Recursive delete failed");
+			throw new IOException(
+					context_.getString(R.string.recursive_delete_failed));
 		}
 	}
 
@@ -197,14 +201,16 @@ public class FirmwareManager {
 		activeBundleName_ = null;
 		for (File f : getImageFiles(activeImagesDir_)) {
 			if (!f.delete()) {
-				throw new IOException("Failed to delete file: "
-						+ f.getAbsolutePath());
+				throw new IOException(
+						context_.getString(R.string.failed_to_delete_file)
+								+ f.getAbsolutePath());
 			}
 		}
 		for (File f : getFingerprintFiles(activeImagesDir_)) {
 			if (!f.delete()) {
-				throw new IOException("Failed to delete file: "
-						+ f.getAbsolutePath());
+				throw new IOException(
+						context_.getString(R.string.failed_to_delete_file)
+								+ f.getAbsolutePath());
 			}
 		}
 	}

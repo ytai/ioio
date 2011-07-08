@@ -134,10 +134,9 @@ public class FirmwareActivity extends ListActivity {
 		Log.e(TAG, "handleIntent(" + intent.toString() + ")");
 		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Grant Permission");
-			builder.setMessage("An application is trying to install a new"
-					+ " firmware image. Approve?");
-			builder.setPositiveButton("Yes",
+			builder.setTitle(R.string.grant_permission);
+			builder.setMessage(R.string.external_approval);
+			builder.setPositiveButton(R.string.yes,
 					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -151,7 +150,7 @@ public class FirmwareActivity extends ListActivity {
 
 						}
 					});
-			builder.setNegativeButton("No", null);
+			builder.setNegativeButton(R.string.no, null);
 			builder.setIcon(android.R.drawable.ic_dialog_alert);
 			builder.show();
 		}
@@ -193,19 +192,18 @@ public class FirmwareActivity extends ListActivity {
 	}
 
 	private void showAboutDialog() {
-		new AlertDialog.Builder(this)
-			.setIcon(R.drawable.ic_dialog_about)
-			.setTitle(R.string.about_title)
-			.setView(getLayoutInflater().inflate(R.layout.about, null))
-			.show();
+		new AlertDialog.Builder(this).setIcon(R.drawable.ic_dialog_about)
+				.setTitle(R.string.about_title)
+				.setView(getLayoutInflater().inflate(R.layout.about, null))
+				.show();
 	}
 
 	private void clearActiveBundle() {
 		try {
 			firmwareManager_.clearActiveBundle();
 			listAdapter_.notifyDataSetChanged();
-			Toast.makeText(this, "Active bundle cleared", Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(this, R.string.active_bundle_cleared,
+					Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
@@ -217,8 +215,8 @@ public class FirmwareActivity extends ListActivity {
 		try {
 			startActivityForResult(intent, ADD_FROM_QR);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(this, "Please install the ZXing barcode scanner",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.install_zxing, Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
 
@@ -242,7 +240,7 @@ public class FirmwareActivity extends ListActivity {
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
 						this,
-						"Error: "
+						getString(R.string.error_colon)
 								+ data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA),
 						Toast.LENGTH_LONG).show();
 			}
@@ -257,13 +255,13 @@ public class FirmwareActivity extends ListActivity {
 						addBundleFromUrl(contents);
 					} else {
 						Toast.makeText(this,
-								"Invalid barcode - expecting a URI",
+								R.string.barcode_not_uri,
 								Toast.LENGTH_LONG).show();
 					}
 				} catch (Exception e) {
 					Log.w(TAG, e);
 					Toast.makeText(this,
-							"Failed to add bundle: " + e.getMessage(),
+							getString(R.string.failed_add_bundle) + e.getMessage(),
 							Toast.LENGTH_LONG).show();
 				}
 			}
@@ -282,11 +280,11 @@ public class FirmwareActivity extends ListActivity {
 			ImageBundle bundle = firmwareManager_.addAppBundle(file
 					.getAbsolutePath());
 			listAdapter_.notifyDataSetChanged();
-			Toast.makeText(this, "Bundle added: " + bundle.getName(),
+			Toast.makeText(this, getString(R.string.bundle_added) + bundle.getName(),
 					Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this, "Failed to add bundle: " + e.getMessage(),
+			Toast.makeText(this, getString(R.string.failed_add_bundle) + e.getMessage(),
 					Toast.LENGTH_LONG).show();
 		}
 	}
@@ -309,13 +307,13 @@ public class FirmwareActivity extends ListActivity {
 				String name = bundles_[(int) info.id].getName();
 				firmwareManager_.removeAppBundle(name);
 				listAdapter_.notifyDataSetChanged();
-				Toast.makeText(this, "Bundle removed: " + name,
+				Toast.makeText(this, getString(R.string.bundle_removed) + name,
 						Toast.LENGTH_SHORT).show();
 				return true;
 			} catch (IOException e) {
 				Log.w(TAG, e);
 				Toast.makeText(this,
-						"Failed to remove bundle: " + e.getMessage(),
+						getString(R.string.failed_remove_bundle) + e.getMessage(),
 						Toast.LENGTH_SHORT).show();
 			}
 		default:
@@ -333,7 +331,7 @@ public class FirmwareActivity extends ListActivity {
 				firmwareManager_.setActiveAppBundle(bundle.getName());
 				listAdapter_.notifyDataSetChanged();
 				Toast.makeText(this,
-						"Bundle set as active: " + bundle.getName(),
+						getString(R.string.bundle_set_active) + bundle.getName(),
 						Toast.LENGTH_SHORT).show();
 			}
 		} catch (IOException e) {

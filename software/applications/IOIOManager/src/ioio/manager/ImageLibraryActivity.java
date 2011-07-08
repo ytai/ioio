@@ -182,7 +182,7 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		try {
 			startActivityForResult(intent, ADD_FROM_QR);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(this, "Please install the ZXing barcode scanner",
+			Toast.makeText(this, R.string.install_zxing,
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -223,7 +223,7 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
 						this,
-						"Error: "
+						getString(R.string.error_colon)
 								+ data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA),
 						Toast.LENGTH_LONG).show();
 			}
@@ -238,13 +238,13 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 						addBundleFromUrl(contents);
 					} else {
 						Toast.makeText(this,
-								"Invalid barcode - expecting a URI",
+								R.string.barcode_not_uri,
 								Toast.LENGTH_LONG).show();
 					}
 				} catch (Exception e) {
 					Log.w(TAG, e);
 					Toast.makeText(this,
-							"Failed to add bundle: " + e.getMessage(),
+							getString(R.string.failed_add_bundle) + e.getMessage(),
 							Toast.LENGTH_LONG).show();
 				}
 			}
@@ -263,11 +263,11 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			ImageBundle bundle = firmwareManager_.addImageBundle(file
 					.getAbsolutePath());
 			adapter_.notifyDataSetChanged();
-			Toast.makeText(this, "Bundle added: " + bundle.getName(),
+			Toast.makeText(this, getString(R.string.bundle_added) + bundle.getName(),
 					Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this, "Failed to add bundle: " + e.getMessage(),
+			Toast.makeText(this, getString(R.string.failed_add_bundle) + e.getMessage(),
 					Toast.LENGTH_LONG).show();
 		}
 	}

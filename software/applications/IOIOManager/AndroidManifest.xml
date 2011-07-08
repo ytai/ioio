@@ -24,7 +24,7 @@
 		<activity android:label="@string/select_file" android:name="SelectFileActivity"></activity>
 		<activity android:name="DownloadUrlActivity"
 			android:launchMode="singleTop"></activity>
-		<activity android:launchMode="singleTask" android:name="ProgrammerActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
+		<activity android:launchMode="singleTask" android:name="ProgrammerActivity" android:theme="@android:style/Theme.NoTitleBar" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|fontScale"></activity>
 		<activity android:name="ImageLibraryActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
 
 	</application>
