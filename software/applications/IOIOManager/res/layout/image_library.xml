@@ -3,7 +3,7 @@
 	a:orientation="vertical" a:layout_width="fill_parent" a:layout_height="fill_parent">
 	<TextView a:layout_width="fill_parent" a:layout_height="wrap_content"
 		a:text="@string/firmwareTitle" a:textColor="@color/listItemTitle"
-		a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px" />
+		a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px" a:id="@+id/title"/>
 	<ExpandableListView a:layout_height="wrap_content"
 		a:layout_width="fill_parent" a:id="@android:id/list"></ExpandableListView>
 	<TextView a:layout_width="fill_parent" a:layout_height="fill_parent"

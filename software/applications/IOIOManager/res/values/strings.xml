@@ -59,4 +59,5 @@
 	<string name="bundle_already_exists">Bundle already exists: </string>
 	<string name="recursive_delete_failed">Recursive delete failed</string>
 	<string name="failed_to_delete_file">Failed to delete file: </string>
+	<string name="select_image">Select Image</string>
 </resources>
