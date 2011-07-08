@@ -19,23 +19,42 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class SelectFileActivity extends ListActivity implements FileReturner {
-	public static final String EXTRA_START_DIR = "ioio.manager.START_DIR";
-	public static final String EXTRA_SUFFIXES = "ioio.manager.SUFFIXES";
+	public static final String EXTRA_START_DIR = "START_DIR";
+	public static final String EXTRA_SUFFIXES = "SUFFIXES";
 	private File currentDir_;
 	private String[] suffixes_;
 	private FileAdapter adapter_;
 	private Stack<File> fileStack_ = new Stack<File>();
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Intent intent = getIntent();
-		suffixes_ = intent.getStringArrayExtra(EXTRA_SUFFIXES);
-		currentDir_ = new File(intent.getStringExtra(EXTRA_START_DIR));
+		if (savedInstanceState == null) {
+			Intent intent = getIntent();
+			suffixes_ = intent.getStringArrayExtra(EXTRA_SUFFIXES);
+			currentDir_ = new File(intent.getStringExtra(EXTRA_START_DIR));
+			fileStack_.clear();
+		} else {
+			suffixes_ = savedInstanceState.getStringArray(EXTRA_SUFFIXES);
+			currentDir_ = new File(savedInstanceState.getString(EXTRA_START_DIR));
+			fileStack_ = (Stack<File>) getLastNonConfigurationInstance();
+		}
 		adapter_ = new FileAdapter(this, R.layout.file_list_item);
-		fileStack_.clear();
 		setListAdapter(adapter_);
 		refreshFiles();
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return fileStack_;
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putStringArray(EXTRA_SUFFIXES, suffixes_);
+		outState.putString(EXTRA_START_DIR, currentDir_.getAbsolutePath());
 	}
 
 	@Override
