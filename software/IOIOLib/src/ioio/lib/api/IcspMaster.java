@@ -30,8 +30,6 @@ package ioio.lib.api;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
-import java.util.concurrent.BlockingQueue;
-
 /**
  * An interface for controlling an ICSP channel, enabling Flash programming of
  * an external PIC MCU, and in particular, another IOIO board.
@@ -77,9 +75,9 @@ import java.util.concurrent.BlockingQueue;
  * icsp.executeInstruction(0x883C20);  // mov w0, 0x784 (VISI)
  * icsp.executeInstruction(0x000000);  // nop
  * icsp.readVisi();
- * int visi = icsp.getResultQueue().take();  // should read 0x1234
+ * int visi = icsp.waitVisiResult();   // should read 0x1234
  * icsp.exitProgramming();
- * icsp.close();  // free TWI module and pins}
+ * icsp.close();                       // free ICSP module and pins
  * </pre>
  * 
  * @see IOIO#openIcspMaster()
@@ -116,25 +114,32 @@ public interface IcspMaster extends Closeable {
 			throws ConnectionLostException;
 
 	/**
-	 * Request a read of the VISI register on the slave MCU. The 16-bit result
-	 * will be pushed to the result queue, obtained by {@link #getResultQueue()}
-	 * . This method may block if the read queue on the IOIO is full, but this
+	 * Request a read of the VISI register on the slave MCU. This is an
+	 * asynchronous call, in which the 16-bit result is obtained by
+	 * {@link #waitVisiResult()}.
+	 * This method may block if the read queue on the IOIO is full, but this
 	 * should be for short periods only.
 	 * 
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO has been lost.
-	 * @throws InterruptedException 
-	 * 			   Interrupted while blocking.
+	 * @throws InterruptedException
+	 *             Interrupted while blocking.
 	 */
 	public void readVisi() throws ConnectionLostException, InterruptedException;
 
 	/**
-	 * A queue of 16-bit values, representing returned values from
-	 * {@link #readVisi()}, in the order requested.
+	 * Wait and return a result of a call to {@link #readVisi()}.
+	 * Results will be returned in the same order as requested.
 	 * 
-	 * @return The queue.
+	 * The call will block until there is data, until interrupted, or until
+	 * connection to the IOIO has been lost.
+	 * 
+	 * @return The result - an unsigned 16-bit number.
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO has been lost.
+	 * @throws InterruptedException
+	 *             Interrupted while blocking.
 	 */
-	public BlockingQueue<Integer> getResultQueue();
+	public int waitVisiResult() throws ConnectionLostException,
+			InterruptedException;
 }

@@ -33,13 +33,12 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 		DataModuleListener {
-	private BlockingQueue<Integer> resultQueue_ = new ArrayBlockingQueue<Integer>(
-			Constants.BUFFER_SIZE);
+	private Queue<Integer> resultQueue_ = new LinkedList<Integer>();
 	private int rxRemaining_ = 0;
 
 	public IcspMasterImpl(IOIOImpl ioio) throws ConnectionLostException {
@@ -51,6 +50,7 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 		assert (size == 2);
 		int result = (byteToInt(data[1]) << 8) | byteToInt(data[0]);
 		resultQueue_.add(result);
+		notifyAll();
 	}
 
 	@Override
@@ -107,11 +107,6 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	}
 
 	@Override
-	public BlockingQueue<Integer> getResultQueue() {
-		return resultQueue_;
-	}
-
-	@Override
 	synchronized public void close() {
 		super.close();
 		ioio_.closeIcsp();
@@ -125,5 +120,16 @@ public class IcspMasterImpl extends AbstractResource implements IcspMaster,
 	
 	private static int byteToInt(byte b) {
 		return ((int) b) & 0xFF;
+	}
+
+	@Override
+	public synchronized int waitVisiResult() throws ConnectionLostException,
+			InterruptedException {
+		checkState();
+		while (resultQueue_.isEmpty() && state_ == State.OPEN) {
+			wait();
+		}
+		checkState();
+		return resultQueue_.remove();
 	}
 }

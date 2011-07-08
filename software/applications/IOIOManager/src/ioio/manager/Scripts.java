@@ -28,8 +28,6 @@
  */
 package ioio.manager;
 
-import java.util.concurrent.BlockingQueue;
-
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 
@@ -61,7 +59,7 @@ class Scripts {
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.readVisi();
 		icsp.executeInstruction(0x000000); // NOP
-		return icsp.getResultQueue().take();
+		return icsp.waitVisiResult();
 	}
 
 	public static void chipErase(IcspMaster icsp)
@@ -89,7 +87,7 @@ class Scripts {
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.readVisi();
 			icsp.executeInstruction(0x000000); // NOP
-		} while ((icsp.getResultQueue().take() & (1 << 15)) != 0);
+		} while ((icsp.waitVisiResult() & (1 << 15)) != 0);
 	}
 
 	public static void readBlock(IcspMaster icsp, int addr, int numInst,
@@ -137,15 +135,14 @@ class Scripts {
 			addr += 4;
 		}
 
-		BlockingQueue<Integer> q = icsp.getResultQueue();
 		int mid = 0;
 		for (int i = 0; i < numInst; ++i) {
 			if ((i & 0x01) == 0) {
-				int low = q.take();
-				mid = q.take();
+				int low = icsp.waitVisiResult();
+				mid = icsp.waitVisiResult();
 				buf[i] = low | ((mid & 0xFF) << 16);
 			} else {
-				buf[i] = q.take() | ((mid & 0xFF00) << 8);
+				buf[i] = icsp.waitVisiResult() | ((mid & 0xFF00) << 8);
 			}
 		}
 	}
@@ -233,6 +230,6 @@ class Scripts {
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.readVisi();
 			icsp.executeInstruction(0x000000); // NOP
-		} while ((icsp.getResultQueue().take() & (1 << 15)) != 0);
+		} while ((icsp.waitVisiResult() & (1 << 15)) != 0);
 	}
 }
