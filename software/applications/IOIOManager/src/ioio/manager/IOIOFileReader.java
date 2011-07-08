@@ -1,11 +1,16 @@
 package ioio.manager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class IOIOFileReader {
 	int address_;
 	byte[] buf_ = new byte[192];
+	private InputStream in_;
+	private final File file_;
 
 	public class FormatException extends Exception {
 		private static final long serialVersionUID = 7944061537571462938L;
@@ -19,10 +24,14 @@ public class IOIOFileReader {
 		}
 	}
 
-	private final InputStream in_;
 
-	public IOIOFileReader(InputStream in) throws FormatException {
-		in_ = in;
+	public IOIOFileReader(File file) throws FormatException, FileNotFoundException {
+		file_ = file;
+		rewind();
+	}
+
+	public void rewind() throws FileNotFoundException, FormatException {
+		in_ = new FileInputStream(file_);
 		mustRead(8);
 		if (buf_[0] != 'I' || buf_[1] != 'O' || buf_[2] != 'I'
 				|| buf_[3] != 'O') {

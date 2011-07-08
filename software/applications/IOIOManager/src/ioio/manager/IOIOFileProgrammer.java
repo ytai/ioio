@@ -14,7 +14,7 @@ public class IOIOFileProgrammer {
 	interface ProgressListener {
 		public void blockDone();
 	}
-	
+
 	public static int countBlocks(IOIOFileReader file) throws FormatException {
 		int nblocks = 0;
 		while (file.next()) {
@@ -23,44 +23,37 @@ public class IOIOFileProgrammer {
 		return nblocks;
 	}
 
-	public static void programIOIOFile(IcspMaster icsp, IOIOFileReader file,
-			ProgressListener listener)
+	public static void programIOIOFileBlock(IcspMaster icsp,
+			IOIOFileReader file)
 			throws ConnectionLostException, InterruptedException,
 			FormatException {
 		int[] block = new int[64];
-		while (file.next()) {
-			parseBlock(file.currentBlock(), block);
-			Scripts.writeBlock(icsp, file.currentAddress(), block);
-			if (listener != null) {
-				listener.blockDone();
-			}
-		}
+		parseBlock(file.currentBlock(), block);
+		Scripts.writeBlock(icsp, file.currentAddress(), block);
 	}
 
-	public static boolean verifyIOIOFile(IcspMaster icsp, IOIOFileReader file,
-			ProgressListener listener) throws ConnectionLostException,
+	public static boolean verifyIOIOFileBlock(IcspMaster icsp, IOIOFileReader file) throws ConnectionLostException,
 			InterruptedException, FormatException {
 		int[] fileBlock = new int[64];
 		int[] actualBlock = new int[64];
-		while (file.next()) {
-			parseBlock(file.currentBlock(), fileBlock);
-			Scripts.readBlock(icsp, file.currentAddress(), 64, actualBlock);
-			if (!Arrays.equals(fileBlock, actualBlock)) {
-				for (int i = 0; i < 64; ++i) {
-					if (fileBlock[i] != actualBlock[i]) {
-						Log.w(TAG,
-								"Failed verification, address = 0x"
-								+ file.currentAddress() + i);
-						Log.w(TAG, "Expected: 0x" + Integer.toHexString(fileBlock[i]));
-						Log.w(TAG, "Actual:   0x" + Integer.toHexString(actualBlock[i]));
-						break;
-					}
+		parseBlock(file.currentBlock(), fileBlock);
+		Scripts.readBlock(icsp, file.currentAddress(), 64, actualBlock);
+		if (!Arrays.equals(fileBlock, actualBlock)) {
+			for (int i = 0; i < 64; ++i) {
+				if (fileBlock[i] != actualBlock[i]) {
+					Log.w(TAG,
+							"Failed verification, address = 0x"
+									+ file.currentAddress() + i);
+					Log.w(TAG,
+							"Expected: 0x"
+									+ Integer.toHexString(fileBlock[i]));
+					Log.w(TAG,
+							"Actual:   0x"
+									+ Integer.toHexString(actualBlock[i]));
+					break;
 				}
-				return false;
 			}
-			if (listener != null) {
-				listener.blockDone();
-			}
+			return false;
 		}
 		return true;
 	}

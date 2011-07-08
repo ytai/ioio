@@ -32,12 +32,18 @@ import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.AbstractIOIOActivity;
 import ioio.manager.IOIOFileProgrammer.ProgressListener;
+import ioio.manager.IOIOFileReader.FormatException;
 
 import java.io.File;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -45,10 +51,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ProgrammerActivity extends AbstractIOIOActivity {
+	private static final String TAG = "ProgrammerActivity";
+
 	enum ProgrammerState {
-		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED
+		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS
 	}
 
 	// private static final String TAG = "IOIOProgrammer";
@@ -56,6 +65,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 
 	private static final String SELECTED_IMAGE_NAME = "SELECTED_IMAGE_NAME";
 	private static final String SELECTED_IMAGE_FILE_NAME = "SELECTED_IMAGE_FILE_NAME";
+	private static final int PROGRESS_DIALOG = 0;
 
 	private TextView statusTextView_;
 	private TextView selectedImageTextView_;
@@ -65,8 +75,11 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	private File selectedImage_;
 	private String selectedImageName_;
 	private int targetId_;
+	boolean cancel_ = false;
 
 	private ProgrammerState programmerState_;
+	private ProgrammerState desiredState_;
+	private ProgressDialog progressDialog_;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -98,25 +111,115 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			}
 		});
 		eraseButton_ = (Button) findViewById(R.id.eraseButton);
+		eraseButton_.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				desiredState_ = ProgrammerState.STATE_ERASE_START;
+			}
+		});
 		programButton_ = (Button) findViewById(R.id.programButton);
+		programButton_.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				desiredState_ = ProgrammerState.STATE_PROGRAM_START;
+			}
+		});
+		desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
 		setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 	}
 
-	private void setProgrammerState(ProgrammerState state) {
+	private synchronized void setProgrammerState(final ProgrammerState state) {
+		Log.e(TAG, "state is: " + state);
 		programmerState_ = state;
-		updateButtonState();
-		switch (state) {
-		case STATE_IOIO_DISCONNECTED:
-			setStatusText("Waiting for IOIO connection...");
-			break;
-		case STATE_IOIO_CONNECTED:
-			setStatusText("Waiting for target...");
-			break;
-		case STATE_TARGET_CONNECTED:
-			setStatusText("Target connected: 0x"
-					+ Integer.toHexString(targetId_));
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				updateButtonState();
+				switch (state) {
+				case STATE_IOIO_DISCONNECTED:
+					setStatusText("Waiting for IOIO connection...");
+					break;
+
+				case STATE_IOIO_CONNECTED:
+					setStatusText("Waiting for target...");
+					break;
+
+				case STATE_TARGET_CONNECTED:
+					setStatusText("Target connected: 0x"
+							+ Integer.toHexString(targetId_));
+					break;
+
+				case STATE_UNKOWN_TARGET_CONNECTED:
+					setStatusText("Unkown target connected: 0x"
+							+ Integer.toHexString(targetId_));
+					break;
+
+				case STATE_PROGRAM_START:
+				case STATE_ERASE_START:
+					showDialog(PROGRESS_DIALOG);
+					break;
+				}
+			}
+		});
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		if (id == PROGRESS_DIALOG) {
+			progressDialog_ = new ProgressDialog(this);
+			progressDialog_.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog_.setTitle("Programming in progress");
+			progressDialog_.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					cancel_ = true;
+				}
+			});
+			return progressDialog_;
+		} else {
+			return super.onCreateDialog(id);
+		}
+	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id) {
+		case PROGRESS_DIALOG:
+			progressDialog_ = (ProgressDialog) dialog;
+			progressDialog_.setIndeterminate(true);
+			progressDialog_.setProgress(0);
+			progressDialog_.setMessage("Erasing...");
 			break;
 		}
+	}
+
+	public void updateProgress(final int done, final int total) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (done == -1) {
+					dismissDialog(PROGRESS_DIALOG);
+				} else {
+					progressDialog_.setIndeterminate(false);
+					switch (programmerState_) {
+					case STATE_ERASE_IN_PROGRESS:
+						progressDialog_.setMessage("Erasing...");
+						break;
+
+					case STATE_PROGRAM_IN_PROGRESS:
+						progressDialog_.setMessage("Programming...");
+						break;
+
+					case STATE_VERIFY_IN_PROGRESS:
+						progressDialog_.setMessage("Verifying...");
+						break;
+					}
+					progressDialog_.setMax(total);
+					progressDialog_.setProgress(done);
+				}
+			}
+		});
 	}
 
 	private void updateButtonState() {
@@ -124,10 +227,10 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			@Override
 			public void run() {
 				eraseButton_
-				.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED);
+						.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED);
 				programButton_
-				.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED
-						&& selectedImage_ != null);
+						.setEnabled(programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED
+								&& selectedImage_ != null);
 			}
 		});
 	}
@@ -176,38 +279,128 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		@Override
 		protected void loop() throws ConnectionLostException,
 				InterruptedException {
+			if (programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED
+					&& desiredState_ != ProgrammerState.STATE_IOIO_DISCONNECTED) {
+				setProgrammerState(desiredState_);
+				desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
+			}
 			switch (programmerState_) {
 			case STATE_IOIO_CONNECTED:
 			case STATE_TARGET_CONNECTED:
+			case STATE_UNKOWN_TARGET_CONNECTED:
 				icsp_.enterProgramming();
 				targetId_ = Scripts.getDeviceId(icsp_);
 				if ((targetId_ & 0xFF00) == 0x4100) {
 					setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
-				} else {
+				} else if (targetId_ == 0xFFFF) {
 					setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
+				} else {
+					setProgrammerState(ProgrammerState.STATE_UNKOWN_TARGET_CONNECTED);
 				}
 				sleep(100);
 				icsp_.exitProgramming();
 				break;
+
+			case STATE_ERASE_START:
+				try {
+					icsp_.enterProgramming();
+					setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
+					Scripts.chipErase(icsp_);
+					toast("Success");
+				} catch (ConnectionLostException e) {
+					toast("Erase failed");
+					throw e;
+				} catch (InterruptedException e) {
+					toast("Erase failed");
+					throw e;
+				} catch (Exception e) {
+					toast("Erase failed");
+					Log.w(TAG, e);
+				} finally {
+					icsp_.exitProgramming();
+					updateProgress(-1, 0);
+					setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
+				}
+				break;
+
+			case STATE_PROGRAM_START:
+				try {
+					cancel_ = false;
+					icsp_.enterProgramming();
+					setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
+					IOIOFileReader file = new IOIOFileReader(selectedImage_);
+					nTotalBlocks_ = IOIOFileProgrammer.countBlocks(file);
+					Scripts.chipErase(icsp_);
+					setProgrammerState(ProgrammerState.STATE_PROGRAM_IN_PROGRESS);
+					nBlocksDone_ = 0;
+					file.rewind();
+					while (file.next()) {
+						if (cancel_) {
+							toast("Aborted");
+							return;
+						}
+						IOIOFileProgrammer.programIOIOFileBlock(icsp_, file);
+						blockDone();
+					}
+					setProgrammerState(ProgrammerState.STATE_VERIFY_IN_PROGRESS);
+					nBlocksDone_ = 0;
+					file.rewind();
+					while (file.next()) {
+						if (cancel_) {
+							toast("Aborted");
+							return;
+						}
+						if (!IOIOFileProgrammer
+								.verifyIOIOFileBlock(icsp_, file)) {
+							toast("Verify failed!");
+							return;
+						}
+						blockDone();
+					}
+					toast("Success");
+				} catch (FormatException e) {
+					toast("Image file is corrupt");
+				} catch (ConnectionLostException e) {
+					toast("Programming failed");
+					throw e;
+				} catch (InterruptedException e) {
+					toast("Programming failed");
+					throw e;
+				} catch (Exception e) {
+					toast("Programming failed");
+					Log.w(TAG, e);
+				} finally {
+					updateProgress(-1, 0);
+					icsp_.exitProgramming();
+					setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
+				}
+				break;
 			}
+			sleep(100);
 		}
 
 		@Override
 		protected void disconnected() throws InterruptedException {
+			Log.e(TAG, "disconnected()");
 			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 		}
 
 		@Override
 		public void blockDone() {
-			++nBlocksDone_;
+			updateProgress(++nBlocksDone_, nTotalBlocks_);
 		}
 	}
 
 	private void setStatusText(final String text) {
+		statusTextView_.setText(text);
+	}
+
+	private void toast(final String text) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				statusTextView_.setText(text);
+				Toast.makeText(ProgrammerActivity.this, text, Toast.LENGTH_LONG)
+						.show();
 			}
 		});
 	}
