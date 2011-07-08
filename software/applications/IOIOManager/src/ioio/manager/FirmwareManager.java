@@ -194,6 +194,18 @@ public class FirmwareManager {
 		}
 	}
 
+	public void removeImageBundle(String name) throws IOException {
+		File bundleDir = new File(imageDir_.getAbsolutePath() + '/' + name);
+		if (!bundleDir.exists() || !bundleDir.isDirectory()) {
+			throw new IllegalArgumentException(
+					"Bundle does not exist or is not a directory: " + name);
+		}
+		if (!recursiveDelete(bundleDir)) {
+			throw new IOException(
+					context_.getString(R.string.recursive_delete_failed));
+		}
+	}
+
 	public void clearActiveBundle() throws IOException {
 		Editor editor = preferences_.edit();
 		editor.putString("activeBundleName", null);

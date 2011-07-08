@@ -3,5 +3,5 @@
 	a:id="@+id/programmerListGroupTitle" a:text="Group Title"
 	a:layout_width="fill_parent" a:gravity="left|center_vertical"
 	a:textColor="@color/listItemTitle" a:textSize="24sp" a:paddingLeft="50px"
-	a:height="50px"></TextView>
+	a:height="50px" a:layout_height="wrap_content"></TextView>
 	

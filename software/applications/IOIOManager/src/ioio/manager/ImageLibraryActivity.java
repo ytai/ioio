@@ -15,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +54,7 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			getImageBundles();
 			adapter_ = new ListAdapter();
 			setListAdapter(adapter_);
+			registerForContextMenu(getExpandableListView());
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
@@ -62,14 +66,12 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		ImageBundle bundle = (ImageBundle) adapter_.getGroup(groupPosition);
 		ImageFile selected = (ImageFile) adapter_.getChild(groupPosition,
 				childPosition);
-		Intent intent = new Intent(ACTION_SELECT,
-				new Uri.Builder().scheme("file")
-				.path(selected.getFile().getAbsolutePath())
+		Intent intent = new Intent(ACTION_SELECT, new Uri.Builder()
+				.scheme("file").path(selected.getFile().getAbsolutePath())
 				.build());
 		intent.putExtra(EXTRA_BUNDLE_NAME, bundle.getName());
 		intent.putExtra(EXTRA_IMAGE_NAME, selected.getName());
-		setResult(RESULT_OK,
-				intent);
+		setResult(RESULT_OK, intent);
 		finish();
 		return true;
 	}
@@ -162,6 +164,31 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 	}
 
 	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
+				.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.remove_item:
+			try {
+				String name = bundles_[(int) info.id].getName();
+				firmwareManager_.removeImageBundle(name);
+				adapter_.notifyDataSetChanged();
+				Toast.makeText(this, getString(R.string.bundle_removed) + name,
+						Toast.LENGTH_SHORT).show();
+				return true;
+			} catch (IOException e) {
+				Log.w(TAG, e);
+				Toast.makeText(
+						this,
+						getString(R.string.failed_remove_bundle)
+								+ e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
@@ -176,14 +203,22 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		}
 	}
 
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.list_item_context_menu, menu);
+	}
+
 	private void addByScan() {
 		Intent intent = new Intent("com.google.zxing.client.android.SCAN");
 		intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
 		try {
 			startActivityForResult(intent, ADD_FROM_QR);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(this, R.string.install_zxing,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.install_zxing, Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
 
@@ -237,15 +272,15 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 					if (format.equals("QR_CODE")) {
 						addBundleFromUrl(contents);
 					} else {
-						Toast.makeText(this,
-								R.string.barcode_not_uri,
+						Toast.makeText(this, R.string.barcode_not_uri,
 								Toast.LENGTH_LONG).show();
 					}
 				} catch (Exception e) {
 					Log.w(TAG, e);
-					Toast.makeText(this,
-							getString(R.string.failed_add_bundle) + e.getMessage(),
-							Toast.LENGTH_LONG).show();
+					Toast.makeText(
+							this,
+							getString(R.string.failed_add_bundle)
+									+ e.getMessage(), Toast.LENGTH_LONG).show();
 				}
 			}
 			break;
@@ -263,11 +298,13 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			ImageBundle bundle = firmwareManager_.addImageBundle(file
 					.getAbsolutePath());
 			adapter_.notifyDataSetChanged();
-			Toast.makeText(this, getString(R.string.bundle_added) + bundle.getName(),
+			Toast.makeText(this,
+					getString(R.string.bundle_added) + bundle.getName(),
 					Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this, getString(R.string.failed_add_bundle) + e.getMessage(),
+			Toast.makeText(this,
+					getString(R.string.failed_add_bundle) + e.getMessage(),
 					Toast.LENGTH_LONG).show();
 		}
 	}
