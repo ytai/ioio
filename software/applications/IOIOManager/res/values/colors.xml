@@ -5,4 +5,7 @@
 	<color name="fileListFile">#FFF</color>
 	<color name="listItemTitle">#FFF</color>
 	<color name="disabledText">#444</color>
+	<color name="good">#0F0</color>
+	<color name="bad">#F00</color>
+	<color name="neutral">#FF0</color>
 </resources>

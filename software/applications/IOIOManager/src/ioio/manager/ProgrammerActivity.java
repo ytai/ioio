@@ -58,20 +58,64 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS
 	}
 
+	enum Chip {
+		UNKNOWN(0x0000), PIC24FJ128DA106(0x4109), PIC24FJ128DA206(0x4108), PIC24FJ256DA106(
+				0x410D), PIC24FJ256DA206(0x410C);
+
+		public int id;
+
+		public static Chip findById(int id) {
+			for (Chip res : values()) {
+				if (res.id == id) {
+					return res;
+				}
+			}
+			return UNKNOWN;
+		}
+
+		private Chip(int id) {
+			this.id = id;
+		}
+	}
+
+	enum Board {
+		UNKNOWN(Chip.UNKNOWN), SPRK0010(Chip.PIC24FJ128DA106), SPRK0011(
+				Chip.PIC24FJ128DA106), SPRK0012(Chip.PIC24FJ128DA106), SPRK0013(
+				Chip.PIC24FJ128DA206), SPRK0014(Chip.PIC24FJ128DA206), SPRK0015(
+				Chip.PIC24FJ128DA206), SPRK0016(Chip.PIC24FJ256DA206);
+
+		public Chip chip;
+
+		private Board(Chip chip) {
+			this.chip = chip;
+		}
+
+		public static Board findByName(String name) {
+			try {
+				return valueOf(name);
+			} catch (IllegalArgumentException e) {
+				return UNKNOWN;
+			}
+		}
+	}
+
 	private static final String TAG = "ProgrammerActivity";
 	private static final int REQUEST_IMAGE_SELECT = 0;
-	private static final String SELECTED_IMAGE_NAME = "SELECTED_IMAGE_NAME";
+	private static final String SELECTED_BUNDLE_NAME = "SELECTED_BUNDLE_NAME";
+	private static final String SELECTED_BOARD_NAME = "SELECTED_BOARD_NAME";
 	private static final String SELECTED_IMAGE_FILE_NAME = "SELECTED_IMAGE_FILE_NAME";
 	private static final int PROGRESS_DIALOG = 0;
 
-	private TextView statusTextView_;
+	private TextView programmerStatusTextView_;
+	private TextView imageStatusTextView_;
 	private TextView selectedImageTextView_;
 	private Button selectButton_;
 	private Button eraseButton_;
 	private Button programButton_;
 	private File selectedImage_;
-	private String selectedImageName_;
-	private int targetId_;
+	private String selectedBundleName_;
+	private String selectedBoardName_;
+	private Chip target_;
 	private boolean cancel_ = false;
 
 	private ProgrammerState programmerState_;
@@ -87,8 +131,10 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			if (selectedImageFileName != null) {
 				selectedImage_ = new File(selectedImageFileName);
 			}
-			selectedImageName_ = savedInstanceState
-					.getString(SELECTED_IMAGE_NAME);
+			selectedBundleName_ = savedInstanceState
+					.getString(SELECTED_BUNDLE_NAME);
+			selectedBoardName_ = savedInstanceState
+					.getString(SELECTED_BOARD_NAME);
 		}
 		desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
 		prepareGui();
@@ -97,10 +143,12 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 
 	private void prepareGui() {
 		setContentView(R.layout.programmer);
-		statusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
+		programmerStatusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
+		imageStatusTextView_ = (TextView) findViewById(R.id.imageStatusTextView);
 		selectedImageTextView_ = (TextView) findViewById(R.id.selectedImage);
 		if (selectedImage_ != null) {
-			selectedImageTextView_.setText(selectedImageName_);
+			selectedImageTextView_.setText(selectedBundleName_ + " / "
+					+ selectedBoardName_);
 			selectedImageTextView_.setTextColor(Color.WHITE);
 		}
 		selectButton_ = (Button) findViewById(R.id.selectButton);
@@ -139,27 +187,51 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				updateButtonState();
 				switch (state) {
 				case STATE_IOIO_DISCONNECTED:
-					setStatusText(R.string.waiting_ioio_conn);
+					setProgrammerStatusText(R.string.waiting_ioio_conn);
 					break;
 
 				case STATE_IOIO_CONNECTED:
-					setStatusText(R.string.waiting_target);
+					setProgrammerStatusText(R.string.waiting_target);
 					break;
 
 				case STATE_TARGET_CONNECTED:
-					setStatusText(getString(R.string.target_connected) + "0x"
-							+ Integer.toHexString(targetId_));
+					setProgrammerStatusText(
+							getString(R.string.target_connected) + target_,
+							getResources().getColor(R.color.good));
 					break;
 
 				case STATE_UNKOWN_TARGET_CONNECTED:
-					setStatusText(getString(R.string.unknown_target_connected)
-							+ "0x" + Integer.toHexString(targetId_));
+					setProgrammerStatusText(
+							getString(R.string.unknown_target_connected),
+							getResources().getColor(R.color.bad));
 					break;
 
 				case STATE_PROGRAM_START:
 				case STATE_ERASE_START:
 					showDialog(PROGRESS_DIALOG);
 					break;
+				}
+
+				if (state == ProgrammerState.STATE_TARGET_CONNECTED) {
+					if (selectedBoardName_ != null) {
+						Board board = Board.findByName(selectedBoardName_);
+						if (board == Board.UNKNOWN) {
+							setImageStatusText(
+									getString(R.string.unknown_board),
+									getResources().getColor(R.color.neutral));
+						} else if (board.chip == target_) {
+							setImageStatusText(
+									getString(R.string.board_chip_match),
+									getResources().getColor(R.color.good));
+						} else {
+							setImageStatusText(
+									getString(R.string.board_chip_mismatch),
+									getResources().getColor(R.color.bad));
+						}
+					}
+				} else {
+					setImageStatusText("",
+							getResources().getColor(R.color.disabledText));
 				}
 			}
 		});
@@ -269,13 +341,16 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			case STATE_TARGET_CONNECTED:
 			case STATE_UNKOWN_TARGET_CONNECTED:
 				icsp_.enterProgramming();
-				targetId_ = Scripts.getDeviceId(icsp_);
-				if ((targetId_ & 0xFF00) == 0x4100) {
-					setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
-				} else if (targetId_ == 0xFFFF) {
+				int targetId = Scripts.getDeviceId(icsp_);
+				if (targetId == 0xFFFF) {
 					setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
 				} else {
-					setProgrammerState(ProgrammerState.STATE_UNKOWN_TARGET_CONNECTED);
+					target_ = Chip.findById(targetId);
+					if (target_ == Chip.UNKNOWN) {
+						setProgrammerState(ProgrammerState.STATE_UNKOWN_TARGET_CONNECTED);
+					} else {
+						setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
+					}
 				}
 				sleep(100);
 				icsp_.exitProgramming();
@@ -370,20 +445,29 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		}
 	}
 
-	private void setStatusText(String text) {
-		statusTextView_.setText(text);
+	private void setProgrammerStatusText(int resid) {
+		setProgrammerStatusText(getString(resid),
+				getResources().getColor(R.color.neutral));
 	}
 
-	private void setStatusText(int resid) {
-		statusTextView_.setText(resid);
+	private void setProgrammerStatusText(String text, int color) {
+		programmerStatusTextView_.setText(text);
+		programmerStatusTextView_.setTextColor(color);
+	}
+
+	private void setImageStatusText(String text, int color) {
+		imageStatusTextView_.setVisibility((text.length() > 0) ? View.VISIBLE
+				: View.GONE);
+		imageStatusTextView_.setText(text);
+		imageStatusTextView_.setTextColor(color);
 	}
 
 	private void toast(final int resid) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(ProgrammerActivity.this, resid, Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(ProgrammerActivity.this, resid,
+						Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -414,21 +498,41 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		case REQUEST_IMAGE_SELECT:
 			if (resultCode == RESULT_OK) {
 				File file = (File) new File(data.getData().getPath());
-				String bundleName = data
-						.getStringExtra(ImageLibraryActivity.EXTRA_BUNDLE_NAME);
-				String imageName = data
-						.getStringExtra(ImageLibraryActivity.EXTRA_IMAGE_NAME);
-				setSelectedImage(file, bundleName, imageName);
+				if (file.exists()) {
+					String bundleName = data
+							.getStringExtra(ImageLibraryActivity.EXTRA_BUNDLE_NAME);
+					String imageName = data
+							.getStringExtra(ImageLibraryActivity.EXTRA_IMAGE_NAME);
+					setSelectedImage(file, bundleName, imageName);
+				} else {
+					setSelectedImage(null, null, null);
+				}
 			}
 			break;
 		}
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (selectedImage_ != null && !selectedImage_.exists()) {
+			// file may have been removed when we were away...
+			setSelectedImage(null, null, null);
+		}
+	}
+
 	private void setSelectedImage(File file, String bundleName, String imageName) {
 		selectedImage_ = file;
-		selectedImageName_ = bundleName + " / " + imageName;
-		selectedImageTextView_.setText(selectedImageName_);
-		selectedImageTextView_.setTextColor(Color.WHITE);
+		selectedBundleName_ = bundleName;
+		selectedBoardName_ = imageName;
+		if (file != null) {
+			selectedImageTextView_.setText(bundleName + " / " + imageName);
+			selectedImageTextView_.setTextColor(Color.WHITE);
+		} else {
+			selectedImageTextView_.setText(R.string.no_image_selected);
+			selectedImageTextView_.setTextColor(getResources().getColor(
+					R.color.disabledText));
+		}
 		updateButtonState();
 	}
 
@@ -436,7 +540,8 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (selectedImage_ != null) {
-			outState.putString(SELECTED_IMAGE_NAME, selectedImageName_);
+			outState.putString(SELECTED_BUNDLE_NAME, selectedBundleName_);
+			outState.putString(SELECTED_BOARD_NAME, selectedBoardName_);
 			outState.putString(SELECTED_IMAGE_FILE_NAME,
 					selectedImage_.getAbsolutePath());
 		}

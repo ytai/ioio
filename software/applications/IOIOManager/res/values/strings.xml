@@ -28,7 +28,7 @@
 	<string name="waiting_ioio_conn">Waiting for IOIO connection...</string>
 	<string name="waiting_target">Waiting for target...</string>
 	<string name="target_connected">Target connected: </string>
-	<string name="unknown_target_connected">Unknown target connected: </string>
+	<string name="unknown_target_connected">Unknown target connected</string>
 	<string name="programming_in_progress">Programming in progress</string>
 	<string name="erasing">Erasing...</string>
 	<string name="programming">Programming...</string>
@@ -60,4 +60,7 @@
 	<string name="recursive_delete_failed">Recursive delete failed</string>
 	<string name="failed_to_delete_file">Failed to delete file: </string>
 	<string name="select_image">Select Image</string>
+	<string name="unknown_board">Image\'s target board is unknown. May or may not match the target chip.</string>
+	<string name="board_chip_match">Image\'s target board matches the target chip.</string>
+	<string name="board_chip_mismatch">Image\'s target board does not match the target chip! Programming is likely to fail.</string>
 </resources>
