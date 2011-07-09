@@ -82,9 +82,9 @@ public class FirmwareManager {
 		activeBundleName_ = preferences_.getString("activeBundleName", null);
 		if (!appLayerDir_.exists()) {
 			if (!appLayerDir_.mkdir()) {
-				throw new IOException(
-						context_.getString(R.string.failed_create_dir)
-								+ appLayerDir_.getAbsolutePath());
+				throw new IOException(String.format(
+						context_.getString(R.string.failed_create_dir),
+						appLayerDir_.getAbsolutePath()));
 			}
 		} else if (!appLayerDir_.isDirectory()) {
 			throw new IllegalStateException(appLayerDir_.getAbsolutePath()
@@ -92,9 +92,9 @@ public class FirmwareManager {
 		}
 		if (!imageDir_.exists()) {
 			if (!imageDir_.mkdir()) {
-				throw new IOException(
-						context_.getString(R.string.failed_create_dir)
-								+ imageDir_.getAbsolutePath());
+				throw new IOException(String.format(
+						context_.getString(R.string.failed_create_dir),
+						imageDir_.getAbsolutePath()));
 			}
 		} else if (!imageDir_.isDirectory()) {
 			throw new IllegalStateException(imageDir_.getAbsolutePath()
@@ -108,8 +108,8 @@ public class FirmwareManager {
 		name = name.substring(0, name.lastIndexOf('.'));
 		File outDir = new File(appLayerDir_.getAbsolutePath() + '/' + name);
 		if (outDir.exists()) {
-			throw new IOException(
-					context_.getString(R.string.bundle_already_exists) + name);
+			throw new IOException(String.format(
+					context_.getString(R.string.bundle_already_exists), name));
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
@@ -122,7 +122,8 @@ public class FirmwareManager {
 		name = name.substring(0, name.lastIndexOf('.'));
 		File outDir = new File(imageDir_.getAbsolutePath() + '/' + name);
 		if (outDir.exists()) {
-			throw new IOException("Bundle already exists: " + name);
+			throw new IOException(String.format(
+					context_.getString(R.string.bundle_already_exists), name));
 		}
 		outDir.mkdirs();
 		ZipExtractor.extract(inFile, outDir);
@@ -213,16 +214,16 @@ public class FirmwareManager {
 		activeBundleName_ = null;
 		for (File f : getImageFiles(activeImagesDir_)) {
 			if (!f.delete()) {
-				throw new IOException(
-						context_.getString(R.string.failed_to_delete_file)
-								+ f.getAbsolutePath());
+				throw new IOException(String.format(
+						context_.getString(R.string.failed_to_delete_file),
+						f.getAbsolutePath()));
 			}
 		}
 		for (File f : getFingerprintFiles(activeImagesDir_)) {
 			if (!f.delete()) {
-				throw new IOException(
-						context_.getString(R.string.failed_to_delete_file)
-								+ f.getAbsolutePath());
+				throw new IOException(String.format(
+						context_.getString(R.string.failed_to_delete_file),
+						f.getAbsolutePath()));
 			}
 		}
 	}

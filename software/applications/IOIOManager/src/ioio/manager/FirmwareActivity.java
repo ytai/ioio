@@ -149,12 +149,13 @@ public class FirmwareActivity extends ListActivity {
 							setIntent(new Intent(Intent.ACTION_MAIN));
 						}
 					});
-			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					setIntent(new Intent(Intent.ACTION_MAIN));
-				}
-			});
+			builder.setNegativeButton(R.string.no,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							setIntent(new Intent(Intent.ACTION_MAIN));
+						}
+					});
 			builder.setIcon(android.R.drawable.ic_dialog_alert);
 			builder.show();
 		}
@@ -244,8 +245,9 @@ public class FirmwareActivity extends ListActivity {
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
 						this,
-						getString(R.string.error_colon)
-								+ data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA),
+						String.format(
+								getString(R.string.error),
+								data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA)),
 						Toast.LENGTH_LONG).show();
 			}
 			break;
@@ -258,15 +260,16 @@ public class FirmwareActivity extends ListActivity {
 					if (format.equals("QR_CODE")) {
 						addBundleFromUrl(contents);
 					} else {
-						Toast.makeText(this,
-								R.string.barcode_not_uri,
+						Toast.makeText(this, R.string.barcode_not_uri,
 								Toast.LENGTH_LONG).show();
 					}
 				} catch (Exception e) {
 					Log.w(TAG, e);
-					Toast.makeText(this,
-							getString(R.string.failed_add_bundle) + e.getMessage(),
-							Toast.LENGTH_LONG).show();
+					Toast.makeText(
+							this,
+							String.format(
+									getString(R.string.failed_add_bundle),
+									e.getMessage()), Toast.LENGTH_LONG).show();
 				}
 			}
 			break;
@@ -284,12 +287,16 @@ public class FirmwareActivity extends ListActivity {
 			ImageBundle bundle = firmwareManager_.addAppBundle(file
 					.getAbsolutePath());
 			listAdapter_.notifyDataSetChanged();
-			Toast.makeText(this, getString(R.string.bundle_added) + bundle.getName(),
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(
+					this,
+					String.format(getString(R.string.bundle_added),
+							bundle.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this, getString(R.string.failed_add_bundle) + e.getMessage(),
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(
+					this,
+					String.format(getString(R.string.failed_add_bundle),
+							e.getMessage()), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -311,14 +318,17 @@ public class FirmwareActivity extends ListActivity {
 				String name = bundles_[(int) info.id].getName();
 				firmwareManager_.removeAppBundle(name);
 				listAdapter_.notifyDataSetChanged();
-				Toast.makeText(this, getString(R.string.bundle_removed) + name,
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.bundle_removed), name),
 						Toast.LENGTH_SHORT).show();
 				return true;
 			} catch (IOException e) {
 				Log.w(TAG, e);
-				Toast.makeText(this,
-						getString(R.string.failed_remove_bundle) + e.getMessage(),
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.failed_remove_bundle),
+								e.getMessage()), Toast.LENGTH_SHORT).show();
 			}
 		default:
 			return super.onContextItemSelected(item);
@@ -334,9 +344,10 @@ public class FirmwareActivity extends ListActivity {
 				firmwareManager_.clearActiveBundle();
 				firmwareManager_.setActiveAppBundle(bundle.getName());
 				listAdapter_.notifyDataSetChanged();
-				Toast.makeText(this,
-						getString(R.string.bundle_set_active) + bundle.getName(),
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.bundle_set_active),
+								bundle.getName()), Toast.LENGTH_SHORT).show();
 			}
 		} catch (IOException e) {
 			Log.w(TAG, e);

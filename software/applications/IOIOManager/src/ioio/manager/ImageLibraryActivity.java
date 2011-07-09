@@ -91,12 +91,13 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 							setIntent(new Intent(Intent.ACTION_MAIN));
 						}
 					});
-			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					setIntent(new Intent(Intent.ACTION_MAIN));
-				}
-			});
+			builder.setNegativeButton(R.string.no,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							setIntent(new Intent(Intent.ACTION_MAIN));
+						}
+					});
 			builder.setIcon(android.R.drawable.ic_dialog_alert);
 			builder.show();
 		}
@@ -215,15 +216,17 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 				String name = bundles_[(int) info.id].getName();
 				firmwareManager_.removeImageBundle(name);
 				adapter_.notifyDataSetChanged();
-				Toast.makeText(this, getString(R.string.bundle_removed) + name,
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.bundle_removed), name),
 						Toast.LENGTH_SHORT).show();
 				return true;
 			} catch (IOException e) {
 				Log.w(TAG, e);
 				Toast.makeText(
 						this,
-						getString(R.string.failed_remove_bundle)
-								+ e.getMessage(), Toast.LENGTH_SHORT).show();
+						String.format(getString(R.string.failed_remove_bundle),
+								e.getMessage()), Toast.LENGTH_SHORT).show();
 			}
 		default:
 			return super.onContextItemSelected(item);
@@ -300,8 +303,9 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(
 						this,
-						getString(R.string.error_colon)
-								+ data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA),
+						String.format(
+								getString(R.string.error),
+								data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA)),
 						Toast.LENGTH_LONG).show();
 			}
 			break;
@@ -321,8 +325,9 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 					Log.w(TAG, e);
 					Toast.makeText(
 							this,
-							getString(R.string.failed_add_bundle)
-									+ e.getMessage(), Toast.LENGTH_LONG).show();
+							String.format(
+									getString(R.string.failed_add_bundle),
+									e.getMessage()), Toast.LENGTH_LONG).show();
 				}
 			}
 			break;
@@ -340,14 +345,16 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			ImageBundle bundle = firmwareManager_.addImageBundle(file
 					.getAbsolutePath());
 			adapter_.notifyDataSetChanged();
-			Toast.makeText(this,
-					getString(R.string.bundle_added) + bundle.getName(),
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(
+					this,
+					String.format(getString(R.string.bundle_added),
+							bundle.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Log.w(TAG, e);
-			Toast.makeText(this,
-					getString(R.string.failed_add_bundle) + e.getMessage(),
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(
+					this,
+					String.format(getString(R.string.failed_add_bundle),
+							e.getMessage()), Toast.LENGTH_LONG).show();
 		}
 	}
 }

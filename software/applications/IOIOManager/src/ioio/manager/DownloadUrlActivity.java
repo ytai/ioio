@@ -30,8 +30,7 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 		thread_ = new Thread(this);
 		thread_.start();
 		dialog_ = ProgressDialog.show(this, getString(R.string.loading),
-				getString(R.string.fetching_content) + url_ + "\n\n"
-						+ getString(R.string.back_to_abort), false, true,
+				String.format(getString(R.string.fetching_content), url_), false, true,
 				new OnCancelListener() {
 					@Override
 					public void onCancel(DialogInterface dialog) {

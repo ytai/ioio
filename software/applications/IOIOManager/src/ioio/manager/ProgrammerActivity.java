@@ -202,7 +202,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					
 				case STATE_TARGET_CONNECTED:
 					setProgrammerStatusText(
-							getString(R.string.target_connected) + target_,
+							String.format(getString(R.string.target_connected), target_),
 							getResources().getColor(R.color.good));
 					break;
 					
