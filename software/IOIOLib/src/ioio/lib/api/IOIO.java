@@ -45,6 +45,13 @@ import java.io.Closeable;
  * calling {@link #waitForConnect()}. This method will block until the board is
  * connected an a connection has been established.
  * <p>
+ * During the connection process, this library verifies that the IOIO firmware
+ * is compatible with the required version. If not, {@link #waitForConnect()}
+ * will throw a {@link IncompatibilityException}, putting the {@link IOIO}
+ * instance in a "zombie" state: nothing could be done with it except calling
+ * {@link #disconnect()}, or waiting for the physical connection to drop via
+ * {@link #waitForDisconnect()}.  
+ * <p>
  * As soon as a connection is established, the IOIO can be used, typically, by
  * calling the openXXX() functions to obtain additional interfaces for
  * controlling specific function of the board.

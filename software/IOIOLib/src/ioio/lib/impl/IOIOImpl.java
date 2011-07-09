@@ -49,11 +49,11 @@ import android.util.Log;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
 	enum State {
-		INIT, CONNECTED, DEAD
+		INIT, CONNECTED, INCOMPATIBLE, DEAD
 	}
 
-	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] {
-		'I', 'O', 'I', 'O', '0', '0', '0', '2' };
+	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
+			'I', 'O', '0', '0', '0', '2' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
@@ -116,13 +116,14 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	public void disconnected() {
+		state_ = State.DEAD;
 		disconnect();
 	}
 
 	public void waitForDisconnect() throws InterruptedException {
 		incomingState_.waitDisconnect();
 	}
-	
+
 	private void checkInterfaceVersion() throws IncompatibilityException,
 			ConnectionLostException, InterruptedException {
 		try {
@@ -131,7 +132,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 		if (!incomingState_.waitForInterfaceSupport()) {
-			disconnect();
+			state_ = State.INCOMPATIBLE;
 			Log.e("IOIOImpl", "Required interface ID is not supported");
 			throw new IncompatibilityException(
 					"IOIO firmware does not support required firmware: "
@@ -446,7 +447,6 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		return twi;
 	}
 
-
 	@Override
 	synchronized public IcspMaster openIcspMaster()
 			throws ConnectionLostException {
@@ -470,7 +470,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 		return icsp;
 	}
-	
+
 	@Override
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
 			int slaveSelect, SpiMaster.Rate rate)
@@ -552,6 +552,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private void checkState() throws ConnectionLostException {
 		if (state_ == State.DEAD) {
 			throw new ConnectionLostException();
+		}
+		if (state_ == State.INCOMPATIBLE) {
+			throw new IllegalStateException(
+					"Incompatibility has been reported - IOIO cannot be used");
 		}
 		if (state_ != State.CONNECTED) {
 			throw new IllegalStateException(

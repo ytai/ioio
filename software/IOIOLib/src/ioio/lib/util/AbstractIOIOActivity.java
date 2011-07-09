@@ -68,7 +68,6 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
 		private boolean connected_ = true;
-		private boolean notifiedIncompatible_ = false;
 
 		/** Not relevant to subclasses. */
 		@Override
@@ -83,7 +82,6 @@ public abstract class AbstractIOIOActivity extends Activity {
 						ioio_ = IOIOFactory.create();
 					}
 					ioio_.waitForConnect();
-					notifiedIncompatible_ = false;
 					connected_ = true;
 					setup();
 					while (!abort_) {
@@ -100,9 +98,12 @@ public abstract class AbstractIOIOActivity extends Activity {
 				} catch (IncompatibilityException e) {
 					Log.e("AbstractIOIOActivity",
 							"Incompatible IOIO firmware", e);
-					if (!notifiedIncompatible_) {
-						incompatible();
-						notifiedIncompatible_ = true;
+					incompatible();
+					// nothing to do - just wait until physical disconnection
+					try {
+						ioio_.waitForDisconnect();
+					} catch (InterruptedException e1) {
+						ioio_.disconnect();
 					}
 				} catch (Exception e) {
 					Log.e("AbstractIOIOActivity",
