@@ -64,4 +64,5 @@
 	<string name="unknown_board">Image\'s target board is unknown. May or may not match the target chip.</string>
 	<string name="board_chip_match">Image\'s target board matches the target chip.</string>
 	<string name="board_chip_mismatch">Image\'s target board does not match the target chip! Programming is likely to fail.</string>
+	<string name="ioio_incompatible">The attached IOIO is running a firmware version that is not compatible with the programmer. Expecting version IOIO0200 or higher.</string>
 </resources>

@@ -55,7 +55,7 @@ import android.widget.Toast;
 
 public class ProgrammerActivity extends AbstractIOIOActivity {
 	enum ProgrammerState {
-		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS
+		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS, STATE_IOIO_INCOMPATIBLE
 	}
 
 	enum Chip {
@@ -194,12 +194,18 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					setProgrammerStatusText(R.string.waiting_target);
 					break;
 
+				case STATE_IOIO_INCOMPATIBLE:
+					setProgrammerStatusText(
+							getString(R.string.ioio_incompatible),
+							getResources().getColor(R.color.bad));
+					break;
+					
 				case STATE_TARGET_CONNECTED:
 					setProgrammerStatusText(
 							getString(R.string.target_connected) + target_,
 							getResources().getColor(R.color.good));
 					break;
-
+					
 				case STATE_UNKOWN_TARGET_CONNECTED:
 					setProgrammerStatusText(
 							getString(R.string.unknown_target_connected),
@@ -437,6 +443,11 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		@Override
 		protected void disconnected() throws InterruptedException {
 			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
+		}
+		
+		@Override
+		protected void incompatible() {
+			setProgrammerState(ProgrammerState.STATE_IOIO_INCOMPATIBLE);
 		}
 
 		@Override

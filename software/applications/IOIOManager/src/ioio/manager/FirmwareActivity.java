@@ -146,13 +146,17 @@ public class FirmwareActivity extends ListActivity {
 							} else if (fintent.getScheme().equals("http")) {
 								addBundleFromUrl(fintent.getDataString());
 							}
-
+							setIntent(new Intent(Intent.ACTION_MAIN));
 						}
 					});
-			builder.setNegativeButton(R.string.no, null);
+			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					setIntent(new Intent(Intent.ACTION_MAIN));
+				}
+			});
 			builder.setIcon(android.R.drawable.ic_dialog_alert);
 			builder.show();
-			setIntent(new Intent(Intent.ACTION_MAIN));
 		}
 	}
 
