@@ -136,6 +136,10 @@ void ICSPConfigure(int enable) {
     SetPinDigitalOut(PGC_PIN, 0, 0);
     SetPinDigitalOut(PGD_PIN, 0, 0);
     SetPinDigitalOut(MCLR_PIN, 0, 0);
+    // pull PGD up for reads.
+    PinSetCnpu(PGD_PIN, 1);
+    PinSetCnpd(PGD_PIN, 0);
+
     ByteQueueInit(&rx_queue, rx_buffer, RX_BUF_SIZE);
     num_rx_since_last_report = RX_BUF_SIZE;
   } else {
