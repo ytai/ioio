@@ -43,7 +43,8 @@
 	<string name="fetching_content">Fetching content from: </string>
 	<string name="back_to_abort">Press "back" to abort</string>
 	<string name="grant_permission">Grant Permission</string>
-	<string name="external_approval">An application is trying to install a new firmware image. Approve?</string>
+	<string name="external_approval_app">An application is trying to install a new application firmware image. Approve?</string>
+	<string name="external_approval_img">An application is trying to install a new bootloader firmware image. Approve?</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="active_bundle_cleared">Active bundle cleared</string>

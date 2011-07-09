@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -59,6 +61,40 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 			registerForContextMenu(getExpandableListView());
 		} catch (IOException e) {
 			Log.w(TAG, e);
+		}
+		handleIntent(getIntent());
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		handleIntent(intent);
+	}
+
+	private void handleIntent(Intent intent) {
+		final Intent fintent = intent;
+		Log.e(TAG, "handleIntent(" + intent.toString() + ")");
+		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.grant_permission);
+			builder.setMessage(R.string.external_approval_img);
+			builder.setPositiveButton(R.string.yes,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (fintent.getScheme().equals("file")) {
+								addBundleFromFile(new File(fintent.getData()
+										.getPath()));
+							} else if (fintent.getScheme().equals("http")) {
+								addBundleFromUrl(fintent.getDataString());
+							}
+
+						}
+					});
+			builder.setNegativeButton(R.string.no, null);
+			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.show();
+			setIntent(new Intent(Intent.ACTION_MAIN));
 		}
 	}
 
