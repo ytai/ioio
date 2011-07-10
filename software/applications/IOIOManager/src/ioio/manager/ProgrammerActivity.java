@@ -143,7 +143,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 
 	private void prepareGui() {
 		setContentView(R.layout.programmer);
-		setTitle(R.string.programmerTitle);
+		setTitle(R.string.programmer_title);
 		programmerStatusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
 		imageStatusTextView_ = (TextView) findViewById(R.id.imageStatusTextView);
 		selectedImageTextView_ = (TextView) findViewById(R.id.selectedImage);
@@ -157,8 +157,8 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			@Override
 			public void onClick(View v) {
 				startActivityForResult(new Intent(
-						ImageLibraryActivity.ACTION_SELECT, null,
-						ProgrammerActivity.this, ImageLibraryActivity.class),
+						BootImageLibraryActivity.ACTION_SELECT, null,
+						ProgrammerActivity.this, BootImageLibraryActivity.class),
 						REQUEST_IMAGE_SELECT);
 			}
 		});
@@ -496,8 +496,8 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.editImageLibrary:
-			startActivity(new Intent(ImageLibraryActivity.ACTION_EDIT, null,
-					this, ImageLibraryActivity.class));
+			startActivity(new Intent(BootImageLibraryActivity.ACTION_EDIT, null,
+					this, BootImageLibraryActivity.class));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -512,9 +512,9 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				File file = (File) new File(data.getData().getPath());
 				if (file.exists()) {
 					String bundleName = data
-							.getStringExtra(ImageLibraryActivity.EXTRA_BUNDLE_NAME);
+							.getStringExtra(BootImageLibraryActivity.EXTRA_BUNDLE_NAME);
 					String imageName = data
-							.getStringExtra(ImageLibraryActivity.EXTRA_IMAGE_NAME);
+							.getStringExtra(BootImageLibraryActivity.EXTRA_IMAGE_NAME);
 					setSelectedImage(file, bundleName, imageName);
 				} else {
 					setSelectedImage(null, null, null);

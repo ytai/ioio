@@ -37,11 +37,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import android.app.AlertDialog;
-import android.app.ExpandableListActivity;
+import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -52,42 +52,100 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.BaseAdapter;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ImageLibraryActivity extends ExpandableListActivity {
-	private static final String TAG = "ImageLibraryActivity";
-	public static final String ACTION_SELECT = "SELECT";
-	public static final String ACTION_EDIT = "EDIT";
-	public static final String EXTRA_BUNDLE_NAME = "BUNDLE_NAME";
-	public static final String EXTRA_IMAGE_NAME = "IAMGE_NAME";
+public class AppImageLibraryActivity extends ListActivity {
+	private static final String TAG = "AppImageLibraryActivity";
 	private static final int ADD_FROM_FILE = 0;
 	private static final int ADD_FROM_QR = 1;
-
-	private ListAdapter adapter_;
-	private FirmwareManager firmwareManager_;
+	FirmwareManager firmwareManager_;
+	private ListAdapter listAdapter_;
 	private ImageBundle[] bundles_;
-	private boolean isSelect_ = false;
+
+	private class ListAdapter extends BaseAdapter {
+
+		@Override
+		public void notifyDataSetChanged() {
+			getAppBundles();
+			super.notifyDataSetChanged();
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final int pos = position;
+			if (convertView == null) {
+				convertView = getLayoutInflater().inflate(
+						R.layout.app_image_list_item, parent, false);
+			}
+			convertView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					AppImageLibraryActivity.this.onClick(v, pos);
+				}
+
+			});
+			ImageBundle bundle = bundles_[position];
+			((RadioButton) convertView.findViewById(R.id.checked))
+					.setChecked(bundle.isActive());
+			String name = bundle.getName();
+			if (name == null) {
+				name = getString(R.string.unnamed);
+				((TextView) convertView.findViewById(R.id.title))
+						.setTextColor(Color.DKGRAY);
+			}
+			convertView.setLongClickable(name != null);
+			((TextView) convertView.findViewById(R.id.title)).setText(name);
+			ImageFile[] images = bundle.getImages();
+			Arrays.sort(images, new Comparator<ImageFile>() {
+				@Override
+				public int compare(ImageFile i1, ImageFile i2) {
+					return i1.getName().compareTo(i2.getName());
+				}
+			});
+			StringBuffer strbuf = new StringBuffer();
+			for (int i = 0; i < images.length; ++i) {
+				if (i != 0) {
+					strbuf.append(' ');
+				}
+				strbuf.append(images[i].getName());
+			}
+			((TextView) convertView.findViewById(R.id.content)).setText(strbuf
+					.toString());
+			return convertView;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return bundles_[position];
+		}
+
+		@Override
+		public int getCount() {
+			return bundles_.length;
+		}
+
+	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.image_library);
-		if (getIntent().getAction().equals(ACTION_SELECT)) {
-			isSelect_ = true;
-			setTitle(R.string.select_image);
-		} else {
-			setTitle(R.string.image_library_title);
-		}
+		setContentView(R.layout.app_image_library);
+		setTitle(R.string.app_image_title);
 		try {
-			firmwareManager_ = new FirmwareManager(this); // TODO: share?
-			getImageBundles();
-			adapter_ = new ListAdapter();
-			setListAdapter(adapter_);
-			registerForContextMenu(getExpandableListView());
+			firmwareManager_ = new FirmwareManager(this);
+			getAppBundles();
+			listAdapter_ = new ListAdapter();
+			setListAdapter(listAdapter_);
+			registerForContextMenu(getListView());
 		} catch (IOException e) {
 			Log.w(TAG, e);
 		}
@@ -106,7 +164,7 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.grant_permission);
-			builder.setMessage(R.string.external_approval_img);
+			builder.setMessage(R.string.external_approval_add_app);
 			builder.setPositiveButton(R.string.yes,
 					new DialogInterface.OnClickListener() {
 						@Override
@@ -133,133 +191,10 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 	}
 
 	@Override
-	public boolean onChildClick(ExpandableListView parent, View v,
-			int groupPosition, int childPosition, long id) {
-		ImageBundle bundle = (ImageBundle) adapter_.getGroup(groupPosition);
-		ImageFile selected = (ImageFile) adapter_.getChild(groupPosition,
-				childPosition);
-		Intent intent = new Intent(ACTION_SELECT, new Uri.Builder()
-				.scheme("file").path(selected.getFile().getAbsolutePath())
-				.build());
-		intent.putExtra(EXTRA_BUNDLE_NAME, bundle.getName());
-		intent.putExtra(EXTRA_IMAGE_NAME, selected.getName());
-		setResult(RESULT_OK, intent);
-		finish();
-		return true;
-	}
-
-	private class ListAdapter extends BaseExpandableListAdapter {
-		private static final int MAX_IMAGES_PER_BUNDLE = 16384;
-
-		@Override
-		public void notifyDataSetChanged() {
-			getImageBundles();
-			super.notifyDataSetChanged();
-		}
-
-		@Override
-		public boolean isChildSelectable(int groupPosition, int childPosition) {
-			return isSelect_;
-		}
-
-		@Override
-		public boolean hasStableIds() {
-			return false;
-		}
-
-		public View getGroupView(int groupPosition, boolean isExpanded,
-				View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				convertView = getLayoutInflater().inflate(
-						R.layout.image_list_group, null, false);
-			}
-			((TextView) convertView).setText(bundles_[groupPosition].getName());
-			return convertView;
-		}
-
-		@Override
-		public long getGroupId(int groupPosition) {
-			return groupPosition;
-		}
-
-		@Override
-		public int getGroupCount() {
-			return bundles_.length;
-		}
-
-		@Override
-		public Object getGroup(int groupPosition) {
-			return bundles_[groupPosition];
-		}
-
-		@Override
-		public int getChildrenCount(int groupPosition) {
-			return bundles_[groupPosition].getImages().length;
-		}
-
-		@Override
-		public View getChildView(int groupPosition, int childPosition,
-				boolean isLastChild, View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				convertView = getLayoutInflater().inflate(
-						R.layout.image_list_item, null, false);
-			}
-			((TextView) convertView.findViewById(R.id.programmerListItemTitle))
-					.setText(((ImageFile) getChild(groupPosition, childPosition))
-							.getName());
-			return convertView;
-		}
-
-		@Override
-		public long getChildId(int groupPosition, int childPosition) {
-			return groupPosition * MAX_IMAGES_PER_BUNDLE + childPosition;
-		}
-
-		@Override
-		public Object getChild(int groupPosition, int childPosition) {
-			ImageFile[] images = bundles_[groupPosition].getImages();
-			Arrays.sort(images, new Comparator<ImageFile>() {
-				@Override
-				public int compare(ImageFile i1, ImageFile i2) {
-					return i1.getName().compareTo(i2.getName());
-				}
-			});
-			return images[childPosition];
-		}
-	};
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.image_library_options, menu);
+		inflater.inflate(R.menu.firmware_options, menu);
 		return true;
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
-				.getMenuInfo();
-		switch (item.getItemId()) {
-		case R.id.remove_item:
-			try {
-				String name = bundles_[(int) info.id].getName();
-				firmwareManager_.removeImageBundle(name);
-				adapter_.notifyDataSetChanged();
-				Toast.makeText(
-						this,
-						String.format(getString(R.string.bundle_removed), name),
-						Toast.LENGTH_SHORT).show();
-				return true;
-			} catch (IOException e) {
-				Log.w(TAG, e);
-				Toast.makeText(
-						this,
-						String.format(getString(R.string.failed_remove_bundle),
-								e.getMessage()), Toast.LENGTH_SHORT).show();
-			}
-		default:
-			return super.onContextItemSelected(item);
-		}
 	}
 
 	@Override
@@ -272,17 +207,40 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		case R.id.addFromStorageMenuItem:
 			addFromExternalStorage();
 			return true;
+		case R.id.clearActiveBundle:
+			clearActiveBundle();
+			return true;
+		case R.id.about:
+			showAboutDialog();
+			return true;
+		case R.id.programmer:
+			startProgrammer();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.list_item_context_menu, menu);
+	private void startProgrammer() {
+		startActivity(new Intent(this, ProgrammerActivity.class));
+	}
+
+	private void showAboutDialog() {
+		new AlertDialog.Builder(this).setIcon(R.drawable.ic_dialog_about)
+				.setTitle(R.string.about_title)
+				.setView(getLayoutInflater().inflate(R.layout.about, null))
+				.show();
+	}
+
+	private void clearActiveBundle() {
+		try {
+			firmwareManager_.clearActiveBundle();
+			listAdapter_.notifyDataSetChanged();
+			Toast.makeText(this, R.string.active_bundle_cleared,
+					Toast.LENGTH_SHORT).show();
+		} catch (IOException e) {
+			Log.w(TAG, e);
+		}
 	}
 
 	private void addByScan() {
@@ -301,24 +259,8 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		intent.putExtra(SelectFileActivity.EXTRA_START_DIR, Environment
 				.getExternalStorageDirectory().getAbsolutePath());
 		intent.putExtra(SelectFileActivity.EXTRA_SUFFIXES,
-				new String[] { ".ioioimg" });
+				new String[] { ".ioioapp" });
 		startActivityForResult(intent, ADD_FROM_FILE);
-	}
-
-	private void getImageBundles() {
-		bundles_ = firmwareManager_.getImageBundles();
-		Arrays.sort(bundles_, new Comparator<ImageBundle>() {
-			@Override
-			public int compare(ImageBundle b1, ImageBundle b2) {
-				if (b1.getName() == null) {
-					return -1;
-				}
-				if (b2.getName() == null) {
-					return 1;
-				}
-				return b1.getName().compareTo(b2.getName());
-			}
-		});
 	}
 
 	@Override
@@ -371,9 +313,9 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 
 	private void addBundleFromFile(File file) {
 		try {
-			ImageBundle bundle = firmwareManager_.addImageBundle(file
+			ImageBundle bundle = firmwareManager_.addAppBundle(file
 					.getAbsolutePath());
-			adapter_.notifyDataSetChanged();
+			listAdapter_.notifyDataSetChanged();
 			Toast.makeText(
 					this,
 					String.format(getString(R.string.bundle_added),
@@ -385,5 +327,75 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 					String.format(getString(R.string.failed_add_bundle),
 							e.getMessage()), Toast.LENGTH_LONG).show();
 		}
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.list_item_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+				.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.remove_item:
+			try {
+				String name = bundles_[(int) info.id].getName();
+				firmwareManager_.removeAppBundle(name);
+				listAdapter_.notifyDataSetChanged();
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.bundle_removed), name),
+						Toast.LENGTH_SHORT).show();
+				return true;
+			} catch (IOException e) {
+				Log.w(TAG, e);
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.failed_remove_bundle),
+								e.getMessage()), Toast.LENGTH_SHORT).show();
+			}
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+
+	private void onClick(View v, int pos) {
+		ImageBundle bundle = (ImageBundle) getListView().getItemAtPosition(pos);
+		try {
+			if (bundle.isActive()) {
+				clearActiveBundle();
+			} else {
+				firmwareManager_.clearActiveBundle();
+				firmwareManager_.setActiveAppBundle(bundle.getName());
+				listAdapter_.notifyDataSetChanged();
+				Toast.makeText(
+						this,
+						String.format(getString(R.string.bundle_set_active),
+								bundle.getName()), Toast.LENGTH_SHORT).show();
+			}
+		} catch (IOException e) {
+			Log.w(TAG, e);
+		}
+	}
+
+	private void getAppBundles() {
+		bundles_ = firmwareManager_.getAppBundles();
+		Arrays.sort(bundles_, new Comparator<ImageBundle>() {
+			@Override
+			public int compare(ImageBundle b1, ImageBundle b2) {
+				if (b1.getName() == null) {
+					return -1;
+				}
+				if (b2.getName() == null) {
+					return 1;
+				}
+				return b1.getName().compareTo(b2.getName());
+			}
+		});
 	}
 }
