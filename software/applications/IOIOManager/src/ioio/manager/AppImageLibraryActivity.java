@@ -226,15 +226,20 @@ public class AppImageLibraryActivity extends ListActivity {
 	private void startProgrammer() {
 		startActivity(new Intent(this, ProgrammerActivity.class));
 	}
-	
-	
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		return new AlertDialog.Builder(this).setIcon(R.drawable.ic_dialog_about)
-				.setTitle(R.string.about_title)
-				.setView(getLayoutInflater().inflate(R.layout.about, null))
-				.create();
+		switch (id) {
+		case ABOUT_DIALOG:
+			return new AlertDialog.Builder(this)
+					.setIcon(R.drawable.ic_dialog_about)
+					.setTitle(R.string.about_title)
+					.setView(getLayoutInflater().inflate(R.layout.about, null))
+					.create();
+
+		default:
+			return super.onCreateDialog(id);
+		}
 	}
 
 	private void clearActiveBundle() {
