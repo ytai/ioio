@@ -139,6 +139,7 @@ public class FirmwareActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		setTitle(R.string.image_library_title);
 		try {
 			firmwareManager_ = new FirmwareManager(this);
 			getAppBundles();

@@ -78,8 +78,9 @@ public class ImageLibraryActivity extends ExpandableListActivity {
 		setContentView(R.layout.image_library);
 		if (getIntent().getAction().equals(ACTION_SELECT)) {
 			isSelect_ = true;
-			((TextView) findViewById(R.id.title))
-					.setText(R.string.select_image);
+			setTitle(R.string.select_image);
+		} else {
+			setTitle(R.string.image_library_title);
 		}
 		try {
 			firmwareManager_ = new FirmwareManager(this); // TODO: share?

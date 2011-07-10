@@ -2,9 +2,6 @@
 <LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
 	a:layout_width="fill_parent" a:layout_height="fill_parent"
 	a:orientation="vertical">
-	<TextView a:layout_width="fill_parent" a:layout_height="wrap_content"
-		a:text="@string/programmerTitle" a:textColor="@color/listItemTitle"
-		a:textSize="20sp" a:textStyle="bold" a:background="#888" a:padding="5px" />
 	<LinearLayout a:layout_width="fill_parent"
 		a:layout_height="wrap_content"
 		a:orientation="vertical" a:padding="10px" a:background="@drawable/border"

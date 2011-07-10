@@ -143,6 +143,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 
 	private void prepareGui() {
 		setContentView(R.layout.programmer);
+		setTitle(R.string.programmerTitle);
 		programmerStatusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
 		imageStatusTextView_ = (TextView) findViewById(R.id.imageStatusTextView);
 		selectedImageTextView_ = (TextView) findViewById(R.id.selectedImage);

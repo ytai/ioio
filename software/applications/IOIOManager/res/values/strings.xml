@@ -15,7 +15,8 @@
 	<string name="about_title">About IOIO Manager</string>
 	<string name="about_message">IOIO Manager V1.0\nYtai Ben-Tsvi
 		2011\nPart of the IOIO open-source project.\nMore information and help
-		on:\nhttp://codaset.com/ytai/ioio/wiki
+		on:\nhttp://codaset.com/ytai/ioio/wiki\nDiscussion group:\n
+		https://groups.google.com/forum/#!forum/ioio-users
 	</string>
 	<string name="no_image_selected">No image selected</string>
 	<string name="select">Select...</string>
