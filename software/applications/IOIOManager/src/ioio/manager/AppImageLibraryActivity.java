@@ -141,7 +141,7 @@ public class AppImageLibraryActivity extends ListActivity {
 		setContentView(R.layout.app_image_library);
 		setTitle(R.string.app_image_title);
 		try {
-			firmwareManager_ = new FirmwareManager(this);
+			firmwareManager_ = FirmwareManager.getInstance(this);
 			getAppBundles();
 			listAdapter_ = new ListAdapter();
 			setListAdapter(listAdapter_);

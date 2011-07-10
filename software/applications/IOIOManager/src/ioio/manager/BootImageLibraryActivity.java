@@ -83,7 +83,7 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 			setTitle(R.string.boot_image_library_title);
 		}
 		try {
-			firmwareManager_ = new FirmwareManager(this); // TODO: share?
+			firmwareManager_ = FirmwareManager.getInstance(this);
 			getImageBundles();
 			adapter_ = new ListAdapter();
 			setListAdapter(adapter_);

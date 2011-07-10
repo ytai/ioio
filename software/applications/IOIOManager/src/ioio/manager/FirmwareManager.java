@@ -42,6 +42,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class FirmwareManager {
+	private static FirmwareManager instance_;
 	private File appLayerDir_;
 	private File imageDir_;
 	private File activeImagesDir_;
@@ -100,7 +101,15 @@ public class FirmwareManager {
 		}
 	}
 
-	FirmwareManager(Context context) throws IOException {
+	public static FirmwareManager getInstance(Context context)
+			throws IOException {
+		if (instance_ == null) {
+			instance_ = new FirmwareManager(context.getApplicationContext());
+		}
+		return instance_;
+	}
+
+	private FirmwareManager(Context context) throws IOException {
 		context_ = context;
 		activeImagesDir_ = context.getFilesDir();
 		appLayerDir_ = new File(context.getFilesDir().getAbsolutePath()
