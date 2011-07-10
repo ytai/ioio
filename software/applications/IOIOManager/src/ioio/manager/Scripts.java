@@ -32,6 +32,8 @@ import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 
 class Scripts {
+	private static int NUM_ATTEMPTS = 20;
+	
 	private static void exitResetVector(IcspMaster icsp)
 			throws ConnectionLostException {
 		icsp.executeInstruction(0x040200); // GOTO 0x200
@@ -63,7 +65,8 @@ class Scripts {
 	}
 
 	public static void chipErase(IcspMaster icsp)
-			throws ConnectionLostException, InterruptedException {
+			throws ConnectionLostException, InterruptedException,
+			TimeoutException {
 		exitResetVector(icsp);
 		icsp.executeInstruction(0x2404FA); // MOV #0x404F, W10
 		icsp.executeInstruction(0x883B0A); // MOV W10, NVMCON
@@ -75,19 +78,8 @@ class Scripts {
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x000000); // NOP
 
-		icsp.executeInstruction(0xA8E761); // BSET NVMCON, #WR
-		icsp.executeInstruction(0x000000); // NOP
-		icsp.executeInstruction(0x000000); // NOP
-
-		do {
-			icsp.executeInstruction(0x040200); // GOTO 0x200
-			icsp.executeInstruction(0x000000); // NOP
-			icsp.executeInstruction(0x803B02); // MOV NVMCON, W2
-			icsp.executeInstruction(0x883C22); // MOV W2, VISI
-			icsp.executeInstruction(0x000000); // NOP
-			icsp.readVisi();
-			icsp.executeInstruction(0x000000); // NOP
-		} while ((icsp.waitVisiResult() & (1 << 15)) != 0);
+		initiateWrite(icsp);
+		waitWriteDone(icsp);
 	}
 
 	public static void readBlock(IcspMaster icsp, int addr, int numInst,
@@ -148,7 +140,8 @@ class Scripts {
 	}
 
 	public static void writeBlock(IcspMaster icsp, int addr, int[] buf)
-			throws ConnectionLostException, InterruptedException {
+			throws ConnectionLostException, InterruptedException,
+			TimeoutException {
 		assert (buf.length >= 64);
 		exitResetVector(icsp);
 		// Set the NVMCON to program 64 instruction words.
@@ -215,14 +208,25 @@ class Scripts {
 			// latches.
 		}
 
-		// Initiate the write cycle.
+		initiateWrite(icsp);
+		waitWriteDone(icsp);
+	}
+
+	private static void initiateWrite(IcspMaster icsp)
+			throws ConnectionLostException {
 		icsp.executeInstruction(0xA8E761); // BSET NVMCON, #WR
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x000000); // NOP
+	}
 
-		// Repeat this step to poll the WR bit (bit 15 of NVMCON) until it is
-		// cleared by the hardware.
+	private static void waitWriteDone(IcspMaster icsp)
+			throws ConnectionLostException, InterruptedException,
+			TimeoutException {
+		int attempts = NUM_ATTEMPTS;
 		do {
+			if (attempts-- == 0) {
+				throw new TimeoutException();
+			}
 			icsp.executeInstruction(0x040200); // GOTO 0x200
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0x803B02); // MOV NVMCON, W2

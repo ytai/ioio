@@ -23,16 +23,16 @@ public class IOIOFileProgrammer {
 		return nblocks;
 	}
 
-	public static void programIOIOFileBlock(IcspMaster icsp,
-			IOIOFileReader file)
+	public static void programIOIOFileBlock(IcspMaster icsp, IOIOFileReader file)
 			throws ConnectionLostException, InterruptedException,
-			FormatException {
+			FormatException, TimeoutException {
 		int[] block = new int[64];
 		parseBlock(file.currentBlock(), block);
 		Scripts.writeBlock(icsp, file.currentAddress(), block);
 	}
 
-	public static boolean verifyIOIOFileBlock(IcspMaster icsp, IOIOFileReader file) throws ConnectionLostException,
+	public static boolean verifyIOIOFileBlock(IcspMaster icsp,
+			IOIOFileReader file) throws ConnectionLostException,
 			InterruptedException, FormatException {
 		int[] fileBlock = new int[64];
 		int[] actualBlock = new int[64];
@@ -45,8 +45,7 @@ public class IOIOFileProgrammer {
 							"Failed verification, address = 0x"
 									+ file.currentAddress() + i);
 					Log.w(TAG,
-							"Expected: 0x"
-									+ Integer.toHexString(fileBlock[i]));
+							"Expected: 0x" + Integer.toHexString(fileBlock[i]));
 					Log.w(TAG,
 							"Actual:   0x"
 									+ Integer.toHexString(actualBlock[i]));
