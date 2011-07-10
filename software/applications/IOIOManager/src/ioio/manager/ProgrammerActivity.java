@@ -179,7 +179,6 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	}
 
 	private synchronized void setProgrammerState(final ProgrammerState state) {
-		Log.e(TAG, "state is: " + state);
 		programmerState_ = state;
 
 		runOnUiThread(new Runnable() {
