@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -62,6 +63,7 @@ public class AppImageLibraryActivity extends ListActivity {
 	private static final String TAG = "AppImageLibraryActivity";
 	private static final int ADD_FROM_FILE = 0;
 	private static final int ADD_FROM_QR = 1;
+	private static final int ABOUT_DIALOG = 0;
 	FirmwareManager firmwareManager_;
 	private ListAdapter listAdapter_;
 	private ImageBundle[] bundles_;
@@ -211,7 +213,7 @@ public class AppImageLibraryActivity extends ListActivity {
 			clearActiveBundle();
 			return true;
 		case R.id.about:
-			showAboutDialog();
+			showDialog(ABOUT_DIALOG);
 			return true;
 		case R.id.programmer:
 			startProgrammer();
@@ -224,12 +226,15 @@ public class AppImageLibraryActivity extends ListActivity {
 	private void startProgrammer() {
 		startActivity(new Intent(this, ProgrammerActivity.class));
 	}
+	
+	
 
-	private void showAboutDialog() {
-		new AlertDialog.Builder(this).setIcon(R.drawable.ic_dialog_about)
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		return new AlertDialog.Builder(this).setIcon(R.drawable.ic_dialog_about)
 				.setTitle(R.string.about_title)
 				.setView(getLayoutInflater().inflate(R.layout.about, null))
-				.show();
+				.create();
 	}
 
 	private void clearActiveBundle() {
