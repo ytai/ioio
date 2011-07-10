@@ -4,5 +4,5 @@
 	<ExpandableListView a:layout_height="wrap_content"
 		a:layout_width="fill_parent" a:id="@android:id/list"></ExpandableListView>
 	<TextView a:layout_width="fill_parent" a:layout_height="fill_parent"
-		a:text="@string/empty_list" a:id="@android:id/empty" a:gravity="center_vertical|center" />
+		a:text="@string/empty_boot_library" a:id="@android:id/empty" a:gravity="center_vertical|center" />
 </LinearLayout>
