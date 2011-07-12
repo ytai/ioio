@@ -82,7 +82,7 @@
         <targetHeader></targetHeader>
         <platformTool>PM3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -95,7 +95,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1001"/>
+        <property key="preprocessor-macros" value="PLATFORM=1001;NDEBUG"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -119,8 +119,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -145,8 +145,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -159,6 +159,8 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
@@ -169,7 +171,7 @@
         <targetHeader></targetHeader>
         <platformTool>PM3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <compilerSet>C30</compilerSet>
+        <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -182,7 +184,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1002"/>
+        <property key="preprocessor-macros" value="PLATFORM=1002;NDEBUG"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -206,8 +208,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -232,8 +234,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -246,6 +248,97 @@
         <property key="extra-lib-directories" value=""/>
         <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
+      <C30Global>
+      </C30Global>
+      <PM3PlatformTool>
+      </PM3PlatformTool>
+    </conf>
+    <conf name="IOIO0003" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ256DA206</targetDevice>
+        <targetHeader></targetHeader>
+        <platformTool>PM3PlatformTool</platformTool>
+        <languageToolchain>C30</languageToolchain>
+        <languageToolchainVersion>3.25</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <C30>
+        <property key="scalar-model" value="default"/>
+        <property key="extra-include-directories"
+                  value=".;..;../microchip/include;../common"/>
+        <property key="preprocessor-macros" value="PLATFORM=1003;NDEBUG"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="enable-short-double" value="true"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="const-model" value="default"/>
+        <property key="code-model" value="default"/>
+      </C30>
+      <C30-AS>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="list-file" value=""/>
+        <property key="list-source" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="false-conditionals" value="false"/>
+        <property key="expand-macros" value="false"/>
+        <property key="assembler-symbols" value=""/>
+      </C30-AS>
+      <C30-LD>
+        <property key="preprocessor-macros" value=""/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="warn-section-align" value="false"/>
+        <property key="heap-size" value="0"/>
+        <property key="stack-size" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="input-libraries" value=""/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="enable-check-sections" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="extra-lib-directories" value=""/>
+        <appendMe value="-T../blapi/app_IOIO0003.gld"/>
+      </C30-LD>
+      <C30Global>
+      </C30Global>
       <PM3PlatformTool>
       </PM3PlatformTool>
     </conf>
