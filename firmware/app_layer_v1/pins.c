@@ -85,7 +85,7 @@ typedef struct {
 #define MAKE_CN_INFO(num, bit) { &CNEN##num, &CNPU##num, &CNPD##num, (1 << bit), ~(1 << bit) }
 #define MAKE_RPOR(num) (((unsigned char*) &RPOR0) + num)
 
-#if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0002
+#if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0003
   const PORT_INFO port_info[NUM_PINS] = {
     MAKE_PORT_INFO(F, 3),   // LED
     MAKE_PORT_INFO(C, 12),  // 1
@@ -219,7 +219,7 @@ typedef struct {
 /* F */ {17, 18, -1,  0, 48, 49, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 /* G */ {-1, -1, -1, -1, -1, -1, 27, 28, 29, 31, -1, -1, -1, -1, -1, -1}
     };
-  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
+  #elif PLATFORM >= PLATFORM_IOIO0001 && PLATFORM <= PLATFORM_IOIO0003
     static const signed char port_to_pin[7][16] = {
 //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
 /* B */ {36, 35, 34, 33, 32, 31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46},
@@ -236,7 +236,7 @@ typedef struct {
       37, 36, 35, 34, 33, 32, 38, 39,
       40, 41, 42, 43, 44, 45, 46, 47
     };
-  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
+  #elif PLATFORM >= PLATFORM_IOIO0001 && PLATFORM <= PLATFORM_IOIO0003
     static const signed char analog_to_pin[16] = {
       36, 35, 34, 33, 32, 31, 37, 38,
       39, 40, 41, 42, 43, 44, 45, 46
@@ -245,11 +245,11 @@ typedef struct {
 
   #if PLATFORM == PLATFORM_IOIO0000
     #define MIN_ANALOG_PIN 32
-  #elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0002
+  #elif PLATFORM >= PLATFORM_IOIO0001 && PLATFORM <= PLATFORM_IOIO0003
     #define MIN_ANALOG_PIN 31
   #endif
 
-  #if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0002
+  #if PLATFORM >= PLATFORM_IOIO0000 && PLATFORM <= PLATFORM_IOIO0003
     static const int pin_to_analog[16] = {
        5 , 4 , 3 , 2 , 1 , 0 , 6 , 7 ,
        8 , 9 , 10, 11, 12, 13, 14, 15
