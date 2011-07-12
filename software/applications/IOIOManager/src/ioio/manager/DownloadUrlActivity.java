@@ -87,7 +87,9 @@ public class DownloadUrlActivity extends Activity implements Runnable,
 			conn.setReadTimeout(5000);
 			conn.connect();
 			InputStream inputStream = conn.getInputStream();
-			File file = new File(getCacheDir(), url.getFile());
+			String basename = url.getFile();
+			basename = basename.substring(basename.lastIndexOf('/') + 1);
+			File file = new File(getCacheDir(), basename);
 			OutputStream out = new FileOutputStream(file);
 			int r;
 			byte[] buf = new byte[64];

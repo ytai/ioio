@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="ioio.manager" android:versionCode="1" android:versionName="1.0">
+	package="ioio.manager" android:versionName="1.1" android:versionCode="2">
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
