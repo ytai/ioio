@@ -1,0 +1,34 @@
+#!/bin/bash
+
+ZIP=zip
+TMPOUT=$(mktemp -t -u tmp.XXXXXXXX.zip)
+PROJECTS="IOIOLib \
+          applications/HelloIOIO \
+          applications/HelloIOIOPower \
+          applications/IOIOSimpleApp"
+
+APKS="applications/HelloIOIO \
+      applications/HelloIOIOPower \
+      applications/IOIOSimpleApp"
+
+if test $# -ne 1; then
+  echo "Usage: $0 <out_zip>"
+  exit 1
+fi
+
+cd software
+
+for PROJECT in $PROJECTS; do
+  echo $PROJECT
+  $ZIP -q -r $TMPOUT $PROJECT -x "$PROJECT/bin/*" "$PROJECT/gen/*"
+done
+
+for APK in $APKS; do
+  echo $APK
+  BASENAME=$(basename $APK)
+  APK="$APK/bin/$BASENAME.apk"
+  $ZIP -q -j $TMPOUT $APK
+done
+
+cd -
+mv $TMPOUT $1
