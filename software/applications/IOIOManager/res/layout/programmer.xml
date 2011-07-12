@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+	a:layout_width="fill_parent" a:layout_height="fill_parent"
+	a:orientation="vertical">
+	<LinearLayout a:layout_width="fill_parent"
+		a:layout_height="wrap_content"
+		a:orientation="vertical" a:padding="10px" a:background="@drawable/border"
+		a:layout_margin="10px">
+		<LinearLayout a:layout_width="fill_parent"
+			a:layout_height="wrap_content">
+			<TextView a:textColor="@color/disabledText" a:text="@string/no_image_selected"
+				a:layout_weight="1" a:layout_width="0px" a:layout_height="wrap_content"
+				a:id="@+id/selectedImage"></TextView>
+			<Button a:text="@string/select" a:layout_width="wrap_content"
+				a:layout_height="wrap_content" a:id="@+id/selectButton"></Button>
+		</LinearLayout>
+		<TextView a:text="Image Status"
+			a:layout_width="wrap_content" a:layout_height="wrap_content"
+			a:id="@+id/imageStatusTextView" a:visibility="gone"></TextView>
+	</LinearLayout>
+	<LinearLayout a:layout_width="fill_parent"
+		a:layout_height="wrap_content"
+		a:orientation="vertical" a:padding="10px" a:background="@drawable/border"
+		a:layout_margin="10px">
+		<LinearLayout a:layout_width="fill_parent"
+			a:layout_height="wrap_content"
+			a:gravity="center_vertical|center_horizontal" a:layout_margin="10px">
+			<Button a:layout_height="wrap_content" a:layout_width="wrap_content"
+				a:id="@+id/programButton" a:text="@string/program" a:width="80px"
+				a:enabled="false"></Button>
+			<Button a:layout_height="wrap_content" a:layout_width="wrap_content"
+				a:id="@+id/eraseButton" a:text="@string/erase" a:width="80px"
+				a:enabled="false"></Button>
+		</LinearLayout>
+		<TextView a:layout_height="wrap_content" a:text="Programmer Status"
+			a:layout_width="wrap_content" a:id="@+id/programmerStatusTextView"></TextView>
+	</LinearLayout>
+</LinearLayout>

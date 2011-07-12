@@ -79,7 +79,14 @@ public class IOIOProtocol {
 	static final int I2C_WRITE_READ                      = 0x14;
 	static final int I2C_RESULT                          = 0x14;
 	static final int I2C_REPORT_TX_STATUS                = 0x15;
-	
+	static final int ICSP_SIX                            = 0x16;
+	static final int ICSP_REPORT_RX_STATUS               = 0x16;
+	static final int ICSP_REGOUT                         = 0x17;
+	static final int ICSP_RESULT                         = 0x17;
+	static final int ICSP_PROG_ENTER                     = 0x18;
+	static final int ICSP_PROG_EXIT                      = 0x19;
+	static final int ICSP_CONFIG                         = 0x1A;
+
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
 		0x1E,  // 35.714
@@ -128,6 +135,12 @@ public class IOIOProtocol {
 	private void writeTwoBytes(int i) throws IOException {
 		writeByte(i & 0xFF);
 		writeByte(i >> 8);
+	}
+
+	private void writeThreeBytes(int i) throws IOException {
+		writeByte(i & 0xFF);
+		writeByte((i >> 8) & 0xFF);
+		writeByte((i >> 16) & 0xFF);
 	}
 
 	synchronized public void hardReset() throws IOException {
@@ -350,6 +363,40 @@ public class IOIOProtocol {
 		flush();
 	}
 
+
+	public void icspOpen() throws IOException {
+		writeByte(ICSP_CONFIG);
+		writeByte(0x01);
+		flush();
+	}
+
+	public void icspClose() throws IOException {
+		writeByte(ICSP_CONFIG);
+		writeByte(0x00);
+		flush();
+	}
+
+	public void icspEnter() throws IOException {
+		writeByte(ICSP_PROG_ENTER);
+		flush();
+	}
+
+	public void icspExit() throws IOException {
+		writeByte(ICSP_PROG_EXIT);
+		flush();
+	}
+
+	public void icspSix(int instruction) throws IOException {
+		writeByte(ICSP_SIX);
+		writeThreeBytes(instruction);
+		flush();
+	}
+
+	public void icspRegout() throws IOException {
+		writeByte(ICSP_REGOUT);
+		flush();
+	}
+
 	public interface IncomingHandler {
 		public void handleEstablishConnection(byte[] hardwareId, byte[] bootloaderId,
 				byte[] firmwareId);
@@ -398,6 +445,13 @@ public class IOIOProtocol {
 
 		public void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
 
+		void handleIcspOpen();
+		
+		void handleIcspClose();
+
+		void handleIcspReportRxStatus(int bytesRemaining);
+
+		void handleIcspResult(int size, byte[] data);
 	}
 
 	class IncomingThread extends Thread {
@@ -430,8 +484,8 @@ public class IOIOProtocol {
 				int b = in_.read();
 				if (b == -1)
 					throw new IOException("Unexpected stream closure");
-				// Log.v("IOIOProtocol", "received: 0x" +
-				// Integer.toHexString(b));
+//				 Log.v("IOIOProtocol", "received: 0x" +
+//				 Integer.toHexString(b));
 				return b;
 			} catch (IOException e) {
 				Log.i("IOIOProtocol", "IOIO disconnected");
@@ -609,6 +663,27 @@ public class IOIOProtocol {
 					case CHECK_INTERFACE_RESPONSE:
 						arg1 = readByte();
 						handler_.handleCheckInterfaceResponse((arg1 & 0x01) == 1);
+						break;
+						
+					case ICSP_REPORT_RX_STATUS:
+						arg1 = readByte();
+						arg2 = readByte();
+						handler_.handleIcspReportRxStatus(arg1 | (arg2 << 8));
+						break;
+						
+					case ICSP_RESULT:
+						data[0] = (byte) readByte();
+						data[1] = (byte) readByte();
+						handler_.handleIcspResult(2, data);
+						break;
+						
+					case ICSP_CONFIG:
+						arg1 = readByte();
+						if ((arg1 & 0x01) == 1){
+							handler_.handleIcspOpen();
+						} else {
+							handler_.handleIcspClose();
+						}
 						break;
 
 					default:

@@ -42,7 +42,8 @@ typedef enum {
   STATE_ERROR
 } STATE;
 
-STATE state = STATE_INIT;
+static STATE state = STATE_INIT;
+static ADB_CHANNEL_HANDLE handle;
 
 void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
@@ -56,14 +57,12 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
       log_printf("ADB channel closed");
       SoftReset();
     }
-    h = ADBOpen("tcp:4545", &ChannelCallback);
+    handle = ADBOpen("tcp:4545", &ChannelCallback);
     state = STATE_WAIT_CHANNEL_OPEN;
   }
 }
 
 int main() {
-  ADB_CHANNEL_HANDLE h;
-
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
 
@@ -78,32 +77,32 @@ int main() {
     }
     switch (state) {
       case STATE_INIT:
-        h = ADB_INVALID_CHANNEL_HANDLE;
+        handle = ADB_INVALID_CHANNEL_HANDLE;
         state = STATE_WAIT_CONNECTION;
         break;
 
       case STATE_WAIT_CONNECTION:
         if (adb_connected) {
           log_printf("ADB connected");
-          h = ADBOpen("tcp:4545", &ChannelCallback);
+          handle = ADBOpen("tcp:4545", &ChannelCallback);
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
 
       case STATE_WAIT_CHANNEL_OPEN:
-       if (ADBChannelReady(h)) {
+       if (ADBChannelReady(handle)) {
           log_printf("ADB channel open");
-          AppProtocolInit(h);
+          AppProtocolInit(handle);
           state = STATE_CONNECTED;
         }
         break;
 
       case STATE_CONNECTED:
-        AppProtocolTasks(h);
+        AppProtocolTasks(handle);
         break;
 
       case STATE_ERROR:
-        ADBClose(h);
+        ADBClose(handle);
         state = STATE_INIT;
         break;
     }

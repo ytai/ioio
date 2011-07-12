@@ -43,10 +43,11 @@
 #include "spi.h"
 #include "i2c.h"
 #include "sync.h"
+#include "icsp.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
-#define FW_IMPL_VER "IOIO0100"
+#define FW_IMPL_VER "IOIO0200"
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(HARD_RESET_ARGS),
@@ -70,7 +71,12 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_SPI_ARGS),
   sizeof(I2C_CONFIGURE_MASTER_ARGS),
   sizeof(I2C_WRITE_READ_ARGS),
-  sizeof(RESERVED_ARGS)
+  sizeof(RESERVED_ARGS),
+  sizeof(ICSP_SIX_ARGS),
+  sizeof(ICSP_REGOUT_ARGS),
+  sizeof(ICSP_PROG_ENTER_ARGS),
+  sizeof(ICSP_PROG_EXIT_ARGS),
+  sizeof(ICSP_CONFIG_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -98,6 +104,11 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(I2C_STATUS_ARGS),
   sizeof(I2C_RESULT_ARGS),
   sizeof(I2C_REPORT_TX_STATUS_ARGS),
+  sizeof(ICSP_REPORT_RX_STATUS_ARGS),
+  sizeof(ICSP_RESULT_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(ICSP_CONFIG_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
@@ -187,6 +198,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
   UARTTasks();
   SPITasks();
   I2CTasks();
+  ICSPTasks();
   if (ADBChannelReady(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
@@ -390,6 +402,32 @@ static BOOL MessageDone() {
 
     case CHECK_INTERFACE:
       CheckInterface(rx_msg.args.check_interface.interface_id);
+      break;
+
+    case ICSP_SIX:
+      ICSPSix(rx_msg.args.icsp_six.inst);
+      break;
+
+    case ICSP_REGOUT:
+      ICSPRegout();
+      break;
+
+    case ICSP_PROG_ENTER:
+      ICSPEnter();
+      break;
+
+    case ICSP_PROG_EXIT:
+      ICSPExit();
+      break;
+
+    case ICSP_CONFIG:
+      if (rx_msg.args.icsp_config.enable) {
+        Echo();
+      }
+      ICSPConfigure(rx_msg.args.icsp_config.enable);
+      if (!rx_msg.args.icsp_config.enable) {
+        Echo();
+      }
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

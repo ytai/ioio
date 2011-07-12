@@ -16,6 +16,7 @@
       <itemPath>digital.h</itemPath>
       <itemPath>features.h</itemPath>
       <itemPath>i2c.h</itemPath>
+      <itemPath>icsp.h</itemPath>
       <itemPath>incap.h</itemPath>
       <itemPath>../common/logging.h</itemPath>
       <itemPath>pins.h</itemPath>
@@ -26,6 +27,7 @@
       <itemPath>pwm.h</itemPath>
       <itemPath>spi.h</itemPath>
       <itemPath>sync.h</itemPath>
+      <itemPath>../microchip/include/timer.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>../microchip/include/uart2.h</itemPath>
@@ -51,6 +53,7 @@
       <itemPath>digital.c</itemPath>
       <itemPath>features.c</itemPath>
       <itemPath>i2c.c</itemPath>
+      <itemPath>icsp.c</itemPath>
       <itemPath>incap.c</itemPath>
       <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
@@ -83,7 +86,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.24</languageToolchainVersion>
+        <languageToolchainVersion>3.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -96,14 +99,14 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1001"/>
+        <property key="preprocessor-macros" value="PLATFORM=1001;NDEBUG"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-procedural-abstraction" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -120,8 +123,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -161,9 +164,73 @@
         <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
-      <PM3PlatformTool>
-      </PM3PlatformTool>
+      <PICkit3PlatformTool>
+        <property key="UART 4" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="memories.id" value="false"/>
+        <property key="ToolFirmwareFilePath" value=""/>
+        <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="ADC 1" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="voltagevalue" value="3.25"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="TIMER5" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER1" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="hwtoolclock.instructionspeed" value=""/>
+        <property key="CTMU" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="hwtoolclock.units" value="mips"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+      </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0002" type="2">
       <toolsSet>
@@ -172,7 +239,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.24</languageToolchainVersion>
+        <languageToolchainVersion>3.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -185,7 +252,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1002"/>
+        <property key="preprocessor-macros" value="PLATFORM=1002;NDEBUG"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -203,14 +270,14 @@
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
-        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-assembler" value=".."/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
-        <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
+        <property key="list-source" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -250,9 +317,11 @@
         <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
-      <PM3PlatformTool>
-      </PM3PlatformTool>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0003" type="2">
       <toolsSet>
@@ -261,7 +330,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.24</languageToolchainVersion>
+        <languageToolchainVersion>3.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -274,7 +343,7 @@
         <property key="scalar-model" value="default"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1003"/>
+        <property key="preprocessor-macros" value="PLATFORM=1003;NDEBUG"/>
         <property key="data-model" value="default"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -298,8 +367,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -340,8 +409,8 @@
       </C30-LD>
       <C30Global>
       </C30Global>
-      <PM3PlatformTool>
-      </PM3PlatformTool>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>
