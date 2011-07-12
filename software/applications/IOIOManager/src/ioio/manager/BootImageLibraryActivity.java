@@ -102,7 +102,6 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 
 	private void handleIntent(Intent intent) {
 		final Intent fintent = intent;
-		Log.e(TAG, "handleIntent(" + intent.toString() + ")");
 		if (intent.getAction().equals(Intent.ACTION_VIEW)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.grant_permission);
