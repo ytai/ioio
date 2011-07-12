@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ZIP=zip
+BASENAME=$(basename $1)
+TMPOUT=$(mktemp -t -u tmp.XXXXXXXX.zip)
+
+if test $# -ne 2; then
+  echo "Usage: $0 <proj_dir> <out_zip>"
+  exit 1
+fi
+
+(cd $1; cd ..; $ZIP -q -r $TMPOUT $BASENAME -x "$BASENAME/bin/*" "$BASENAME/gen/*")
+mv $TMPOUT $2
