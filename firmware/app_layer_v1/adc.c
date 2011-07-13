@@ -45,8 +45,8 @@ static int analog_scan_num_channels;
 // however, in the case of ADC, we must service the "done" interrupt quickly
 // to stop the ADC before our buffer gets overwritten, so this would be a
 // priority 6 interrupt. then, in order to write to the output buffer, it would
-// trigger the priority 1 interrupt using timer 2, that will read the ADC data
-// and write to the buffer.
+// trigger the priority 1 interrupt using GFX1, that will read the ADC data and
+// write to the buffer.
 // we've "abused" GFX1 interrupt that is never used in order to generate the
 // interrupt - we just manually raise its IF flag whenever we need an interrupt
 // and service this interrupt.
@@ -61,27 +61,24 @@ static inline void ScanDoneInterruptTrigger() {
   _GFX1IF = 1;
 }
 
-// timer 2 is clocked @16MHz
-// we set its period to 16000 so that a match occurs @1KHz
+// timer 3 is clocked @2MHz
+// we set its period to 2000 so that a match occurs @1KHz
 // used for ADC
-static inline void Timer2Init() {
-  _T2IE = 0;       // disable interrupt
-  _T2IF = 0;       // clear interrupt
-  T2CON = 0x0000;  // timer off
-  PR2   = 0x3E7F;  // period is 16000 clocks
-  _T2IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
+static inline void Timer3Prepare() {
+  _T3IE = 0;       // disable interrupt
+  _T3IF = 0;       // clear interrupt
+  PR3   = 0x07CF;  // period is 2000 clocks
+  _T3IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
 }
 
-static inline void Timer2Start() {
-  TMR2  = 0x0000;  // reset counter
-  _T2IE = 1;       // enable interrupt
-  T2CON = 0x8000;  // timer on, 16-bit, instruction clock with no prescaling
+static inline void Timer3Start() {
+  TMR3  = 0x0000;  // reset counter
+  _T3IE = 1;       // enable interrupt
 }
 
-static inline void Timer2Stop() {
-  _T2IE = 0;       // disable interrupt
-  _T2IF = 0;       // clear interrupt
-  T2CON = 0x0000;  // timer off
+static inline void Timer3Stop() {
+  _T3IE = 0;       // disable interrupt
+  _T3IF = 0;       // clear interrupt
 }
 
 void ADCInit() {
@@ -98,7 +95,7 @@ void ADCInit() {
   _AD1IE = 1;        // enable interrupt
 
   ScanDoneInterruptInit();  // when triggered, generates an immediate interrupt to read ADC buffer
-  Timer2Init();  // runs when ADC is used to periodically trigger sampling
+  Timer3Prepare();  // runs when ADC is used to periodically trigger sampling
 
   analog_scan_bitmask = 0x0000;
   analog_scan_num_channels = 0;
@@ -157,11 +154,11 @@ static inline void ReportAnalogInFormat() {
 }
 
 static inline void ADCStart() {
-  Timer2Start();
+  Timer3Start();
 }
 
 static inline void ADCStop() {
-  Timer2Stop();
+  Timer3Stop();
 }
 
 static inline void ADCTrigger() {
@@ -187,10 +184,10 @@ void ADCSetScan(int pin, int enable) {
   if (enable) {
     if (analog_scan_num_channels) {
       // already running, just add the new channel
-      _T2IE = 0;
+      _T3IE = 0;
       ++analog_scan_num_channels;
       analog_scan_bitmask |= mask;
-      _T2IE = 1;
+      _T3IE = 1;
     } else {
       // first channel, start running
       analog_scan_num_channels = 1;
@@ -199,17 +196,17 @@ void ADCSetScan(int pin, int enable) {
     }
   } else {
     // if this was the last channel, the next T2 interrupt will stop the sampling
-    _T2IE = 0;
+    _T3IE = 0;
     --analog_scan_num_channels;
     analog_scan_bitmask &= ~mask;
-    _T2IE = 1;
+    _T3IE = 1;
   }
 }
 
-void __attribute__((__interrupt__, auto_psv)) _T2Interrupt() {
+void __attribute__((__interrupt__, auto_psv)) _T3Interrupt() {
   // TODO: check that the previous sample is done?
   ADCTrigger();
-  _T2IF = 0;  // clear
+  _T3IF = 0;  // clear
 }
 
 void __attribute__((__interrupt__, auto_psv)) _GFX1Interrupt() {

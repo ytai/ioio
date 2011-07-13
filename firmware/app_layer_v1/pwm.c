@@ -69,6 +69,6 @@ void SetPwmPeriod(int pwm_num, int period, int scale256) {
     regs->r = 0;
     regs->rs = period;
     regs->con2 = 0x001F;
-    regs->con1 = 0x0006 | (scale256 ? 0x1000 : 0x1C00);
+    regs->con1 = 0x0006 | (scale256 ? 0x0C00 : 0x1C00);
   }
 }
