@@ -44,7 +44,7 @@ void InCapInit();
 // clock_scale:
 //   0: off
 //   1: 16MHz
-//   2: 256KHz
+//   2: 250KHz
 //   3: 62.5KHz
 void InCapConfig(int incap_num, int mode, int continouos, int clock_scale,
                  int input_scale);

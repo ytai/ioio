@@ -40,7 +40,7 @@ void TimersInit() {
   PR1 = 0xFFFF;
   T1CON = 0x8030;
 
-  // timer 3 is sysclk / 64 = 256KHz
+  // timer 3 is sysclk / 64 = 250KHz
   T3CON = 0x0000;  // Timer off
   TMR3 = 0x0000;
   PR3 = 0xFFFF;
