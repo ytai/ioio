@@ -50,7 +50,7 @@ public class IOIOSimpleApp extends AbstractIOIOActivity {
 			try {
 				final float reading = input_.read();
 				setText(Float.toString(reading));
-				pwmOutput_.setPulseWidth(1000 + seekBar_.getProgress());
+				pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
 				led_.write(!toggleButton_.isChecked());
 				sleep(10);
 			} catch (InterruptedException e) {
