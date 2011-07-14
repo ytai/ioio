@@ -41,6 +41,7 @@ import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
+import ioio.lib.impl.IOIOProtocol.PwmScale;
 import ioio.lib.impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
@@ -162,7 +163,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized void closePwm(int pwmNum) {
 		pwmAllocator_.releaseModule(pwmNum);
 		try {
-			protocol_.setPwmPeriod(pwmNum, 0, false);
+			protocol_.setPwmPeriod(pwmNum, 0, IOIOProtocol.PwmScale.SCALE_1X);
 		} catch (IOException e) {
 		}
 	}
@@ -348,24 +349,31 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
 		int pwmNum = pwmAllocator_.allocateModule();
-		int period = 16000000 / freqHz - 1;
-		boolean scale256 = false;
-		int effectivePeriodMicroSec;
-		if (period > 65535) {
-			period = 16000000 / freqHz / 256 - 1;
-			scale256 = true;
-			effectivePeriodMicroSec = (period + 1) * 16;
-		} else {
-			effectivePeriodMicroSec = (period + 1) / 16;
+
+		int scale = 0;
+		float baseUs;
+		int period;
+		while (true) {
+			final int clk = 16000000 / IOIOProtocol.PwmScale.values()[scale].scale;
+			period = clk / freqHz;
+			if (period <= 65536) {
+				baseUs = 1000000.0f / clk;
+				break;
+			}
+			if (++scale >= PwmScale.values().length) {
+				throw new IllegalArgumentException("Frequency too low: "
+						+ freqHz);
+			}
 		}
-		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period,
-				effectivePeriodMicroSec);
+
+		PwmImpl pwm = new PwmImpl(this, spec.pin, pwmNum, period, baseUs);
 		addDisconnectListener(pwm);
 		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
 			protocol_.setPinPwm(spec.pin, pwmNum, true);
-			protocol_.setPwmPeriod(pwmNum, period, scale256);
+			protocol_.setPwmPeriod(pwmNum, period,
+					IOIOProtocol.PwmScale.values()[scale]);
 		} catch (IOException e) {
 			pwm.close();
 			throw new ConnectionLostException(e);

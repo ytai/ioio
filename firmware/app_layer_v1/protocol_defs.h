@@ -125,9 +125,10 @@ typedef struct PACKED {
 
 // set pwm period
 typedef struct PACKED {
-  BYTE scale256 : 1;
+  BYTE scale_l : 1;
   BYTE pwm_num : 4;
-  BYTE : 3;
+  BYTE : 2;
+  BYTE scale_h : 1;
   WORD period;
 } SET_PWM_PERIOD_ARGS;
 

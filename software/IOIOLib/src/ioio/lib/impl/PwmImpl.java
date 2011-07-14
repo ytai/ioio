@@ -36,14 +36,15 @@ import java.io.IOException;
 public class PwmImpl extends AbstractResource implements PwmOutput {
 	private final int pwmNum_;
 	private final int pinNum_;
-	private final int periodUs_;
+	private final float baseUs_;
 	private final int period_;
 
-	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period, int periodUs) throws ConnectionLostException {
+	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period,
+			float baseUs) throws ConnectionLostException {
 		super(ioio);
 		pwmNum_ = pwmNum;
 		pinNum_ = pinNum;
-		periodUs_ = periodUs;
+		baseUs_ = baseUs;
 		period_ = period;
 	}
 
@@ -55,11 +56,35 @@ public class PwmImpl extends AbstractResource implements PwmOutput {
 	}
 
 	@Override
-	synchronized public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
+	public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
+		assert (dutyCycle <= 1 && dutyCycle >= 0);
+		setPulseWidthInClocks(period_ * dutyCycle);
+	}
+
+	@Override
+	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
+		setPulseWidth((float) pulseWidthUs);
+	}
+
+	@Override
+	public void setPulseWidth(float pulseWidthUs)
+			throws ConnectionLostException {
+		assert (pulseWidthUs >= 0);
+		float p = pulseWidthUs / baseUs_;
+		setPulseWidthInClocks(p);
+	}
+
+	synchronized private void setPulseWidthInClocks(float p)
+			throws ConnectionLostException {
 		checkState();
-		assert(dutyCycle <= 1 && dutyCycle >= 0);
-		int pw, fraction;
-		float p = (period_ + 1) * dutyCycle - 1;
+		if (p > period_) {
+			p = period_;
+		}
+		int pw;
+		int fraction;
+		p -= 1; // period parameter is one less than the actual period length
+				// yes, there is 0 and then 2 (no 1) - this is not a bug, that
+				// is how the hardware PWM module works.
 		if (p < 1) {
 			pw = 0;
 			fraction = 0;
@@ -72,14 +97,5 @@ public class PwmImpl extends AbstractResource implements PwmOutput {
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
-	}
-
-	@Override
-	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
-		assert(pulseWidthUs >= 0);
-		if (pulseWidthUs > periodUs_) {
-			pulseWidthUs = periodUs_;
-		}
-		setDutyCycle(((float) pulseWidthUs) / periodUs_);
 	}
 }

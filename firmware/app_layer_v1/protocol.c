@@ -281,7 +281,8 @@ static BOOL MessageDone() {
       CHECK(rx_msg.args.set_pwm_period.pwm_num < NUM_PWM_MODULES);
       SetPwmPeriod(rx_msg.args.set_pwm_period.pwm_num,
                    rx_msg.args.set_pwm_period.period,
-                   rx_msg.args.set_pwm_period.scale256);
+                   rx_msg.args.set_pwm_period.scale_l
+                   | (rx_msg.args.set_pwm_period.scale_h) << 1);
       break;
 
     case SET_PIN_ANALOG_IN:

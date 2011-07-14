@@ -115,11 +115,23 @@ public class IOIOProtocol {
 		0x01   // 8000
 	};
 
+	enum PwmScale {
+		SCALE_1X(1, 0), SCALE_8X(8, 3), SCALE_64X(64, 2), SCALE_256X(256, 1);
+
+		public final int scale;
+		private final int encoding;
+
+		PwmScale(int scale, int encoding) {
+			this.scale = scale;
+			this.encoding = encoding;
+		}
+	}
+
 	private byte[] buf_ = new byte[128];
 	private int pos_ = 0;
 
 	private void writeByte(int b) {
-		assert(b >= 0 && b < 256);
+		assert (b >= 0 && b < 256);
 //		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
 		buf_[pos_++] = (byte) b;
 	}
@@ -156,7 +168,7 @@ public class IOIOProtocol {
 		writeByte(SOFT_RESET);
 		flush();
 	}
-	
+
 	synchronized public void checkInterface(byte[] interfaceId)
 			throws IOException {
 		if (interfaceId.length != 8) {
@@ -193,10 +205,11 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void setPwmPeriod(int pwmNum, int period,
-			boolean scale256) throws IOException {
+	synchronized public void setPwmPeriod(int pwmNum, int period, PwmScale scale)
+			throws IOException {
 		writeByte(SET_PWM_PERIOD);
-		writeByte((pwmNum << 1) | (scale256 ? 1 : 0));
+		writeByte(((scale.encoding & 0x02) << 6) | (pwmNum << 1)
+				| (scale.encoding & 0x01));
 		writeTwoBytes(period);
 		flush();
 	}
@@ -255,7 +268,8 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void setAnalogInSampling(int pin, boolean enable) throws IOException {
+	synchronized public void setAnalogInSampling(int pin, boolean enable)
+			throws IOException {
 		writeByte(SET_ANALOG_IN_SAMPLING);
 		writeByte((enable ? 0x80 : 0x00) | (pin & 0x3F));
 		flush();
@@ -295,8 +309,8 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void setPinUart(int pin, int uartNum, boolean tx, boolean enable)
-			throws IOException {
+	synchronized public void setPinUart(int pin, int uartNum, boolean tx,
+			boolean enable) throws IOException {
 		writeByte(SET_PIN_UART);
 		writeByte(pin);
 		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | uartNum);
@@ -363,7 +377,6 @@ public class IOIOProtocol {
 		flush();
 	}
 
-
 	public void icspOpen() throws IOException {
 		writeByte(ICSP_CONFIG);
 		writeByte(0x01);
@@ -398,13 +411,13 @@ public class IOIOProtocol {
 	}
 
 	public interface IncomingHandler {
-		public void handleEstablishConnection(byte[] hardwareId, byte[] bootloaderId,
-				byte[] firmwareId);
+		public void handleEstablishConnection(byte[] hardwareId,
+				byte[] bootloaderId, byte[] firmwareId);
 
 		public void handleConnectionLost();
 
 		public void handleSoftReset();
-		
+
 		public void handleCheckInterfaceResponse(boolean supported);
 
 		public void handleSetChangeNotify(int pin, boolean changeNotify);
@@ -446,7 +459,7 @@ public class IOIOProtocol {
 		public void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
 
 		void handleIcspOpen();
-		
+
 		void handleIcspClose();
 
 		void handleIcspReportRxStatus(int bytesRemaining);
@@ -659,27 +672,27 @@ public class IOIOProtocol {
 						handler_.handleI2cReportTxStatus(arg1 & 0x03,
 								(arg1 >> 2) | (arg2 << 6));
 						break;
-						
+
 					case CHECK_INTERFACE_RESPONSE:
 						arg1 = readByte();
 						handler_.handleCheckInterfaceResponse((arg1 & 0x01) == 1);
 						break;
-						
+
 					case ICSP_REPORT_RX_STATUS:
 						arg1 = readByte();
 						arg2 = readByte();
 						handler_.handleIcspReportRxStatus(arg1 | (arg2 << 8));
 						break;
-						
+
 					case ICSP_RESULT:
 						data[0] = (byte) readByte();
 						data[1] = (byte) readByte();
 						handler_.handleIcspResult(2, data);
 						break;
-						
+
 					case ICSP_CONFIG:
 						arg1 = readByte();
-						if ((arg1 & 0x01) == 1){
+						if ((arg1 & 0x01) == 1) {
 							handler_.handleIcspOpen();
 						} else {
 							handler_.handleIcspClose();

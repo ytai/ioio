@@ -116,4 +116,11 @@ public interface PwmOutput extends Closeable {
 	 * @see #setDutyCycle(float)
 	 */
 	public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
+
+	/**
+	 * The same as {@link #setPulseWidth(int)}, but with sub-microsecond
+	 * precision.
+	 */
+	public void setPulseWidth(float pulseWidthUs)
+			throws ConnectionLostException;
 }
