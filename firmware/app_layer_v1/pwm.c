@@ -62,7 +62,7 @@ void SetPwmDutyCycle(int pwm_num, int dc, int fraction) {
 
 void SetPwmPeriod(int pwm_num, int period, int scale) {
   volatile OC_REGS* regs;
-  log_printf("SetPwmPeriod(%d, %d, %d)", pwm_num, period, scale256);
+  log_printf("SetPwmPeriod(%d, %d, %d)", pwm_num, period, scale);
   regs = OC_REG(pwm_num);
   regs->con1 = 0x0000;
   if (period) {
