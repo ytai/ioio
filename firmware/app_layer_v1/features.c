@@ -41,6 +41,8 @@
 #include "spi.h"
 #include "i2c.h"
 #include "timers.h"
+#include "pp_util.h"
+#include "incap.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pin modes
@@ -139,6 +141,19 @@ void SetPinUart(int pin, int uart_num, int dir, int enable) {
   }
 }
 
+void SetPinInCap(int pin, int incap_num, int enable) {
+  log_printf("SetPinInCap(%d, %d, %d)", pin, incap_num, enable);
+    int rpin = enable ? PinToRpin(pin) : 0x3F;
+
+    switch (incap_num) {
+#define CASE(num, unused)    \
+      case num - 1:          \
+        _IC##num##R = rpin;  \
+        break;
+      REPEAT_1B(CASE, NUM_INCAP_MODULES);
+    }
+}
+
 void SetPinAnalogIn(int pin) {
   log_printf("SetPinAnalogIn(%d)", pin);
   SAVE_PIN_FOR_LOG(pin);
@@ -211,6 +226,8 @@ void SoftReset() {
   UARTInit();
   SPIInit();
   I2CInit();
+  InCapInit();
+
   // TODO: reset all peripherals!
   SRbits.IPL = ipl_backup;  // enable interrupts
 }

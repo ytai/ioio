@@ -50,3 +50,7 @@ raised accordingly.
 Resource priority assignment:
 1 - writing to outgoing ADB channel
 4 - writing to UART, SPI buffers, setting a digital output pin level
+
+Aside from that, interrupt priorities are used as follows:
+5 - input capture pulse for changing polarity between leading and trailing edge.
+6 - ADC for reading converted value from buffer before another one comes in.

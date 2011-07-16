@@ -34,20 +34,19 @@
 void InCapInit();
 
 // mode:
-//   0: high-to-low
-//   1: low-to-high
-//   2: high-to-high
-//   3: high-to-high x 4
-//   4: high-to-high x 16
-//   5: low-to-low
-//
-// clock_scale:
 //   0: off
-//   1: 16MHz
+//   1: high-pulse
+//   2: low-pulse
+//   3: rise-to-rise
+//   4: rise-to-rise x 4
+//   5: rise-to-rise x 16
+//
+// clock:
+//   0: 16MHz
+//   1: 2MHz
 //   2: 250KHz
 //   3: 62.5KHz
-void InCapConfig(int incap_num, int mode, int continouos, int clock_scale,
-                 int input_scale);
+void InCapConfig(int incap_num, int mode, int clock);
 
 
 #endif  // __INCAP_H__

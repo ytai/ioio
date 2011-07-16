@@ -34,22 +34,10 @@
 
 void TimersInit() {
   log_printf("TimersInit()");
-
   // timer 3 is sysclk / 8 = 2MHz
-  T3CON = 0x0000;  // Timer off
-  TMR3 = 0x0000;
-  PR3 = 0xFFFF;
   T3CON = 0x8010;
-
   // timer 4 is sysclk / 64 = 250KHz
-  T4CON = 0x0000;  // Timer off
-  TMR4 = 0x0000;
-  PR4 = 0xFFFF;
   T4CON = 0x8020;
-
   // timer 5 is sysclk / 256 = 62.5KHz
-  T5CON = 0x0000;  // Timer off
-  TMR5 = 0x0000;
-  PR5 = 0xFFFF;
   T5CON = 0x8030;
 }

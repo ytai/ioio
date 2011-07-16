@@ -38,6 +38,7 @@ void SetPinAnalogIn(int pin);
 void SetPinPwm(int pin, int pwm_num, int enable);
 void SetPinUart(int pin, int uart_num, int dir, int enable);
 void SetPinSpi(int pin, int spi_num, int mode, int enable);
+void SetPinInCap(int pin, int incap_num, int enable);
 void HardReset();
 void SoftReset();
 void CheckInterface(BYTE interface_id[8]);
