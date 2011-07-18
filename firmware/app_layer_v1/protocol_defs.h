@@ -333,6 +333,39 @@ typedef struct PACKED {
     BYTE enable : 1;
 } ICSP_CONFIG_ARGS;
 
+// incap configure
+typedef struct PACKED {
+    BYTE incap_num : 4;
+    BYTE : 4;
+    BYTE clock : 2;
+    BYTE : 2;
+    BYTE mode : 3;
+    BYTE : 1;
+} INCAP_CONFIG_ARGS;
+
+// incap status
+typedef struct PACKED {
+    BYTE incap_num : 4;
+    BYTE : 3;
+    BYTE enabled : 1;
+} INCAP_STATUS_ARGS;
+
+// set pin incap
+typedef struct PACKED {
+    BYTE pin : 6;
+    BYTE : 2;
+    BYTE incap_num : 4;
+    BYTE : 3;
+    BYTE enable : 1;
+} SET_PIN_INCAP_ARGS;
+
+// incap report
+typedef struct PACKED {
+    BYTE incap_num : 4;
+    BYTE : 4;
+    WORD delta_time;
+} INCAP_REPORT_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -365,6 +398,8 @@ typedef struct PACKED {
     ICSP_PROG_ENTER_ARGS                     icsp_prog_enter;
     ICSP_PROG_EXIT_ARGS                      icsp_prog_exit;
     ICSP_CONFIG_ARGS                         icsp_config;
+    INCAP_CONFIG_ARGS                        incap_config;
+    SET_PIN_INCAP_ARGS                       set_pin_incap;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -390,6 +425,8 @@ typedef struct PACKED {
     I2C_STATUS_ARGS                         i2c_status;
     ICSP_RESULT_ARGS                        icsp_result;
     ICSP_REPORT_RX_STATUS_ARGS              icsp_report_rx_status;
+    INCAP_STATUS_ARGS                       incap_status;
+    INCAP_REPORT_ARGS                       incap_report;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -445,6 +482,11 @@ typedef enum {
   ICSP_PROG_ENTER                     = 0x18,
   ICSP_PROG_EXIT                      = 0x19,
   ICSP_CONFIG                         = 0x1A,
+
+  INCAP_CONFIG                        = 0x1B,
+  INCAP_STATUS                        = 0x1B,
+  SET_PIN_INCAP                       = 0x1C,
+  INCAP_REPORT                        = 0x1C,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

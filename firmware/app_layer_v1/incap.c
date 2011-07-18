@@ -36,6 +36,8 @@
 #include "logging.h"
 #include "pp_util.h"
 #include "sync.h"
+#include "protocol_defs.h"
+#include "protocol.h"
 
 DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IF)
 DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IE)
@@ -67,13 +69,16 @@ void InCapInit() {
   for (i = 0; i < NUM_INCAP_MODULES; ++i) {
     InCapConfig(i, 0, 0);
   }
-  PR4 = 0xFFFF;  // TODO: temp!!!
-  TMR4 = 0x0000;
-  _T4IE = 1;
+  PR5 = 0x0138;  // 5ms period = 200Hz
+  TMR5 = 0x0000;
+  _T5IE = 1;
 }
 
 void InCapConfig(int incap_num, int mode, int clock) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
+  OUTGOING_MESSAGE msg;
+  msg.type = INCAP_STATUS;
+  msg.args.incap_status.incap_num = incap_num;
   log_printf("InCapConfig(%d, %d, %d)", incap_num, mode, clock);
   Set_ICIE[incap_num](0);  // disable interrupts
   reg->con1 = 0x0000;      // disable module
@@ -88,17 +93,21 @@ void InCapConfig(int incap_num, int mode, int clock) {
   static const unsigned int ictsel[] = { 7 << 10, 0 << 10, 2 << 10, 3 << 10};
 
   if (mode) {
+    msg.args.incap_status.enabled = 1;
+    AppProtocolSendMessage(&msg);
     ready_to_send |= (1 << incap_num);
     EDGE_STATE edge = initial_edge[mode - 1];
     edge_states[incap_num] = edge;
     Set_ICIP[incap_num](edge == LEADING ? 5 : 1);
     Set_ICIE[incap_num](1); // enable interrupts
     reg->con1 = ictsel[clock] | icm[mode - 1];
+  } else {
+    msg.args.incap_status.enabled = 0;
+    AppProtocolSendMessage(&msg);
   }
 }
 
 static void ICInterrupt(int incap_num) {
-//  UART2PutChar('0' + edge_states[incap_num]);
   volatile INCAP_REG* reg = incap_regs + incap_num;
 
   while (reg->con1 & 0x0008) {  // buffer not empty
@@ -121,7 +130,11 @@ static void ICInterrupt(int incap_num) {
         // fall-through on purpose
       case FREQ:
         if (ready_to_send & (1 << incap_num)) {
-          log_printf("incap: %u", timer_val - timer_base[incap_num]);
+          OUTGOING_MESSAGE msg;
+          msg.type = INCAP_REPORT;
+          msg.args.incap_report.incap_num = incap_num;
+          msg.args.incap_report.delta_time = timer_val - timer_base[incap_num];
+          AppProtocolSendMessage(&msg);
           ready_to_send &= ~(1 << incap_num);
         }
         break;
@@ -135,9 +148,9 @@ static void ICInterrupt(int incap_num) {
   Set_ICIF[incap_num](0);
 }
 
-void __attribute__((__interrupt__, auto_psv)) _T4Interrupt() {
+void __attribute__((__interrupt__, auto_psv)) _T5Interrupt() {
   ready_to_send = 0xFFFF;
-  _T4IF = 0;  // clear
+  _T5IF = 0;  // clear
 }
 
 #define DEFINE_INTERRUPT(num, unused) \

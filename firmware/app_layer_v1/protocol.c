@@ -44,6 +44,7 @@
 #include "i2c.h"
 #include "sync.h"
 #include "icsp.h"
+#include "incap.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
@@ -76,7 +77,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_REGOUT_ARGS),
   sizeof(ICSP_PROG_ENTER_ARGS),
   sizeof(ICSP_PROG_EXIT_ARGS),
-  sizeof(ICSP_CONFIG_ARGS)
+  sizeof(ICSP_CONFIG_ARGS),
+  sizeof(INCAP_CONFIG_ARGS),
+  sizeof(SET_PIN_INCAP_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -108,7 +111,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_RESULT_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
-  sizeof(ICSP_CONFIG_ARGS)
+  sizeof(ICSP_CONFIG_ARGS),
+  sizeof(INCAP_STATUS_ARGS),
+  sizeof(INCAP_REPORT_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
@@ -429,6 +434,24 @@ static BOOL MessageDone() {
       if (!rx_msg.args.icsp_config.enable) {
         Echo();
       }
+      break;
+
+    case INCAP_CONFIG:
+      CHECK(rx_msg.args.incap_config.incap_num < NUM_INCAP_MODULES);
+      CHECK(rx_msg.args.incap_config.mode < 6);
+      CHECK(rx_msg.args.incap_config.clock < 4);
+      InCapConfig(rx_msg.args.incap_config.incap_num,
+                  rx_msg.args.incap_config.mode,
+                  rx_msg.args.incap_config.clock);
+      break;
+
+    case SET_PIN_INCAP:
+      CHECK(rx_msg.args.set_pin_incap.incap_num < NUM_INCAP_MODULES);
+      CHECK(!rx_msg.args.set_pin_incap.enable
+            || rx_msg.args.set_pin_incap.pin < NUM_PINS);
+      SetPinInCap(rx_msg.args.set_pin_incap.pin,
+                  rx_msg.args.set_pin_incap.incap_num,
+                  rx_msg.args.set_pin_incap.enable);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
