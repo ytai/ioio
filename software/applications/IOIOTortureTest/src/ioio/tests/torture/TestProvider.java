@@ -15,6 +15,7 @@ class TestProvider {
 	private final PassFailTestAggregator pwmAgg_;
 	private final PassFailTestAggregator uartAgg_;
 	private final PassFailTestAggregator spiAgg_;
+	private final PassFailTestAggregator incapAgg_;
 	private final HistogramAggregator dlatAgg_;
 	private final Random random_ = new Random(1);
 
@@ -41,6 +42,10 @@ class TestProvider {
 				(TextView) activity.findViewById(R.id.spi_pass),
 				(TextView) activity.findViewById(R.id.spi_fail),
 				(TextView) activity.findViewById(R.id.spi_count));
+		incapAgg_ = new PassFailTestAggregator(activity,
+				(TextView) activity.findViewById(R.id.incap_pass),
+				(TextView) activity.findViewById(R.id.incap_fail),
+				(TextView) activity.findViewById(R.id.incap_count));
 		dlatAgg_ = new HistogramAggregator(activity, new TextView[] {
 				(TextView) activity.findViewById(R.id.digital_latency_min),
 				(TextView) activity.findViewById(R.id.digital_latency_p25),
@@ -51,7 +56,7 @@ class TestProvider {
 	}
 	
 	public synchronized TestRunner newTest() throws InterruptedException {
-		int selection = random_.nextInt(6);
+		int selection = random_.nextInt(7);
 		switch (selection) {
 		case 0:
 			return new TypedTestRunner<Boolean>(
@@ -71,6 +76,9 @@ class TestProvider {
 		case 5:
 			return new TypedTestRunner<Boolean>(new SpiTest(
 					ioio_, alloc_), spiAgg_);
+		case 6:
+			return new TypedTestRunner<Boolean>(new PwmIncapTest(
+					ioio_, alloc_), incapAgg_);
 		}
 		return null;
 	}

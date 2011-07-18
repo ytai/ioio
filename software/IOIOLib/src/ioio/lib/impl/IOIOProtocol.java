@@ -86,6 +86,10 @@ public class IOIOProtocol {
 	static final int ICSP_PROG_ENTER                     = 0x18;
 	static final int ICSP_PROG_EXIT                      = 0x19;
 	static final int ICSP_CONFIG                         = 0x1A;
+	static final int INCAP_CONFIGURE                     = 0x1B;
+	static final int INCAP_STATUS                        = 0x1B;
+	static final int SET_PIN_INCAP                       = 0x1C;
+	static final int INCAP_REPORT                        = 0x1C;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -211,6 +215,22 @@ public class IOIOProtocol {
 		writeByte(((scale.encoding & 0x02) << 6) | (pwmNum << 1)
 				| (scale.encoding & 0x01));
 		writeTwoBytes(period);
+		flush();
+	}
+
+	synchronized public void setPinIncap(int pin, int incapNum, boolean enable)
+			throws IOException {
+		writeByte(SET_PIN_INCAP);
+		writeByte(pin);
+		writeByte(incapNum | (enable ? 0x80 : 0x00));
+		flush();
+	}
+
+	synchronized public void incapConfigure(int incapNum, int mode, int clock)
+			throws IOException {
+		writeByte(INCAP_CONFIGURE);
+		writeByte(incapNum);
+		writeByte((mode << 4) | clock);
 		flush();
 	}
 
@@ -465,6 +485,12 @@ public class IOIOProtocol {
 		void handleIcspReportRxStatus(int bytesRemaining);
 
 		void handleIcspResult(int size, byte[] data);
+
+		public void handleIncapReport(int incapNum, int size, byte[] data);
+
+		public void handleIncapClose(int incapNum);
+
+		public void handleIncapOpen(int incapNum);
 	}
 
 	class IncomingThread extends Thread {
@@ -697,6 +723,22 @@ public class IOIOProtocol {
 						} else {
 							handler_.handleIcspClose();
 						}
+						break;
+						
+					case INCAP_STATUS:
+						arg1 = readByte();
+						if ((arg1 & 0x80) != 0) {
+							handler_.handleIncapOpen(arg1 & 0x0F);
+						} else {
+							handler_.handleIncapClose(arg1 & 0x0F);
+						}
+						break;
+						
+					case INCAP_REPORT:
+						arg1 = readByte();
+						data[0] = (byte) readByte();
+						data[1] = (byte) readByte();
+						handler_.handleIncapReport(arg1 & 0x0F, 2, data);
 						break;
 
 					default:

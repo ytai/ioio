@@ -361,6 +361,37 @@ public interface IOIO {
 	 */
 	public PwmOutput openPwmOutput(int pin, int freqHz)
 			throws ConnectionLostException;
+	
+	public PulseDurationInput openPulseDurationInput(DigitalInput.Spec spec,
+			PulseDurationInput.ClockRate rate,
+			PulseDurationInput.Polarity polarity)
+			throws ConnectionLostException;
+
+	/**
+	 * Shorthand for openPulseDurationInput(new DigitalInput.Spec(pin), rate,
+	 * Polarity.POSITIVE).
+	 * 
+	 * @see #openPulseDurationInput(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.PulseDurationInput.ClockRate,
+	 *      ioio.lib.api.PulseDurationInput.Polarity)
+	 */
+	public PulseDurationInput openPulseDurationInput(int pin,
+			PulseDurationInput.ClockRate rate) throws ConnectionLostException;
+	
+	public PulseFrequencyInput openPulseFrequencyInput(DigitalInput.Spec spec,
+			PulseFrequencyInput.ClockRate rate,
+			PulseFrequencyInput.Scaling scaling) throws ConnectionLostException;
+
+	/**
+	 * Shorthand for openPulseFrequencyInput(new DigitalInput.Spec(pin), rate,
+	 * Scaling.SCALE_NONE).
+	 * 
+	 * @see #openPulseFrequencyInput(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.PulseFrequencyInput.ClockRate,
+	 *      ioio.lib.api.PulseFrequencyInput.Scaling)
+	 */
+	public PulseFrequencyInput openPulseFrequencyInput(int pin,
+			PulseFrequencyInput.ClockRate rate) throws ConnectionLostException;	
 
 	/**
 	 * Open a UART module, enabling a bulk transfer of byte buffers.

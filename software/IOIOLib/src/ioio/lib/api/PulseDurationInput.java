@@ -26,19 +26,31 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.impl;
+package ioio.lib.api;
 
-class Constants {
-	static final int NUM_PINS = 49;
-	static final int NUM_ANALOG_PINS = 16;
-	static final int NUM_PWM_MODULES = 9;
-	static final int NUM_UART_MODULES = 4;
-	static final int NUM_SPI_MODULES = 3;
-	static final int NUM_TWI_MODULES = 3;
-	static final int NUM_INCAP_MODULES = 9;
-	static final int BUFFER_SIZE = 1024;
-	static final int PACKET_BUFFER_SIZE = 256;
-	
-	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
-	static final int[] ICSP_PINS = new int[] { 36, 37, 38 };
+import ioio.lib.api.exception.ConnectionLostException;
+
+public interface PulseDurationInput extends Closeable {
+	public enum Polarity {
+		POSITIVE, NEGATIVE
+	}
+
+	public enum ClockRate {
+		RATE_16MHz (16000000),
+		RATE_2MHz  (2000000),
+		RATE_250KHz(250000),
+		RATE_62KHz (62500);
+
+		public final int hertz;
+
+		ClockRate(int h) {
+			hertz = h;
+		}
+	}
+
+	public float getDuration() throws InterruptedException,
+			ConnectionLostException;
+
+	public float waitPulseGetDuration() throws InterruptedException,
+			ConnectionLostException;
 }

@@ -40,6 +40,12 @@
         <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/spi_fail"></TextView>
         <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/spi_count"></TextView>
     </TableRow>
+    <TableRow a:layout_height="wrap_content" a:layout_width="wrap_content">
+        <TextView a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:text="Input Capture"></TextView>
+        <TextView a:text="0" a:textColor="#00ff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/incap_pass"></TextView>
+        <TextView a:text="0" a:textColor="#ff0000" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/incap_fail"></TextView>
+        <TextView a:text="0" a:textColor="#ffff00" a:layout_height="wrap_content" a:layout_width="wrap_content" a:padding="0.5mm" a:id="@+id/incap_count"></TextView>
+    </TableRow>
 </TableLayout>
 <TextView a:layout_width="wrap_content" a:layout_height="wrap_content" a:text="Latency" a:textStyle="bold" a:textSize="3mm"></TextView>
 <TableLayout a:layout_height="wrap_content" a:layout_width="fill_parent">

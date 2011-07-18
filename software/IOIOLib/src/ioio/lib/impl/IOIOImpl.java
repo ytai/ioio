@@ -30,10 +30,16 @@ package ioio.lib.impl;
 
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.DigitalInput;
+import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IcspMaster;
+import ioio.lib.api.PulseDurationInput;
+import ioio.lib.api.PulseDurationInput.ClockRate;
+import ioio.lib.api.PulseDurationInput.Polarity;
+import ioio.lib.api.PulseFrequencyInput;
+import ioio.lib.api.PulseFrequencyInput.Scaling;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster;
@@ -54,7 +60,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
-			'I', 'O', '0', '0', '0', '2' };
+			'I', 'O', '0', '0', '0', '3' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
@@ -67,6 +73,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			Constants.NUM_UART_MODULES, "UART");
 	private final ModuleAllocator spiAllocator_ = new ModuleAllocator(
 			Constants.NUM_SPI_MODULES, "SPI");
+	private final ModuleAllocator incapAllocator_ = new ModuleAllocator(
+			Constants.NUM_INCAP_MODULES, "INCAP");
 	IOIOProtocol protocol_;
 	private State state_ = State.INIT;
 
@@ -210,6 +218,15 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 	}
 
+	synchronized void closeIncap(int incapNum) {
+		incapAllocator_.releaseModule(incapNum);
+		try {
+			protocol_.incapConfigure(incapNum, 0, 0);
+		} catch (IOException e) {
+		}
+	}
+
+	
 	@Override
 	synchronized public void softReset() throws ConnectionLostException {
 		checkState();
@@ -241,7 +258,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "IOIO0100";
+			return "IOIO0300";
 		}
 		return null;
 	}
@@ -537,6 +554,99 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 		return spi;
+	}
+
+	@Override
+	public PulseDurationInput openPulseDurationInput(Spec spec, ClockRate rate,
+			Polarity polarity) throws ConnectionLostException {
+		int clock = 0;
+		switch (rate) {
+		case RATE_16MHz:
+			clock = 0;
+			break;
+		case RATE_2MHz:
+			clock = 1;
+			break;
+		case RATE_250KHz:
+			clock = 2;
+			break;
+		case RATE_62KHz:
+			clock = 3;
+			break;
+		}
+		int mode = polarity == Polarity.POSITIVE ? 1 : 2;
+		return openIncap(spec, clock, mode, rate.hertz, 1);
+	}
+
+	private IncapImpl openIncap(Spec spec, int clock, int mode, int clockHz,
+			int scale) throws ConnectionLostException {
+		checkState();
+		checkPinFree(spec.pin);
+		PinFunctionMap.checkSupportsPeripheralInput(spec.pin);
+		int incapNum = incapAllocator_.allocateModule();
+		IncapImpl incap = new IncapImpl(this, incapNum, spec.pin, clockHz,
+				scale);
+		addDisconnectListener(incap);
+		incomingState_.addIncapListener(incapNum, incap);
+		try {
+			protocol_.setPinDigitalIn(spec.pin, spec.mode);
+			protocol_.setPinIncap(spec.pin, incapNum, true);
+			protocol_.incapConfigure(incapNum, mode, clock);
+		} catch (IOException e) {
+			incap.close();
+			throw new ConnectionLostException(e);
+		}
+		return incap;
+	}
+
+	@Override
+	public PulseDurationInput openPulseDurationInput(int pin, ClockRate rate)
+			throws ConnectionLostException {
+		return openPulseDurationInput(new DigitalInput.Spec(pin), rate,
+				Polarity.POSITIVE);
+	}
+
+	@Override
+	public PulseFrequencyInput openPulseFrequencyInput(Spec spec,
+			ioio.lib.api.PulseFrequencyInput.ClockRate rate, Scaling scaling)
+			throws ConnectionLostException {
+		int clock = 0;
+		switch (rate) {
+		case RATE_16MHz:
+			clock = 0;
+			break;
+		case RATE_2MHz:
+			clock = 1;
+			break;
+		case RATE_250KHz:
+			clock = 2;
+			break;
+		case RATE_62KHz:
+			clock = 3;
+			break;
+		}
+		
+		int mode = 0;
+		switch (scaling) {
+		case SCALE_NONE:
+			mode = 3;
+			break;
+		case SCALE_4:
+			mode = 4;
+			break;
+		case SCALE_16:
+			mode = 5;
+			break;
+		}
+		return openIncap(spec, clock, mode, rate.hertz, scaling.value);
+	}
+
+	@Override
+	public PulseFrequencyInput openPulseFrequencyInput(int pin,
+			ioio.lib.api.PulseFrequencyInput.ClockRate rate)
+			throws ConnectionLostException {
+		return openPulseFrequencyInput(new DigitalInput.Spec(pin), rate,
+				Scaling.SCALE_NONE);
 	}
 
 	private void checkPinFree(int pin) {

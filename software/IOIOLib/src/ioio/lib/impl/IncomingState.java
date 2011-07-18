@@ -122,6 +122,7 @@ public class IncomingState implements IncomingHandler {
 	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
 	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
+	private final DataModuleState[] incapStates_ = new DataModuleState[Constants.NUM_INCAP_MODULES];
 	private final DataModuleState icspState_ = new DataModuleState();
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
@@ -141,6 +142,9 @@ public class IncomingState implements IncomingHandler {
 		}
 		for (int i = 0; i < spiStates_.length; ++i) {
 			spiStates_[i] = new DataModuleState();
+		}
+		for (int i = 0; i < incapStates_.length; ++i) {
+			incapStates_[i] = new DataModuleState();
 		}
 	}
 
@@ -186,7 +190,11 @@ public class IncomingState implements IncomingHandler {
 	public void addTwiListener(int twiNum, DataModuleListener listener) {
 		twiStates_[twiNum].pushListener(listener);
 	}
-	
+
+	public void addIncapListener(int incapNum, DataModuleListener listener) {
+		incapStates_[incapNum].pushListener(listener);
+	}
+
 	public void addIcspListener(DataModuleListener listener) {
 		icspState_.pushListener(listener);
 	}
@@ -237,6 +245,9 @@ public class IncomingState implements IncomingHandler {
 		}
 		for (DataModuleState spiState : spiStates_) {
 			spiState.closeCurrentListener();
+		}
+		for (DataModuleState incapState : incapStates_) {
+			incapState.closeCurrentListener();
 		}
 		icspState_.closeCurrentListener();
 	}
@@ -401,6 +412,25 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cResult", i2cNum, size, data);
 		twiStates_[i2cNum].dataReceived(data, size);
 	}
+	
+	@Override
+	public void handleIncapReport(int incapNum, int size, byte[] data) {
+		logMethod("handleIncapReport", incapNum, size, data);
+		incapStates_[incapNum].dataReceived(data, size);
+	}
+
+	@Override
+	public void handleIncapClose(int incapNum) {
+		logMethod("handleIncapClose", incapNum);
+		incapStates_[incapNum].closeCurrentListener();
+	}
+
+	@Override
+	public void handleIncapOpen(int incapNum) {
+		logMethod("handleIncapOpen", incapNum);
+		incapStates_[incapNum].openNextListener();
+	}
+
 
 	@Override
 	public void handleIcspResult(int size, byte[] data) {
