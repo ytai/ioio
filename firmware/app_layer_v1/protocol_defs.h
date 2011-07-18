@@ -37,6 +37,7 @@
 
 #define PROTOCOL_IID_IOIO0001 "IOIO0001"
 #define PROTOCOL_IID_IOIO0002 "IOIO0002"
+#define PROTOCOL_IID_IOIO0003 "IOIO0003"
 
 // hard reset
 typedef struct PACKED {
