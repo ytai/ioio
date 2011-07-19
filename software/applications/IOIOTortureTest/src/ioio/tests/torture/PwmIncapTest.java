@@ -1,12 +1,10 @@
 package ioio.tests.torture;
 
-import ioio.lib.api.DigitalInput;
 import ioio.lib.api.IOIO;
-import ioio.lib.api.PulseDurationInput;
-import ioio.lib.api.PulseFrequencyInput;
-import ioio.lib.api.PulseFrequencyInput.Scaling;
+import ioio.lib.api.PulseInput;
+import ioio.lib.api.PulseInput.ClockRate;
+import ioio.lib.api.PulseInput.PulseMode;
 import ioio.lib.api.PwmOutput;
-import ioio.lib.api.PulseDurationInput.ClockRate;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.tests.torture.ResourceAllocator.PeripheralType;
 import android.util.Log;
@@ -54,15 +52,15 @@ public class PwmIncapTest implements Test<Boolean> {
 			// pin 9 doesn't support peripheral output
 			return true;
 		}
-		PulseDurationInput pulseDurIn = null;
-		PulseFrequencyInput pulseFreqIn = null;
+		PulseInput pulseDurIn = null;
+		PulseInput pulseFreqIn = null;
 		PwmOutput out = null;
 		try {
 			out = ioio_.openPwmOutput(outPin, 2000);
 			out.setPulseWidth(10);
 			Thread.sleep(100);
-			pulseDurIn = ioio_.openPulseDurationInput(inPin,
-					ClockRate.RATE_16MHz);
+			pulseDurIn = ioio_.openPulseInput(inPin, ClockRate.RATE_16MHz,
+					PulseMode.POSITIVE);
 			float duration = pulseDurIn.getDuration();
 			if (duration < 9.9 * 1e-6 || duration > 10.1 * 1e-6) {
 				Log.w("IOIOTortureTest", "Pulse duration is: " + duration
@@ -70,10 +68,8 @@ public class PwmIncapTest implements Test<Boolean> {
 			}
 			pulseDurIn.close();
 			pulseDurIn = null;
-			pulseFreqIn = ioio_.openPulseFrequencyInput(new DigitalInput.Spec(
-					inPin),
-					ioio.lib.api.PulseFrequencyInput.ClockRate.RATE_16MHz,
-					Scaling.SCALE_4);
+			pulseFreqIn = ioio_.openPulseInput(inPin, ClockRate.RATE_16MHz,
+					PulseMode.FREQ_SCALE_4);
 			float freq = pulseFreqIn.getFrequency();
 			if (freq < 1990 || freq > 2010) {
 				Log.w("IOIOTortureTest", "Frequency is: " + freq

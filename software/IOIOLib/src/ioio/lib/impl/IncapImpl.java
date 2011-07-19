@@ -1,7 +1,6 @@
 package ioio.lib.impl;
 
-import ioio.lib.api.PulseDurationInput;
-import ioio.lib.api.PulseFrequencyInput;
+import ioio.lib.api.PulseInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 
@@ -9,17 +8,19 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class IncapImpl extends AbstractPin implements DataModuleListener,
-		PulseDurationInput, PulseFrequencyInput {
+		PulseInput {
 	private static final int MAX_QUEUE_LEN = 32;
+	private final PulseMode mode_;
 	private final int incapNum_;
 	private int lastDuration_;
 	private final float timeBase_;
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Integer> pulseQueue_ = new LinkedList<Integer>();
 
-	public IncapImpl(IOIOImpl ioio, int incapNum, int pin, int clockRate,
-			int scale) throws ConnectionLostException {
+	public IncapImpl(IOIOImpl ioio, PulseMode mode, int incapNum, int pin,
+			int clockRate, int scale) throws ConnectionLostException {
 		super(ioio, pin);
+		mode_ = mode;
 		incapNum_ = incapNum;
 		timeBase_ = ((float) scale) / clockRate;
 	}
@@ -27,6 +28,11 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	@Override
 	public float getFrequency() throws InterruptedException,
 			ConnectionLostException {
+		if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
+				&& mode_ != PulseMode.FREQ_SCALE_16) {
+			throw new IllegalStateException(
+					"Cannot query frequency when module was not opened in frequency mode.");
+		}
 		return 1.0f / getDuration();
 	}
 
@@ -40,6 +46,10 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	@Override
 	public synchronized float waitPulseGetDuration()
 			throws InterruptedException, ConnectionLostException {
+		if (mode_ != PulseMode.POSITIVE && mode_ != PulseMode.NEGATIVE) {
+			throw new IllegalStateException(
+					"Cannot wait for pulse when module was not opened in pulse mode.");
+		}
 		checkState();
 		while (pulseQueue_.isEmpty() && state_ == State.OPEN) {
 			wait();

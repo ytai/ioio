@@ -28,6 +28,7 @@
  */
 package ioio.lib.api;
 
+import ioio.lib.api.PulseInput.PulseMode;
 import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart.Parity;
 import ioio.lib.api.Uart.StopBits;
@@ -50,7 +51,7 @@ import java.io.Closeable;
  * will throw a {@link IncompatibilityException}, putting the {@link IOIO}
  * instance in a "zombie" state: nothing could be done with it except calling
  * {@link #disconnect()}, or waiting for the physical connection to drop via
- * {@link #waitForDisconnect()}.  
+ * {@link #waitForDisconnect()}.
  * <p>
  * As soon as a connection is established, the IOIO can be used, typically, by
  * calling the openXXX() functions to obtain additional interfaces for
@@ -91,7 +92,7 @@ public interface IOIO {
 	public static final int INVALID_PIN = -1;
 	/** The pin number used to designate the on-board 'stat' LED. */
 	public static final int LED_PIN = 0;
-	
+
 	/**
 	 * A versioned component in the system.
 	 * 
@@ -185,7 +186,7 @@ public interface IOIO {
 	 * @see #softReset()
 	 */
 	public void hardReset() throws ConnectionLostException;
-	
+
 	/**
 	 * Query the implementation version of the system's components. The
 	 * implementation version uniquely identifies a hardware revision or a
@@ -361,37 +362,20 @@ public interface IOIO {
 	 */
 	public PwmOutput openPwmOutput(int pin, int freqHz)
 			throws ConnectionLostException;
-	
-	public PulseDurationInput openPulseDurationInput(DigitalInput.Spec spec,
-			PulseDurationInput.ClockRate rate,
-			PulseDurationInput.Polarity polarity)
+
+	public PulseInput openPulseInput(DigitalInput.Spec spec,
+			PulseInput.ClockRate rate, PulseInput.PulseMode mode)
 			throws ConnectionLostException;
 
 	/**
-	 * Shorthand for openPulseDurationInput(new DigitalInput.Spec(pin), rate,
-	 * Polarity.POSITIVE).
+	 * Shorthand for openPulseInput(new DigitalInput.Spec(pin), rate, mode).
 	 * 
-	 * @see #openPulseDurationInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseDurationInput.ClockRate,
-	 *      ioio.lib.api.PulseDurationInput.Polarity)
+	 * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec,
+	 *      ioio.lib.api.PulseInput.ClockRate,
+	 *      ioio.lib.api.PulseInput.PulseMode)
 	 */
-	public PulseDurationInput openPulseDurationInput(int pin,
-			PulseDurationInput.ClockRate rate) throws ConnectionLostException;
-	
-	public PulseFrequencyInput openPulseFrequencyInput(DigitalInput.Spec spec,
-			PulseFrequencyInput.ClockRate rate,
-			PulseFrequencyInput.Scaling scaling) throws ConnectionLostException;
-
-	/**
-	 * Shorthand for openPulseFrequencyInput(new DigitalInput.Spec(pin), rate,
-	 * Scaling.SCALE_NONE).
-	 * 
-	 * @see #openPulseFrequencyInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseFrequencyInput.ClockRate,
-	 *      ioio.lib.api.PulseFrequencyInput.Scaling)
-	 */
-	public PulseFrequencyInput openPulseFrequencyInput(int pin,
-			PulseFrequencyInput.ClockRate rate) throws ConnectionLostException;	
+	public PulseInput openPulseInput(int pin, PulseInput.ClockRate rate,
+			PulseMode mode) throws ConnectionLostException;
 
 	/**
 	 * Open a UART module, enabling a bulk transfer of byte buffers.

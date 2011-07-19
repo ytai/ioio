@@ -30,7 +30,21 @@ package ioio.lib.api;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
-public interface PulseFrequencyInput extends Closeable {
+public interface PulseInput extends Closeable {
+	public enum PulseMode {
+		POSITIVE(1),
+		NEGATIVE(1),
+		FREQ(1),
+		FREQ_SCALE_4(4),
+		FREQ_SCALE_16(16);
+
+		public final int scaling;
+		
+		PulseMode(int s) {
+			scaling = s;
+		}
+	}
+
 	public enum ClockRate {
 		RATE_16MHz (16000000),
 		RATE_2MHz  (2000000),
@@ -43,16 +57,12 @@ public interface PulseFrequencyInput extends Closeable {
 			hertz = h;
 		}
 	}
-	
-	public enum Scaling {
-		SCALE_NONE(1), SCALE_4(4), SCALE_16(16);
-		
-		public final int value;
-		
-		Scaling(int v) {
-			value = v;
-		}
-	}
+
+	public float getDuration() throws InterruptedException,
+			ConnectionLostException;
+
+	public float waitPulseGetDuration() throws InterruptedException,
+			ConnectionLostException;
 
 	public float getFrequency() throws InterruptedException,
 			ConnectionLostException;

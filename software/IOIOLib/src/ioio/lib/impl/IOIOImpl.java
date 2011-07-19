@@ -35,11 +35,9 @@ import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IcspMaster;
-import ioio.lib.api.PulseDurationInput;
-import ioio.lib.api.PulseDurationInput.ClockRate;
-import ioio.lib.api.PulseDurationInput.Polarity;
-import ioio.lib.api.PulseFrequencyInput;
-import ioio.lib.api.PulseFrequencyInput.Scaling;
+import ioio.lib.api.PulseInput;
+import ioio.lib.api.PulseInput.ClockRate;
+import ioio.lib.api.PulseInput.PulseMode;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster;
@@ -226,7 +224,6 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 	}
 
-	
 	@Override
 	synchronized public void softReset() throws ConnectionLostException {
 		checkState();
@@ -557,41 +554,21 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public PulseDurationInput openPulseDurationInput(Spec spec, ClockRate rate,
-			Polarity polarity) throws ConnectionLostException {
-		int clock = 0;
-		switch (rate) {
-		case RATE_16MHz:
-			clock = 0;
-			break;
-		case RATE_2MHz:
-			clock = 1;
-			break;
-		case RATE_250KHz:
-			clock = 2;
-			break;
-		case RATE_62KHz:
-			clock = 3;
-			break;
-		}
-		int mode = polarity == Polarity.POSITIVE ? 1 : 2;
-		return openIncap(spec, clock, mode, rate.hertz, 1);
-	}
-
-	private IncapImpl openIncap(Spec spec, int clock, int mode, int clockHz,
-			int scale) throws ConnectionLostException {
+	public PulseInput openPulseInput(Spec spec, ClockRate rate, PulseMode mode)
+			throws ConnectionLostException {
 		checkState();
 		checkPinFree(spec.pin);
 		PinFunctionMap.checkSupportsPeripheralInput(spec.pin);
 		int incapNum = incapAllocator_.allocateModule();
-		IncapImpl incap = new IncapImpl(this, incapNum, spec.pin, clockHz,
-				scale);
+		IncapImpl incap = new IncapImpl(this, mode, incapNum, spec.pin,
+				rate.hertz, mode.scaling);
 		addDisconnectListener(incap);
 		incomingState_.addIncapListener(incapNum, incap);
 		try {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setPinIncap(spec.pin, incapNum, true);
-			protocol_.incapConfigure(incapNum, mode, clock);
+			protocol_.incapConfigure(incapNum, mode.ordinal() + 1,
+					rate.ordinal());
 		} catch (IOException e) {
 			incap.close();
 			throw new ConnectionLostException(e);
@@ -600,53 +577,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public PulseDurationInput openPulseDurationInput(int pin, ClockRate rate)
+	public PulseInput openPulseInput(int pin, ClockRate rate, PulseMode mode)
 			throws ConnectionLostException {
-		return openPulseDurationInput(new DigitalInput.Spec(pin), rate,
-				Polarity.POSITIVE);
-	}
-
-	@Override
-	public PulseFrequencyInput openPulseFrequencyInput(Spec spec,
-			ioio.lib.api.PulseFrequencyInput.ClockRate rate, Scaling scaling)
-			throws ConnectionLostException {
-		int clock = 0;
-		switch (rate) {
-		case RATE_16MHz:
-			clock = 0;
-			break;
-		case RATE_2MHz:
-			clock = 1;
-			break;
-		case RATE_250KHz:
-			clock = 2;
-			break;
-		case RATE_62KHz:
-			clock = 3;
-			break;
-		}
-		
-		int mode = 0;
-		switch (scaling) {
-		case SCALE_NONE:
-			mode = 3;
-			break;
-		case SCALE_4:
-			mode = 4;
-			break;
-		case SCALE_16:
-			mode = 5;
-			break;
-		}
-		return openIncap(spec, clock, mode, rate.hertz, scaling.value);
-	}
-
-	@Override
-	public PulseFrequencyInput openPulseFrequencyInput(int pin,
-			ioio.lib.api.PulseFrequencyInput.ClockRate rate)
-			throws ConnectionLostException {
-		return openPulseFrequencyInput(new DigitalInput.Spec(pin), rate,
-				Scaling.SCALE_NONE);
+		return openPulseInput(new DigitalInput.Spec(pin), rate, mode);
 	}
 
 	private void checkPinFree(int pin) {
