@@ -363,6 +363,45 @@ public interface IOIO {
 	public PwmOutput openPwmOutput(int pin, int freqHz)
 			throws ConnectionLostException;
 
+	/**
+	 * Open a pin for pulse input.
+	 * <p>
+	 * The pulse input module is quite flexible. It enables several kinds of
+	 * timing measurements on a digital signal: pulse width measurement
+	 * (positive or negative pulse), and frequency of a periodic signal.
+	 * <p>
+	 * Note that not every pin can be used as pulse input. In addition, the
+	 * total number of concurrent pulse input modules in use is limited. See
+	 * board documentation for the legal pins and limit on concurrent usage.
+	 * <p>
+	 * The pin will operate in this mode until close() is invoked on the
+	 * returned interface. It is illegal to open a pin that has already been
+	 * opened and has not been closed. A connection must have been established
+	 * prior to calling this method, by invoking {@link #waitForConnect()}.
+	 * 
+	 * @param spec
+	 *            Pin specification, consisting of the pin number, as labeled on
+	 *            the board, and the mode, which determines whether the pin will
+	 *            be floating, pull-up or pull-down. See
+	 *            {@link DigitalInput.Spec.Mode} for more information.
+	 * @param rate
+	 *            The clock rate to use for timing the signal. A faster clock
+	 *            rate will result in better precision but will only be able to
+	 *            measure narrow pulses / high frequencies.
+	 * @param mode
+	 *            The mode in which to operate. Determines whether the module
+	 *            will measure pulse durations or frequency.
+	 * @return An instance of the {@link PulseInput}, which can be used to
+	 *         obtain the data.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @throws OutOfResourceException
+	 *             This is a runtime exception, so it is not necessary to catch
+	 *             it if the client guarantees that the total number of
+	 *             concurrent PWM resources is not exceeded.
+	 * @see PulseInput
+	 */
 	public PulseInput openPulseInput(DigitalInput.Spec spec,
 			PulseInput.ClockRate rate, PulseInput.PulseMode mode)
 			throws ConnectionLostException;
@@ -509,7 +548,7 @@ public interface IOIO {
 			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
 			throws ConnectionLostException;
 
-    /**
+/**
 	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
 	 * where the pins are all open with the default modes and default configuration values are used.
 	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
