@@ -14,6 +14,7 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	private final int incapNum_;
 	private int lastDuration_;
 	private final float timeBase_;
+	private boolean valid_ = false;
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Integer> pulseQueue_ = new LinkedList<Integer>();
 
@@ -40,6 +41,10 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	public synchronized float getDuration() throws InterruptedException,
 			ConnectionLostException {
 		checkState();
+		while (!valid_) {
+			wait();
+			checkState();
+		}
 		return timeBase_ * lastDuration_;
 	}
 
@@ -66,6 +71,7 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 			pulseQueue_.remove();
 		}
 		pulseQueue_.add(lastDuration_);
+		valid_ = true;
 	}
 
 	@Override
