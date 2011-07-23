@@ -102,7 +102,7 @@ void SPIInit() {
   int i;
   for (i = 0; i < NUM_SPI_MODULES; ++i) {
     SPIConfigMaster(i, 0, 0, 0, 0, 0);
-    Set_SPIIP[i](4);  // int. priority 4
+    Set_SPIIP[i](5);  // int. priority 5
   }
 }
 
