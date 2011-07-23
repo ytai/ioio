@@ -386,7 +386,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.setPinDigitalOut(spec.pin, false, spec.mode);
 			protocol_.setPinPwm(spec.pin, pwmNum, true);
-			protocol_.setPwmPeriod(pwmNum, period,
+			protocol_.setPwmPeriod(pwmNum, period - 1,
 					IOIOProtocol.PwmScale.values()[scale]);
 		} catch (IOException e) {
 			pwm.close();
