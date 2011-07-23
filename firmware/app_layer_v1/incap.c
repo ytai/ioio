@@ -71,6 +71,7 @@ void InCapInit() {
   }
   PR5 = 0x0138;  // 5ms period = 200Hz
   TMR5 = 0x0000;
+  _T5IP = 1;
   _T5IE = 1;
 }
 
@@ -107,6 +108,10 @@ void InCapConfig(int incap_num, int mode, int clock) {
   }
 }
 
+inline static int NumBytes16(unsigned int val) {
+  return val > 0xFF ? 2 : 1;
+}
+
 static void ICInterrupt(int incap_num) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
 
@@ -114,12 +119,7 @@ static void ICInterrupt(int incap_num) {
     EDGE_STATE edge = edge_states[incap_num];
     unsigned int timer_val;
 
-    Set_ICIF[incap_num](0);  // clear interrupt
     timer_val = reg->buf;
-
-    if (!(ready_to_send & (1 << incap_num))) {
-      continue;
-    }
 
     switch (edge) {
       case LEADING:
@@ -131,19 +131,22 @@ static void ICInterrupt(int incap_num) {
       case TRAILING:
         reg->con1 ^= 1;  // toggle bit 0 of con1: inverts edge polarity
         edge_states[incap_num] = LEADING;
-        SyncInterruptLevel(5);  // mask level 5 interrupts or otherwise will get
-                                // this interrupt nesting,
+        SyncInterruptLevel(5);  // mask level 5 interrupts or otherwise we'll
+                                // get this interrupt nesting,
         Set_ICIP[incap_num](5);
         // fall-through on purpose
       case FREQ:
-        {
+        if ((ready_to_send & (1 << incap_num))) {
+          int size;
+          unsigned int delta_time;
           OUTGOING_MESSAGE msg;
           msg.type = INCAP_REPORT;
           msg.args.incap_report.incap_num = incap_num;
-          msg.args.incap_report.delta_time = timer_val - timer_base[incap_num];
-          AppProtocolSendMessage(&msg);
+          delta_time = timer_val - timer_base[incap_num];
+          msg.args.incap_report.size = size = NumBytes16(delta_time);
+          AppProtocolSendMessageWithVarArg(&msg, &delta_time, size);
+          ready_to_send &= ~(1 << incap_num);
         }
-        ready_to_send &= ~(1 << incap_num);
         break;
 
       case FREQ_FIRST:
@@ -151,6 +154,7 @@ static void ICInterrupt(int incap_num) {
         break;
     }
     timer_base[incap_num] = timer_val;
+    Set_ICIF[incap_num](0);  // clear interrupt
   }
 }
 

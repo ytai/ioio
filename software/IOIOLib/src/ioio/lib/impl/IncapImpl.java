@@ -12,18 +12,18 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	private static final int MAX_QUEUE_LEN = 32;
 	private final PulseMode mode_;
 	private final int incapNum_;
-	private int lastDuration_;
+	private long lastDuration_;
 	private final float timeBase_;
 	private boolean valid_ = false;
 	// TODO: a fixed-size array would have been much better than a linked list.
-	private Queue<Integer> pulseQueue_ = new LinkedList<Integer>();
+	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
 
 	public IncapImpl(IOIOImpl ioio, PulseMode mode, int incapNum, int pin,
 			int clockRate, int scale) throws ConnectionLostException {
 		super(ioio, pin);
 		mode_ = mode;
 		incapNum_ = incapNum;
-		timeBase_ = ((float) scale) / clockRate;
+		timeBase_ = 1.0f / (scale * clockRate);
 	}
 
 	@Override
@@ -65,13 +65,26 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 
 	@Override
 	public synchronized void dataReceived(byte[] data, int size) {
-		assert size == 2;
-		lastDuration_ = data[0] | (((int) data[1]) << 8);
+		lastDuration_ = ByteArrayToLong(data, size);
 		if (pulseQueue_.size() == MAX_QUEUE_LEN) {
 			pulseQueue_.remove();
 		}
 		pulseQueue_.add(lastDuration_);
 		valid_ = true;
+		notifyAll();
+	}
+
+	private static long ByteArrayToLong(byte[] data, int size) {
+		long result = 0;
+		int i = size;
+		while (i-- > 0) {
+			result <<= 8;
+			result |= ((int) data[i]) & 0xFF;
+		}
+		if (result == 0) {
+			result = 1 << (size * 8);
+		}
+		return result;
 	}
 
 	@Override

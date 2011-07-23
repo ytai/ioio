@@ -57,10 +57,11 @@ public class QueueInputStream extends InputStream {
 
 	synchronized public void write(byte[] data, int size) {
 		for (int i = 0; i < size; ++i) {
-			if (!queue_.add(data[i])) {
+			if (queue_.size() == Constants.BUFFER_SIZE) {
 				Log.e("QueueInputStream", "Buffer overflow, discarding data");
 				break;
 			}
+			queue_.add(data[i]);
 		}
 		notifyAll();
 	}

@@ -545,6 +545,7 @@ public class IOIOProtocol {
 			int arg1;
 			int arg2;
 			int numPins;
+			int size;
 			byte[] data = new byte[256];
 			try {
 				while (true) {
@@ -736,9 +737,9 @@ public class IOIOProtocol {
 						
 					case INCAP_REPORT:
 						arg1 = readByte();
-						data[0] = (byte) readByte();
-						data[1] = (byte) readByte();
-						handler_.handleIncapReport(arg1 & 0x0F, 2, data);
+						size = arg1 >> 6;
+						readBytes(size, data);
+						handler_.handleIncapReport(arg1 & 0x0F, size, data);
 						break;
 
 					default:

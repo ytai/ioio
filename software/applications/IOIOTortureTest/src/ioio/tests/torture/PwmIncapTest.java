@@ -64,7 +64,8 @@ public class PwmIncapTest implements Test<Boolean> {
 			float duration = pulseDurIn.getDuration();
 			if (duration < 9.9 * 1e-6 || duration > 10.1 * 1e-6) {
 				Log.w("IOIOTortureTest", "Pulse duration is: " + duration
-						+ " while expected 10.0");
+						+ "[s] while expected 10.0e-6[s]");
+				return false;
 			}
 			pulseDurIn.close();
 			pulseDurIn = null;
@@ -74,6 +75,7 @@ public class PwmIncapTest implements Test<Boolean> {
 			if (freq < 1990 || freq > 2010) {
 				Log.w("IOIOTortureTest", "Frequency is: " + freq
 						+ " while expected 2000");
+				return false;
 			}
 		} finally {
 			if (pulseDurIn != null) {

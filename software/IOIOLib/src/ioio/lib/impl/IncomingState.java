@@ -415,7 +415,7 @@ public class IncomingState implements IncomingHandler {
 	
 	@Override
 	public void handleIncapReport(int incapNum, int size, byte[] data) {
-		logMethod("handleIncapReport", incapNum, size, data);
+		// logMethod("handleIncapReport", incapNum, size, data);
 		incapStates_[incapNum].dataReceived(data, size);
 	}
 

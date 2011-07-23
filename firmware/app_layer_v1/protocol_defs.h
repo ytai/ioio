@@ -363,8 +363,8 @@ typedef struct PACKED {
 // incap report
 typedef struct PACKED {
     BYTE incap_num : 4;
-    BYTE : 4;
-    WORD delta_time;
+    BYTE : 2;
+    BYTE size : 2;
 } INCAP_REPORT_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
