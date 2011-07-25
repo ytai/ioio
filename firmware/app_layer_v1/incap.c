@@ -67,7 +67,7 @@ void InCapInit() {
   log_printf("InCapInit()");
   int i;
   for (i = 0; i < NUM_INCAP_MODULES; ++i) {
-    InCapConfig(i, 0, 0);
+    InCapConfig(i, 0, 0, 0);
   }
   PR5 = 0x0138;  // 5ms period = 200Hz
   TMR5 = 0x0000;
@@ -75,15 +75,20 @@ void InCapInit() {
   _T5IE = 1;
 }
 
-void InCapConfig(int incap_num, int mode, int clock) {
+void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
+  volatile INCAP_REG* reg2 = reg + 1;
   OUTGOING_MESSAGE msg;
   msg.type = INCAP_STATUS;
   msg.args.incap_status.incap_num = incap_num;
-  log_printf("InCapConfig(%d, %d, %d)", incap_num, mode, clock);
+  log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode, clock);
   Set_ICIE[incap_num](0);  // disable interrupts
   reg->con1 = 0x0000;      // disable module
   reg->con2 = 0x0000;
+  if (double_prec) {
+    reg2->con1 = 0x0000;
+    reg2->con2 = 0x0000;
+  }
   Set_ICIF[incap_num](0);  // clear interrupts
 
   // the ICM bits values to use, indexed by (mode - 1)
@@ -101,6 +106,11 @@ void InCapConfig(int incap_num, int mode, int clock) {
     edge_states[incap_num] = edge;
     Set_ICIP[incap_num](edge == LEADING ? 5 : 1);
     Set_ICIE[incap_num](1); // enable interrupts
+    if (double_prec) {
+      reg2->con2 = (1 << 8);
+      reg2->con1 = ictsel[clock] | icm[mode - 1];
+      reg->con2 = (1 << 8);
+    }
     reg->con1 = ictsel[clock] | icm[mode - 1];
   } else {
     msg.args.incap_status.enabled = 0;
@@ -108,28 +118,47 @@ void InCapConfig(int incap_num, int mode, int clock) {
   }
 }
 
-inline static int NumBytes16(unsigned int val) {
+inline static int NumBytes16(WORD val) {
   return val > 0xFF ? 2 : 1;
+}
+
+inline static int NumBytes32(DWORD val) {
+  if (((DWORD_VAL) val).word.HW) {
+    return 2 + NumBytes16(((DWORD_VAL) val).word.HW);
+  } else {
+    return NumBytes16(((DWORD_VAL) val).word.LW);
+  }
 }
 
 static void ICInterrupt(int incap_num) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
+  volatile INCAP_REG* reg2 = reg + 1;
+  const int double_prec = reg->con2 & (1 << 8);
 
   while (reg->con1 & 0x0008) {  // buffer not empty
     EDGE_STATE edge = edge_states[incap_num];
-    unsigned int timer_val;
+    unsigned int timer_val, timer_val2;
 
     timer_val = reg->buf;
+    if (double_prec) {
+      timer_val2 = reg2->buf;
+    }
 
     switch (edge) {
       case LEADING:
         reg->con1 ^= 1;  // toggle bit 0 of con1: inverts edge polarity
+        if (double_prec) {
+          reg2->con1 ^= 1;
+        }
         edge_states[incap_num] = TRAILING;
         Set_ICIP[incap_num](1);
         break;
 
       case TRAILING:
         reg->con1 ^= 1;  // toggle bit 0 of con1: inverts edge polarity
+        if (double_prec) {
+          reg2->con1 ^= 1;
+        }
         edge_states[incap_num] = LEADING;
         SyncInterruptLevel(5);  // mask level 5 interrupts or otherwise we'll
                                 // get this interrupt nesting,
@@ -138,12 +167,24 @@ static void ICInterrupt(int incap_num) {
       case FREQ:
         if ((ready_to_send & (1 << incap_num))) {
           int size;
-          unsigned int delta_time;
+          DWORD_VAL delta_time;
           OUTGOING_MESSAGE msg;
           msg.type = INCAP_REPORT;
           msg.args.incap_report.incap_num = incap_num;
-          delta_time = timer_val - timer_base[incap_num];
-          msg.args.incap_report.size = size = NumBytes16(delta_time);
+          if (double_prec) {
+            DWORD_VAL base = { .word.HW = timer_base[incap_num + 1],
+                               .word.LW = timer_base[incap_num] };
+            // 32-bit mode
+            delta_time.word.LW = timer_val;
+            delta_time.word.HW = timer_val2;
+            delta_time.Val -= base.Val;
+            size = NumBytes32(delta_time.Val);
+          } else {
+            // 16-bit mode
+            delta_time.word.LW = timer_val - timer_base[incap_num];
+            size = NumBytes16(delta_time.word.LW);
+          }
+          msg.args.incap_report.size = size;
           AppProtocolSendMessageWithVarArg(&msg, &delta_time, size);
           ready_to_send &= ~(1 << incap_num);
         }
@@ -154,6 +195,9 @@ static void ICInterrupt(int incap_num) {
         break;
     }
     timer_base[incap_num] = timer_val;
+    if (double_prec) {
+      timer_base[incap_num + 1] = timer_val2;
+    }
     Set_ICIF[incap_num](0);  // clear interrupt
   }
 }

@@ -438,9 +438,12 @@ static BOOL MessageDone() {
 
     case INCAP_CONFIG:
       CHECK(rx_msg.args.incap_config.incap_num < NUM_INCAP_MODULES);
+      CHECK(!rx_msg.args.incap_config.double_prec
+            || 0 == (rx_msg.args.incap_config.incap_num & 0x01));
       CHECK(rx_msg.args.incap_config.mode < 6);
       CHECK(rx_msg.args.incap_config.clock < 4);
       InCapConfig(rx_msg.args.incap_config.incap_num,
+                  rx_msg.args.incap_config.double_prec,
                   rx_msg.args.incap_config.mode,
                   rx_msg.args.incap_config.clock);
       break;

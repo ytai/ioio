@@ -46,7 +46,7 @@ void InCapInit();
 //   1: 2MHz
 //   2: 250KHz
 //   3: 62.5KHz
-void InCapConfig(int incap_num, int mode, int clock);
+void InCapConfig(int incap_num, int double_prec, int mode, int clock);
 
 
 #endif  // __INCAP_H__

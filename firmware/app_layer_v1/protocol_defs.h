@@ -339,9 +339,10 @@ typedef struct PACKED {
     BYTE incap_num : 4;
     BYTE : 4;
     BYTE clock : 2;
-    BYTE : 2;
+    BYTE : 1;
     BYTE mode : 3;
     BYTE : 1;
+    BYTE double_prec : 1;
 } INCAP_CONFIG_ARGS;
 
 // incap status
