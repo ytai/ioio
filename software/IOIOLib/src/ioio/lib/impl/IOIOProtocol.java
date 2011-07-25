@@ -226,11 +226,18 @@ public class IOIOProtocol {
 		flush();
 	}
 
-	synchronized public void incapConfigure(int incapNum, int mode, int clock)
-			throws IOException {
+	synchronized public void incapClose(int incapNum) throws IOException {
 		writeByte(INCAP_CONFIGURE);
 		writeByte(incapNum);
-		writeByte((mode << 4) | clock);
+		writeByte(0x00);
+		flush();
+	}
+
+	synchronized public void incapConfigure(int incapNum, boolean double_prec,
+			int mode, int clock) throws IOException {
+		writeByte(INCAP_CONFIGURE);
+		writeByte(incapNum);
+		writeByte((double_prec ? 0x80 : 0x00) | (mode << 3) | clock);
 		flush();
 	}
 
@@ -738,6 +745,9 @@ public class IOIOProtocol {
 					case INCAP_REPORT:
 						arg1 = readByte();
 						size = arg1 >> 6;
+						if (size == 0) {
+							size = 4;
+						}
 						readBytes(size, data);
 						handler_.handleIncapReport(arg1 & 0x0F, size, data);
 						break;

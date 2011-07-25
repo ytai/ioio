@@ -219,7 +219,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized void closeIncap(int incapNum) {
 		incapAllocator_.releaseModule(incapNum);
 		try {
-			protocol_.incapConfigure(incapNum, 0, 0);
+			protocol_.incapClose(incapNum);
 		} catch (IOException e) {
 		}
 	}
@@ -567,7 +567,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		try {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setPinIncap(spec.pin, incapNum, true);
-			protocol_.incapConfigure(incapNum, mode.ordinal() + 1,
+			protocol_.incapConfigure(incapNum, false, mode.ordinal() + 1,
 					rate.ordinal());
 		} catch (IOException e) {
 			incap.close();
