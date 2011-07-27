@@ -250,7 +250,7 @@ public class IOIOProtocol {
 		writeByte(writeSize);
 		writeByte(readSize);
 		for (int i = 0; i < writeSize; ++i) {
-			writeByte(writeData[i]);
+			writeByte(((int) writeData[i]) & 0xFF);
 		}
 		flush();
 	}
@@ -312,7 +312,7 @@ public class IOIOProtocol {
 		writeByte(UART_DATA);
 		writeByte((numBytes - 1) | uartNum << 6);
 		for (int i = 0; i < numBytes; ++i) {
-			writeByte(data[i]);
+			writeByte(((int) data[i]) & 0xFF);
 		}
 		flush();
 	}
@@ -384,7 +384,7 @@ public class IOIOProtocol {
 			writeByte(responseBytes);
 		}
 		for (int i = 0; i < dataBytes; ++i) {
-			writeByte(data[i]);
+			writeByte(((int) data[i]) & 0xFF);
 		}
 		flush();
 	}
