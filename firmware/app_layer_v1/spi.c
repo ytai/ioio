@@ -150,7 +150,7 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
 static void SPIReportTxStatus(int spi_num) {
   int report;
   SPI_STATE* spi = &spis[spi_num];
-  BYTE prev = SyncInterruptLevel(4);
+  BYTE prev = SyncInterruptLevel(5);
   report = spi->num_tx_since_last_report;
   spi->num_tx_since_last_report = 0;
   SyncInterruptLevel(prev);
@@ -173,7 +173,7 @@ void SPITasks() {
       OUTGOING_MESSAGE msg;
       msg.type = SPI_DATA;
       msg.args.spi_data.spi_num = i;
-      prev = SyncInterruptLevel(4);
+      prev = SyncInterruptLevel(5);
       msg.args.spi_data.ss_pin = ByteQueuePullByte(q);
       msg.args.spi_data.size = ByteQueuePullByte(q) - 1;
       SyncInterruptLevel(prev);
@@ -183,7 +183,7 @@ void SPITasks() {
       assert(size == msg.args.spi_data.size + 1);
       log_printf("SPI %d received %d bytes", i, size);
       AppProtocolSendMessageWithVarArgSplit(&msg, data1, size1, data2, size2);
-      prev = SyncInterruptLevel(4);
+      prev = SyncInterruptLevel(5);
       ByteQueuePull(q, size);
       --spi->num_messages_rx_queue;
       SyncInterruptLevel(prev);
@@ -275,7 +275,7 @@ static void SPIInterrupt(int spi_num) {
 void SPITransmit(int spi_num, int dest, const void* data, int data_size,
                  int total_size, int trim_rx) {
   BYTE_QUEUE* q = &spis[spi_num].tx_queue;
-  BYTE prev = SyncInterruptLevel(4);
+  BYTE prev = SyncInterruptLevel(5);
   ByteQueuePushByte(q, dest);
   ByteQueuePushByte(q, total_size);
   ByteQueuePushByte(q, data_size);
