@@ -125,22 +125,21 @@ static void UARTReportTxStatus(int uart_num) {
 void UARTTasks() {
   int i;
   for (i = 0; i < NUM_UART_MODULES; ++i) {
-    int size;
-    const BYTE* data;
+    int size1, size2;
+    const BYTE *data1, *data2;
     UART_STATE* uart = &uarts[i];
     BYTE_QUEUE* q = &uart->rx_queue;
     BYTE prev;
-    ByteQueuePeek(q, &data, &size);
-    if (size > 64) size = 64;  // truncate
-    if (size) {
+    ByteQueuePeekMax(q, 64, &data1, &size1, &data2, &size2);
+    if (size1) {
       log_printf("UART %d received %d bytes", i, size);
       OUTGOING_MESSAGE msg;
       msg.type = UART_DATA;
       msg.args.uart_data.uart_num = i;
-      msg.args.uart_data.size = size - 1;
-      AppProtocolSendMessageWithVarArg(&msg, data, size);
+      msg.args.uart_data.size = size1 + size2 - 1;
+      AppProtocolSendMessageWithVarArgSplit(&msg, data1, size1, data2, size2);
       prev = SyncInterruptLevel(4);
-      ByteQueuePull(q, size);
+      ByteQueuePull(q, size1 + size2);
       SyncInterruptLevel(prev);
     }
     if (uart->num_tx_since_last_report > TX_BUF_SIZE / 2) {
