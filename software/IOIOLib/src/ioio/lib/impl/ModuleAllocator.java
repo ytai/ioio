@@ -55,6 +55,10 @@ public class ModuleAllocator {
         name_ = name;
     }
 
+    public ModuleAllocator(int[] availableModuleIds, String name) {
+    	this(getList(availableModuleIds), name);
+    }
+
     public ModuleAllocator(int maxModules, String name) {
         this(getList(maxModules), name);
     }
@@ -62,6 +66,14 @@ public class ModuleAllocator {
     private static Collection<Integer> getList(int maxModules) {
         List<Integer> availableModuleIds = new ArrayList<Integer>();
         for (int i = 0; i < maxModules; i++) {
+            availableModuleIds.add(i);
+        }
+        return availableModuleIds;
+    }
+
+    private static Collection<Integer> getList(int[] array) {
+        List<Integer> availableModuleIds = new ArrayList<Integer>(array.length);
+        for (int i : array) {
             availableModuleIds.add(i);
         }
         return availableModuleIds;

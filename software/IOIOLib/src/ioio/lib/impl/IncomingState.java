@@ -122,7 +122,9 @@ public class IncomingState implements IncomingHandler {
 	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
 	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
 	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
-	private final DataModuleState[] incapStates_ = new DataModuleState[Constants.NUM_INCAP_MODULES];
+	private final DataModuleState[] incapStates_ = new DataModuleState[2
+			* Constants.INCAP_MODULES_DOUBLE.length
+			+ Constants.INCAP_MODULES_SINGLE.length];
 	private final DataModuleState icspState_ = new DataModuleState();
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
@@ -148,8 +150,8 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 
-	synchronized public void waitConnectionEstablished() throws InterruptedException,
-			ConnectionLostException {
+	synchronized public void waitConnectionEstablished()
+			throws InterruptedException, ConnectionLostException {
 		while (connection_ == ConnectionState.INIT) {
 			wait();
 		}
@@ -327,7 +329,7 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cClose", i2cNum);
 		twiStates_[i2cNum].closeCurrentListener();
 	}
-	
+
 	@Override
 	public void handleIcspOpen() {
 		logMethod("handleIcspOpen");
@@ -348,9 +350,8 @@ public class IncomingState implements IncomingHandler {
 		firmwareId_ = new String(firmwareId);
 
 		Log.i("IncomingState", "IOIO Connection established. Hardware ID: "
-				+ hardwareId_ + " Bootloader ID: "
-				+ bootloaderId_ + " Firmware ID: "
-				+ firmwareId_);
+				+ hardwareId_ + " Bootloader ID: " + bootloaderId_
+				+ " Firmware ID: " + firmwareId_);
 		synchronized (this) {
 			connection_ = ConnectionState.ESTABLISHED;
 			notifyAll();
@@ -412,7 +413,7 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleI2cResult", i2cNum, size, data);
 		twiStates_[i2cNum].dataReceived(data, size);
 	}
-	
+
 	@Override
 	public void handleIncapReport(int incapNum, int size, byte[] data) {
 		// logMethod("handleIncapReport", incapNum, size, data);
@@ -430,7 +431,6 @@ public class IncomingState implements IncomingHandler {
 		logMethod("handleIncapOpen", incapNum);
 		incapStates_[incapNum].openNextListener();
 	}
-
 
 	@Override
 	public void handleIcspResult(int size, byte[] data) {

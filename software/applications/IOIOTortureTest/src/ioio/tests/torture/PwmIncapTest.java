@@ -1,5 +1,6 @@
 package ioio.tests.torture;
 
+import ioio.lib.api.DigitalInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PulseInput;
 import ioio.lib.api.PulseInput.ClockRate;
@@ -21,7 +22,8 @@ public class PwmIncapTest implements Test<Boolean> {
 		alloc_ = alloc;
 		pin1_ = alloc.allocatePinPair(ResourceAllocator.PIN_PAIR_PERIPHERAL);
 		alloc.allocPeripheral(PeripheralType.PWM);
-		alloc.allocPeripheral(PeripheralType.INCAP);
+		alloc.allocPeripheral(PeripheralType.INCAP_SINGLE);
+		alloc.allocPeripheral(PeripheralType.INCAP_DOUBLE);
 		pin2_ = pin1_ + 1;
 	}
 
@@ -39,7 +41,8 @@ public class PwmIncapTest implements Test<Boolean> {
 		} finally {
 			alloc_.freePinPair(pin1_);
 			alloc_.freePeripheral(PeripheralType.PWM);
-			alloc_.freePeripheral(PeripheralType.INCAP);
+			alloc_.freePeripheral(PeripheralType.INCAP_SINGLE);
+			alloc_.freePeripheral(PeripheralType.INCAP_DOUBLE);
 		}
 		Log.i("IOIOTortureTest", "Passed PwmIncapTest on pins: " + pin1_ + ", "
 				+ pin2_);
@@ -52,29 +55,49 @@ public class PwmIncapTest implements Test<Boolean> {
 			// pin 9 doesn't support peripheral output
 			return true;
 		}
+		if (!runTest(inPin, outPin, 2000, 10, ClockRate.RATE_16MHz,
+				PulseMode.FREQ_SCALE_4, false))
+			return false;
+		if (!runTest(inPin, outPin, 2000, 50, ClockRate.RATE_16MHz,
+				PulseMode.FREQ, false))
+			return false;
+		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_2MHz,
+				PulseMode.FREQ_SCALE_16, false))
+			return false;
+		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_16MHz,
+				PulseMode.FREQ_SCALE_16, true))
+			return false;
+		return true;
+	}
+
+	private boolean runTest(int inPin, int outPin, int freq,
+			int pulseWidthUsec, ClockRate rate, PulseMode freqScaling,
+			boolean doublePrecision) throws ConnectionLostException,
+			InterruptedException {
 		PulseInput pulseDurIn = null;
 		PulseInput pulseFreqIn = null;
 		PwmOutput out = null;
 		try {
-			out = ioio_.openPwmOutput(outPin, 2000);
-			out.setPulseWidth(10);
+			out = ioio_.openPwmOutput(outPin, freq);
+			out.setPulseWidth(pulseWidthUsec);
 			Thread.sleep(100);
-			pulseDurIn = ioio_.openPulseInput(inPin, ClockRate.RATE_16MHz,
-					PulseMode.POSITIVE);
+			pulseDurIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
+					rate, PulseMode.POSITIVE, doublePrecision);
 			float duration = pulseDurIn.getDuration();
-			if (duration < 9.9 * 1e-6 || duration > 10.1 * 1e-6) {
+			if (Math.abs((duration - pulseWidthUsec / 1000000.f) / duration) > 0.02) {
 				Log.w("IOIOTortureTest", "Pulse duration is: " + duration
-						+ "[s] while expected 10.0e-6[s]");
+						+ "[s] while expected " + (pulseWidthUsec / 1000000.f)
+						+ "[s]");
 				return false;
 			}
 			pulseDurIn.close();
 			pulseDurIn = null;
-			pulseFreqIn = ioio_.openPulseInput(inPin, ClockRate.RATE_16MHz,
-					PulseMode.FREQ_SCALE_4);
-			float freq = pulseFreqIn.getFrequency();
-			if (freq < 1990 || freq > 2010) {
-				Log.w("IOIOTortureTest", "Frequency is: " + freq
-						+ " while expected 2000");
+			pulseFreqIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
+					rate, freqScaling, doublePrecision);
+			float actualFreq = pulseFreqIn.getFrequency();
+			if (Math.abs((actualFreq - freq) / freq) > 0.02) {
+				Log.w("IOIOTortureTest", "Frequency is: " + actualFreq
+						+ " while expected " + freq);
 				return false;
 			}
 		} finally {

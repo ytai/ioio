@@ -391,6 +391,14 @@ public interface IOIO {
 	 * @param mode
 	 *            The mode in which to operate. Determines whether the module
 	 *            will measure pulse durations or frequency.
+	 * @param doublePrecision
+	 *            Whether to open a double-precision pulse input module. Double-
+	 *            precision modules enable reading of much longer pulses and
+	 *            lower frequencies with high accuracy than single precision
+	 *            modules. However, their number is limited, so when possible,
+	 *            and if the resources are all needed, use single-precision. For
+	 *            more details on the exact spec of single- vs. double-
+	 *            precision, see {@link PulseInput}.
 	 * @return An instance of the {@link PulseInput}, which can be used to
 	 *         obtain the data.
 	 * @throws ConnectionLostException
@@ -403,18 +411,19 @@ public interface IOIO {
 	 * @see PulseInput
 	 */
 	public PulseInput openPulseInput(DigitalInput.Spec spec,
-			PulseInput.ClockRate rate, PulseInput.PulseMode mode)
+			PulseInput.ClockRate rate, PulseInput.PulseMode mode,
+			boolean doublePrecision)
 			throws ConnectionLostException;
 
 	/**
-	 * Shorthand for openPulseInput(new DigitalInput.Spec(pin), rate, mode).
+	 * Shorthand for openPulseInput(new DigitalInput.Spec(pin), rate, mode,
+	 * true), i.e. opens a double-precision, 16MHz pulse input on the given pin
+	 * with the given mode.
 	 * 
 	 * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseInput.ClockRate,
-	 *      ioio.lib.api.PulseInput.PulseMode)
+	 *      ioio.lib.api.PulseInput.ClockRate.RATE_16MHz, PulseMode, boolean)
 	 */
-	public PulseInput openPulseInput(int pin, PulseInput.ClockRate rate,
-			PulseMode mode) throws ConnectionLostException;
+	public PulseInput openPulseInput(int pin, PulseMode mode) throws ConnectionLostException;
 
 	/**
 	 * Open a UART module, enabling a bulk transfer of byte buffers.

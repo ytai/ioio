@@ -56,14 +56,15 @@ class ResourceAllocator {
 		for(int pin = 1; pin <= 47; pin += 2) {
 			freePinPair(pin);
 		}
-		peripherals_ = new int[] { 9, 4, 3, 9 };
+		peripherals_ = new int[] { 9, 4, 3, 3, 3 };
 	}
 	
 	enum PeripheralType {
 		PWM,
 		UART,
 		SPI,
-		INCAP
+		INCAP_SINGLE,
+		INCAP_DOUBLE
 	}
 	
 	public synchronized int allocatePinPair(int caps) throws InterruptedException {

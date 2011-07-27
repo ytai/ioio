@@ -71,8 +71,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			Constants.NUM_UART_MODULES, "UART");
 	private final ModuleAllocator spiAllocator_ = new ModuleAllocator(
 			Constants.NUM_SPI_MODULES, "SPI");
-	private final ModuleAllocator incapAllocator_ = new ModuleAllocator(
-			Constants.NUM_INCAP_MODULES, "INCAP");
+	private final ModuleAllocator incapAllocatorDouble_ = new ModuleAllocator(
+			Constants.INCAP_MODULES_DOUBLE, "INCAP_DOUBLE");
+	private final ModuleAllocator incapAllocatorSingle_ = new ModuleAllocator(
+			Constants.INCAP_MODULES_SINGLE, "INCAP_SINGLE");
 	IOIOProtocol protocol_;
 	private State state_ = State.INIT;
 
@@ -216,8 +218,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 	}
 
-	synchronized void closeIncap(int incapNum) {
-		incapAllocator_.releaseModule(incapNum);
+	synchronized void closeIncap(int incapNum, boolean doublePrecision) {
+		if (doublePrecision) {
+			incapAllocatorDouble_.releaseModule(incapNum);
+		} else {
+			incapAllocatorSingle_.releaseModule(incapNum);
+		}
 		try {
 			protocol_.incapClose(incapNum);
 		} catch (IOException e) {
@@ -554,20 +560,21 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public PulseInput openPulseInput(Spec spec, ClockRate rate, PulseMode mode)
-			throws ConnectionLostException {
+	public PulseInput openPulseInput(Spec spec, ClockRate rate, PulseMode mode,
+			boolean doublePrecision) throws ConnectionLostException {
 		checkState();
 		checkPinFree(spec.pin);
 		PinFunctionMap.checkSupportsPeripheralInput(spec.pin);
-		int incapNum = incapAllocator_.allocateModule();
+		int incapNum = doublePrecision ? incapAllocatorDouble_.allocateModule()
+				: incapAllocatorSingle_.allocateModule();
 		IncapImpl incap = new IncapImpl(this, mode, incapNum, spec.pin,
-				rate.hertz, mode.scaling);
+				rate.hertz, mode.scaling, doublePrecision);
 		addDisconnectListener(incap);
 		incomingState_.addIncapListener(incapNum, incap);
 		try {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setPinIncap(spec.pin, incapNum, true);
-			protocol_.incapConfigure(incapNum, false, mode.ordinal() + 1,
+			protocol_.incapConfigure(incapNum, doublePrecision, mode.ordinal() + 1,
 					rate.ordinal());
 		} catch (IOException e) {
 			incap.close();
@@ -577,9 +584,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public PulseInput openPulseInput(int pin, ClockRate rate, PulseMode mode)
+	public PulseInput openPulseInput(int pin, PulseMode mode)
 			throws ConnectionLostException {
-		return openPulseInput(new DigitalInput.Spec(pin), rate, mode);
+		return openPulseInput(new DigitalInput.Spec(pin), ClockRate.RATE_16MHz,
+				mode, true);
 	}
 
 	private void checkPinFree(int pin) {

@@ -46,35 +46,50 @@ import ioio.lib.api.exception.ConnectionLostException;
  * for measuring a turning shaft's speed.
  * <p>
  * {@link PulseInput} instances are obtained by calling
- * {@link IOIO#openPulseInput(ioio.lib.api.DigitalInput.Spec, ClockRate, PulseMode)}
- * . When created, two important configuration decisions have to be made: the
- * clock rate and the mode of operation. Modes are straightforward:
- * {@link PulseMode.POSITIVE} is used for measuring a positive pulse,
- * {@link PulseMode.NEGATIVE} a negative pulse, and {@link PulseMode.FREQ} /
- * {@link PulseMode.FREQ_SCALE_4} / {@link PulseMode.FREQ_SCALE_16} are used for
- * measuring frequency. The difference between the three scaling modes is that
- * without scaling, the frequency is determined by measurement of a single
+ * {@link IOIO#openPulseInput(ioio.lib.api.DigitalInput.Spec, ClockRate, PulseMode, boolean)}
+ * . When created, some important configuration decisions have to be made: the
+ * precision (single or double), the clock rate and the mode of operation. Modes
+ * are straightforward: {@link PulseMode.POSITIVE} is used for measuring a
+ * positive pulse, {@link PulseMode.NEGATIVE} a negative pulse, and
+ * {@link PulseMode.FREQ} / {@link PulseMode.FREQ_SCALE_4} /
+ * {@link PulseMode.FREQ_SCALE_16} are used for measuring frequency. The
+ * difference between the three scaling modes is that without scaling, the
+ * frequency is determined by measurement of a single
  * (rising-edge-to-rising-edge) period. In x4 scaling, 4 consecutive periods are
  * measured and the time is divided by 4, providing some smoothing as well as
- * better precision. Similarly for x16 scaling. Note that scaling affects the
+ * better resolution. Similarly for x16 scaling. Note that scaling affects the
  * range of signals to be measured, as discussed below.
  * <p>
- * The clock rate selection is critical and requires the user to make some
- * assumptions about the nature of the measured signal. The higher the clock
- * rate, the more precise the measurement, but the longest pulse that can be
- * measured decreases (or lowest frequency that can be measured increases).
- * Using the scaling option when operating in frequency mode also affects these
- * sizes. combinations. It is always recommended to choose the most precise
- * mode, which exceeds the maximum expected pulse width (or inverse frequency).
- * If a pulse is received whom duration exceeds the longest allowed pulse, it
- * will be "folded" into the valid range and product garbage readings.
+ * The choice of single vs. double-precision is important to understand: IOIO
+ * internally uses either 16-bit counters or 32-bit counters for the timing. 16-
+ * counters force us to either limit the maximum duration (and the minimum
+ * frequency) or compromise accuracy as compared to 32-bit counters. However, if
+ * you need many concurrent pulse measurements in your application, you may have
+ * no choice but to use single-precision.
  * <p>
- * The following table (sorted by longest pulse) summarizes all possible
+ * The clock rate selection is important (and even critical when working in
+ * single-precision) and requires the user to make some assumptions about the
+ * nature of the measured signal. The higher the clock rate, the more precise
+ * the measurement, but the longest pulse that can be measured decreases (or
+ * lowest frequency that can be measured increases). Using the scaling option
+ * when operating in frequency mode also affects these sizes. combinations. It
+ * is always recommended to choose the most precise mode, which exceeds the
+ * maximum expected pulse width (or inverse frequency). If a pulse is received
+ * whom duration exceeds the longest allowed pulse, it will be "folded" into the
+ * valid range and product garbage readings.
+ * <p>
+ * The following table (sorted by longest pulse) summarizes all possible clock /
+ * mode combinations. The table applies for <b>single-precision</b> operation.
+ * For double-precision, simply multiply the longest pulse by 65536 and divide
+ * the lowest frequency by the same amount. Interestingly, the number written in
+ * [ms] units in the longest pulse column, roughly corresponds to the same
+ * number in minutes when working with double precsion, since 1[min] =
+ * 60000[ms].
  * <table border="1">
  * <tr>
  * <th>Clock</th>
  * <th>Scaling</th>
- * <th>Precision</th>
+ * <th>Resolution</th>
  * <th>Longest pulse</th>
  * <th>Lowest frequency</th>
  * </tr>
@@ -184,7 +199,8 @@ import ioio.lib.api.exception.ConnectionLostException;
  * 
  * <pre>
  * {@code
- * PulseInput in = ioio.openPulseInput(3, ClockRate.RATE_16MHz. PulseMode.POSITIVE)
+ * // Open pulse input at 16MHz, double-precision
+ * PulseInput in = ioio.openPulseInput(3, PulseMode.POSITIVE);
  * ...
  * float widthSec = in.getDuration();
  * OR:
@@ -199,8 +215,11 @@ import ioio.lib.api.exception.ConnectionLostException;
  * 
  * <pre>
  * {@code
- * // Signal is known to be slightly over 150Hz. 
- * PulseInput in = ioio.openPulseInput(3, ClockRate.RATE_2MHz. PulseMode.FREQ_SCALE_4);
+ * // Signal is known to be slightly over 150Hz. Single precision can be used.
+ * PulseInput in = ioio.openPulseInput(3,
+ *                                     ClockRate.RATE_2MHz,
+ *                                     PulseMode.FREQ_SCALE_4,
+ *                                     false);
  * ...
  * float freqHz = in.getFrequency();
  * ... 

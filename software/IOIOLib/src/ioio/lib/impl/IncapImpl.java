@@ -14,16 +14,19 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 	private final int incapNum_;
 	private long lastDuration_;
 	private final float timeBase_;
+	private final boolean doublePrecision_;
 	private boolean valid_ = false;
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
 
 	public IncapImpl(IOIOImpl ioio, PulseMode mode, int incapNum, int pin,
-			int clockRate, int scale) throws ConnectionLostException {
+			int clockRate, int scale, boolean doublePrecision)
+			throws ConnectionLostException {
 		super(ioio, pin);
 		mode_ = mode;
 		incapNum_ = incapNum;
 		timeBase_ = 1.0f / (scale * clockRate);
+		doublePrecision_ = doublePrecision;
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class IncapImpl extends AbstractPin implements DataModuleListener,
 
 	@Override
 	public synchronized void close() {
-		ioio_.closeIncap(incapNum_);
+		ioio_.closeIncap(incapNum_, doublePrecision_);
 		super.close();
 	}
 
