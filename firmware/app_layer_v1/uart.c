@@ -132,7 +132,7 @@ void UARTTasks() {
     BYTE prev;
     ByteQueuePeekMax(q, 64, &data1, &size1, &data2, &size2);
     if (size1) {
-      log_printf("UART %d received %d bytes", i, size);
+      log_printf("UART %d received %d bytes", i, size1 + size2);
       OUTGOING_MESSAGE msg;
       msg.type = UART_DATA;
       msg.args.uart_data.uart_num = i;
