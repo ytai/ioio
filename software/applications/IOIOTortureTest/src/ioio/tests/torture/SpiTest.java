@@ -60,7 +60,7 @@ public class SpiTest implements Test<Boolean> {
 		final int SEED = 17;
 
 		SpiMaster spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPin,
-				SpiMaster.Rate.RATE_500K);
+				SpiMaster.Rate.RATE_1M);
 
 		try {
 			Random rand = new Random(SEED);
