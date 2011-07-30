@@ -80,17 +80,32 @@ public class PwmIncapTest implements Test<Boolean> {
 		try {
 			out = ioio_.openPwmOutput(outPin, freq);
 			out.setPulseWidth(pulseWidthUsec);
+			// measure positive pulse
 			pulseDurIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
 					rate, PulseMode.POSITIVE, doublePrecision);
 			float duration = pulseDurIn.getDuration();
-			if (Math.abs((duration - pulseWidthUsec / 1000000.f) / duration) > 0.02) {
-				Log.w("IOIOTortureTest", "Pulse duration is: " + duration
-						+ "[s] while expected " + (pulseWidthUsec / 1000000.f)
+			float expectedDuration = pulseWidthUsec / 1000000.f;
+			if (Math.abs((duration - expectedDuration) / duration) > 0.02) {
+				Log.w("IOIOTortureTest", "Positive pulse duration is: "
+						+ duration + "[s] while expected " + expectedDuration
+						+ "[s]");
+				return false;
+			}
+			pulseDurIn.close();
+			// measure negative pulse
+			pulseDurIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
+					rate, PulseMode.NEGATIVE, doublePrecision);
+			duration = pulseDurIn.getDuration();
+			expectedDuration = (1.f / freq) - (pulseWidthUsec / 1000000.f);
+			if (Math.abs((duration - expectedDuration) / duration) > 0.02) {
+				Log.w("IOIOTortureTest", "Negative pulse duration is: "
+						+ duration + "[s] while expected " + expectedDuration
 						+ "[s]");
 				return false;
 			}
 			pulseDurIn.close();
 			pulseDurIn = null;
+			// measure frequency
 			pulseFreqIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
 					rate, freqScaling, doublePrecision);
 			float actualFreq = pulseFreqIn.getFrequency();
