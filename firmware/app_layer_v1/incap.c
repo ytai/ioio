@@ -38,6 +38,7 @@
 #include "sync.h"
 #include "protocol_defs.h"
 #include "protocol.h"
+#include "uart2.h"
 
 DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IF)
 DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IE)
@@ -55,13 +56,11 @@ static volatile INCAP_REG* incap_regs = (volatile INCAP_REG *) &IC1CON1;
 typedef enum {
   LEADING,
   TRAILING,
-  FREQ,
-  FREQ_FIRST
+  FREQ
 } EDGE_STATE;
 
 static EDGE_STATE edge_states[NUM_INCAP_MODULES];
-static unsigned int timer_base[NUM_INCAP_MODULES];
-static unsigned int ready_to_send;
+static WORD con1_vals[NUM_INCAP_MODULES];
 
 void InCapInit() {
   log_printf("InCapInit()");
@@ -82,36 +81,41 @@ void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
   msg.type = INCAP_STATUS;
   msg.args.incap_status.incap_num = incap_num;
   log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode, clock);
+  
   Set_ICIE[incap_num](0);  // disable interrupts
+
+  _T5IE = 0;
+  con1_vals[incap_num] = 0x0000;
   reg->con1 = 0x0000;      // disable module
   reg->con2 = 0x0000;
   if (double_prec) {
+    con1_vals[incap_num + 1] = 0x0000;
     reg2->con1 = 0x0000;
     reg2->con2 = 0x0000;
   }
+  _T5IE = 1;
   Set_ICIF[incap_num](0);  // clear interrupts
 
-  // the ICM bits values to use, indexed by (mode - 1)
-  static const unsigned int icm[] = { 3, 2, 3, 4, 5 };
+  // the ICM and ICI bits values to use, indexed by (mode - 1)
+  static const unsigned int icm_ici[] = { 3, 2 , 3 | (1 << 5), 4 | (1 << 5), 5 | (1 << 5)};
   // the initial edge state to use, indexed by (mode - 1)
-  static const EDGE_STATE initial_edge[] = { LEADING, LEADING, FREQ_FIRST, FREQ_FIRST, FREQ_FIRST };
+  static const EDGE_STATE initial_edge[] = { LEADING, LEADING, FREQ, FREQ, FREQ };
   // the ICTSEL (clock select) bits values to use, indexed by clock
   static const unsigned int ictsel[] = { 7 << 10, 0 << 10, 2 << 10, 3 << 10};
 
   if (mode) {
     msg.args.incap_status.enabled = 1;
     AppProtocolSendMessage(&msg);
-    ready_to_send |= (1 << incap_num);
     EDGE_STATE edge = initial_edge[mode - 1];
     edge_states[incap_num] = edge;
-    Set_ICIP[incap_num](edge == LEADING ? 5 : 1);
+    Set_ICIP[incap_num](edge == LEADING ? 6 : 1);
     Set_ICIE[incap_num](1); // enable interrupts
     if (double_prec) {
       reg2->con2 = (1 << 8);
-      reg2->con1 = ictsel[clock] | icm[mode - 1];
       reg->con2 = (1 << 8);
+      con1_vals[incap_num + 1] = ictsel[clock] | icm_ici[mode - 1];
     }
-    reg->con1 = ictsel[clock] | icm[mode - 1];
+    con1_vals[incap_num] = ictsel[clock] | icm_ici[mode - 1];
   } else {
     msg.args.incap_status.enabled = 0;
     AppProtocolSendMessage(&msg);
@@ -130,80 +134,72 @@ inline static int NumBytes32(DWORD val) {
   }
 }
 
-static void ICInterrupt(int incap_num) {
+inline static void ReportCapture(int incap_num, int double_prec) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
   volatile INCAP_REG* reg2 = reg + 1;
+  int size;
+  DWORD_VAL delta_time;
+  OUTGOING_MESSAGE msg;
+  msg.type = INCAP_REPORT;
+  msg.args.incap_report.incap_num = incap_num;
+  if (double_prec) {
+    DWORD_VAL base = { .word.HW = reg2->buf,
+                       .word.LW = reg->buf };
+    // 32-bit mode
+    delta_time.word.HW = reg2->buf;
+    delta_time.word.LW = reg->buf;
+    delta_time.Val -= base.Val;
+    size = NumBytes32(delta_time.Val);
+  } else {
+    // 16-bit mode
+    WORD base = reg->buf;
+    delta_time.word.LW =  reg->buf - base;
+    size = NumBytes16(delta_time.word.LW);
+  }
+  msg.args.incap_report.size = size;
+  AppProtocolSendMessageWithVarArg(&msg, &delta_time, size);
+  reg->con1 = 0x0000;  // disable module until next timer 5
+  if (double_prec) {
+    reg2->con1 = 0x0000;
+  }
+}
+
+inline static void FlipEdge(int incap_num, int double_prec) {
+  volatile INCAP_REG* reg = incap_regs + incap_num;
+  volatile INCAP_REG* reg2 = reg + 1;
+  con1_vals[incap_num] ^= 1;  // toggle bit 0 of con1: inverts edge polarity
+  reg->con1 = con1_vals[incap_num];
+  if (double_prec) {
+    con1_vals[incap_num + 1] ^= 1;  // toggle bit 0 of con1: inverts edge polarity
+    reg2->con1 = con1_vals[incap_num + 1];
+  }
+}
+
+static void ICInterrupt(int incap_num) {
+  volatile INCAP_REG* reg = incap_regs + incap_num;
   const int double_prec = reg->con2 & (1 << 8);
+  EDGE_STATE edge = edge_states[incap_num];
 
-  while (reg->con1 & 0x0008) {  // buffer not empty
-    EDGE_STATE edge = edge_states[incap_num];
-    unsigned int timer_val, timer_val2;
-
-    timer_val = reg->buf;
-    if (double_prec) {
-      timer_val2 = reg2->buf;
+  Set_ICIF[incap_num](0);
+  if (edge == LEADING) {
+    FlipEdge(incap_num, double_prec);
+    edge_states[incap_num] = TRAILING;
+    Set_ICIP[incap_num](1);
+  } else {
+    ReportCapture(incap_num, double_prec);
+    if (edge == TRAILING) {
+      FlipEdge(incap_num, double_prec);
+      edge_states[incap_num] = LEADING;
+      Set_ICIP[incap_num](6);
     }
-
-    switch (edge) {
-      case LEADING:
-        reg->con1 ^= 1;  // toggle bit 0 of con1: inverts edge polarity
-        if (double_prec) {
-          reg2->con1 ^= 1;
-        }
-        edge_states[incap_num] = TRAILING;
-        Set_ICIP[incap_num](1);
-        break;
-
-      case TRAILING:
-        reg->con1 ^= 1;  // toggle bit 0 of con1: inverts edge polarity
-        if (double_prec) {
-          reg2->con1 ^= 1;
-        }
-        edge_states[incap_num] = LEADING;
-        SyncInterruptLevel(5);  // mask level 5 interrupts or otherwise we'll
-                                // get this interrupt nesting,
-        Set_ICIP[incap_num](5);
-        // fall-through on purpose
-      case FREQ:
-        if ((ready_to_send & (1 << incap_num))) {
-          int size;
-          DWORD_VAL delta_time;
-          OUTGOING_MESSAGE msg;
-          msg.type = INCAP_REPORT;
-          msg.args.incap_report.incap_num = incap_num;
-          if (double_prec) {
-            DWORD_VAL base = { .word.HW = timer_base[incap_num + 1],
-                               .word.LW = timer_base[incap_num] };
-            // 32-bit mode
-            delta_time.word.LW = timer_val;
-            delta_time.word.HW = timer_val2;
-            delta_time.Val -= base.Val;
-            size = NumBytes32(delta_time.Val);
-          } else {
-            // 16-bit mode
-            delta_time.word.LW = timer_val - timer_base[incap_num];
-            size = NumBytes16(delta_time.word.LW);
-          }
-          msg.args.incap_report.size = size;
-          AppProtocolSendMessageWithVarArg(&msg, &delta_time, size);
-          ready_to_send &= ~(1 << incap_num);
-        }
-        break;
-
-      case FREQ_FIRST:
-        edge_states[incap_num] = FREQ;
-        break;
-    }
-    timer_base[incap_num] = timer_val;
-    if (double_prec) {
-      timer_base[incap_num + 1] = timer_val2;
-    }
-    Set_ICIF[incap_num](0);  // clear interrupt
   }
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt() {
-  ready_to_send = 0xFFFF;
+  int i = NUM_INCAP_MODULES;
+  while (i-- > 0) {
+    incap_regs[i].con1 = con1_vals[i];
+  }
   _T5IF = 0;  // clear
 }
 

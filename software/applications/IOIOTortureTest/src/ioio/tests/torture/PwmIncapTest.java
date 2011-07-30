@@ -80,7 +80,6 @@ public class PwmIncapTest implements Test<Boolean> {
 		try {
 			out = ioio_.openPwmOutput(outPin, freq);
 			out.setPulseWidth(pulseWidthUsec);
-			Thread.sleep(100);
 			pulseDurIn = ioio_.openPulseInput(new DigitalInput.Spec(inPin),
 					rate, PulseMode.POSITIVE, doublePrecision);
 			float duration = pulseDurIn.getDuration();

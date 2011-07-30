@@ -422,13 +422,13 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleIncapClose(int incapNum) {
-		logMethod("handleIncapClose", incapNum);
+		// logMethod("handleIncapClose", incapNum);
 		incapStates_[incapNum].closeCurrentListener();
 	}
 
 	@Override
 	public void handleIncapOpen(int incapNum) {
-		logMethod("handleIncapOpen", incapNum);
+		// logMethod("handleIncapOpen", incapNum);
 		incapStates_[incapNum].openNextListener();
 	}
 
