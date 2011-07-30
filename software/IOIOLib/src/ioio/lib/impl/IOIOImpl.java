@@ -159,74 +159,89 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	synchronized void closePin(int pin) {
-		if (openPins_[pin]) {
-			try {
-				protocol_.setPinDigitalIn(pin, DigitalInput.Spec.Mode.FLOATING);
-			} catch (IOException e) {
+		try {
+			checkState();
+			if (!openPins_[pin]) {
+				throw new IllegalStateException("Pin not open: " + pin);
 			}
+			protocol_.setPinDigitalIn(pin, DigitalInput.Spec.Mode.FLOATING);
 			openPins_[pin] = false;
+		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
 	synchronized void closePwm(int pwmNum) {
-		pwmAllocator_.releaseModule(pwmNum);
 		try {
+			checkState();
+			pwmAllocator_.releaseModule(pwmNum);
 			protocol_.setPwmPeriod(pwmNum, 0, IOIOProtocol.PwmScale.SCALE_1X);
 		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
 	synchronized void closeUart(int uartNum) {
-		uartAllocator_.releaseModule(uartNum);
 		try {
+			checkState();
+			uartAllocator_.releaseModule(uartNum);
 			protocol_.uartClose(uartNum);
 		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
 	synchronized void closeTwi(int twiNum) {
-		if (!openTwi_[twiNum]) {
-			throw new IllegalStateException("TWI not open: " + twiNum);
-		}
-		openTwi_[twiNum] = false;
-		openPins_[Constants.TWI_PINS[twiNum][0]] = false;
-		openPins_[Constants.TWI_PINS[twiNum][1]] = false;
 		try {
+			checkState();
+			if (!openTwi_[twiNum]) {
+				throw new IllegalStateException("TWI not open: " + twiNum);
+			}
+			openTwi_[twiNum] = false;
+			openPins_[Constants.TWI_PINS[twiNum][0]] = false;
+			openPins_[Constants.TWI_PINS[twiNum][1]] = false;
 			protocol_.i2cClose(twiNum);
 		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
 	synchronized void closeIcsp() {
-		if (!openIcsp_) {
-			throw new IllegalStateException("ICSP not open");
-		}
-		openIcsp_ = false;
-		openPins_[Constants.ICSP_PINS[0]] = false;
-		openPins_[Constants.ICSP_PINS[1]] = false;
 		try {
+			checkState();
+			if (!openIcsp_) {
+				throw new IllegalStateException("ICSP not open");
+			}
+			openIcsp_ = false;
+			openPins_[Constants.ICSP_PINS[0]] = false;
+			openPins_[Constants.ICSP_PINS[1]] = false;
 			protocol_.icspClose();
+		} catch (ConnectionLostException e) {
 		} catch (IOException e) {
 		}
 	}
 
 	synchronized void closeSpi(int spiNum) {
-		spiAllocator_.releaseModule(spiNum);
 		try {
+			checkState();
+			spiAllocator_.releaseModule(spiNum);
 			protocol_.spiClose(spiNum);
 		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
 	synchronized void closeIncap(int incapNum, boolean doublePrecision) {
-		if (doublePrecision) {
-			incapAllocatorDouble_.releaseModule(incapNum);
-		} else {
-			incapAllocatorSingle_.releaseModule(incapNum);
-		}
 		try {
+			checkState();
+			if (doublePrecision) {
+				incapAllocatorDouble_.releaseModule(incapNum);
+			} else {
+				incapAllocatorSingle_.releaseModule(incapNum);
+			}
 			protocol_.incapClose(incapNum);
 		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
 		}
 	}
 
@@ -536,10 +551,19 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			checkPinFree(slaveSelect[i].pin);
 			ssPins[i] = slaveSelect[i].pin;
 		}
+		
 		int spiNum = spiAllocator_.allocateModule();
 		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin,
 				clk.pin, ssPins);
 		addDisconnectListener(spi);
+		
+		openPins_[miso.pin] = true;
+		openPins_[mosi.pin] = true;
+		openPins_[clk.pin] = true;
+		for (int i = 0; i < slaveSelect.length; ++i) {
+			openPins_[slaveSelect[i].pin] = true;
+		}
+
 		incomingState_.addSpiListener(spiNum, spi);
 		try {
 			protocol_.setPinDigitalIn(miso.pin, miso.mode);
@@ -571,11 +595,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				rate.hertz, mode.scaling, doublePrecision);
 		addDisconnectListener(incap);
 		incomingState_.addIncapListener(incapNum, incap);
+		openPins_[spec.pin] = true;
 		try {
 			protocol_.setPinDigitalIn(spec.pin, spec.mode);
 			protocol_.setPinIncap(spec.pin, incapNum, true);
-			protocol_.incapConfigure(incapNum, doublePrecision, mode.ordinal() + 1,
-					rate.ordinal());
+			protocol_.incapConfigure(incapNum, doublePrecision,
+					mode.ordinal() + 1, rate.ordinal());
 		} catch (IOException e) {
 			incap.close();
 			throw new ConnectionLostException(e);
