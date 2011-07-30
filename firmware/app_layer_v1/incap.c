@@ -162,6 +162,7 @@ inline static void ReportCapture(int incap_num, int double_prec) {
   if (double_prec) {
     reg2->con1 = 0x0000;
   }
+  Set_ICIF[incap_num](0);
 }
 
 inline static void FlipEdge(int incap_num, int double_prec) {
