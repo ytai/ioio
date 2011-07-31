@@ -55,7 +55,7 @@ public class PwmIncapTest implements Test<Boolean> {
 			// pin 9 doesn't support peripheral output
 			return true;
 		}
-		if (!runTest(inPin, outPin, 2000, 10, ClockRate.RATE_16MHz,
+		if (!runTest(inPin, outPin, 2000, 20, ClockRate.RATE_16MHz,
 				PulseMode.FREQ_SCALE_4, false))
 			return false;
 		if (!runTest(inPin, outPin, 2000, 50, ClockRate.RATE_16MHz,
