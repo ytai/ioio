@@ -514,22 +514,18 @@ public interface IOIO {
 	 *            consisting of the pin number, as labeled on the board, and the
 	 *            mode, which determines whether the pin will be floating,
 	 *            pull-up or pull-down. See {@link DigitalInput.Spec.Mode} for
-	 *            more information. null can be passed to designate that we do
-	 *            not want RX input to this module.
+	 *            more information.
 	 * @param mosi
 	 *            Pin specification for the MOSI (Master Out Slave In) pin,
 	 *            consisting of the pin number, as labeled on the board, and the
 	 *            mode, which determines whether the pin will be normal or
 	 *            open-drain. See {@link DigitalOutput.Spec.Mode} for more
-	 *            information. null can be passed to designate that we do not
-	 *            want TX output to this module.
+	 *            information.
 	 * @param clk
 	 *            Pin specification for the CLK pin, consisting of the pin
 	 *            number, as labeled on the board, and the mode, which
 	 *            determines whether the pin will be normal or open-drain. See
-	 *            {@link DigitalOutput.Spec.Mode} for more information. null can
-	 *            be passed to designate that we do not want TX output to this
-	 *            module.
+	 *            {@link DigitalOutput.Spec.Mode} for more information.
 	 * @param slaveSelect
 	 *            An array of pin specifications for each of the slaves' SS
 	 *            (Slave Select) pin. The index of this array designates the
@@ -537,8 +533,7 @@ public interface IOIO {
 	 *            consisting of the pin number, as labeled on the board, and the
 	 *            mode, which determines whether the pin will be normal or
 	 *            open-drain. See {@link DigitalOutput.Spec.Mode} for more
-	 *            information. null can be passed to designate that we do not
-	 *            want TX output to this module.
+	 *            information.
 	 * @param config
 	 *            The configuration of the SPI module. See
 	 *            {@link SpiMaster.Config} for details.

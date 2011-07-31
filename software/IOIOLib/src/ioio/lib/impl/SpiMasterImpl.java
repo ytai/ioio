@@ -137,14 +137,14 @@ public class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		if (p.readSize_ > 0) {
 			synchronized (this) {
 				pendingRequests_.add(result);
-				try {
-					outgoing_.write(p);
-				} catch (IOException e) {
-					Log.e("SpiMasterImpl", "Exception caught", e);
-				}
 			}
 		} else {
 			result.ready_ = true;
+		}
+		try {
+			outgoing_.write(p);
+		} catch (IOException e) {
+			Log.e("SpiMasterImpl", "Exception caught", e);
 		}
 		return result;
 	}

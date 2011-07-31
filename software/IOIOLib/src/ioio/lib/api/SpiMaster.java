@@ -160,8 +160,8 @@ public interface SpiMaster extends Closeable {
 	 * Perform a single SPI transaction which includes optional transmission and
 	 * optional reception of data to a single slave. This is a blocking
 	 * operation that can take a few milliseconds to a few tens of milliseconds.
-	 * To abort this operation, client can interrupt the blocked thread.
-	 * If readSize is 0, the call returns immediately.
+	 * To abort this operation, client can interrupt the blocked thread. If
+	 * readSize is 0, the call returns immediately.
 	 * 
 	 * @param slave
 	 *            The slave index. It is determined by the index of its
@@ -169,13 +169,14 @@ public interface SpiMaster extends Closeable {
 	 *            {@link IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)}
 	 *            .
 	 * @param writeData
-	 *            A byte array of data to write.
+	 *            A byte array of data to write. May be null if writeSize is 0.
 	 * @param writeSize
 	 *            Number of bytes to write. Valid values are 0 to totalSize.
 	 * @param totalSize
 	 *            Total transaction length, in bytes. Valid values are 1 to 64.
 	 * @param readData
-	 *            An array where the response is to be stored.
+	 *            An array where the response is to be stored. May be null if
+	 *            readSize is 0.
 	 * @param readSize
 	 *            The number of expected response bytes. Valid values are 0 to
 	 *            totalSize.
@@ -201,8 +202,7 @@ public interface SpiMaster extends Closeable {
 	/**
 	 * The same as {@link #writeRead(int, byte[], int, int, byte[], int)}, but
 	 * returns immediately and returns a {@link Result} object that can be
-	 * waited on.
-	 * If readSize is 0, the result object is ready immediately.
+	 * waited on. If readSize is 0, the result object is ready immediately.
 	 * 
 	 * @see #writeRead(int, byte[], int, int, byte[], int)
 	 */
