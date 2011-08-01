@@ -220,7 +220,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleConnectionLost() {
-		logMethod("handleConnectionLost");
+		// logMethod("handleConnectionLost");
 		synchronized (this) {
 			connection_ = ConnectionState.DISCONNECTED;
 		}
@@ -235,7 +235,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleSoftReset() {
-		logMethod("handleSoftReset");
+		// logMethod("handleSoftReset");
 		for (InputPinState pinState : intputPinStates_) {
 			pinState.closeCurrentListener();
 		}
@@ -256,7 +256,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	synchronized public void handleCheckInterfaceResponse(boolean supported) {
-		logMethod("handleCheckInterfaceResponse", supported);
+		// logMethod("handleCheckInterfaceResponse", supported);
 		connection_ = supported ? ConnectionState.CONNECTED
 				: ConnectionState.UNSUPPORTED_IID;
 		notifyAll();
@@ -264,7 +264,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleSetChangeNotify(int pin, boolean changeNotify) {
-		logMethod("handleSetChangeNotify", pin, changeNotify);
+		// logMethod("handleSetChangeNotify", pin, changeNotify);
 		if (changeNotify) {
 			intputPinStates_[pin].openNextListener();
 		} else {
@@ -274,13 +274,13 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale) {
-		logMethod("handleRegisterPeriodicDigitalSampling", pin, freqScale);
+		// logMethod("handleRegisterPeriodicDigitalSampling", pin, freqScale);
 		assert (false);
 	}
 
 	@Override
 	public void handleAnalogPinStatus(int pin, boolean open) {
-		logMethod("handleAnalogPinStatus", pin, open);
+		// logMethod("handleAnalogPinStatus", pin, open);
 		if (open) {
 			intputPinStates_[pin].openNextListener();
 		} else {
@@ -296,49 +296,49 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleUartOpen(int uartNum) {
-		logMethod("handleUartOpen", uartNum);
+		// logMethod("handleUartOpen", uartNum);
 		uartStates_[uartNum].openNextListener();
 	}
 
 	@Override
 	public void handleUartClose(int uartNum) {
-		logMethod("handleUartClose", uartNum);
+		// logMethod("handleUartClose", uartNum);
 		uartStates_[uartNum].closeCurrentListener();
 	}
 
 	@Override
 	public void handleSpiOpen(int spiNum) {
-		logMethod("handleSpiOpen", spiNum);
+		// logMethod("handleSpiOpen", spiNum);
 		spiStates_[spiNum].openNextListener();
 	}
 
 	@Override
 	public void handleSpiClose(int spiNum) {
-		logMethod("handleSpiClose", spiNum);
+		// logMethod("handleSpiClose", spiNum);
 		spiStates_[spiNum].closeCurrentListener();
 	}
 
 	@Override
 	public void handleI2cOpen(int i2cNum) {
-		logMethod("handleI2cOpen", i2cNum);
+		// logMethod("handleI2cOpen", i2cNum);
 		twiStates_[i2cNum].openNextListener();
 	}
 
 	@Override
 	public void handleI2cClose(int i2cNum) {
-		logMethod("handleI2cClose", i2cNum);
+		// logMethod("handleI2cClose", i2cNum);
 		twiStates_[i2cNum].closeCurrentListener();
 	}
 
 	@Override
 	public void handleIcspOpen() {
-		logMethod("handleIcspOpen");
+		// logMethod("handleIcspOpen");
 		icspState_.openNextListener();
 	}
 
 	@Override
 	public void handleIcspClose() {
-		logMethod("handleIcspClose");
+		// logMethod("handleIcspClose");
 		icspState_.closeCurrentListener();
 	}
 
@@ -391,7 +391,7 @@ public class IncomingState implements IncomingHandler {
 	@Override
 	public void handleReportPeriodicDigitalInStatus(int frameNum,
 			boolean[] values) {
-		logMethod("handleReportPeriodicDigitalInStatus", frameNum, values);
+		// logMethod("handleReportPeriodicDigitalInStatus", frameNum, values);
 	}
 
 	@Override
@@ -410,7 +410,7 @@ public class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleI2cResult(int i2cNum, int size, byte[] data) {
-		logMethod("handleI2cResult", i2cNum, size, data);
+		// logMethod("handleI2cResult", i2cNum, size, data);
 		twiStates_[i2cNum].dataReceived(data, size);
 	}
 
@@ -444,17 +444,17 @@ public class IncomingState implements IncomingHandler {
 		}
 	}
 
-	private void logMethod(String name, Object... args) {
-		StringBuffer msg = new StringBuffer(name);
-		msg.append('(');
-		for (int i = 0; i < args.length; ++i) {
-			if (i != 0) {
-				msg.append(", ");
-			}
-			msg.append(args[i]);
-		}
-		msg.append(')');
-
-		Log.v("IncomingState", msg.toString());
-	}
+//	private void logMethod(String name, Object... args) {
+//		StringBuffer msg = new StringBuffer(name);
+//		msg.append('(');
+//		for (int i = 0; i < args.length; ++i) {
+//			if (i != 0) {
+//				msg.append(", ");
+//			}
+//			msg.append(args[i]);
+//		}
+//		msg.append(')');
+//
+//		Log.v("IncomingState", msg.toString());
+//	}
 }
