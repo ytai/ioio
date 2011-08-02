@@ -38,7 +38,7 @@
 #include "GenericTypeDefs.h"
 
 // Returns the implementation IDs of the hardware and the bootloader.
-// Each version is comprised of 4 bytes authrity, followed by 4 bytes revision.
+// Each version is comprised of 4 bytes authority, followed by 4 bytes revision.
 void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]);
 
 // Needs to be called by the application periodically in order to provide
