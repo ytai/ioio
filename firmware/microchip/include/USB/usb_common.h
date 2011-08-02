@@ -74,7 +74,6 @@ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
   2.6    Moved many of the USB events
   2.6a   Changed the limit of USB_EVENT from UINT_MAX to INT_MAX
   2.7    No change
-  2.7a   Minor changes to include isochronous events
 ********************************************************************/
 //DOM-IGNORE-END
 
@@ -341,6 +340,24 @@ typedef enum
     // Note that the DataEventHandler is called from within the USB interrupt, so 
     // it is critical that it return in time for the next isochronous data packet.
     EVENT_DATA_ISOC_WRITE,
+    
+    // In Host mode, this event gives the application layer the option to reject
+    // a client driver that was selected by the stack.  This is needed when multiple
+    // devices are supported by class level support, but one configuration and client 
+    // driver is preferred over another.  Since configuration number is not guaranteed,
+    // the stack cannot do this automatically.  This event is issued only when 
+    // looking through configuration descriptors; the driver selected at the device 
+    // level cannot be overridden, since there shouldn't be any other options to 
+    // choose from.
+    EVENT_OVERRIDE_CLIENT_DRIVER_SELECTION,
+
+    // In host mode, this event is thrown for every millisecond that passes.  Like all
+    // events, this is thrown from the USBHostTasks() or USBTasks() routine so its
+    // timeliness will be determined by the rate that these functions are called.  If
+    // they are not called very often, then the 1ms events will build up and be 
+    // dispatched as the USBTasks() or USBHostTasks() functions are called (one event
+    // per call to these functions.
+    EVENT_1MS,
 
     // Class-defined event offsets start here:
     EVENT_GENERIC_BASE  = 400,      // Offset for Generic class events
@@ -398,6 +415,22 @@ typedef struct _vbus_power_data
     BYTE            port;           // Physical port number
     BYTE            current;        // Current in 2mA units
 } USB_VBUS_POWER_EVENT_DATA;
+
+
+// *****************************************************************************
+/* USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA Data
+
+This data structure is passed to the application layer when a client driver is
+select, in case multiple client drivers can support a particular device.
+*/
+typedef struct _override_client_driver_data
+{        
+    WORD idVendor;              
+    WORD idProduct;             
+    BYTE bDeviceClass;          
+    BYTE bDeviceSubClass;       
+    BYTE bDeviceProtocol;       
+} USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA;
 
 
 // *****************************************************************************

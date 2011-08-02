@@ -108,101 +108,223 @@ Description:
          on activity on the bus.
 
   2.7a   No change
+
+  2.8    Added USTAT_FIELDS typedef and associated macros.
 ********************************************************************/
 //DOM-IGNORE-END
 
 #ifndef USB_HAL_PIC24F_H
 #define USB_HAL_PIC24F_H
 
-//#if defined(USB_SUPPORT_DEVICE) | defined(USB_SUPPORT_OTG)
+/*****************************************************************************/
+/****** include files ********************************************************/
+/*****************************************************************************/
+
 #include "Compiler.h"
+#include "usb_config.h"
 
-#define USBSetBDTAddress(addr)         U1BDTP1 = (((unsigned int)addr)/256);
-#define USBPowerModule() U1PWRCbits.USBPWR = 1;
-#define USBPingPongBufferReset U1CONbits.PPBRST
+/*****************************************************************************/
+/****** Constant definitions *************************************************/
+/*****************************************************************************/
 
-#define USBTransactionCompleteIE U1IEbits.TRNIE
-#define USBTransactionCompleteIF U1IRbits.TRNIF
-#define USBTransactionCompleteIFReg U1IR
-#define USBTransactionCompleteIFBitNum 3
+//----- USBEnableEndpoint() input defintions ----------------------------------
+#define USB_HANDSHAKE_ENABLED           0x01
+#define USB_HANDSHAKE_DISABLED          0x00
 
-#define USBResetIE  U1IEbits.URSTIE
-#define USBResetIF  U1IRbits.URSTIF
-#define USBResetIFReg U1IR
-#define USBResetIFBitNum 0
+#define USB_OUT_ENABLED                 0x08
+#define USB_OUT_DISABLED                0x00
 
-#define USBIdleIE U1IEbits.IDLEIE
-#define USBIdleIF U1IRbits.IDLEIF
-#define USBIdleIFReg U1IR
-#define USBIdleIFBitNum 4
+#define USB_IN_ENABLED                  0x04
+#define USB_IN_DISABLED                 0x00
 
-#define USBActivityIE U1OTGIEbits.ACTVIE
-#define USBActivityIF U1OTGIRbits.ACTVIF
-#define USBActivityIFReg U1OTGIR
-#define USBActivityIFBitNum 4
+#define USB_ALLOW_SETUP                 0x00
+#define USB_DISALLOW_SETUP              0x10
 
-#define USBSOFIE U1IEbits.SOFIE
-#define USBSOFIF U1IRbits.SOFIF
-#define USBSOFIFReg U1IR
-#define USBSOFIFBitNum 2
+#define USB_STALL_ENDPOINT              0x02
 
-#define USBStallIE U1IEbits.STALLIE
-#define USBStallIF U1IRbits.STALLIF
-#define USBStallIFReg U1IR
-#define USBStallIFBitNum 7
+//----- usb_config.h input defintions -----------------------------------------
+#define USB_PULLUP_ENABLE               0x00
+//#define USB_PULLUP_DISABLE            0x00
 
-#define USBErrorIE U1IEbits.UERRIE
-#define USBErrorIF U1IRbits.UERRIF
-#define USBErrorIFReg U1IR
-#define USBErrorIFBitNum 1
+#define USB_INTERNAL_TRANSCEIVER        0x00
+#define USB_EXTERNAL_TRANSCEIVER        0x01
 
-#define USBSE0Event U1CONbits.SE0
-#define USBSuspendControl U1PWRCbits.USUSPEND
-#define USBPacketDisable U1CONbits.PKTDIS
-#define USBResumeControl U1CONbits.RESUME
+#define USB_FULL_SPEED                  0x04
+//USB_LOW_SPEED not currently supported in PIC24F USB products
 
-#define USBT1MSECIE U1OTGIEbits.T1MSECIE
-#define USBT1MSECIF U1OTGIRbits.T1MSECIF
-#define USBT1MSECIFReg U1OTGIR
-#define USBT1MSECIFBitNum   6
+#define USB_OTG_ENABLE                  0x04
 
-#define USBIDIE U1OTGIEbits.IDIE
-#define USBIDIF U1OTGIRbits.IDIF
-#define USBIDIFReg U1OTGIR
-#define USBIDIFBitNum   7
+//----- Interrupt Flag definitions --------------------------------------------
+#define USBTransactionCompleteIE        U1IEbits.TRNIE
+#define USBTransactionCompleteIF        U1IRbits.TRNIF
+#define USBTransactionCompleteIFReg     U1IR
+#define USBTransactionCompleteIFBitNum  3
 
-/* Buffer Descriptor Status Register Initialization Parameters */
+#define USBResetIE                      U1IEbits.URSTIE
+#define USBResetIF                      U1IRbits.URSTIF
+#define USBResetIFReg                   U1IR
+#define USBResetIFBitNum                0
 
-//The _BSTALL definition is changed from 0x04 to 0x00 to
-// fix a difference in the PIC18 and PIC24 definitions of this
-// bit.  This should be changed back once the definitions are
-// synced.
-#define _BSTALL     0x04        //Buffer Stall enable
-#define _DTSEN      0x08        //Data Toggle Synch enable
-#define _DAT0       0x00        //DATA0 packet expected next
-#define _DAT1       0x40        //DATA1 packet expected next
-#define _DTSMASK    0x40        //DTS Mask
-#define _USIE       0x80        //SIE owns buffer
-#define _UCPU       0x00        //CPU owns buffer
+#define USBIdleIE                       U1IEbits.IDLEIE
+#define USBIdleIF                       U1IRbits.IDLEIF
+#define USBIdleIFReg                    U1IR
+#define USBIdleIFBitNum                 4
 
-#define _STAT_MASK  0xFC
+#define USBActivityIE                   U1OTGIEbits.ACTVIE
+#define USBActivityIF                   U1OTGIRbits.ACTVIF
+#define USBActivityIFReg                U1OTGIR
+#define USBActivityIFBitNum             4
 
-#define USTAT_EP0_PP_MASK   ~0x04
-#define USTAT_EP_MASK       0xFC
-#define USTAT_EP0_OUT       0x00
-#define USTAT_EP0_OUT_EVEN  0x00
-#define USTAT_EP0_OUT_ODD   0x04
+#define USBSOFIE                        U1IEbits.SOFIE
+#define USBSOFIF                        U1IRbits.SOFIF
+#define USBSOFIFReg                     U1IR
+#define USBSOFIFBitNum                  2
 
-#define USTAT_EP0_IN        0x08
-#define USTAT_EP0_IN_EVEN   0x08
-#define USTAT_EP0_IN_ODD    0x0C
+#define USBStallIE                      U1IEbits.STALLIE
+#define USBStallIF                      U1IRbits.STALLIF
+#define USBStallIFReg                   U1IR
+#define USBStallIFBitNum                7
 
-typedef union
+#define USBErrorIE                      U1IEbits.UERRIE
+#define USBErrorIF                      U1IRbits.UERRIF
+#define USBErrorIFReg                   U1IR
+#define USBErrorIFBitNum                1
+
+#define USBT1MSECIE                     U1OTGIEbits.T1MSECIE
+#define USBT1MSECIF                     U1OTGIRbits.T1MSECIF
+#define USBT1MSECIFReg                  U1OTGIR
+#define USBT1MSECIFBitNum               6
+
+#define USBIDIE                         U1OTGIEbits.IDIE
+#define USBIDIF                         U1OTGIRbits.IDIF
+#define USBIDIFReg                      U1OTGIR
+#define USBIDIFBitNum                   7
+
+//----- Event call back defintions --------------------------------------------
+#if defined(USB_DISABLE_SOF_HANDLER)
+    #define USB_SOF_INTERRUPT           0x00
+#else
+    #define USB_SOF_INTERRUPT           0x04
+#endif
+#if defined(USB_DISABLE_ERROR_HANDLER)
+    #define USB_ERROR_INTERRUPT         0x02
+#else
+    #define USB_ERROR_INTERRUPT         0x02
+#endif
+
+//----- USB module control bits -----------------------------------------------
+#define USBPingPongBufferReset          U1CONbits.PPBRST
+#define USBSE0Event                     U1CONbits.SE0
+#define USBSuspendControl               U1PWRCbits.USUSPEND
+#define USBPacketDisable                U1CONbits.PKTDIS
+#define USBResumeControl                U1CONbits.RESUME
+
+//----- BDnSTAT bit definitions -----------------------------------------------
+#define _BSTALL                         0x04        //Buffer Stall enable
+#define _DTSEN                          0x08        //Data Toggle Synch enable
+#define _DAT0                           0x00        //DATA0 packet expected next
+#define _DAT1                           0x40        //DATA1 packet expected next
+#define _DTSMASK                        0x40        //DTS Mask
+#define _USIE                           0x80        //SIE owns buffer
+#define _UCPU                           0x00        //CPU owns buffer
+#define _STAT_MASK                      0xFC
+
+//----- USTAT bit definitions -------------------------------------------------
+#define USTAT_EP0_PP_MASK               ~0x04
+#define USTAT_EP_MASK                   0xFC
+#define USTAT_EP0_OUT                   0x00
+#define USTAT_EP0_OUT_EVEN              0x00
+#define USTAT_EP0_OUT_ODD               0x04
+#define USTAT_EP0_IN                    0x08
+#define USTAT_EP0_IN_EVEN               0x08
+#define USTAT_EP0_IN_ODD                0x0C
+#define ENDPOINT_MASK                   0b11110000
+
+//----- U1OTGCON bit definitions ----------------------------------------------
+#define USB_OTG_DPLUS_ENABLE            0x80
+
+//----- U1EP bit definitions --------------------------------------------------
+#define UEP_STALL                       0x0002
+// Cfg Control pipe for this ep
+#define EP_CTRL                         0x0C        
+
+//----- Depricated defintions - will be removed at some point of time----------
+//--------- Depricated in v2.2
+#define _LS                             0x00        // Use Low-Speed USB Mode
+#define _FS                             0x00        // Use Full-Speed USB Mode
+#define _TRINT                          0x00        // Use internal transceiver
+#define _TREXT                          0x00        // Use external transceiver
+#define _PUEN                           0x00        // Use internal pull-up resistor
+#define _OEMON                          0x00        // Use SIE output indicator
+
+/*****************************************************************************/
+/****** Type definitions *****************************************************/
+/*****************************************************************************/
+
+// Buffer Descriptor Status Register layout.
+typedef union _BD_STAT
 {
-    WORD UEP[16];
-} _UEP;
+    struct{
+        unsigned            :2;     //Byte count
+        unsigned    BSTALL  :1;     //Buffer Stall Enable
+        unsigned    DTSEN   :1;     //Data Toggle Synch Enable
+        unsigned            :2;     //Reserved - write as 00
+        unsigned    DTS     :1;     //Data Toggle Synch Value
+        unsigned    UOWN    :1;     //USB Ownership
+    };
+    struct{
+        unsigned            :2;
+        unsigned    PID0    :1;
+        unsigned    PID1    :1;
+        unsigned    PID2    :1;
+        unsigned    PID3    :1;
+    };
+    struct{
+        unsigned            :2;
+        unsigned    PID     :4;     // Packet Identifier
+    };
+    BYTE            Val;
+} BD_STAT;                      //Buffer Descriptor Status Register
 
-#define UEP_STALL 0x0002
+// BDT Entry Layout
+typedef union __BDT
+{
+    union
+    {
+        struct
+        {
+            BYTE CNT         __attribute__ ((packed));
+            BD_STAT     STAT __attribute__ ((packed));
+        };
+        struct
+        {
+            WORD        count:10;   //test
+            BYTE        :6;
+            WORD        ADR; //Buffer Address
+        };
+    };
+    DWORD           Val;
+    WORD            v[2];
+} BDT_ENTRY;
+
+// USTAT Register Layout
+typedef union __USTAT
+{
+    struct
+    {
+        unsigned char filler1           :2;
+        unsigned char ping_pong         :1;
+        unsigned char direction         :1;
+        unsigned char endpoint_number   :4;
+    };
+    BYTE Val;
+} USTAT_FIELDS;
+
+//Macros for fetching parameters from a USTAT_FIELDS variable.
+#define USBHALGetLastEndpoint(stat)     stat.endpoint_number
+#define USBHALGetLastDirection(stat)    stat.direction
+#define USBHALGetLastPingPong(stat)     stat.ping_pong
+
 
 typedef union _POINTER
 {
@@ -229,29 +351,68 @@ typedef union _POINTER
     //rom far word* fwRom;
 } POINTER;
 
- //******** Depricated: v2.2 - will be removed at some point of time ***
-#define _LS         0x00            // Use Low-Speed USB Mode
-#define _FS         0x00            // Use Full-Speed USB Mode
-#define _TRINT      0x00            // Use internal transceiver
-#define _TREXT      0x00            // Use external transceiver
-#define _PUEN       0x00            // Use internal pull-up resistor
-#define _OEMON      0x00            // Use SIE output indicator
-//**********************************************************************
+/*****************************************************************************/
+/****** Function prototypes and macro functions ******************************/
+/*****************************************************************************/
 
-#define USB_PULLUP_ENABLE 0x00
-//#define USB_PULLUP_DISABLE 0x00
-
-#define USB_OTG_ENABLE                0x04
-#define USB_OTG_DPLUS_ENABLE    0x80
-
-#define USB_INTERNAL_TRANSCEIVER 0x00
-#define USB_EXTERNAL_TRANSCEIVER 0x01
-
-#define USB_FULL_SPEED 0x00
-//USB_LOW_SPEED not currently supported in PIC24F USB products
 #define ConvertToPhysicalAddress(a) ((WORD)(a))
 #define ConvertToVirtualAddress(a)  ((void *)(a))
+#define USBClearUSBInterrupt() IFS5bits.USB1IF = 0;
+#if defined(USB_INTERRUPT)
+    #define USBMaskInterrupts() {IEC5bits.USB1IE = 0;}
+    #define USBUnmaskInterrupts() {IEC5bits.USB1IE = 1;}
+#else
+    #define USBMaskInterrupts() 
+    #define USBUnmaskInterrupts() 
+#endif
 
+//STALLIE, IDLEIE, TRNIE, and URSTIE are all enabled by default and are required
+#if defined(USB_INTERRUPT)
+    #define USBEnableInterrupts() {IEC5bits.USB1IE=1;}
+#else
+    #define USBEnableInterrupts()
+#endif
+
+#define USBDisableInterrupts() {IEC5bits.USB1IE=0;}
+#define USBInterruptFlag                IFS5bits.USB1IF
+
+
+
+#if (USB_PULLUP_OPTION == USB_PULLUP_ENABLE) || !defined(USB_PULLUP_OPTION)
+    #define PullUpConfiguration() U1OTGCONbits.OTGEN = 0;
+#else
+    #define PullUpConfiguration() U1OTGCONbits.OTGEN = 1; U1OTGCON &= 0xFF0F;
+#endif
+
+    #define SetConfigurationOptions()   {\
+                                            U1CNFG1 = USB_PING_PONG_MODE;\
+                                            U1CNFG2 = USB_TRANSCEIVER_OPTION;\
+                                            PullUpConfiguration();\
+                                            U1EIE = 0x9F;\
+                                            U1IE = 0x99 | USB_SOF_INTERRUPT | USB_ERROR_INTERRUPT;\
+                                        } 
+
+
+/****************************************************************
+    Function:
+        void USBPowerModule(void)
+        
+    Description:
+        This macro is used to power up the USB module if required<br>
+        PIC18: defines as nothing<br>
+        PIC24: defines as U1PWRCbits.USBPWR = 1;<br>
+        
+    Parameters:
+        None
+        
+    Return Values:
+        None
+        
+    Remarks:
+        None
+        
+  ****************************************************************/
+#define USBPowerModule() U1PWRCbits.USBPWR = 1;
 
 /****************************************************************
     Function:
@@ -278,26 +439,68 @@ typedef union _POINTER
     USBDeviceState = DETACHED_STATE;\
 }    
 
+/****************************************************************
+    Function:
+        USBSetBDTAddress(addr)
+        
+    Description:
+        This macro is used to power up the USB module if required
+        
+    Parameters:
+        None
+        
+    Return Values:
+        None
+        
+    Remarks:
+        None
+        
+  ****************************************************************/
+#define USBSetBDTAddress(addr)         U1BDTP1 = (((unsigned int)addr)/256);
+
+/****************************************************************
+    Function:
+        void USBClearInterruptRegister(int register)
+        
+    Description:
+        Clears all of the interrupts in the requested register
+        
+    Parameters:
+        register - the regsister that needs to be cleared.
+        
+    Return Values:
+        None
+        
+    Remarks:
+        Note that on these devices to clear an interrupt you must
+        write a '1' to the interrupt location.
+        
+  ****************************************************************/
+#define USBClearInterruptRegister(reg) reg = 0xFFFF;
 
 /********************************************************************
- * Function (macro): void USBClearInterruptFlag(register, BYTE if_flag_offset)
- *
- * PreCondition:    None
- *
- * Input:           
- *   register - the register mnemonic for the register holding the interrupt 
- *				flag to be "kleared"
- *   BYTE if_flag_offset - the bit position offset (for the interrupt flag to 
- *							"klear") from the "right of the register"
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        Klears the specified USB interrupt flag.
- *
- * Note:    		Individual USB interrupt flag bits are "Kleared" by writing
- *					'1' to the bit, in a word write operation.
+    Function:
+        void USBClearInterruptFlag(register, BYTE if_flag_offset)
+        
+    Summary:
+        Clears the specified USB interrupt flag.
+        
+    PreCondition:
+        None
+        
+    Parameters:
+        register - the register mnemonic for the register holding the interrupt 
+                   flag to be cleared
+        BYTE if_flag_offset - the bit position offset (for the interrupt flag to 
+                   clear) from the "right of the register"
+        
+    Return Values:
+        None
+        
+    Remarks:
+        Individual USB interrupt flag bits are cleared by writing '1' to the 
+        bit, in a word write operation.
+ 
  *******************************************************************/
 #define USBClearInterruptFlag(reg_name, if_flag_offset)	(reg_name = (1 << if_flag_offset))	
 
@@ -352,125 +555,18 @@ Remarks:
 *******************************************************************/
 BOOL USBSleepOnSuspend(void);
 
-#define USBClearUSBInterrupt() IFS5bits.USB1IF = 0;
-#if defined(USB_INTERRUPT)
-    #define USBMaskInterrupts() {IEC5bits.USB1IE = 0;}
-    #define USBUnmaskInterrupts() {IEC5bits.USB1IE = 1;}
-#else
-    #define USBMaskInterrupts() 
-    #define USBUnmaskInterrupts() 
+/*****************************************************************************/
+/****** Compiler checks ******************************************************/
+/*****************************************************************************/
+
+//Definitions for the BDT
+#ifndef USB_PING_PONG_MODE
+    #error "No ping pong mode defined."
 #endif
 
-
-#if defined(USB_DISABLE_SOF_HANDLER)
-    #define USB_SOF_INTERRUPT 0x00
-#else
-    #define USB_SOF_INTERRUPT 0x04
-#endif
-#if defined(USB_DISABLE_ERROR_HANDLER)
-    #define USB_ERROR_INTERRUPT 0x02
-#else
-    #define USB_ERROR_INTERRUPT 0x02
-#endif
-
-//STALLIE, IDLEIE, TRNIE, and URSTIE are all enabled by default and are required
-#if defined(USB_INTERRUPT)
-    #define USBEnableInterrupts() {IEC5bits.USB1IE=1;}
-#else
-    #define USBEnableInterrupts()
-#endif
-
-#define USBDisableInterrupts() {IEC5bits.USB1IE=0;}
-#define ENDPOINT_MASK 0b11110000
-
-    #define EP_CTRL     0x0C            // Cfg Control pipe for this ep
-    #define EP_OUT      0x18            // Cfg OUT only pipe for this ep
-    #define EP_IN       0x14            // Cfg IN only pipe for this ep
-    #define EP_OUT_IN   0x1C            // Cfg both OUT & IN pipes for this ep
-    #define HSHK_EN     0x01            // Enable handshake packet
-                                    // Handshake should be disable for isoch
-
-    #define USB_HANDSHAKE_ENABLED   0x01
-    #define USB_HANDSHAKE_DISABLED  0x00
-
-    #define USB_OUT_ENABLED         0x08
-    #define USB_OUT_DISABLED        0x00
-
-    #define USB_IN_ENABLED          0x04
-    #define USB_IN_DISABLED         0x00
-
-    #define USB_ALLOW_SETUP         0x00
-    #define USB_DISALLOW_SETUP      0x10
-
-    #define USB_STALL_ENDPOINT      0x02
-
-    #if (USB_PULLUP_OPTION == USB_PULLUP_ENABLE) || !defined(USB_PULLUP_OPTION)
-        #define PullUpConfiguration() U1OTGCONbits.OTGEN = 0;
-    #else
-	    #define PullUpConfiguration() U1OTGCONbits.OTGEN = 1; U1OTGCON &= 0xFF0F;
-    #endif
-
-        #define SetConfigurationOptions()   {\
-                                                U1CNFG1 = USB_PING_PONG_MODE;\
-                                                U1CNFG2 = USB_TRANSCEIVER_OPTION;\
-                                                PullUpConfiguration();\
-                                                U1EIE = 0x9F;\
-                                                U1IE = 0x99 | USB_SOF_INTERRUPT | USB_ERROR_INTERRUPT;\
-                                            } 
-
-//    #if defined(USB_SPEED_OPTION)
-//        #if (USB_SPEED_OPTION == USB_LOW_SPEED)
-//            #error "Low speed operation in device mode is not currently supported in the PIC24F family devices."
-//        #endif
-//    #endif
-
-    #define USBClearInterruptRegister(reg) reg = 0xFF;
-
-// Buffer Descriptor Status Register layout.
-typedef union _BD_STAT
-{
-    struct{
-        unsigned            :2;      //Byte count
-        unsigned    BSTALL  :1;     //Buffer Stall Enable
-        unsigned    DTSEN   :1;     //Data Toggle Synch Enable
-        unsigned            :2;     //Reserved - write as 00
-        unsigned    DTS     :1;     //Data Toggle Synch Value
-        unsigned    UOWN    :1;     //USB Ownership
-    };
-    struct{
-        unsigned            :2;
-        unsigned    PID0    :1;
-        unsigned    PID1    :1;
-        unsigned    PID2    :1;
-        unsigned    PID3    :1;
-    };
-    struct{
-        unsigned            :2;
-        unsigned    PID     :4;     // Packet Identifier
-    };
-    BYTE            Val;
-} BD_STAT;                      //Buffer Descriptor Status Register
-
-// BDT Entry Layout
-typedef union __BDT
-{
-    union
-    {
-        struct
-        {
-            BYTE CNT         __attribute__ ((packed));
-            BD_STAT     STAT __attribute__ ((packed));
-        };
-        struct
-        {
-            WORD        count:10;   //test
-            BYTE        :6;
-            WORD        ADR; //Buffer Address
-        };
-    };
-    DWORD           Val;
-    WORD            v[2];
-} BDT_ENTRY;
+/*****************************************************************************/
+/****** Extern variable definitions ******************************************/
+/*****************************************************************************/
 
 #if defined(USB_SUPPORT_DEVICE) | defined(USB_SUPPORT_OTG)
     #if !defined(USBDEVICE_C)
@@ -478,8 +574,9 @@ typedef union __BDT
         extern USB_VOLATILE BYTE USBActiveConfiguration;
         extern USB_VOLATILE IN_PIPE inPipes[1];
         extern USB_VOLATILE OUT_PIPE outPipes[1];
-        extern volatile BDT_ENTRY *pBDTEntryIn[USB_MAX_EP_NUMBER+1];
     #endif
+	extern volatile BDT_ENTRY* pBDTEntryOut[USB_MAX_EP_NUMBER+1];
+	extern volatile BDT_ENTRY* pBDTEntryIn[USB_MAX_EP_NUMBER+1];	
 #endif
 
 #endif //USB_HAL_PIC24F_H

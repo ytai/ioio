@@ -33,7 +33,7 @@ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 Change History:
   Rev         Description
   ----------  ----------------------------------------------------------
-  2.6 - 2.7a  No change
+  2.6 - 2.6a  No change
 
 *******************************************************************************/
 
@@ -45,6 +45,9 @@ Change History:
 #if defined (__18CXX)
     #include "USB PIC18.h"
 #elif defined (__C30__)
+    #if defined (__dsPIC33EP512MU810__)
+    #include <p33Exxxx.h>
+    #endif
     //#include "USB PIC24.h"
 #elif defined (__PIC32MX__)
     #include "p32xxxx.h"
