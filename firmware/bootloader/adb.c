@@ -30,11 +30,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include "adb_private.h"
+#include "adb.h"
 #include "adb_packet.h"
 #include "usb_config.h"
-#include "USB/usb.h"
-#include "USB/usb_host.h"
+#include "usb/usb.h"
+#include "usb/usb_host.h"
 #include "usb_host_android.h"
 #include "logging.h"
 

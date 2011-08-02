@@ -30,6 +30,9 @@
 // This module allows Adnroid file-system access on top of the ADB protocol.
 // Currently, only reading of files is supported.
 // Basic usage is as follows:
+// - ADBFileInit() must be called to initialize the ADB File module.
+// - ADBFile Tasks() must be called periodically to provide context to the ADB
+//   File module, used for handling communications.
 // - Client opens a file for read using ADBFileRead().
 // - The client's callback gets called with the file's data being passed.
 // - The callback is notified for EOF or error condition.
@@ -45,10 +48,10 @@
 // }
 //
 // ...
-// while (!BootloaderTasks());
+// ADBFileInit();
 // h = ADBFileOpen("/data/data/ioio.app/files/temp", &FileCallback);
 // while (1) {
-//   BootloaderTasks();
+//   ADBFileTasks();
 // }
 
 #ifndef __ADBFILE_H__
@@ -69,6 +72,13 @@ typedef int ADB_FILE_HANDLE;
 
 // Maximum path length.
 #define ADB_FILE_MAX_PATH_LENGTH 64
+
+// Reset the state of this module.
+// Should be called at least once before doing anything else.
+void ADBFileInit();
+
+// Call this function periodically in order to provide context to this module.
+void ADBFileTasks();
 
 // The signature of a channel incoming data callback.
 // The h argument is useful in case the same function is used for several

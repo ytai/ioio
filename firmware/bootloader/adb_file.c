@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <string.h>
 #include "logging.h"
-#include "adb_file_private.h"
+#include "adb_file.h"
 
 #define CHANGE_STATE(var,state)              \
 do {                                         \

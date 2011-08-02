@@ -32,11 +32,11 @@
 #include <string.h>
 #include "GenericTypeDefs.h"
 #include "board.h"
-#include "bootloader_private.h"
+#include "bootloader.h"
 #include "bootloader_defs.h"
-#include "blapi/adb.h"
-#include "blapi/adb_file.h"
-#include "blapi/flash.h"
+#include "adb.h"
+#include "adb_file.h"
+#include "flash.h"
 #include "HardwareProfile.h"
 #include "logging.h"
 #include "ioio_file.h"
@@ -107,6 +107,8 @@
 
 #define FINGERPRINT_SIZE 16
 #define MAX_PATH 64
+
+int pass_usb_to_app __attribute__ ((near, section("bootflag.sec"))) = 0;
 
 void InitializeSystem() {
 #ifdef ENABLE_LOGGING

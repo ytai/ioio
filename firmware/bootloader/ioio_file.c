@@ -30,7 +30,7 @@
 #include <string.h>
 
 #include "logging.h"
-#include "blapi/flash.h"
+#include "flash.h"
 #include "ioio_file.h"
 #include "bootloader_defs.h"
 

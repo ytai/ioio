@@ -29,17 +29,13 @@
 
 #include <string.h>
 
-#include "adb_private.h"
-#include "adb_file_private.h"
-#include "bootloader_private.h"
+#include "adb.h"
+#include "adb_file.h"
+#include "bootloader.h"
 #include "board.h"
 
-#define BL_IMPL_VER "IOIO0100"
-
-void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]) {
-  memcpy(hwImplVer, HW_IMPL_VER, 8);
-  memcpy(blImplVer, BL_IMPL_VER, 8);
-}
+const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(prog))) = "IOIO0100";
+const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(prog))) = HW_IMPL_VER;
 
 BOOL BootloaderTasks() {
   BOOL connected = ADBTasks();

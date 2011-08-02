@@ -4,7 +4,7 @@ __APP_IVT_BASE = 0x5000;
 
 __BLAPI_BASE = 0x4F80;
 _BootloaderVersions = __BLAPI_BASE + 0x00;
-_BootloaderTasks    = __BLAPI_BASE + 0x04;
+/*_BootloaderTasks    = __BLAPI_BASE + 0x04;
 _ADBOpen            = __BLAPI_BASE + 0x08;
 _ADBBufferRef       = __BLAPI_BASE + 0x0C;
 _ADBBufferUnref     = __BLAPI_BASE + 0x10;
@@ -16,7 +16,7 @@ _ADBFileClose       = __BLAPI_BASE + 0x24;
 _FlashErasePage     = __BLAPI_BASE + 0x28;
 _FlashWriteDWORD    = __BLAPI_BASE + 0x2C;
 _FlashWriteBlock    = __BLAPI_BASE + 0x30;
-_FlashReadDWORD     = __BLAPI_BASE + 0x34;
+_FlashReadDWORD     = __BLAPI_BASE + 0x34;*/
 
 /*
 ** ==================== Section Map ======================
@@ -178,6 +178,7 @@ SECTIONS
     SHORT(DEFINED(__OC9Interrupt) ? ABSOLUTE(__OC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__OC9Interrupt) ? (ABSOLUTE(__OC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__IC9Interrupt) ? ABSOLUTE(__IC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__IC9Interrupt) ? (ABSOLUTE(__IC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__GFX1Interrupt) ? ABSOLUTE(__GFX1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__GFX1Interrupt) ? (ABSOLUTE(__GFX1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
+    SHORT(DEFINED(__USB1Interrupt) ? ABSOLUTE(__USB1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__USB1Interrupt) ? (ABSOLUTE(__USB1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
   }
 } /* SECTIONS */
 

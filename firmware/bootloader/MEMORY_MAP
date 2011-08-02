@@ -5,10 +5,9 @@ RAM
 ORIGIN              LENGTH              PURPOSE
 ----------------------------------------------------------------------------------------------------------------
 0x0                 0x800               SFR
-0x800               0x2000              For app usage (near).
-0x2000              0x2000	        Bootloader data (preserve) - needs to remain valid all the time.
-0x4000        	    0x2000              Bootloader data (scratch) - can be overridden by app after boot is done.
-0x6000              0x800/0x12000(*)    For app usage (far).
+0x800               0x17FE              For app and bootloader usage (near).
+0x1FFE              0x2                 Reserved for bootloader.
+0x2000              0x4800/0x16000(*)    For app usage (far).
 
 (*) PIC24FJxxxDA1xx / PIC24FJxxxDA2xx
 
@@ -21,7 +20,7 @@ ORIGIN              LENGTH              PURPOSE
 0x104               0xFC                Bootloader AIVT
 0x200               0x4C80              Bootloader code
 0x4F80              0x80                BLAPI table
-0x5000              0x10C               Application IVT
-0x510C              0xD2F4/0x226F4(*)   Application code
+0x5000              0x110               Application IVT
+0x5110              0xD2F0/0x226F0(*)   Application code
 
 (*) PIC24FJ128DAxxx / PIC24FJ256DAxxx

@@ -36,6 +36,9 @@
 // channel is able to process a single buffer of outgoing data at a given moment
 // as well as calls back a client-provided function as soon as incoming data
 // arrives.
+// ADBInit() must be called to initialize the ADB module.
+// ADBTasks() must be called periodically to provide context to the ADB module,
+// used for handling communications.
 // The number of concurrently open channels is limited by ADB_MAX_CHANNELS.
 //
 // Closing of a channel:
@@ -73,14 +76,14 @@
 // }
 //
 // ...
-// while (!BootloaderTasks());
+// ADBInit();
 // h = ADBOpen("shell:", &ShellCallback);
 // while (!ADBChannelReady(h)) {
-//   BootloaderTasks();
+//   ADBTasks();
 // }
 // ADBWrite(h, data, sizeof data);
 // while (1) {
-//   BootloaderTasks();
+//   ADBTasks();
 // }
 
 #ifndef __ADB_H__
@@ -111,6 +114,14 @@ typedef int ADB_CHANNEL_HANDLE;
 // When a channel is closed by the remote end (or its open is rejected), this
 // function will be called with NULL data and 0 length.
 typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+
+// Call this once at the start of the program.
+void ADBInit();
+
+// Call this periodically. Will not block for long.
+// Returns TRUE if an ADB connection is established, FALSE otherwise. Once a
+// connection drops, all open channels will be closed.
+BOOL ADBTasks();
 
 // Open a new channel to the remote end.
 // The name indicates the destination on the remote end. Names such as

@@ -27,19 +27,19 @@
  * or implied.
  */
 
-// This module provides a single function that must be called periodically in
-// order to provide context for all bootloader services.
-// In particular, the ADB-related services need context in order to maintain
-// communications.
+// This module provides functions for ongoing operation of the bootloader.
+// BootloaderInit() must be called once to reset the state.
+// BootloaderTasks() must be called periodically in order to provide context
+// for all bootloader services. In particular, the ADB-related services need
+// context in order to maintain communications.
 
 #ifndef __BOOTLOADER_H__
 #define __BOOTLOADER_H__
 
 #include "GenericTypeDefs.h"
 
-// Returns the implementation IDs of the hardware and the bootloader.
-// Each version is comprised of 4 bytes authority, followed by 4 bytes revision.
-void BootloaderVersions(BYTE hwImplVer[8], BYTE blImplVer[8]);
+// Reset the state of all bootloader modules.
+void BootloaderInit();
 
 // Needs to be called by the application periodically in order to provide
 // context for the service provided by the bootloader API (BLAPI).
