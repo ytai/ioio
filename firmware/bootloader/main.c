@@ -108,6 +108,8 @@
 #define FINGERPRINT_SIZE 16
 #define MAX_PATH 64
 
+int pass_usb_to_app __attribute__ ((near)) = 0;
+
 void InitializeSystem() {
 #ifdef ENABLE_LOGGING
   iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)

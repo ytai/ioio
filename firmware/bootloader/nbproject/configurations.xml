@@ -86,6 +86,7 @@
       </logicalFolder>
       <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
+      <itemPath>usb_int.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

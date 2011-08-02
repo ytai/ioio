@@ -7,6 +7,8 @@ __APP_RESET = 0x5000;
 __BLAPI_BASE = 0x4F80;
 __APP_IVT_BASE = 0x5000;
 
+__APP_USB1Interrupt = __APP_IVT_BASE + 0x10C;
+
 /*
 ** ==================== Section Map ======================
 */
@@ -294,7 +296,7 @@ SECTIONS
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E0); /* __U3TXInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E4); /* __SI2C3Interrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E8); /* __MI2C3Interrupt */
-    LONG(ABSOLUTE(__USB1Interrupt));		/* __USB1Interrupt */
+    LONG(ABSOLUTE(__USB1InterruptWrapper)); /* __USB1Interrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); /* __U4ErrInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F0); /* __U4RXInterrupt */
     LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F4); /* __U4TXInterrupt */

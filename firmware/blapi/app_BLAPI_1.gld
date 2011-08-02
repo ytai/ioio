@@ -178,6 +178,7 @@ SECTIONS
     SHORT(DEFINED(__OC9Interrupt) ? ABSOLUTE(__OC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__OC9Interrupt) ? (ABSOLUTE(__OC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__IC9Interrupt) ? ABSOLUTE(__IC9Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__IC9Interrupt) ? (ABSOLUTE(__IC9Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
     SHORT(DEFINED(__GFX1Interrupt) ? ABSOLUTE(__GFX1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__GFX1Interrupt) ? (ABSOLUTE(__GFX1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
+    SHORT(DEFINED(__USB1Interrupt) ? ABSOLUTE(__USB1Interrupt) : ABSOLUTE(__DefaultInterrupt));  SHORT(0x04);  SHORT(DEFINED(__USB1Interrupt) ? (ABSOLUTE(__USB1Interrupt) >> 16) & 0x7F : (ABSOLUTE(__DefaultInterrupt) >> 16) & 0x7F);  SHORT(0);
   }
 } /* SECTIONS */
 
