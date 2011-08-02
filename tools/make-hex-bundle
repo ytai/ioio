@@ -15,8 +15,8 @@ configs=("${configs[@]:2}")
 i=0
 for config in "${configs[@]}"; do
   echo $config
-  cp $DISTDIR/$config/production/*.hex /tmp/$config.ioio
-  results[$((i++))]=/tmp/$config.ioio
+  cp $DISTDIR/$config/production/*.hex /tmp/$config.hex
+  results[$((i++))]=/tmp/$config.hex
 done
 
 $ZIP -j $OUT ${results[@]}
