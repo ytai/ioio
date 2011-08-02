@@ -57,7 +57,11 @@ BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 //U2BRG register value and baudrate mistake calculation
 
 #if defined (__C30__)
+    #if defined (__dsPIC33E__) || defined (__PIC24E__)
+    #define BAUDRATEREG2        (((GetSystemClock())/(BRG_DIV2 * BAUDRATE2)) - 1)
+    #else
     #define BAUDRATEREG2        (((GetSystemClock()/2)+(BRG_DIV2/2*BAUDRATE2))/BRG_DIV2/BAUDRATE2-1)
+    #endif
 #elif defined (__PIC32MX__)
     #define BAUDRATEREG2        ((GetPeripheralClock()+(BRG_DIV2/2*BAUDRATE2))/BRG_DIV2/BAUDRATE2-1)
 #else
@@ -65,7 +69,11 @@ BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #endif    
 
 #if defined (__C30__)
+    #if defined (__dsPIC33EP512MU810__)|| defined (__PIC24EP512GU810__)
+    #define BAUD_ACTUAL         ((GetSystemClock())/(BRG_DIV2 * (BAUDRATEREG2+1)))
+    #else
     #define BAUD_ACTUAL         ((GetSystemClock()/2)/BRG_DIV2/(BAUDRATEREG2+1))
+    #endif
 #elif defined (__PIC32MX__)
     #define BAUD_ACTUAL         (GetPeripheralClock()/BRG_DIV2/(BAUDRATEREG2+1))
 #else
@@ -252,16 +260,18 @@ Output: None.
 void  UART2PutDec(unsigned char dec)
 {
     unsigned char res;
+    unsigned char printed_already = 0;
 
     res = dec;
 
     if (res/100)
     {
         UART2PutChar( res/100 + '0' );
+        printed_already = 1;
     }
     res = res - (res/100)*100;
 
-    if (res/10)
+    if ((res/10) || (printed_already == 1))
     {
         UART2PutChar( res/10 + '0' );
     }

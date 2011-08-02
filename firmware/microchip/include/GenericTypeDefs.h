@@ -42,6 +42,7 @@
   1.4   08/08/08     Remove LSB/MSB Macros, adopted by Peripheral lib
   1.5   08/14/08     Simplify file header
   2.0   07/13/09     Updated for new release of coding standards
+  3.1   05/28/10     MiWi DE 3.1
 *******************************************************************/
 
 #ifndef __GENERIC_TYPE_DEFS_H_

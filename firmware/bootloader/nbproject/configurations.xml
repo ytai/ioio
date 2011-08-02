@@ -32,16 +32,16 @@
         <itemPath>microchip/include/uart2.h</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
-        <itemPath>microchip/include/USB/usb.h</itemPath>
-        <itemPath>microchip/include/USB/usb_ch9.h</itemPath>
-        <itemPath>microchip/include/USB/usb_common.h</itemPath>
+        <itemPath>../microchip/include/USB/usb.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_ch9.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_common.h</itemPath>
         <itemPath>usb_config.h</itemPath>
-        <itemPath>microchip/include/USB/usb_hal.h</itemPath>
-        <itemPath>microchip/usb/usb_hal_local.h</itemPath>
-        <itemPath>microchip/include/USB/usb_hal_pic24.h</itemPath>
-        <itemPath>microchip/include/USB/usb_host.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_hal.h</itemPath>
+        <itemPath>../microchip/usb/usb_hal_local.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_hal_pic24.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_host.h</itemPath>
         <itemPath>usb_host_android.h</itemPath>
-        <itemPath>microchip/usb/usb_host_local.h</itemPath>
+        <itemPath>../microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
       <itemPath>HardwareProfile.h</itemPath>
       <itemPath>board.h</itemPath>
