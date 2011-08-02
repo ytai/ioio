@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if test $# -lt 3; then
+  echo "Usage: make-ioio-bundle dist-dir out config1 config2 ..."
+  exit 1
+fi
+
+ZIP=zip
+DISTDIR=$1
+OUT=$2
+
+configs=("$@")
+configs=("${configs[@]:2}")
+
+i=0
+for config in "${configs[@]}"; do
+  echo $config
+  cp $DISTDIR/$config/production/*.hex /tmp/$config.ioio
+  results[$((i++))]=/tmp/$config.ioio
+done
+
+$ZIP -j $OUT ${results[@]}
+
