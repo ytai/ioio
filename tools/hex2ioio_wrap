@@ -1,2 +1,0 @@
-#!/bin/sh
-tools/hex2ioio/hex2ioio $2 /dev/fd/1 | tools/wrapioio/wrapioio $1 /dev/fd/0 $3
