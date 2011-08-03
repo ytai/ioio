@@ -7,7 +7,7 @@ ORIGIN              LENGTH              PURPOSE
 0x0                 0x800               SFR
 0x800               0x17FE              For app and bootloader usage (near).
 0x1FFE              0x2                 Reserved for bootloader.
-0x2000              0x4800/0x16000(*)    For app usage (far).
+0x2000              0x4800/0x16000(*)   For app and bootloader usage (far).
 
 (*) PIC24FJxxxDA1xx / PIC24FJxxxDA2xx
 
