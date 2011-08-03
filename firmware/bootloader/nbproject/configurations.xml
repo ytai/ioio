@@ -25,11 +25,11 @@
         <itemPath>xml.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
-        <itemPath>microchip/include/Compiler.h</itemPath>
-        <itemPath>microchip/include/GenericTypeDefs.h</itemPath>
-        <itemPath>microchip/include/struct_queue.h</itemPath>
-        <itemPath>microchip/include/timer.h</itemPath>
-        <itemPath>microchip/include/uart2.h</itemPath>
+        <itemPath>../microchip/include/Compiler.h</itemPath>
+        <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
+        <itemPath>../microchip/include/struct_queue.h</itemPath>
+        <itemPath>../microchip/include/timer.h</itemPath>
+        <itemPath>../microchip/include/uart2.h</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
         <itemPath>../microchip/include/USB/usb.h</itemPath>
@@ -118,24 +118,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="large-scalar"/>
-        <property key="extra-include-directories"
-                  value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1012;NDEBUG"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
         <property key="optimization-level" value="s"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1012;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
+        <property key="extra-include-directories"
+                  value=".;..;../blapi;../microchip/include;../microchip/include/USB  ;../microchip/USB;../common"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="large-scalar"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
@@ -259,24 +260,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="large-scalar"/>
+        <property key="optimization-level" value="s"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1013;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1013;NDEBUG"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="s"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="large-scalar"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
@@ -400,24 +402,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="large-scalar"/>
+        <property key="optimization-level" value="s"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1014;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1014;NDEBUG"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="s"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="large-scalar"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
@@ -541,24 +544,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="large-scalar"/>
+        <property key="optimization-level" value="s"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1015;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1015;NDEBUG"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="s"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="large-scalar"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
@@ -682,24 +686,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="large-scalar"/>
+        <property key="optimization-level" value="s"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1016;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
         <property key="extra-include-directories"
                   value=".;..;../blapi;../microchip/include;../microchip/include/USB;../microchip/USB;../common"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1016;NDEBUG"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="optimization-level" value="s"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="large-scalar"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
