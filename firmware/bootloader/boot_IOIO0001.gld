@@ -13,8 +13,10 @@ OPTIONAL(-lpPIC24Fxxx)
 */
 MEMORY
 {
-  data  (a!xr) : ORIGIN = 0x1FF0,        LENGTH = 0x2010
-  bldata(a!xr) : ORIGIN = 0x4000,        LENGTH = 0x2000
+  /* data memory */
+  data  (a!xr) : ORIGIN = 0x800,           LENGTH = 0x6000
+
+  /* program memory */
   reset        : ORIGIN = 0x0,           LENGTH = 0x4
   ivt          : ORIGIN = 0x4,           LENGTH = 0xFC
   aivt         : ORIGIN = 0x104,         LENGTH = 0xFC
