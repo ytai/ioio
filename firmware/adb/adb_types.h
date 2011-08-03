@@ -27,24 +27,18 @@
  * or implied.
  */
 
-#include <string.h>
+// This file introduces common types to the ADB layer.
 
-#include "adb/adb.h"
-#include "adb/adb_file.h"
-#include "bootloader.h"
-#include "board.h"
+#ifndef __ADBTYPES_H__
+#define __ADBTYPES_H__
 
-const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(prog))) = "IOIO0100";
-const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(prog))) = HW_IMPL_VER;
+// A result code of ADB operations.
+typedef enum {
+  ADB_RESULT_OK,      // Operation succeeded.
+  ADB_RESULT_ERROR,   // Operation failed.
+  ADB_RESULT_BUSY     // Operation not yet complete.
+} ADB_RESULT;
 
-BOOL BootloaderTasks() {
-  BOOL connected = ADBTasks();
-  if (!connected) return FALSE;
-  ADBFileTasks();
-  return TRUE;
-}
 
-void BootloaderInit() {
-  ADBInit();
-  ADBFileInit();
-}
+
+#endif  // __ADBTYPES_H__

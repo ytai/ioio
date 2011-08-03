@@ -5,10 +5,10 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="ADB" displayName="ADB" projectFiles="true">
-        <itemPath>adb.h</itemPath>
-        <itemPath>adb_file.h</itemPath>
-        <itemPath>adb_packet.h</itemPath>
-        <itemPath>adb_types.h</itemPath>
+        <itemPath>../adb/adb.h</itemPath>
+        <itemPath>../adb/adb_file.h</itemPath>
+        <itemPath>../adb/adb_packet.h</itemPath>
+        <itemPath>../adb/adb_types.h</itemPath>
       </logicalFolder>
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
         <itemPath>../blapi/version.h</itemPath>
@@ -62,9 +62,9 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="ADB" displayName="ADB" projectFiles="true">
-        <itemPath>adb.c</itemPath>
-        <itemPath>adb_file.c</itemPath>
-        <itemPath>adb_packet.c</itemPath>
+        <itemPath>../adb/adb.c</itemPath>
+        <itemPath>../adb/adb_file.c</itemPath>
+        <itemPath>../adb/adb_packet.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.c</itemPath>
