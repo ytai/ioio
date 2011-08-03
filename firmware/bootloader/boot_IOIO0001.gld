@@ -14,7 +14,7 @@ OPTIONAL(-lpPIC24Fxxx)
 MEMORY
 {
   /* data memory */
-  data  (a!xr) : ORIGIN = 0x0,           LENGTH = 0x6800
+  data  (a!xr) : ORIGIN = 0x800,           LENGTH = 0x6000
 
   /* program memory */
   reset        : ORIGIN = 0x0,           LENGTH = 0x4
