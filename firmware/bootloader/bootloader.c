@@ -29,9 +29,9 @@
 
 #include <string.h>
 
-#include "adb_private.h"
-#include "adb_file_private.h"
-#include "bootloader_private.h"
+#include "adb/adb.h"
+#include "adb/adb_file.h"
+#include "bootloader.h"
 #include "board.h"
 
 #define BL_IMPL_VER "IOIO0100"
