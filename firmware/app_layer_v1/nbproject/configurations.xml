@@ -4,11 +4,34 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="ADB" projectFiles="true">
+        <itemPath>../adb/adb.h</itemPath>
+        <itemPath>../adb/adb_file.h</itemPath>
+        <itemPath>../adb/adb_packet.h</itemPath>
+        <itemPath>../adb/adb_types.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
-        <itemPath>../blapi/adb.h</itemPath>
-        <itemPath>../blapi/adb_file.h</itemPath>
-        <itemPath>../blapi/bootloader.h</itemPath>
-        <itemPath>../blapi/flash.h</itemPath>
+        <itemPath>../blapi/version.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Common" projectFiles="true">
+        <itemPath>../microchip/include/Compiler.h</itemPath>
+        <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
+        <itemPath>../common/logging.h</itemPath>
+        <itemPath>../microchip/include/struct_queue.h</itemPath>
+        <itemPath>../microchip/include/timer.h</itemPath>
+        <itemPath>../microchip/include/uart2.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="USB" projectFiles="true">
+        <itemPath>../microchip/include/USB/usb.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_ch9.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_common.h</itemPath>
+        <itemPath>usb_config.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_hal.h</itemPath>
+        <itemPath>../microchip/usb/usb_hal_local.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_hal_pic24.h</itemPath>
+        <itemPath>../microchip/include/USB/usb_host.h</itemPath>
+        <itemPath>../adb/usb_host_android.h</itemPath>
+        <itemPath>../microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
       <itemPath>HardwareProfile.h</itemPath>
       <itemPath>adc.h</itemPath>
@@ -18,7 +41,6 @@
       <itemPath>i2c.h</itemPath>
       <itemPath>icsp.h</itemPath>
       <itemPath>incap.h</itemPath>
-      <itemPath>../common/logging.h</itemPath>
       <itemPath>pins.h</itemPath>
       <itemPath>../common/platform.h</itemPath>
       <itemPath>pp_util.h</itemPath>
@@ -27,10 +49,8 @@
       <itemPath>pwm.h</itemPath>
       <itemPath>spi.h</itemPath>
       <itemPath>sync.h</itemPath>
-      <itemPath>../microchip/include/timer.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
-      <itemPath>../microchip/include/uart2.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -48,6 +68,20 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="ADB" projectFiles="true">
+        <itemPath>../adb/adb.c</itemPath>
+        <itemPath>../adb/adb_file.c</itemPath>
+        <itemPath>../adb/adb_packet.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Common" projectFiles="true">
+        <itemPath>../common/logging.c</itemPath>
+        <itemPath>../microchip/common/uart2.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="USB" projectFiles="true">
+        <itemPath>usb_config.c</itemPath>
+        <itemPath>../microchip/usb/usb_host.c</itemPath>
+        <itemPath>../adb/usb_host_android.c</itemPath>
+      </logicalFolder>
       <itemPath>adc.c</itemPath>
       <itemPath>byte_queue.c</itemPath>
       <itemPath>digital.c</itemPath>
@@ -55,7 +89,6 @@
       <itemPath>i2c.c</itemPath>
       <itemPath>icsp.c</itemPath>
       <itemPath>incap.c</itemPath>
-      <itemPath>../common/logging.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>pins.c</itemPath>
       <itemPath>protocol.c</itemPath>
@@ -63,7 +96,6 @@
       <itemPath>spi.c</itemPath>
       <itemPath>timers.c</itemPath>
       <itemPath>uart.c</itemPath>
-      <itemPath>../microchip/common/uart2.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -86,7 +118,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.25</languageToolchainVersion>
+        <languageToolchainVersion>3_25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -123,8 +155,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -138,7 +170,8 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="0"/>
+        <property key="heap-size" value="512"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -149,8 +182,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -208,28 +241,28 @@
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
-        <property key="hwtoolclock.instructionspeed" value=""/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
+        <property key="hwtoolclock.instructionspeed" value=""/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="hwtoolclock.units" value="mips"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0002" type="2">
@@ -276,8 +309,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -291,7 +324,8 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="0"/>
+        <property key="heap-size" value="512"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -302,8 +336,8 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
         <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
@@ -340,24 +374,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="default"/>
+        <property key="optimization-level" value="3"/>
+        <property key="preprocessor-macros" value="PLATFORM=1003;NDEBUG"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="default"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="true"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="preprocessor-macros" value="PLATFORM=1003;NDEBUG"/>
-        <property key="data-model" value="default"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="true"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="3"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="default"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="default"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
         <property key="omit-debug-dirs" value="false"/>
@@ -367,8 +402,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -382,7 +417,8 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="0"/>
+        <property key="heap-size" value="512"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -393,18 +429,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="extra-lib-directories" value=""/>
         <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="extra-lib-directories" value=""/>
         <appendMe value="-T../blapi/app_IOIO0003.gld"/>
       </C30-LD>
       <C30Global>

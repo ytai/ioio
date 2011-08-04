@@ -28,8 +28,8 @@
  */
 
 #include "Compiler.h"
-#include "blapi/adb.h"
-#include "blapi/bootloader.h"
+#include "adb/adb.h"
+#include "adb/adb_file.h"
 #include "features.h"
 #include "protocol.h"
 #include "logging.h"
@@ -62,13 +62,26 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
+BOOL AppTasks() {
+  BOOL connected = ADBTasks();
+  if (!connected) return FALSE;
+  ADBFileTasks();
+  return TRUE;
+}
+
+void AppInit() {
+  ADBInit();
+  ADBFileInit();
+}
+
 int main() {
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
 
+  AppInit();
   SoftReset();
   while (1) {
-    BOOL adb_connected = BootloaderTasks();
+    BOOL adb_connected = AppTasks();
     if (!adb_connected && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
       log_printf("ADB disconnected");
