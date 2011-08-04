@@ -31,7 +31,7 @@
 
 #include <assert.h>
 #include <string.h>
-#include "blapi/bootloader.h"
+#include "blapi/version.h"
 #include "byte_queue.h"
 #include "features.h"
 #include "pwm.h"
@@ -170,8 +170,8 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  BootloaderVersions(msg.args.establish_connection.hw_impl_ver,
-                     msg.args.establish_connection.bl_impl_ver);
+  memcpy(msg.args.establish_connection.hw_impl_ver, hardware_version, 8);
+  memcpy(msg.args.establish_connection.bl_impl_ver, bootloader_version, 8);
   memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
   AppProtocolSendMessage(&msg);
 }
