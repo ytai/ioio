@@ -46,6 +46,9 @@
 #ifdef ENABLE_LOGGING
 #include "uart2.h"
 #include "PPS.h"
+#include "usb_config.h"
+#include "usb_common.h"
+#include "usb_host.h"
 #endif
 
 //
@@ -298,10 +301,12 @@ int main() {
   ADB_FILE_HANDLE f;
   ADB_CHANNEL_HANDLE h;
 #ifdef SIGNAL_AFTER_BAD_RESET
-  if (RCON != 0x03) {
-    SignalBadReset();
+  if (RCON & 0b1100001001000000) {
+    SignalRcon();
   }
 #endif
+  log_init();
+  log_printf("Hello from Bootloader!!!");
   InitializeSystem();
   BootloaderInit();
 
@@ -363,6 +368,8 @@ int main() {
         break;
 
       case MAIN_STATE_RUN_APP:
+        USBHostShutdown();
+        pass_usb_to_app = 1;
         log_printf("Running app...");
         __asm__("goto __APP_RESET");
 
