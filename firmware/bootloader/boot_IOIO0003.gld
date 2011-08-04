@@ -21,7 +21,7 @@ MEMORY
   ivt          : ORIGIN = 0x4,           LENGTH = 0xFC
   aivt         : ORIGIN = 0x104,         LENGTH = 0xFC
   program (xr) : ORIGIN = 0x200,         LENGTH = 0x4C80
-  blapi:       : ORIGIN = 0x4F80,        LENGTH = 0x80
+  blapi        : ORIGIN = 0x4F80,        LENGTH = 0x80
   app_ivt      : ORIGIN = 0x5000,        LENGTH = 0x10C
   CONFIG4      : ORIGIN = 0x2ABF8,       LENGTH = 0x2
   CONFIG3      : ORIGIN = 0x2ABFA,       LENGTH = 0x2

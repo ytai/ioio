@@ -27,11 +27,11 @@
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
-      <itemPath>../../blapi/app_BLAPI_1.gld</itemPath>
-      <itemPath>../../blapi/app_IOIO0000.gld</itemPath>
-      <itemPath>../../blapi/app_IOIO0001.gld</itemPath>
-      <itemPath>../../blapi/app_IOIO0002.gld</itemPath>
-      <itemPath>../../blapi/app_IOIO0003.gld</itemPath>
+      <itemPath>../blapi/app_BLAPI_1.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0000.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0001.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0002.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0003.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -43,7 +43,7 @@
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.25</languageToolchainVersion>
+        <languageToolchainVersion>3_25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -53,24 +53,25 @@
         </linkerTool>
       </compileType>
       <C30>
-        <property key="scalar-model" value="default"/>
+        <property key="optimization-level" value="3"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="default"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-short-double" value="false"/>
         <property key="extra-include-directories"
                   value="../common;../microchip/include"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="data-model" value="default"/>
-        <property key="enable-all-warnings" value="false"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="enable-short-double" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="3"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="data-model" value="default"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-ansi-std" value="false"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="const-model" value="default"/>
-        <property key="code-model" value="default"/>
+        <property key="enable-all-warnings" value="false"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
       </C30-AS>
@@ -80,6 +81,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value=""/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -105,6 +107,8 @@
         <appendMe value="-T../blapi/app_IOIO0001.gld"/>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <ICD3PlatformTool>
       </ICD3PlatformTool>
@@ -116,7 +120,7 @@
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.25</languageToolchainVersion>
+        <languageToolchainVersion>3_25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -134,9 +138,9 @@
         <property key="enable-all-warnings" value="false"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -163,18 +167,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
         <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0002.gld"/>
       </C30-LD>
       <C30Global>
@@ -189,7 +193,7 @@
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3.25</languageToolchainVersion>
+        <languageToolchainVersion>3_25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -207,9 +211,9 @@
         <property key="enable-all-warnings" value="false"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="enable-short-double" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="optimization-level" value="3"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="optimization-level" value="3"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-fatal-warnings" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -236,18 +240,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
         <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0003.gld"/>
       </C30-LD>
       <C30Global>
