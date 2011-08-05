@@ -28,8 +28,7 @@
  */
 
 #include "Compiler.h"
-#include "adb/adb.h"
-#include "adb/adb_file.h"
+#include "libconn/adb.h"
 #include "features.h"
 #include "protocol.h"
 #include "logging.h"
