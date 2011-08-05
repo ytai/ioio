@@ -44,7 +44,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#include "adb/adb.h"
+#include "libconn/adb.h"
 #include "protocol_defs.h"
 
 // Initialize this module.
