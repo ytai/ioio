@@ -29,8 +29,8 @@
 
 #include <string.h>
 
-#include "adb/adb.h"
-#include "adb/adb_file.h"
+#include "libconn/adb.h"
+#include "libconn/adb_file.h"
 #include "bootloader.h"
 #include "board.h"
 
