@@ -32,10 +32,7 @@
 
 #include "GenericTypeDefs.h"
 
-// attribute for variables that can be recycled after bootloader terminates,
-// i.e. located in application data space.
-#define BOOTDATA __attribute__((section("bootdata"),far))
-#define BOOTCNST __attribute__((space(auto_psv)))
+#define ROM __attribute__((space(auto_psv)))
 
 #define BOOTLOADER_MIN_APP_ADDRESS 0x5000
 #define BOOTLOADER_MAX_APP_ADDRESS 0x15300
