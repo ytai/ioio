@@ -29,6 +29,7 @@
 
 #include "Compiler.h"
 #include "libconn/adb.h"
+#include "libconn/connection.h"
 #include "features.h"
 #include "protocol.h"
 #include "logging.h"
@@ -61,26 +62,17 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
-BOOL AppTasks() {
-  BOOL connected = ADBTasks();
-  if (!connected) return FALSE;
-  ADBFileTasks();
-  return TRUE;
-}
-
-void AppInit() {
-  ADBInit();
-  ADBFileInit();
-}
-
 int main() {
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
 
-  AppInit();
+  ConnectionInit();
   SoftReset();
   while (1) {
-    BOOL adb_connected = AppTasks();
+    BOOL adb_connected = ConnectionTasks();
+    if (adb_connected) {
+        adb_connected = ADBAttached();
+    }
     if (!adb_connected && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
       log_printf("ADB disconnected");

@@ -27,24 +27,25 @@
  * or implied.
  */
 
-#include <string.h>
+// Private function of the ADB File module.
+// These functions are required for the operation of the ADB File module, but
+// are not directly exposed via BLAPI.
+// ADBFileInit() must be called to initialize the ADB File module.
+// ADBFile Tasks() must be called periodically to provide context to the ADB
+// File module, used for handling communications.
 
-#include "libconn/adb.h"
-#include "libconn/adb_file.h"
-#include "bootloader.h"
-#include "board.h"
+#ifndef __ADBFILEPRIVATE_H__
+#define __ADBFILEPRIVATE_H__
 
-const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(prog))) = "IOIO0100";
-const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(prog))) = HW_IMPL_VER;
+#include "adb_file.h"
 
-BOOL BootloaderTasks() {
-  BOOL connected = ADBTasks();
-  if (!connected) return FALSE;
-  ADBFileTasks();
-  return TRUE;
-}
 
-void BootloaderInit() {
-  ADBInit();
-  ADBFileInit();
-}
+// Reset the state of this module.
+// Should be called at least once before doing anything else.
+void ADBFileInit();
+
+// Call this function periodically in order to provide context to this module.
+void ADBFileTasks();
+
+
+#endif  // __ADBFILEPRIVATE_H__

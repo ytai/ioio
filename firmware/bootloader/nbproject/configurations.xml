@@ -48,7 +48,6 @@
                    projectFiles="true">
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.c</itemPath>
-        <itemPath>bootloader.c</itemPath>
         <itemPath>dumpsys.c</itemPath>
         <itemPath>flash.c</itemPath>
         <itemPath>ioio_file.c</itemPath>
@@ -81,7 +80,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -119,8 +118,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -174,8 +173,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -185,8 +184,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
@@ -203,30 +202,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="SPRK0013" type="2">
@@ -236,7 +235,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -274,8 +273,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -290,7 +289,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -352,21 +351,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
@@ -379,7 +378,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -417,8 +416,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -433,7 +432,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -495,21 +494,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
@@ -522,7 +521,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -560,8 +559,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -576,7 +575,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -638,21 +637,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
@@ -665,7 +664,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -703,8 +702,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -719,7 +718,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -781,21 +780,21 @@
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>

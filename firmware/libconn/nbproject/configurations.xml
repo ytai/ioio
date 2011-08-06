@@ -7,7 +7,9 @@
       <logicalFolder name="f2" displayName="ADB" projectFiles="true">
         <itemPath>adb.h</itemPath>
         <itemPath>adb_file.h</itemPath>
+        <itemPath>adb_file_private.h</itemPath>
         <itemPath>adb_packet.h</itemPath>
+        <itemPath>adb_private.h</itemPath>
         <itemPath>adb_types.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
@@ -30,6 +32,7 @@
         <itemPath>usb_host_android.h</itemPath>
         <itemPath>../microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
+      <itemPath>connection.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -48,6 +51,7 @@
         <itemPath>../microchip/usb/usb_host.c</itemPath>
         <itemPath>usb_host_android.c</itemPath>
       </logicalFolder>
+      <itemPath>connection.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -68,7 +72,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -101,8 +105,8 @@
         <property key="extra-include-directories-for-assembler" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
-        <property key="list-assembly" value="false"/>
         <property key="list-source" value="false"/>
+        <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
@@ -156,7 +160,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -189,8 +193,8 @@
         <property key="extra-include-directories-for-assembler" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
-        <property key="list-assembly" value="false"/>
         <property key="list-source" value="false"/>
+        <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
@@ -244,7 +248,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
+        <languageToolchainVersion>3_24</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -277,8 +281,8 @@
         <property key="extra-include-directories-for-assembler" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="list-file" value=""/>
-        <property key="list-assembly" value="false"/>
         <property key="list-source" value="false"/>
+        <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>

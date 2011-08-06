@@ -30,11 +30,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "adb.h"
+#include "adb_private.h"
 #include "adb_packet.h"
-#include "usb_config.h"
-#include "usb/usb.h"
-#include "usb/usb_host.h"
 #include "usb_host_android.h"
 #include "logging.h"
 
@@ -110,6 +107,9 @@ static UINT32 local_id_counter = 1;  // used for allocating unique local ids.
 // Functions & Macros
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOL ADBAttached() {
+  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB);
+}
 
 static void ADBReset() {
   // close all open channels
@@ -130,13 +130,13 @@ void ADBBufferRef() {
 
 void ADBBufferUnref() {
   assert(adb_buffer_refcount);
-  assert(adb_conn_state == ADB_CONN_STATE_CONNECTED);
-  if (--adb_buffer_refcount == 0) {
+  --adb_buffer_refcount;
+  if (adb_conn_state != ADB_CONN_STATE_CONNECTED) return;
+  if (adb_buffer_refcount == 0) {
     adb_buffer_refcount = 1;
     ADBPacketRecv();
   }
 }
-
 
 static void ADBChannelTasks() {
   static ADB_CHANNEL_HANDLE current_channel = 0;
@@ -295,26 +295,21 @@ void ADBRead(ADB_CHANNEL_HANDLE handle);
 ADB_RESULT ADBReadStatus(ADB_CHANNEL_HANDLE handle, void** data, UINT32* data_len);
 
 void ADBInit() {
-  BOOL res = USBHostInit(0);
-  assert(res);
   memset(adb_channels, 0, sizeof adb_channels);
   CHANGE_STATE(adb_conn_state, ADB_CONN_STATE_WAIT_ATTACH);
 }
 
-BOOL ADBTasks() {
+int ADBTasks() {
   ADB_RESULT adb_res;
   UINT32 cmd, arg0, arg1, data_len;
   void* recv_data;
 
-  USBHostTasks();
-#ifndef USB_ENABLE_TRANSFER_EVENT
-  USBHostAndroidTasks();
-#endif
+
   if (adb_conn_state > ADB_CONN_STATE_WAIT_ATTACH) {
-    if (!USBHostAndroidIsDeviceAttached()) {
+    if (!ADBAttached()) {
       // detached
       ADBReset();
-      return FALSE;
+      return 0;
     }
     ADBPacketTasks();
     if (adb_buffer_refcount > 0) {
@@ -331,7 +326,7 @@ BOOL ADBTasks() {
 
   switch (adb_conn_state) {
    case ADB_CONN_STATE_WAIT_ATTACH:
-    if (USBHostAndroidIsDeviceAttached()) {
+    if (ADBAttached()) {
       log_printf("Device attached.");
       ADBPacketReset();
       adb_buffer_refcount = 1;
@@ -350,51 +345,9 @@ BOOL ADBTasks() {
 
    case ADB_CONN_STATE_ERROR:
     log_printf("Error occured. Resetting.");
-    USBHostAndroidReset();
     ADBReset();
-    // TODO: send app notification
-    break;
+    return -1;
   }
 
   return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
 }
-
-BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
-  // Handle specific events.
-  switch (event) {
-   case EVENT_VBUS_REQUEST_POWER:
-    // We'll let anything attach.
-    return TRUE;
-
-   case EVENT_VBUS_RELEASE_POWER:
-    // We aren't keeping track of power.
-    return TRUE;
-
-   case EVENT_HUB_ATTACH:
-    log_printf("***** USB Error - hubs are not supported *****");
-    return TRUE;
-
-   case EVENT_UNSUPPORTED_DEVICE:
-    log_printf("***** USB Error - device is not supported *****");
-    return TRUE;
-
-   case EVENT_CANNOT_ENUMERATE:
-    log_printf("***** USB Error - cannot enumerate device *****");
-    return TRUE;
-
-   case EVENT_CLIENT_INIT_ERROR:
-    log_printf("***** USB Error - client driver initialization error *****");
-    return TRUE;
-
-   case EVENT_OUT_OF_MEMORY:
-    log_printf("***** USB Error - out of heap memory *****");
-    return TRUE;
-
-   case EVENT_UNSPECIFIED_ERROR:   // This should never be generated.
-    log_printf("***** USB Error - unspecified *****");
-    return TRUE;
-
-   default:
-    return FALSE;
-  }
-}  // USB_ApplicationEventHandler
