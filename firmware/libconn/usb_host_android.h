@@ -71,13 +71,17 @@ typedef struct _ANDROID_DEVICE_ID {
   BYTE  deviceAddress;  // Address of the device on the USB
 } ANDROID_DEVICE_ID;
 
-// Generic Device Information
-// This structure contains information about an attached device, including
-// status flags and device identification.
-typedef struct _ANDROID_DEVICE {
-  ANDROID_DEVICE_ID ID;             // Identification information about the device
+// An identifier of an Android interface.
+typedef enum _ANDROID_INTERFACE_ID {
+  ANDROID_INTERFACE_ADK,  // ADK (OpenAccessory API)
+  ANDROID_INTERFACE_ADB,  // ADB (Android Debug Bridge)
+  ANDROID_INTERFACE_MAX
+} ANDROID_INTERFACE_ID;
+
+// A single USB interface used to communicate with an Android device.
+// Contains an in-endpoint, an out-endpoint and their state.
+typedef struct _ANDROID_INTERFACE {
   DWORD             rxLength;       // Number of bytes received in the last IN transfer
-  BYTE              clientDriverID; // ID to send when issuing a Device Request
   BYTE              inEndpoint;     // Address of endpoint from which we read
   BYTE              outEndpoint;    // Address of endpoint to which we write
   BYTE              rxErrorCode;    // Error code of last IN transfer
@@ -91,6 +95,16 @@ typedef struct _ANDROID_DEVICE {
       BYTE rxBusy         : 1;      // Driver busy receiving data
     };
   } flags;                          // Android driver status flags
+} ANDROID_INTERFACE;
+
+// Generic Device Information
+// This structure contains information about an attached device, including
+// status flags and device identification.
+typedef struct _ANDROID_DEVICE {
+  ANDROID_DEVICE_ID ID;  // Identification information about the device
+  BYTE              clientDriverID; // ID to send when issuing a Device Request
+  ANDROID_INTERFACE interfaces[ANDROID_INTERFACE_MAX];  // Interfaces
+  BOOL              initialized;
 } ANDROID_DEVICE;
 
 extern ANDROID_DEVICE   gc_DevData; // Information about the attached device.
@@ -114,7 +128,10 @@ BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWO
 #endif
 
 // Check whether a device is currently attached.
-#define USBHostAndroidIsDeviceAttached() ( (gc_DevData.flags.initialized == 1) ? TRUE : FALSE )
+#define USBHostAndroidIsDeviceAttached() (gc_DevData.initialized)
+
+// Check whether a given interface is attached
+#define USBHostAndroidIsInterfaceAttached(iid) (gc_DevData.interfaces[iid].flags.initialized)
 
 // Resets the device and restarts all the attachment process.
 // Device must be attached.
@@ -129,23 +146,23 @@ void USBHostAndroidGetDeviceId(ANDROID_DEVICE_ID *pDevID);
 // USBHostAndroidRxIsComplete() to check for completion and get status code.
 // Returns USB_SUCCESS if succeeded.
 // Device must be attached.
-BYTE USBHostAndroidRead(void *buffer, DWORD length);
+BYTE USBHostAndroidRead(void *buffer, DWORD length, ANDROID_INTERFACE_ID iid);
 
 // Check whether the last call to USBHostAndroidRead has completed.
 // In case it is complete, returns TRUE, and the error code and number of bytes
 // read are returned.
-BOOL USBHostAndroidRxIsComplete(BYTE *errorCode, DWORD *byteCount);
+BOOL USBHostAndroidRxIsComplete(BYTE *errorCode, DWORD *byteCount, ANDROID_INTERFACE_ID iid);
 
 // Issue a read request to the device.
 // Actual write will be done asynchronously. Client should call
 // USBHostAndroidTxIsComplete() to check for completion and get status code.
 // Returns USB_SUCCESS if succeeded.
 // Device must be attached.
-BYTE USBHostAndroidWrite(const void *buffer, DWORD length);
+BYTE USBHostAndroidWrite(const void *buffer, DWORD length, ANDROID_INTERFACE_ID iid);
 
 // Check whether the last call to USBHostAndroidWrite has completed.
 // In case it is complete, returns TRUE, and the error code is returned.
-BOOL USBHostAndroidTxIsComplete(BYTE *errorCode );
+BOOL USBHostAndroidTxIsComplete(BYTE *errorCode, ANDROID_INTERFACE_ID iid);
 
 // This function must be called periodically by the client to provide context to
 // the driver IF NOT working with transfer events (USB_ENABLE_TRANSFER_EVENT)

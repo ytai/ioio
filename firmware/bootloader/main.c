@@ -31,25 +31,17 @@
 
 #include <string.h>
 #include "GenericTypeDefs.h"
+#include "HardwareProfile.h"
 #include "board.h"
-#include "bootloader_private.h"
 #include "bootloader_defs.h"
 #include "libconn/adb.h"
 #include "libconn/adb_file.h"
+#include "libconn/connection.h"
 #include "flash.h"
-#include "HardwareProfile.h"
 #include "logging.h"
 #include "ioio_file.h"
 #include "dumpsys.h"
 #include "auth.h"
-
-#ifdef ENABLE_LOGGING
-#include "uart2.h"
-#include "PPS.h"
-#include "usb_config.h"
-#include "usb_common.h"
-#include "usb_host.h"
-#endif
 
 //
 // Desired behavior:
@@ -114,11 +106,6 @@
 int pass_usb_to_app __attribute__ ((near)) = 0;
 
 void InitializeSystem() {
-#ifdef ENABLE_LOGGING
-  iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP2);       //Assign U2RX to pin RP2 (42)
-  iPPSOutput(OUT_PIN_PPS_RP4,OUT_FN_PPS_U2TX);    //Assign U2TX to pin RP4 (43)
-  UART2Init();
-#endif
   mInitAllLEDs();
 }
 
@@ -308,23 +295,29 @@ int main() {
   log_init();
   log_printf("Hello from Bootloader!!!");
   InitializeSystem();
-  BootloaderInit();
+  ConnectionInit();
 
   while (1) {
-    BOOL connected = BootloaderTasks();
+    BOOL connected = ConnectionTasks();
     mLED_0 = (state == MAIN_STATE_ERROR) ? (led_counter++ >> 13) : !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }
-    
+
     switch(state) {
       case MAIN_STATE_WAIT_CONNECT:
         if (connected) {
-          log_printf("ADB connected!");
-          manager_path = DUMPSYS_BUSY;
-          DumpsysInit();
-          h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
-          state = MAIN_STATE_FIND_PATH;
+          log_printf("Device connected!");
+          if (ADBAttached()) {
+            log_printf("ADB attached - attempting firmware upgrade");
+            manager_path = DUMPSYS_BUSY;
+            DumpsysInit();
+            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
+            state = MAIN_STATE_FIND_PATH;
+          } else {
+            log_printf("ADB not attached - skipping boot sequence");
+            state = MAIN_STATE_RUN_APP;
+          }
         }
         break;
 
@@ -346,7 +339,7 @@ int main() {
         f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages);
         state = MAIN_STATE_AUTH_MANAGER;
         break;
-        
+
       case MAIN_STATE_AUTH_PASSED:
         if (!EraseFingerprint()) {
           state = MAIN_STATE_ERROR;

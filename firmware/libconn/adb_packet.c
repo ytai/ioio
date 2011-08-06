@@ -90,7 +90,9 @@ static void ADBPacketSendTasks() {
   BYTE ret_val;
   switch (adb_packet_send_state) {
    case ADB_PACKET_STATE_START:
-    if (USBHostAndroidWrite((BYTE*) &adb_packet_send_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
+    if (USBHostAndroidWrite((BYTE*) &adb_packet_send_header,
+                            sizeof(ADB_PACKET_HEADER),
+                            ANDROID_INTERFACE_ADB) != USB_SUCCESS) {
       CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
       break;
     }
@@ -98,7 +100,7 @@ static void ADBPacketSendTasks() {
     break;
 
    case ADB_PACKET_STATE_WAIT_HEADER:
-    if (USBHostAndroidTxIsComplete(&ret_val)) {
+    if (USBHostAndroidTxIsComplete(&ret_val, ANDROID_INTERFACE_ADB)) {
       if (ret_val != USB_SUCCESS) {
         CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
@@ -107,7 +109,9 @@ static void ADBPacketSendTasks() {
         CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_IDLE);
         break;
       }
-      if (USBHostAndroidWrite(adb_packet_send_data, adb_packet_send_header.data_length) != USB_SUCCESS) {
+      if (USBHostAndroidWrite(adb_packet_send_data,
+                              adb_packet_send_header.data_length,
+                              ANDROID_INTERFACE_ADB) != USB_SUCCESS) {
         CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
       }
@@ -116,7 +120,7 @@ static void ADBPacketSendTasks() {
     break;
 
    case ADB_PACKET_STATE_WAIT_DATA:
-    if (USBHostAndroidTxIsComplete(&ret_val)) {
+    if (USBHostAndroidTxIsComplete(&ret_val, ANDROID_INTERFACE_ADB)) {
       if (ret_val != USB_SUCCESS) {
         CHANGE_STATE(adb_packet_send_state, ADB_PACKET_STATE_ERROR);
         break;
@@ -136,7 +140,9 @@ static void ADBPacketRecvTasks() {
   DWORD bytes_received;
   switch (adb_packet_recv_state) {
    case ADB_PACKET_STATE_START:
-    if (USBHostAndroidRead((BYTE*) &adb_packet_recv_header, sizeof(ADB_PACKET_HEADER)) != USB_SUCCESS) {
+    if (USBHostAndroidRead((BYTE*) &adb_packet_recv_header,
+                           sizeof(ADB_PACKET_HEADER),
+                           ANDROID_INTERFACE_ADB) != USB_SUCCESS) {
       CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
       break;
     }
@@ -144,7 +150,8 @@ static void ADBPacketRecvTasks() {
     break;
 
    case ADB_PACKET_STATE_WAIT_HEADER:
-    if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
+    if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received,
+                                   ANDROID_INTERFACE_ADB)) {
       if (ret_val != USB_SUCCESS) {
         CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
@@ -165,7 +172,9 @@ static void ADBPacketRecvTasks() {
         CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_IDLE);
         break;
       }
-      if (USBHostAndroidRead(adb_packet_recv_data, adb_packet_recv_header.data_length) != USB_SUCCESS) {
+      if (USBHostAndroidRead(adb_packet_recv_data,
+                             adb_packet_recv_header.data_length,
+                             ANDROID_INTERFACE_ADB) != USB_SUCCESS) {
         CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
       }
@@ -174,7 +183,9 @@ static void ADBPacketRecvTasks() {
     break;
 
    case ADB_PACKET_STATE_WAIT_DATA:
-    if (USBHostAndroidRxIsComplete(&ret_val, &bytes_received)) {
+    if (USBHostAndroidRxIsComplete(&ret_val,
+                                   &bytes_received,
+                                   ANDROID_INTERFACE_ADB)) {
       if (ret_val != USB_SUCCESS || bytes_received != adb_packet_recv_header.data_length) {
         CHANGE_STATE(adb_packet_recv_state, ADB_PACKET_STATE_ERROR);
         break;
@@ -193,7 +204,7 @@ static void ADBPacketRecvTasks() {
   }
 }
 
-void ADBPacketSend(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* data, UINT32 data_len) {                                                                        
+void ADBPacketSend(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* data, UINT32 data_len) {
   assert(!ADB_PACKET_STATE_BUSY(adb_packet_send_state));
   adb_packet_send_header.command = cmd;
   adb_packet_send_header.arg0 = arg0;
@@ -235,3 +246,4 @@ void ADBPacketTasks() {
   ADBPacketSendTasks();
   ADBPacketRecvTasks();
 }
+
