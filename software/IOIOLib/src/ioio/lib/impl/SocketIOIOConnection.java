@@ -113,7 +113,7 @@ public class SocketIOIOConnection implements IOIOConnection {
 		}
 		if (!socket_owned_by_connect_) {
 			try {
-				socket_.close();
+				socket_.shutdownOutput();
 			} catch (IOException e1) {
 				Log.e("SocketIOIOConnection", "Unexpected exception", e1);
 			}
