@@ -49,7 +49,7 @@ public class QueueInputStream extends InputStream {
 			if (closed_) {
 				throw new IOException("Stream has been closed");
 			}
-			return queue_.remove();
+			return ((int) queue_.remove()) & 0xFF;
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
