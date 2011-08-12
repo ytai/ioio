@@ -103,7 +103,7 @@
 #define FINGERPRINT_SIZE 16
 #define MAX_PATH 64
 
-int pass_usb_to_app __attribute__ ((near)) = 0;
+int pass_usb_to_app __attribute__ ((near, section("bootflag.sec"))) = 0;
 
 void InitializeSystem() {
   mInitAllLEDs();

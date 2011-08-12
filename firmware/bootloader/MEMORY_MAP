@@ -20,7 +20,7 @@ ORIGIN              LENGTH              PURPOSE
 0x104               0xFC                Bootloader AIVT
 0x200               0x4C80              Bootloader code
 0x4F80              0x80                BLAPI table
-0x5000              0x10C               Application IVT
-0x510C              0xD2F4/0x226F4(*)   Application code
+0x5000              0x110               Application IVT
+0x5110              0xD2F0/0x226F0(*)   Application code
 
 (*) PIC24FJ128DAxxx / PIC24FJ256DAxxx

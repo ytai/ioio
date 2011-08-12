@@ -29,7 +29,7 @@
 
 #include <assert.h>
 #include "Compiler.h"
-#include "blapi/flash.h"
+#include "flash.h"
 
 BOOL FlashErasePage(DWORD address) {
   assert((address & 0x3FF) == 0);
