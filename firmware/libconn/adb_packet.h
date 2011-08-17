@@ -34,7 +34,7 @@
 // API is asynchronous: client issues a request and can then poll its status.
 // Client should periodically call ADBPacketTasks() in order to provide context
 // for this layer.
-// 
+//
 // Buffer ownership and lifetime:
 // ------------------------------
 // When writing, client is responsible to keep the data buffer (if there is one)
@@ -67,7 +67,7 @@
 // do {
 //   ADBPacketTasks();
 // } while (ADBPacketSendStatus() == ADB_RESULT_BUSY);
-//   
+//
 // Receive usage example:
 // ----------------------
 // UINT32 cmd, arg0, arg1, data_len;

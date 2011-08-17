@@ -32,3 +32,4 @@
 
 const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(auto_psv))) = "IOIO0100";
 const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(auto_psv))) = HW_IMPL_VER;
+

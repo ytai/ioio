@@ -13,8 +13,8 @@
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.h</itemPath>
+        <itemPath>bootloader.h</itemPath>
         <itemPath>bootloader_defs.h</itemPath>
-        <itemPath>bootloader_private.h</itemPath>
         <itemPath>dumpsys.h</itemPath>
         <itemPath>ioio_file.h</itemPath>
         <itemPath>xml.h</itemPath>
@@ -27,6 +27,7 @@
         <itemPath>../microchip/include/uart2.h</itemPath>
       </logicalFolder>
       <itemPath>board.h</itemPath>
+      <itemPath>flash.h</itemPath>
       <itemPath>../common/logging.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
@@ -157,9 +158,12 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA106"/>
         <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA106"/>
         <appendMe value="-Tboot_IOIO0001.gld"/>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
         <property key="UART 4" value="true"/>
@@ -222,6 +226,7 @@
         <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
