@@ -30,5 +30,5 @@
 #include "blapi/version.h"
 #include "board.h"
 
-const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(prog))) = "IOIO0100";
-const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(prog))) = HW_IMPL_VER;
+const char bootloader_version[8] __attribute__((section("bootloader_version.sec"), space(auto_psv))) = "IOIO0100";
+const char hardware_version[8] __attribute__((section("hardware_version.sec"), space(auto_psv))) = HW_IMPL_VER;
