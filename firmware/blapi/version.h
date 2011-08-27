@@ -33,8 +33,8 @@
 #define __VERSION_H__
 
 
-extern const char bootloader_version[8] __attribute__((space(auto_psv)));
-extern const char hardware_version[8] __attribute__((space(auto_psv)));
+extern const char bootloader_version[8];
+extern const char hardware_version[8];
 
 
-#endif  // __BOOTLOADER_H__
+#endif  // __VERSION_H__

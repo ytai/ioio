@@ -361,7 +361,7 @@ int main() {
         break;
 
       case MAIN_STATE_RUN_APP:
-        USBHostShutdown();
+        ConnectionResetUSB();
         pass_usb_to_app = 1;
         log_printf("Running app...");
         __asm__("goto __APP_RESET");
