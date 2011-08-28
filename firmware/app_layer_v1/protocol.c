@@ -170,8 +170,10 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  memcpy(msg.args.establish_connection.hw_impl_ver, hardware_version, 8);
-  memcpy(msg.args.establish_connection.bl_impl_ver, bootloader_version, 8);
+  DSRPAG = __builtin_psvpage(hardware_version);
+  memcpy(msg.args.establish_connection.hw_impl_ver, (const void *) __builtin_psvoffset(hardware_version), 8);
+  DSRPAG = __builtin_psvpage(bootloader_version);
+  memcpy(msg.args.establish_connection.bl_impl_ver, (const void *) __builtin_psvoffset(bootloader_version), 8);
   memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
   AppProtocolSendMessage(&msg);
 }

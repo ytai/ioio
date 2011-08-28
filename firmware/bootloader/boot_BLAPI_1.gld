@@ -50,11 +50,11 @@ SECTIONS
         *(.handle);
         *(.libc) *(.libm) *(.libdsp);  /* keep together in this order */
         *(.lib*);
+        *(int.sec);
         /* A RESET instruction to handle an otherwise unhandled interrupt. */
         __DEFAULT_VECTOR = .;
         LONG(0xFE0000);
   } >program
-
 
   /*
   ** User-Defined Section in Program Memory
@@ -67,10 +67,10 @@ SECTIONS
   **           *(usercode);
   **         } >program
   */
-  blapi __BLAPI_BASE :
+  blapi.sec __BLAPI_BASE :
   {
-    *(hardware_version.sec);
-    *(bootloader_version.sec);
+    *("hw_ver.sec");
+    *("bl_ver.sec");
   } >blapi
 
 
