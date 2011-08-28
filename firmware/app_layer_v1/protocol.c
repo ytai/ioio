@@ -161,6 +161,7 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 }
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
+  unsigned int dsrpag;
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;
@@ -170,11 +171,15 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  DSRPAG = __builtin_psvpage(hardware_version);
+
+  dsrpag = DSRPAG;
+  DSRPAG = 0x200 + __builtin_psvpage(hardware_version);
   memcpy(msg.args.establish_connection.hw_impl_ver, (const void *) __builtin_psvoffset(hardware_version), 8);
-  DSRPAG = __builtin_psvpage(bootloader_version);
+  DSRPAG = 0x200 + __builtin_psvpage(bootloader_version);
   memcpy(msg.args.establish_connection.bl_impl_ver, (const void *) __builtin_psvoffset(bootloader_version), 8);
   memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
+  DSRPAG = dsrpag;
+
   AppProtocolSendMessage(&msg);
 }
 
