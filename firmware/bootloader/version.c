@@ -29,6 +29,8 @@
 
 #include "board.h"
 
-const char __attribute__((section("bl_ver.sec"), space(prog))) _bootloader_version[8] = "IOIO0100";
-const char __attribute__((section("hw_ver.sec"), space(prog))) _hardware_version[8] = HW_IMPL_VER;
-
+struct {
+  const char hardware[8];
+  const char bootloader[8];
+} _version __attribute__((section("version.sec"), space(psv)))
+    = { HW_IMPL_VER, "IOIO0100" };

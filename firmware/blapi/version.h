@@ -32,9 +32,14 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-
-extern const char __psv__ bootloader_version[8] __attribute__((space(prog)));
-extern const char __psv__ hardware_version[8] __attribute__((space(prog)));
+// These constants can be copied to RAM as follows:
+//
+// const char dest[8];
+// _prog_addressT p;
+// _init_prog_address(p, hardware_version);
+// _memcpy_p2d16(dest, p, 8);
+extern const char __attribute__((space(psv))) bootloader_version[8];
+extern const char __attribute__((space(psv))) hardware_version[8];
 
 
 #endif  // __VERSION_H__

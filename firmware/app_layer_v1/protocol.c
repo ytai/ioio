@@ -31,6 +31,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include "libpic30.h"
 #include "blapi/version.h"
 #include "byte_queue.h"
 #include "features.h"
@@ -161,7 +162,7 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 }
 
 void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
-  unsigned int dsrpag;
+  _prog_addressT p;
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;
@@ -172,13 +173,12 @@ void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
 
-  dsrpag = DSRPAG;
-  DSRPAG = 0x200 + __builtin_psvpage(hardware_version);
-  memcpy(msg.args.establish_connection.hw_impl_ver, (const void *) __builtin_psvoffset(hardware_version), 8);
-  DSRPAG = 0x200 + __builtin_psvpage(bootloader_version);
-  memcpy(msg.args.establish_connection.bl_impl_ver, (const void *) __builtin_psvoffset(bootloader_version), 8);
+  _init_prog_address(p, hardware_version);
+  _memcpy_p2d16(msg.args.establish_connection.hw_impl_ver, p, 8);
+  _init_prog_address(p, bootloader_version);
+  _memcpy_p2d16(msg.args.establish_connection.bl_impl_ver, p, 8);
+
   memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
-  DSRPAG = dsrpag;
 
   AppProtocolSendMessage(&msg);
 }

@@ -67,10 +67,9 @@ SECTIONS
   **           *(usercode);
   **         } >program
   */
-  blapi.sec __BLAPI_BASE :
+  blapi.sec :
   {
-    *("hw_ver.sec");
-    *("bl_ver.sec");
+    *("version.sec");
   } >blapi
 
 
