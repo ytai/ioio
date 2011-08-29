@@ -102,13 +102,13 @@ SECTIONS
   ** Configuration Words
   */
   __CONFIG4 :
-  { *(__CONFIG4.sec)    } >CONFIG4
+  { KEEP(*(__CONFIG4.sec))    } >CONFIG4
   __CONFIG3 :
-  { *(__CONFIG3.sec)    } >CONFIG3
+  { KEEP(*(__CONFIG3.sec))    } >CONFIG3
   __CONFIG2 :
-  { *(__CONFIG2.sec)    } >CONFIG2
+  { KEEP(*(__CONFIG2.sec))    } >CONFIG2
   __CONFIG1 :
-  { *(__CONFIG1.sec)    } >CONFIG1
+  { KEEP(*(__CONFIG1.sec))    } >CONFIG1
 
 
   /*
