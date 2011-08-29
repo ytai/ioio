@@ -69,7 +69,7 @@
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
   _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_ON & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
-  _CONFIG3(WPDIS_WPEN & WPFP_WPFP19 & WPCFG_WPCFGEN & WPEND_WPSTARTMEM & SOSCSEL_EC)
+  _CONFIG3(WPDIS_WPEN & WPFP_WPFP11 & WPCFG_WPCFGEN & WPEND_WPSTARTMEM & SOSCSEL_EC)
 #else
   #error Unsupported target
 #endif
@@ -89,13 +89,13 @@
 // note that when BLAPI changes, this list will need to be completely rebuilt
 // with new numbers per hardware version.
 #if BOARD_VER == BOARD_SPRK0010
-  #define PLATFORM_ID "IOIO0000"
+  #define PLATFORM_ID "IOIO0020"
 #elif BOARD_VER >= BOARD_SPRK0011 && BOARD_VER <= BOARD_SPRK0012
-  #define PLATFORM_ID "IOIO0001"
+  #define PLATFORM_ID "IOIO0021"
 #elif BOARD_VER >= BOARD_SPRK0013 && BOARD_VER <= BOARD_SPRK0015
-  #define PLATFORM_ID "IOIO0002"
+  #define PLATFORM_ID "IOIO0022"
 #elif BOARD_VER == BOARD_SPRK0016
-  #define PLATFORM_ID "IOIO0003"
+  #define PLATFORM_ID "IOIO0023"
 #else
   #error Unknown board version - cannot determine platform ID
 #endif

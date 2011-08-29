@@ -13,7 +13,6 @@
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.h</itemPath>
-        <itemPath>bootloader.h</itemPath>
         <itemPath>bootloader_defs.h</itemPath>
         <itemPath>dumpsys.h</itemPath>
         <itemPath>ioio_file.h</itemPath>
@@ -135,7 +134,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -290,7 +289,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -443,7 +442,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -586,7 +585,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -729,7 +728,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>

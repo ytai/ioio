@@ -2,9 +2,9 @@
 __IVT_BASE  = 0x4;
 __AIVT_BASE = 0x104;
 __CODE_BASE = 0x200;
-__APP_RESET = 0x5000;
-__APP_IVT_BASE = 0x5000;
-__BLAPI_BASE = 0x4F80;
+__APP_RESET = 0x3000;
+__APP_IVT_BASE = 0x3000;
+__BLAPI_BASE = 0x2F80;
 
 /* DATA MEMORY */
 __DATA_BASE = 0x800;
@@ -69,7 +69,7 @@ SECTIONS
   */
   blapi.sec :
   {
-    *("version.sec");
+    KEEP(*("version.sec"));
   } >blapi
 
 

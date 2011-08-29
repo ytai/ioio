@@ -93,7 +93,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_24</languageToolchainVersion>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
@@ -104,7 +104,7 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1001;NDEBUG"/>
+        <property key="preprocessor-macros" value="PLATFORM=1021;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -147,7 +147,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -248,7 +248,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_24</languageToolchainVersion>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
@@ -259,7 +259,7 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1002;NDEBUG"/>
+        <property key="preprocessor-macros" value="PLATFORM=1022;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -302,7 +302,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -341,7 +341,7 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_24</languageToolchainVersion>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
@@ -352,7 +352,7 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1003;NDEBUG"/>
+        <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -395,7 +395,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value="512"/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>

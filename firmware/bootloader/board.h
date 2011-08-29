@@ -84,4 +84,13 @@
   #error Unknown board
 #endif
 
+// This point to the beginning of the config word page, not writable by the app.
+#if defined(__PIC24FJ256DA206__)
+  #define APP_PROGSPACE_END 0x2A800
+#elif defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
+  #define APP_PROGSPACE_END 0x15400
+#else
+  #error Unknown MCU
+#endif
+
 #endif  // __BOARD_H__
