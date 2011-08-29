@@ -34,7 +34,7 @@ __CONFIG3 = 0x2ABFA;
 __CONFIG2 = 0x2ABFC;
 __CONFIG1 = 0x2ABFE;
 
-INCLUDE boot_BLAPI_1.gld
+INCLUDE boot_BLAPI_3.gld
 
 /*
 ** ============== Equates for SFR Addresses =============

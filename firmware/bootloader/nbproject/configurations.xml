@@ -65,11 +65,11 @@
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
-      <itemPath>boot_BLAPI_1.gld</itemPath>
-      <itemPath>boot_IOIO0000.gld</itemPath>
-      <itemPath>boot_IOIO0001.gld</itemPath>
-      <itemPath>boot_IOIO0002.gld</itemPath>
-      <itemPath>boot_IOIO0003.gld</itemPath>
+      <itemPath>boot_BLAPI_3.gld</itemPath>
+      <itemPath>boot_IOIO0020.gld</itemPath>
+      <itemPath>boot_IOIO0021.gld</itemPath>
+      <itemPath>boot_IOIO0022.gld</itemPath>
+      <itemPath>boot_IOIO0023.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -158,7 +158,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA106"/>
-        <appendMe value="-Tboot_IOIO0001.gld"/>
+        <appendMe value="-Tboot_IOIO0021.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
@@ -313,7 +313,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA206"/>
-        <appendMe value="-Tboot_IOIO0002.gld"/>
+        <appendMe value="-Tboot_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -466,7 +466,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA206"/>
-        <appendMe value="-Tboot_IOIO0002.gld"/>
+        <appendMe value="-Tboot_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -609,7 +609,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA206"/>
-        <appendMe value="-Tboot_IOIO0002.gld"/>
+        <appendMe value="-Tboot_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
@@ -752,7 +752,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ256DA206"/>
-        <appendMe value="-Tboot_IOIO0003.gld"/>
+        <appendMe value="-Tboot_IOIO0023.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
