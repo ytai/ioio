@@ -117,6 +117,9 @@ typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data,
 // has been established.
 BOOL ADBAttached();
 
+// Checks whether an ADB connection has been established end-to-end.
+BOOL ADBConnected();
+
 // Open a new channel to the remote end.
 // The name indicates the destination on the remote end. Names such as
 // "tcp:3823" or "shell:" can be used. Read the ADB spec for details.

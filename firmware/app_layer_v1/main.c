@@ -71,7 +71,7 @@ int main() {
   while (1) {
     BOOL adb_connected = ConnectionTasks();
     if (adb_connected) {
-        adb_connected = ADBAttached();
+        adb_connected = ADBConnected();
     }
     if (!adb_connected && state > STATE_WAIT_CONNECTION) {
       // just got disconnected

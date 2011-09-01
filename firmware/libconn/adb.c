@@ -111,6 +111,10 @@ BOOL ADBAttached() {
   return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB);
 }
 
+BOOL ADBConnected() {
+  return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
+}
+
 static void ADBReset() {
   // close all open channels
   ADB_CHANNEL_HANDLE h;
@@ -349,6 +353,6 @@ int ADBTasks() {
     return -1;
   }
 
-  return adb_conn_state > ADB_CONN_STATE_WAIT_CONNECT;
+  return ADBConnected();
 }
 
