@@ -1592,6 +1592,14 @@ void USBHostTasks( void )
                                 usbDeviceInfo.deviceAddressAndSpeed = 0x80;
                                 U1ADDR                              = 0x80;
                                 U1EP0bits.LSPD                      = 1;
+                            } else {
+                                // FIX (ytai):
+                                // We may reach this point after a failed
+                                // enumeration (thus not passing through init
+                                // state). It may be that the address has
+                                // already been set. We want to set it back to
+                                // 0 either way.
+                                U1ADDR                              = 0x00;
                             }
 
                             // Reset all ping-pong buffers if they are being used.
