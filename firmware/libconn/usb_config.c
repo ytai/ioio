@@ -39,6 +39,7 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #include "HardwareProfile.h"
 #include "usb.h"
 #include "usb_host_android.h"
+#include "usb_host_bluetooth.h"
 
 // *****************************************************************************
 // Client Driver Function Pointer Table for the USB Embedded Host foundation
@@ -50,7 +51,13 @@ CLIENT_DRIVER_TABLE usbClientDrvTable[] =
         USBHostAndroidInit,
         USBHostAndroidEventHandler,
         0
+    },
+    {
+        USBHostBluetoothInit,
+        USBHostBluetoothEventHandler,
+        0
     }
+
 };
 
 // *****************************************************************************
@@ -59,7 +66,8 @@ CLIENT_DRIVER_TABLE usbClientDrvTable[] =
 
 USB_TPL usbTPL[] =
 {
-//    { INIT_VID_PID( 0x18D1ul, 0x4E12ul ), 0, 0, {0} }, // Microchip Custom Demo
-    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV} }
+//    { INIT_VID_PID( 0x18D1ul, 0x4E12ul ), 0, 0, {0} }, // ADK
+    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV} },  // ADB
+    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, 1, {TPL_CLASS_DRV} }   // Bluetooth
 };
 

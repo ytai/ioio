@@ -12,6 +12,8 @@
         <itemPath>adb_private.h</itemPath>
         <itemPath>adb_types.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
+      </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../microchip/include/Compiler.h</itemPath>
         <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
@@ -30,6 +32,8 @@
         <itemPath>../microchip/include/USB/usb_hal_pic24.h</itemPath>
         <itemPath>../microchip/include/USB/usb_host.h</itemPath>
         <itemPath>usb_host_android.h</itemPath>
+        <itemPath>usb_host_bluetooth.h</itemPath>
+        <itemPath>usb_host_driver_common.h</itemPath>
         <itemPath>../microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
       <itemPath>connection.h</itemPath>
@@ -43,6 +47,8 @@
         <itemPath>adb_packet.c</itemPath>
         <itemPath>../microchip/common/uart2.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
+      </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../common/logging.c</itemPath>
       </logicalFolder>
@@ -50,6 +56,7 @@
         <itemPath>usb_config.c</itemPath>
         <itemPath>../microchip/usb/usb_host.c</itemPath>
         <itemPath>usb_host_android.c</itemPath>
+        <itemPath>usb_host_bluetooth.c</itemPath>
       </logicalFolder>
       <itemPath>connection.c</itemPath>
     </logicalFolder>

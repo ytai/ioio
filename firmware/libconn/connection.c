@@ -47,6 +47,7 @@ BOOL ConnectionTasks() {
 #ifndef USB_ENABLE_TRANSFER_EVENT
   USBHostAndroidTasks();
 #endif
+  return FALSE;
 
   res = ADBTasks();
   if (res == 1) {

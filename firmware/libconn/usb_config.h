@@ -46,7 +46,7 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #define USB_PING_PONG_MODE  USB_PING_PONG__FULL_PING_PONG
 
-#define NUM_TPL_ENTRIES 1
+#define NUM_TPL_ENTRIES 2
 
 #define USB_ENABLE_TRANSFER_EVENT
 
@@ -58,14 +58,4 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #define USB_INITIAL_VBUS_CURRENT (100/2)
 #define USB_INSERT_TIME (250+1)
 #define USB_HOST_APP_EVENT_HANDLER USB_ApplicationEventHandler
-
-#define USBTasks()                  \
-    {                               \
-        USBHostTasks();             \
-    }
-
-#define USBInitialize(x)            \
-    {                               \
-        USBHostInit(x);             \
-    }
-
+//#define USB_BLUETOOTH_INTERRUPT_HANDLER USBBluetoothEventHandler

@@ -54,9 +54,6 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   gc_DevData.ID.vid  =  pDev->idVendor;
   gc_DevData.ID.pid  =  pDev->idProduct;
   
-  // Save the Client Driver ID
-  gc_DevData.clientDriverID = clientDriverID;
-
   // Save the endpoint addresses for the interfaces
   for (pIntInfo = pDevInfo->pInterfaceList; pIntInfo; pIntInfo = pIntInfo->next) {
     ANDROID_INTERFACE *pInterface;
@@ -140,7 +137,7 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
 }  // USBHostAndroidEventHandler
 
 
-void USBHostAndroidGetDeviceId(ANDROID_DEVICE_ID *pDevID) {
+void USBHostAndroidGetDeviceId(USB_DEVICE_ID *pDevID) {
   assert(gc_DevData.initialized);
   assert(pDevID != NULL);
   *pDevID = gc_DevData.ID;

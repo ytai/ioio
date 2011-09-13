@@ -28,16 +28,7 @@
  */
 
 //
-// USB Host Android Driver (Header File)
-//
-// This is the Android driver file for a USB Embedded Host device.  This
-// driver should be used in a project with usb_host.c to provide the USB
-// hardware interface.
-//
-// To interface with USB Embedded Host layer, the routine USBHostAndroidInit()
-// should be specified as the Initialize() function, and
-// USBHostAndroidEventHandler() should be specified as the EventHandler()
-// function in the usbClientDrvTable[] array declared in usb_config.c.
+// USB Host Bluetooth dongle Driver (Header File)
 //
 // The driver passes on the following events to the application event handler
 // (defined by the USB_HOST_APP_EVENT_HANDLER macro):
@@ -53,61 +44,42 @@
 // Since the generic class is performed with interrupt transfers,
 // USB_SUPPORT_INTERRUPT_TRANSFERS must be defined.
 
-#ifndef __USBHOSTANDROID_H__
-#define __USBHOSTANDROID_H__
+#ifndef __USBHOSTBLUETOOTH_H__
+#define __USBHOSTBLUETOOTH_H__
 
 #include "usb_config.h"
 #include "USB/usb_common.h"
 #include "usb_host_driver_common.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// The following code is not intended for the client to use directly.
-////////////////////////////////////////////////////////////////////////////////
-
-// An identifier of an Android interface.
-typedef enum _ANDROID_INTERFACE_ID {
-  ANDROID_INTERFACE_ADK,  // ADK (OpenAccessory API)
-  ANDROID_INTERFACE_ADB,  // ADB (Android Debug Bridge)
-  ANDROID_INTERFACE_MAX
-} ANDROID_INTERFACE_ID;
-
-// A single USB interface used to communicate with an Android device.
-// Contains an in-endpoint, an out-endpoint and their state.
-typedef struct _ANDROID_INTERFACE {
-  DWORD             rxLength;       // Number of bytes received in the last IN transfer
-  BYTE              inEndpoint;     // Address of endpoint from which we read
-  BYTE              outEndpoint;    // Address of endpoint to which we write
-  BYTE              rxErrorCode;    // Error code of last IN transfer
-  BYTE              txErrorCode;    // Error code of last OUT transfer
-
-  union {
-    BYTE val;                       // BYTE representation of device status flags
-    struct {
-      BYTE initialized    : 1;      // Driver has been initialized
-      BYTE txBusy         : 1;      // Driver busy transmitting data
-      BYTE rxBusy         : 1;      // Driver busy receiving data
-    };
-  } flags;                          // Android driver status flags
-} ANDROID_INTERFACE;
+//////////////////////////////////////////////////////////////////////////////////
+//// The following code is not intended for the client to use directly.
+//////////////////////////////////////////////////////////////////////////////////
 
 // Generic Device Information
 // This structure contains information about an attached device, including
 // status flags and device identification.
 typedef struct {
-  USB_DEVICE_ID     ID;  // Identification information about the device
-  ANDROID_INTERFACE interfaces[ANDROID_INTERFACE_MAX];  // Interfaces
-  BOOL              initialized;
-} ANDROID_DEVICE;
+  USB_DEVICE_ID     ID;              // Identification information about the device
+  DWORD             rxLength;        // Number of bytes received in the last IN transfer
+  BOOL              initialized;     // Is the driver initialized
+  BOOL              txBusy;          // Driver busy transmitting data
+  BOOL              rxBusy;          // Driver busy receiving data
+  BYTE              bulkinEndpoint;  // Address of the bulk input endpoint
+  BYTE              bulkoutEndpoint; // Address of bulk output endpoint
+  BYTE              intEndpoint;     // Address of interrupt input endpoint
+  BYTE              rxErrorCode;     // Error code of last IN transfer
+  BYTE              txErrorCode;     // Error code of last OUT transfer
+} BLUETOOTH_DEVICE;
 
-extern ANDROID_DEVICE   gc_DevData; // Information about the attached device.
+extern BLUETOOTH_DEVICE gc_BluetoothDevData; // Information about the attached device.
 
 ////////////////////////////////////////////////////////////////////////////////
 // The following two functions are to be put in the driver table and called by
 // the USB host layer. Should not be called directly by the client.
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOL USBHostAndroidInit ( BYTE address, DWORD flags, BYTE clientDriverID );
-BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWORD size );
+BOOL USBHostBluetoothInit ( BYTE address, DWORD flags, BYTE clientDriverID );
+BOOL USBHostBluetoothEventHandler ( BYTE address, USB_EVENT event, void *data, DWORD size );
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -116,48 +88,45 @@ BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWO
 ////////////////////////////////////////////////////////////////////////////////
 
 // Check whether a device is currently attached.
-#define USBHostAndroidIsDeviceAttached() (gc_DevData.initialized)
-
-// Check whether a given interface is attached
-#define USBHostAndroidIsInterfaceAttached(iid) (gc_DevData.interfaces[iid].flags.initialized)
+#define USBHostBluetoothIsDeviceAttached() (gc_BluetoothDevData.initialized)
 
 // Resets the device and restarts all the attachment process.
 // Device must be attached.
-void USBHostAndroidReset();
+void USBHostBluetoothdReset();
 
 // Returns the ID of the currently attached device.
 // Device must be attached at the time of call, and argument must not be NULL.
-void USBHostAndroidGetDeviceId(USB_DEVICE_ID *pDevID);
+void USBHostBluetoothGetDeviceId(USB_DEVICE_ID *pDevID);
 
 // Issue a read request from the device.
 // Actual read will be done asynchronously. Client should call
-// USBHostAndroidRxIsComplete() to check for completion and get status code.
+// USBHostBluetoothRxIsComplete() to check for completion and get status code.
 // Returns USB_SUCCESS if succeeded.
 // Device must be attached.
-BYTE USBHostAndroidRead(void *buffer, DWORD length, ANDROID_INTERFACE_ID iid);
+BYTE USBHostBluetoothRead(void *buffer, DWORD length);
 
-// Check whether the last call to USBHostAndroidRead has completed.
+// Check whether the last call to USBHostBluetoothRead has completed.
 // In case it is complete, returns TRUE, and the error code and number of bytes
 // read are returned.
-BOOL USBHostAndroidRxIsComplete(BYTE *errorCode, DWORD *byteCount, ANDROID_INTERFACE_ID iid);
+BOOL USBHostBluetoothRxIsComplete(BYTE *errorCode, DWORD *byteCount);
 
 // Issue a read request to the device.
 // Actual write will be done asynchronously. Client should call
-// USBHostAndroidTxIsComplete() to check for completion and get status code.
+// USBHostBluetoothTxIsComplete() to check for completion and get status code.
 // Returns USB_SUCCESS if succeeded.
 // Device must be attached.
-BYTE USBHostAndroidWrite(const void *buffer, DWORD length, ANDROID_INTERFACE_ID iid);
+BYTE USBHostBluetoothWrite(const void *buffer, DWORD length);
 
-// Check whether the last call to USBHostAndroidWrite has completed.
+// Check whether the last call to USBHostBluetoothWrite has completed.
 // In case it is complete, returns TRUE, and the error code is returned.
-BOOL USBHostAndroidTxIsComplete(BYTE *errorCode, ANDROID_INTERFACE_ID iid);
+BOOL USBHostBluetoothTxIsComplete(BYTE *errorCode);
 
 // This function must be called periodically by the client to provide context to
 // the driver IF NOT working with transfer events (USB_ENABLE_TRANSFER_EVENT)
 // It will poll for the status of transfers.
 #ifndef USB_ENABLE_TRANSFER_EVENT
-void USBHostAndroidTasks( void );
+void USBHostBluetoothTasks( void );
 #endif  // USB_ENABLE_TRANSFER_EVENT
 
 
-#endif  // __USBHOSTANDROID_H__
+#endif  // __USBHOSTBLUETOOTH_H__

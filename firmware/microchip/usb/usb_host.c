@@ -1599,7 +1599,10 @@ void USBHostTasks( void )
                                 // state). It may be that the address has
                                 // already been set. We want to set it back to
                                 // 0 either way.
+                                usbDeviceInfo.flags.bfIsLowSpeed    = 0;
+                                usbDeviceInfo.deviceAddressAndSpeed = 0x00;
                                 U1ADDR                              = 0x00;
+                                U1EP0bits.LSPD                      = 0;
                             }
 
                             // Reset all ping-pong buffers if they are being used.
