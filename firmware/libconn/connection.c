@@ -37,41 +37,158 @@
 #include "usb/usb.h"
 #include "usb/usb_host.h"
 #include "usb_host_android.h"
+#include "usb_host_bluetooth.h"
 #include "adb_private.h"
 #include "adb_file_private.h"
+#include "lwbt/hci.h"
 
-BOOL ConnectionTasks() {
-  int res;
-  
-  USBHostTasks();
-#ifndef USB_ENABLE_TRANSFER_EVENT
-  USBHostAndroidTasks();
-#endif
-  return FALSE;
+typedef enum {
+  STATE_BT_DISCONNECTED,
+  STATE_BT_INITIALIZED,
+} BT_STATE;
 
-  res = ADBTasks();
-  if (res == 1) {
-    ADBFileTasks();
-  } else if (res == -1) {
-    log_printf("Error occured. Resetting USB.");
-    USBHostAndroidReset();
-    return FALSE;
+typedef enum {
+  STATE_ADB_DISCONNECTED,
+  STATE_ADB_INTIALIZED
+} ADB_STATE;
+
+static BT_STATE bt_state;
+static ADB_STATE adb_state;
+
+struct pbuf *pbufint, *pbufbulk;
+
+BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
+        USB_EVENT status,
+        void *data,
+        DWORD size) {
+  switch (event) {
+    case BLUETOOTH_EVENT_WRITE_BULK_DONE:
+    case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
+    case BLUETOOTH_EVENT_ATTACHED:
+    case BLUETOOTH_EVENT_DETACHED:
+      return TRUE;
+
+    case BLUETOOTH_EVENT_READ_BULK_DONE:
+      if (size) {
+        pbufbulk->len = pbufbulk->tot_len = size;
+        pbufbulk->payload = data;
+        pbuf_header(pbufbulk, -HCI_ACL_HDR_LEN);
+        hci_acl_input(pbufbulk);
+      }
+      pbuf_free(pbufbulk);
+      return TRUE;
+
+    case BLUETOOTH_EVENT_READ_INTERRUPT_DONE:
+      if (size) {
+        pbufint->len = pbufint->tot_len = size;
+        pbufint->payload = data;
+        pbuf_header(pbufint, -HCI_EVENT_HDR_LEN);
+        hci_event_input(pbufint);
+      }
+      pbuf_free(pbufint);
+      return TRUE;
+
+    default:
+      return FALSE;
   }
-  // TODO: this function should return the state of the USB connection
-  // (or not return anything). Separate functions to be used for checking
-  // the connection state of a specific channel.
-  return USBHostAndroidIsDeviceAttached();
 }
 
-void ConnectionResetUSB() {
-  USBHostShutdown();
+static void ConnBTTasks() {
+  static unsigned int tcount;
+
+  if (!USBHostBluetoothIsDeviceAttached()) {
+    bt_state = STATE_BT_DISCONNECTED;
+    return;
+  }
+
+  switch (bt_state) {
+    case STATE_BT_DISCONNECTED:
+      if (USBHostBluetoothIsDeviceAttached()) {
+        bt_init();
+        //hci_set_event_filter(HCI_SET_EV_FILTER_INQUIRY, HCI_SET_EV_FILTER_ALLDEV, NULL);
+        //hci_read_buffer_size();
+        tcount = 100;
+        bt_state = STATE_BT_INITIALIZED;
+      }
+      break;
+
+    case STATE_BT_INITIALIZED:
+#ifndef USB_ENABLE_TRANSFER_EVENT
+      USBHostBluetoothTasks();
+#endif
+      if (!USBHostBlueToothIntInBusy()) {
+        pbufint = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
+        if (!pbufint) {
+          log_printf("OUT OF MEM");
+        }
+        USBHostBluetoothReadInt(pbufint->payload, 64);
+      }
+      if (!USBHostBlueToothBulkInBusy()) {
+        pbufbulk = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
+        if (!pbufbulk) {
+          log_printf("OUT OF MEM");
+        }
+        USBHostBluetoothReadBulk(pbufbulk->payload, 64);
+      }
+      if (tcount-- == 0) {
+        l2cap_tmr();
+        rfcomm_tmr();
+        bt_spp_tmr();
+        tcount = 100;
+      }
+      break;
+  }
+}
+
+static void ConnADBTasks() {
+  int res;
+
+  if (!USBHostAndroidIsDeviceAttached()) {
+    adb_state = STATE_ADB_DISCONNECTED;
+    return;
+  }
+
+  switch (adb_state) {
+    case STATE_ADB_DISCONNECTED:
+      if (USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB)) {
+        ADBInit();
+        ADBFileInit();
+        adb_state = STATE_ADB_INTIALIZED;
+      }
+      break;
+
+    case STATE_ADB_INTIALIZED:
+#ifndef USB_ENABLE_TRANSFER_EVENT
+      USBHostAndroidTasks();
+#endif
+      res = ADBTasks();
+      if (res == 1) {
+        ADBFileTasks();
+      } else if (res == -1) {
+        log_printf("Error occured. Resetting Android USB.");
+        USBHostAndroidReset();
+      }
+      break;
+  }
 }
 
 void ConnectionInit() {
   BOOL res = USBHostInit(0);
   assert(res);
-  ADBInit();
-  ADBFileInit();
+  bt_state = STATE_BT_DISCONNECTED;
+  adb_state = STATE_ADB_DISCONNECTED;
+}
+
+BOOL ConnectionTasks() {
+  USBHostTasks();
+  ConnBTTasks();
+  ConnADBTasks();
+
+  return adb_state != STATE_ADB_DISCONNECTED || bt_state != STATE_BT_DISCONNECTED;
+}
+
+void ConnectionResetUSB() {
+  USBHostShutdown();
 }
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
