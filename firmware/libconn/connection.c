@@ -70,8 +70,6 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
 
     case BLUETOOTH_EVENT_READ_BULK_DONE:
       if (size) {
-        pbufbulk->len = pbufbulk->tot_len = size;
-        pbufbulk->payload = data;
         pbuf_header(pbufbulk, -HCI_ACL_HDR_LEN);
         hci_acl_input(pbufbulk);
       }
@@ -80,8 +78,6 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
 
     case BLUETOOTH_EVENT_READ_INTERRUPT_DONE:
       if (size) {
-        pbufint->len = pbufint->tot_len = size;
-        pbufint->payload = data;
         pbuf_header(pbufint, -HCI_EVENT_HDR_LEN);
         hci_event_input(pbufint);
       }
@@ -107,7 +103,7 @@ static void ConnBTTasks() {
         bt_init();
         //hci_set_event_filter(HCI_SET_EV_FILTER_INQUIRY, HCI_SET_EV_FILTER_ALLDEV, NULL);
         //hci_read_buffer_size();
-        tcount = 100;
+        tcount = 1000;
         bt_state = STATE_BT_INITIALIZED;
       }
       break;
@@ -134,7 +130,7 @@ static void ConnBTTasks() {
         l2cap_tmr();
         rfcomm_tmr();
         bt_spp_tmr();
-        tcount = 100;
+        tcount = 1000;
       }
       break;
   }
