@@ -3,6 +3,7 @@
 #include "lwbt/hci.h"
 #include "lwip/debug.h"
 #include "lwip/mem.h"
+#include "lwip/pbuf.h"
 
 #include "usb_host_bluetooth.h"
 #include "logging.h"
@@ -10,27 +11,53 @@
 #include "HardwareProfile.h"
 #include "timer.h"
 
+static struct pbuf *cmd_first = NULL, *acl_first = NULL;
+
+void phybusif_init() {
+  if (cmd_first) pbuf_free(cmd_first);
+  if (acl_first) pbuf_free(acl_first);
+  cmd_first = acl_first = NULL;
+}
+
 void phybusif_output(struct pbuf *p, u16_t len) {
-  static unsigned char buf[256];
-
-  //	static unsigned char *ptr;
-  //	unsigned char c;
-  u16_t total_len;
-
-  /* Send pbuf */
-  total_len = pbuf_copy_partial(p, buf, sizeof buf, 1);
-
   if (*(u8_t*) p->payload == HCI_COMMAND_DATA_PACKET) {
-    LWIP_DEBUGF(PHYBUSIF_DEBUG, ("sending cmd len %02x\n", total_len));
-    USBHostBluetoothWriteControl(buf, total_len);
-    DelayMs(10);  // TEMPTEMPTEMP
+    pbuf_header(p, -1);
+    if (cmd_first) {
+      pbuf_chain(cmd_first, p);
+    } else {
+      pbuf_ref(p);
+      cmd_first = p;
+    }
   } else if (*(u8_t*) p->payload == HCI_ACL_DATA_PACKET) {
-    LWIP_DEBUGF(PHYBUSIF_DEBUG, ("sending acl len %02x\n", total_len));
-    USBHostBluetoothWriteBulk(buf, total_len);
-    DelayMs(10);  // TEMPTEMPTEMP
+    pbuf_header(p, -1);
+    if (acl_first) {
+      pbuf_chain(acl_first, p);
+    } else {
+      pbuf_ref(p);
+      acl_first = p;
+    }
   }
 }
 
+struct pbuf *phybusif_next_command() {
+  if (cmd_first) {
+    struct pbuf *tmp = cmd_first;
+    pbuf_ref(cmd_first->next);
+    cmd_first = pbuf_dechain(cmd_first);
+    return tmp;
+  }
+  return NULL;
+}
+
+struct pbuf *phybusif_next_acl() {
+  if (acl_first) {
+    struct pbuf *tmp = acl_first;
+    pbuf_ref(acl_first->next);
+    acl_first = pbuf_dechain(acl_first);
+    return tmp;
+  }
+  return NULL;
+}
 
 void bt_init(void) {
   //sys_init();
@@ -39,6 +66,7 @@ void bt_init(void) {
   pbuf_init();
   log_printf("mem mgmt initialized\r\n");
   lwbt_memp_init();
+  phybusif_init();
 
   if (hci_init() != ERR_OK) {
     log_printf("HCI initialization failed!\r\n");

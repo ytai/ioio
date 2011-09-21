@@ -27,6 +27,9 @@
  * or implied.
  */
 
+#include "lwbt/phybusif.h"
+
+
 #include "connection.h"
 
 #include <string.h>
@@ -41,6 +44,7 @@
 #include "adb_private.h"
 #include "adb_file_private.h"
 #include "lwbt/hci.h"
+#include "lwbt/phybusif.h"
 
 typedef enum {
   STATE_BT_DISCONNECTED,
@@ -55,7 +59,8 @@ typedef enum {
 static BT_STATE bt_state;
 static ADB_STATE adb_state;
 
-struct pbuf *pbufint, *pbufbulk;
+struct pbuf *pbuf_cmd_in = NULL, *pbuf_acl_in = NULL,
+            *pbuf_cmd_out = NULL, *pbuf_acl_out = NULL;
 
 BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         USB_EVENT status,
@@ -63,25 +68,39 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         DWORD size) {
   switch (event) {
     case BLUETOOTH_EVENT_WRITE_BULK_DONE:
+      pbuf_free(pbuf_acl_out);
+      pbuf_acl_out = NULL;
+      return TRUE;
+
     case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
+      pbuf_free(pbuf_cmd_out);
+      pbuf_cmd_out = NULL;
+      return TRUE;
+
     case BLUETOOTH_EVENT_ATTACHED:
+      return TRUE;
+
     case BLUETOOTH_EVENT_DETACHED:
+      log_printf("detach event");
+      if (pbuf_cmd_out) pbuf_free(pbuf_cmd_out);
+      if (pbuf_acl_out) pbuf_free(pbuf_acl_out);
+      pbuf_cmd_out = pbuf_acl_out = NULL;
       return TRUE;
 
     case BLUETOOTH_EVENT_READ_BULK_DONE:
       if (size) {
-        pbuf_header(pbufbulk, -HCI_ACL_HDR_LEN);
-        hci_acl_input(pbufbulk);
+        pbuf_header(pbuf_acl_in, -HCI_ACL_HDR_LEN);
+        hci_acl_input(pbuf_acl_in);
       }
-      pbuf_free(pbufbulk);
+      pbuf_free(pbuf_acl_in);
       return TRUE;
 
     case BLUETOOTH_EVENT_READ_INTERRUPT_DONE:
       if (size) {
-        pbuf_header(pbufint, -HCI_EVENT_HDR_LEN);
-        hci_event_input(pbufint);
+        pbuf_header(pbuf_cmd_in, -HCI_EVENT_HDR_LEN);
+        hci_event_input(pbuf_cmd_in);
       }
-      pbuf_free(pbufint);
+      pbuf_free(pbuf_cmd_in);
       return TRUE;
 
     default:
@@ -113,19 +132,34 @@ static void ConnBTTasks() {
       USBHostBluetoothTasks();
 #endif
       if (!USBHostBlueToothIntInBusy()) {
-        pbufint = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
-        if (!pbufint) {
+        pbuf_cmd_in = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
+        if (!pbuf_cmd_in) {
           log_printf("OUT OF MEM");
         }
-        USBHostBluetoothReadInt(pbufint->payload, 64);
+        USBHostBluetoothReadInt(pbuf_cmd_in->payload, 64);
       }
       if (!USBHostBlueToothBulkInBusy()) {
-        pbufbulk = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
-        if (!pbufbulk) {
+        pbuf_acl_in = pbuf_alloc(PBUF_RAW, 64, PBUF_POOL);
+        if (!pbuf_acl_in) {
           log_printf("OUT OF MEM");
         }
-        USBHostBluetoothReadBulk(pbufbulk->payload, 64);
+        USBHostBluetoothReadBulk(pbuf_acl_in->payload, 64);
       }
+      if (!USBHostBlueToothControlOutBusy()) {
+        pbuf_cmd_out = phybusif_next_command();
+        if (pbuf_cmd_out) {
+          //log_printf("writing %d cmd bytes", pbuf_cmd_out->len);
+          USBHostBluetoothWriteControl(pbuf_cmd_out->payload, pbuf_cmd_out->len);
+        }
+      }
+      if (!USBHostBlueToothBulkOutBusy()) {
+        pbuf_acl_out = phybusif_next_acl();
+        if (pbuf_acl_out) {
+          //log_printf("writing %d acl bytes", pbuf_acl_out->len);
+          USBHostBluetoothWriteBulk(pbuf_acl_out->payload, pbuf_acl_out->len);
+        }
+      }
+
       if (tcount-- == 0) {
         l2cap_tmr();
         rfcomm_tmr();
