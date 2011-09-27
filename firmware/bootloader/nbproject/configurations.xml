@@ -91,7 +91,8 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1012;NDEBUG"/>
+        <property key="preprocessor-macros"
+                  value="BOARD_VER=1012;NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -133,7 +134,7 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="1024"/>
         <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
@@ -145,18 +146,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value="conn"/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA106"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-Tboot_IOIO0021.gld"/>
       </C30-LD>
       <C30Global>
@@ -173,8 +174,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -184,8 +185,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
@@ -246,7 +247,8 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1013;NDEBUG"/>
+        <property key="preprocessor-macros"
+                  value="BOARD_VER=1013;NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -288,7 +290,7 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="2048"/>
         <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
@@ -300,18 +302,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value="conn"/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value="../libconn/dist/PIC24FJ128DA206"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-Tboot_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
@@ -326,8 +328,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -337,8 +339,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>

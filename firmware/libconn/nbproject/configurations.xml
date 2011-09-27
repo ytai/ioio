@@ -12,8 +12,6 @@
         <itemPath>adb_private.h</itemPath>
         <itemPath>adb_types.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
-      </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../microchip/include/Compiler.h</itemPath>
         <itemPath>../microchip/include/GenericTypeDefs.h</itemPath>
@@ -38,6 +36,52 @@
       </logicalFolder>
       <itemPath>connection.h</itemPath>
     </logicalFolder>
+    <logicalFolder name="lwBT" displayName="lwBT" projectFiles="true">
+      <logicalFolder name="arch" displayName="arch" projectFiles="true">
+        <itemPath>../../../lwBT/arch/cc.h</itemPath>
+        <itemPath>../../../lwBT/arch/lwbtopts.h</itemPath>
+        <itemPath>../../../lwBT/arch/lwipopts.h</itemPath>
+        <itemPath>../../../lwBT/arch/perf.h</itemPath>
+        <itemPath>../../../lwBT/arch/sys_arch.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="lwbt" displayName="lwbt" projectFiles="true">
+        <itemPath>../../../lwBT/lwbt/bd_addr.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/fcs.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/fcs.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/hci.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/hci.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/l2cap.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/l2cap.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/lwbt_memp.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/lwbt_memp.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/phybusif.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/rfcomm.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/rfcomm.h</itemPath>
+        <itemPath>../../../lwBT/lwbt/sdp.c</itemPath>
+        <itemPath>../../../lwBT/lwbt/sdp.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="lwip" displayName="lwip" projectFiles="true">
+        <itemPath>../../../lwBT/lwip/arch.h</itemPath>
+        <itemPath>../../../lwBT/lwip/debug.h</itemPath>
+        <itemPath>../../../lwBT/lwip/def.h</itemPath>
+        <itemPath>../../../lwBT/lwip/err.h</itemPath>
+        <itemPath>../../../lwBT/lwip/inet.c</itemPath>
+        <itemPath>../../../lwBT/lwip/inet.h</itemPath>
+        <itemPath>../../../lwBT/lwip/mem.c</itemPath>
+        <itemPath>../../../lwBT/lwip/mem.h</itemPath>
+        <itemPath>../../../lwBT/lwip/memp.c</itemPath>
+        <itemPath>../../../lwBT/lwip/memp.h</itemPath>
+        <itemPath>../../../lwBT/lwip/memp_std.h</itemPath>
+        <itemPath>../../../lwBT/lwip/opt.h</itemPath>
+        <itemPath>../../../lwBT/lwip/pbuf.c</itemPath>
+        <itemPath>../../../lwBT/lwip/pbuf.h</itemPath>
+        <itemPath>../../../lwBT/lwip/stats.c</itemPath>
+        <itemPath>../../../lwBT/lwip/stats.h</itemPath>
+        <itemPath>../../../lwBT/lwip/sys.c</itemPath>
+        <itemPath>../../../lwBT/lwip/sys.h</itemPath>
+      </logicalFolder>
+      <itemPath>../../../lwBT/bt_spp.c</itemPath>
+    </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
@@ -46,8 +90,6 @@
         <itemPath>adb_file.c</itemPath>
         <itemPath>adb_packet.c</itemPath>
         <itemPath>../microchip/common/uart2.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
       </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../common/logging.c</itemPath>
@@ -59,6 +101,7 @@
         <itemPath>usb_host_bluetooth.c</itemPath>
       </logicalFolder>
       <itemPath>connection.c</itemPath>
+      <itemPath>physbusif.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -69,6 +112,7 @@
   <sourceRootList>
     <Elem>.</Elem>
     <Elem>../microchip</Elem>
+    <Elem>../../../lwBT</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -88,14 +132,14 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-short-double" value="false"/>
         <property key="extra-include-directories"
-                  value=".;../common;../microchip/include;../microchip/include/USB"/>
+                  value=".;../common;../microchip/include;../microchip/include/USB;/Users/ytai/lwBT"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="data-model" value="large-data"/>
@@ -176,14 +220,14 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-short-double" value="false"/>
         <property key="extra-include-directories"
-                  value=".;../common;../microchip/include;../microchip/include/USB"/>
+                  value=".;../common;../microchip/include;../microchip/include/USB;/Users/ytai/lwBT"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="data-model" value="large-data"/>
@@ -271,7 +315,7 @@
         <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-short-double" value="false"/>
         <property key="extra-include-directories"
-                  value=".;../common;../microchip/include;../microchip/include/USB"/>
+                  value=".;../common;../microchip/include;../microchip/include/USB;/Users/ytai/lwBT"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="data-model" value="large-data"/>
@@ -318,18 +362,18 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="extra-lib-directories" value=""/>
         <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="extra-lib-directories" value=""/>
       </C30-LD>
       <C30Global>
       </C30Global>

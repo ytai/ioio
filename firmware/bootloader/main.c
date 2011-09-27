@@ -303,6 +303,7 @@ int main() {
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }
+    continue;
 
     switch(state) {
       case MAIN_STATE_WAIT_CONNECT:

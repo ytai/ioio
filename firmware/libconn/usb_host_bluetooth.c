@@ -141,10 +141,10 @@ BOOL USBHostBluetoothEventHandler(BYTE address, USB_EVENT event, void *data, DWO
         return TRUE;
       }
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.bulkIn.address) {
-//        if (dataCount) {
-//          log_printf("Received message with %ld bytes: ", dataCount);
-//          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
-//        }
+        if (dataCount) {
+          log_printf("Received message with %ld bytes: ", dataCount);
+          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
+        }
         USBHostBluetoothCallback(BLUETOOTH_EVENT_READ_BULK_DONE,
                                  ((HOST_TRANSFER_DATA *)data)->bErrorCode,
                                  ((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);

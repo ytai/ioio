@@ -45,6 +45,8 @@
 #include "adb_file_private.h"
 #include "lwbt/hci.h"
 #include "lwbt/phybusif.h"
+#include "HardwareProfile.h"
+#include "timer.h"
 
 typedef enum {
   STATE_BT_DISCONNECTED,

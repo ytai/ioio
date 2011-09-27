@@ -46,12 +46,14 @@ void log_print_buf(const void* buf, int size) {
   UART2PutChar('\r');
   UART2PutChar('\n');
 
+/*
   byte_buf -= s;
   while (s-- > 0) {
     UART2PutChar(*byte_buf++);
   }
   UART2PutChar('\r');
   UART2PutChar('\n');
+*/
 }
 
 void log_init() {
