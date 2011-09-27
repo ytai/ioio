@@ -20,6 +20,8 @@ void phybusif_init() {
 }
 
 void phybusif_output(struct pbuf *p, u16_t len) {
+  p->flags = 1;  // mark the first packet as header. once we finish transmitting
+                 // it, we'll decrement the header again.
   if (*(u8_t*) p->payload == HCI_COMMAND_DATA_PACKET) {
     pbuf_header(p, -1);
     if (cmd_first) {

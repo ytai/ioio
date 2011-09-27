@@ -127,7 +127,6 @@ BOOL USBHostBluetoothEventHandler(BYTE address, USB_EVENT event, void *data, DWO
    case EVENT_BUS_ERROR:
    case EVENT_TRANSFER:
     if ((data != NULL) && (size == sizeof(HOST_TRANSFER_DATA))) {
-      int i;
       DWORD dataCount = ((HOST_TRANSFER_DATA *)data)->dataCount;
 
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.intIn.address) {
@@ -314,6 +313,8 @@ static BYTE USBHostBluetoothWrite(BLUETOOTH_ENDPOINT *ep, const void *buffer, DW
                                        USB_DEVICE_REQUEST_SET,
                                        gc_BluetoothDevData.driverID);
   } else {
+    log_printf("writing %lu bytes", length);
+    log_print_buf(buffer, length);
     RetVal = USBHostWrite(gc_BluetoothDevData.ID.deviceAddress,
                           ep->address,
                           (BYTE *)buffer,
@@ -321,6 +322,7 @@ static BYTE USBHostBluetoothWrite(BLUETOOTH_ENDPOINT *ep, const void *buffer, DW
   }
 
   if (RetVal != USB_SUCCESS) {
+    log_printf("***write failed***");
     ep->busy = 0;    // Clear flag to allow re-try
   }
   return RetVal;

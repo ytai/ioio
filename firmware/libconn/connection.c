@@ -68,11 +68,19 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         DWORD size) {
   switch (event) {
     case BLUETOOTH_EVENT_WRITE_BULK_DONE:
+      if (pbuf_acl_out->flags) {
+        pbuf_header(pbuf_acl_out, 1);
+        pbuf_acl_out->flags = 0;
+      }
       pbuf_free(pbuf_acl_out);
       pbuf_acl_out = NULL;
       return TRUE;
 
     case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
+      if (pbuf_cmd_out->flags) {
+        pbuf_header(pbuf_cmd_out, 1);
+        pbuf_cmd_out->flags = 0;
+      }
       pbuf_free(pbuf_cmd_out);
       pbuf_cmd_out = NULL;
       return TRUE;
@@ -89,10 +97,14 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
 
     case BLUETOOTH_EVENT_READ_BULK_DONE:
       if (size) {
+        pbuf_acl_in->len = pbuf_acl_in->tot_len = size;
         pbuf_header(pbuf_acl_in, -HCI_ACL_HDR_LEN);
         hci_acl_input(pbuf_acl_in);
+        // For some strange reason, hci_acl_input takes ownership of the buffer.
+        // so don't free here.
+      } else {
+        pbuf_free(pbuf_acl_in);
       }
-      pbuf_free(pbuf_acl_in);
       return TRUE;
 
     case BLUETOOTH_EVENT_READ_INTERRUPT_DONE:
@@ -120,9 +132,7 @@ static void ConnBTTasks() {
     case STATE_BT_DISCONNECTED:
       if (USBHostBluetoothIsDeviceAttached()) {
         bt_init();
-        //hci_set_event_filter(HCI_SET_EV_FILTER_INQUIRY, HCI_SET_EV_FILTER_ALLDEV, NULL);
-        //hci_read_buffer_size();
-        tcount = 1000;
+        tcount = -1;
         bt_state = STATE_BT_INITIALIZED;
       }
       break;
@@ -148,15 +158,19 @@ static void ConnBTTasks() {
       if (!USBHostBlueToothControlOutBusy()) {
         pbuf_cmd_out = phybusif_next_command();
         if (pbuf_cmd_out) {
-          //log_printf("writing %d cmd bytes", pbuf_cmd_out->len);
           USBHostBluetoothWriteControl(pbuf_cmd_out->payload, pbuf_cmd_out->len);
+          // DelayMs(10);
         }
       }
       if (!USBHostBlueToothBulkOutBusy()) {
-        pbuf_acl_out = phybusif_next_acl();
-        if (pbuf_acl_out) {
-          //log_printf("writing %d acl bytes", pbuf_acl_out->len);
-          USBHostBluetoothWriteBulk(pbuf_acl_out->payload, pbuf_acl_out->len);
+        while ((pbuf_acl_out = phybusif_next_acl())) {
+          if (pbuf_acl_out->len) {
+            USBHostBluetoothWriteBulk(pbuf_acl_out->payload, pbuf_acl_out->len);
+            // DelayMs(10);
+            break;
+          } else {
+            pbuf_free(pbuf_acl_out);
+          }
         }
       }
 
@@ -164,7 +178,7 @@ static void ConnBTTasks() {
         l2cap_tmr();
         rfcomm_tmr();
         bt_spp_tmr();
-        tcount = 1000;
+        tcount = -1;
       }
       break;
   }
