@@ -79,6 +79,7 @@
         <itemPath>usb_host_driver_common.h</itemPath>
         <itemPath>../microchip/usb/usb_host_local.h</itemPath>
       </logicalFolder>
+      <itemPath>bt_app.h</itemPath>
       <itemPath>connection.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -99,6 +100,7 @@
         <itemPath>usb_host_android.c</itemPath>
         <itemPath>usb_host_bluetooth.c</itemPath>
       </logicalFolder>
+      <itemPath>bt_app.c</itemPath>
       <itemPath>connection.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
