@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="btstack" displayName="btstack" projectFiles="true">
+      <logicalFolder name="include" displayName="include" projectFiles="true">
+        <logicalFolder name="btstack" displayName="btstack" projectFiles="true">
+          <itemPath>btstack/include/btstack/btstack.h</itemPath>
+          <itemPath>btstack/include/btstack/hal_cpu.h</itemPath>
+          <itemPath>btstack/include/btstack/hal_tick.h</itemPath>
+          <itemPath>btstack/include/btstack/hci_cmds.h</itemPath>
+          <itemPath>btstack/include/btstack/linked_list.h</itemPath>
+          <itemPath>btstack/include/btstack/memory_pool.h</itemPath>
+          <itemPath>btstack/include/btstack/run_loop.h</itemPath>
+          <itemPath>btstack/include/btstack/sdp_util.h</itemPath>
+          <itemPath>btstack/include/btstack/utils.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>btstack/src/bt_control.h</itemPath>
+        <itemPath>btstack/src/btstack_memory.c</itemPath>
+        <itemPath>btstack/src/btstack_memory.h</itemPath>
+        <itemPath>btstack/src/debug.h</itemPath>
+        <itemPath>btstack/src/hci.c</itemPath>
+        <itemPath>btstack/src/hci.h</itemPath>
+        <itemPath>btstack/src/hci_cmds.c</itemPath>
+        <itemPath>btstack/src/hci_dump.c</itemPath>
+        <itemPath>btstack/src/hci_dump.h</itemPath>
+        <itemPath>btstack/src/hci_transport.h</itemPath>
+        <itemPath>btstack/src/hci_transport_mchpusb.c</itemPath>
+        <itemPath>btstack/src/l2cap.c</itemPath>
+        <itemPath>btstack/src/l2cap.h</itemPath>
+        <itemPath>btstack/src/l2cap_signaling.c</itemPath>
+        <itemPath>btstack/src/l2cap_signaling.h</itemPath>
+        <itemPath>btstack/src/linked_list.c</itemPath>
+        <itemPath>btstack/src/memory_pool.c</itemPath>
+        <itemPath>btstack/src/remote_device_db.h</itemPath>
+        <itemPath>btstack/src/rfcomm.c</itemPath>
+        <itemPath>btstack/src/rfcomm.h</itemPath>
+        <itemPath>btstack/src/run_loop.c</itemPath>
+        <itemPath>btstack/src/run_loop_ioio.c</itemPath>
+        <itemPath>btstack/src/run_loop_private.h</itemPath>
+        <itemPath>btstack/src/sdp.c</itemPath>
+        <itemPath>btstack/src/sdp.h</itemPath>
+        <itemPath>btstack/src/sdp_util.c</itemPath>
+        <itemPath>btstack/src/utils.c</itemPath>
+      </logicalFolder>
+      <itemPath>btstack/config.h</itemPath>
+    </logicalFolder>
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
@@ -11,8 +56,6 @@
         <itemPath>adb_packet.h</itemPath>
         <itemPath>adb_private.h</itemPath>
         <itemPath>adb_types.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
       </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../microchip/include/Compiler.h</itemPath>
@@ -46,8 +89,6 @@
         <itemPath>adb_file.c</itemPath>
         <itemPath>adb_packet.c</itemPath>
         <itemPath>../microchip/common/uart2.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f4" displayName="Bluetooth" projectFiles="true">
       </logicalFolder>
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../common/logging.c</itemPath>
@@ -183,7 +224,7 @@
         <property key="enable-ansi-warnings" value="false"/>
         <property key="enable-short-double" value="false"/>
         <property key="extra-include-directories"
-                  value=".;../common;../microchip/include;../microchip/include/USB"/>
+                  value=".;../common;../microchip/include;../microchip/include/USB;./btstack;./btstack/include;./btstack/src"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="data-model" value="large-data"/>

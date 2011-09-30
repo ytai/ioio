@@ -127,45 +127,44 @@ BOOL USBHostBluetoothEventHandler(BYTE address, USB_EVENT event, void *data, DWO
    case EVENT_BUS_ERROR:
    case EVENT_TRANSFER:
     if ((data != NULL) && (size == sizeof(HOST_TRANSFER_DATA))) {
-      int i;
       DWORD dataCount = ((HOST_TRANSFER_DATA *)data)->dataCount;
 
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.intIn.address) {
-        gc_BluetoothDevData.intIn.busy = 0;
-        if (dataCount) {
-          log_printf("Received interrupt with error code 0x%x, %ld bytes: ", ((HOST_TRANSFER_DATA *)data)->bErrorCode, dataCount);
-          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
-        }
+//        if (dataCount) {
+//          log_printf("Received interrupt with error code 0x%x, %ld bytes: ", ((HOST_TRANSFER_DATA *)data)->bErrorCode, dataCount);
+//          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
+//        }
         USBHostBluetoothCallback(BLUETOOTH_EVENT_READ_INTERRUPT_DONE,
                                  ((HOST_TRANSFER_DATA *)data)->bErrorCode,
                                  ((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
+        gc_BluetoothDevData.intIn.busy = 0;
         return TRUE;
       }
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.bulkIn.address) {
-        gc_BluetoothDevData.bulkIn.busy = 0;
-        if (dataCount) {
-          log_printf("Received message with %ld bytes: ", dataCount);
-          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
-        }
+//        if (dataCount) {
+//          log_printf("Received message with %ld bytes: ", dataCount);
+//          log_print_buf(((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
+//        }
         USBHostBluetoothCallback(BLUETOOTH_EVENT_READ_BULK_DONE,
                                  ((HOST_TRANSFER_DATA *)data)->bErrorCode,
                                  ((HOST_TRANSFER_DATA *)data)->pUserData, dataCount);
+        gc_BluetoothDevData.bulkIn.busy = 0;
         return TRUE;
       }
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.bulkOut.address) {
-        gc_BluetoothDevData.bulkOut.busy = 0;
-        log_printf("bulk out done: %d", ((HOST_TRANSFER_DATA *)data)->bErrorCode);
+//        log_printf("bulk out done: %d", ((HOST_TRANSFER_DATA *)data)->bErrorCode);
         USBHostBluetoothCallback(BLUETOOTH_EVENT_WRITE_BULK_DONE,
                                  ((HOST_TRANSFER_DATA *)data)->bErrorCode,
                                  NULL, 0);
+        gc_BluetoothDevData.bulkOut.busy = 0;
         return TRUE;
       }
       if (((HOST_TRANSFER_DATA *)data)->bEndpointAddress == gc_BluetoothDevData.ctrlOut.address) {
-        gc_BluetoothDevData.ctrlOut.busy = 0;
-        log_printf("ctrl out done: %d", ((HOST_TRANSFER_DATA *)data)->bErrorCode);
+//        log_printf("ctrl out done: %d", ((HOST_TRANSFER_DATA *)data)->bErrorCode);
         USBHostBluetoothCallback(BLUETOOTH_EVENT_WRITE_CONTROL_DONE,
                                  ((HOST_TRANSFER_DATA *)data)->bErrorCode,
                                  NULL, 0);
+        gc_BluetoothDevData.ctrlOut.busy = 0;
         return TRUE;
       }
     }
@@ -235,15 +234,15 @@ void USBHostBluetoothTasks(void) {
                                     gc_BluetoothDevData.intIn.address,
                                     &errorCode,
                                     &byteCount)) {
-        gc_BluetoothDevData.intIn.busy = 0;
-        if (byteCount) {
-          log_printf("Received interrupt with error code 0x%x, %ld bytes: ",
-                     errorCode, byteCount);
-          log_print_buf(gc_BluetoothDevData.intIn.data, byteCount);
-        }
+//        if (byteCount) {
+//          log_printf("Received interrupt with error code 0x%x, %ld bytes: ",
+//                     errorCode, byteCount);
+//          log_print_buf(gc_BluetoothDevData.intIn.data, byteCount);
+//        }
         USBHostBluetoothCallback(BLUETOOTH_EVENT_READ_INTERRUPT_DONE,
                                  errorCode,
                                  gc_BluetoothDevData.intIn.data, byteCount);
+        gc_BluetoothDevData.intIn.busy = 0;
       }
     }
 
@@ -252,15 +251,15 @@ void USBHostBluetoothTasks(void) {
                                     gc_BluetoothDevData.bulkIn.address,
                                     &errorCode,
                                     &byteCount)) {
-        gc_BluetoothDevData.bulkIn.busy = 0;
-        if (byteCount) {
-          log_printf("Received bulk with error code 0x%x, %ld bytes: ",
-                     errorCode, byteCount);
-          log_print_buf(gc_BluetoothDevData.bulkIn.data, byteCount);
-        }
+//        if (byteCount) {
+//          log_printf("Received bulk with error code 0x%x, %ld bytes: ",
+//                     errorCode, byteCount);
+//          log_print_buf(gc_BluetoothDevData.bulkIn.data, byteCount);
+//        }
         USBHostBluetoothCallback(BLUETOOTH_EVENT_READ_BULK_DONE,
                                  errorCode,
                                  gc_BluetoothDevData.bulkIn.data, byteCount);
+        gc_BluetoothDevData.bulkIn.busy = 0;
       }
     }
 
@@ -269,10 +268,10 @@ void USBHostBluetoothTasks(void) {
                                     gc_BluetoothDevData.bulkOut.address,
                                     &errorCode,
                                     &byteCount)) {
-        gc_BluetoothDevData.bulkOut.busy = 0;
         USBHostBluetoothCallback(BLUETOOTH_EVENT_WRITE_BULK_DONE,
                                  errorCode,
                                  NULL, 0);
+        gc_BluetoothDevData.bulkOut.busy = 0;
       }
     }
 
@@ -281,10 +280,10 @@ void USBHostBluetoothTasks(void) {
                                     gc_BluetoothDevData.ctrlOut.address,
                                     &errorCode,
                                     &byteCount)) {
-        gc_BluetoothDevData.ctrlOut.busy = 0;
         USBHostBluetoothCallback(BLUETOOTH_EVENT_WRITE_CONTROL_DONE,
                                  errorCode,
                                  NULL, 0);
+        gc_BluetoothDevData.ctrlOut.busy = 0;
       }
     }
 }
@@ -298,10 +297,10 @@ static BYTE USBHostBluetoothWrite(BLUETOOTH_ENDPOINT *ep, const void *buffer, DW
   assert(gc_BluetoothDevData.initialized);
   if (ep->busy) return USB_BUSY;
 
-  log_printf("Sending message with %u bytes to endpoint 0x%x: ",
-             (unsigned) length,
-             ep->address);
-  log_print_buf(buffer, length);
+//  log_printf("Sending message with %u bytes to endpoint 0x%x: ",
+//             (unsigned) length,
+//             ep->address);
+//  log_print_buf(buffer, length);
 
   // Set the busy flag and start a new OUT transfer.
   ep->busy = 1;
@@ -314,6 +313,8 @@ static BYTE USBHostBluetoothWrite(BLUETOOTH_ENDPOINT *ep, const void *buffer, DW
                                        USB_DEVICE_REQUEST_SET,
                                        gc_BluetoothDevData.driverID);
   } else {
+//    log_printf("writing %lu bytes", length);
+//    log_print_buf(buffer, length);
     RetVal = USBHostWrite(gc_BluetoothDevData.ID.deviceAddress,
                           ep->address,
                           (BYTE *)buffer,
@@ -321,6 +322,7 @@ static BYTE USBHostBluetoothWrite(BLUETOOTH_ENDPOINT *ep, const void *buffer, DW
   }
 
   if (RetVal != USB_SUCCESS) {
+    log_printf("Write failed");
     ep->busy = 0;    // Clear flag to allow re-try
   }
   return RetVal;
