@@ -76,6 +76,7 @@ extern hci_transport_t * hci_transport_mchpusb_instance(void);
 
 // support for "enforece wake device" in h4 - used by iOS power management
 extern void hci_transport_h4_set_enforce_wake_device(char *path);
+extern void hci_transport_mchpusb_tasks();
     
 #if defined __cplusplus
 }

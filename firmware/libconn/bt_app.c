@@ -38,10 +38,13 @@
 #include "l2cap.h"
 #include "rfcomm.h"
 #include "sdp.h"
+#include "btstack_memory.h"
+#include "hci_transport.h"
+#include "btstack/sdp_util.h"
 
 static uint8_t   rfcomm_channel_nr = 1;
 static uint16_t  rfcomm_channel_id;
-static uint8_t   spp_service_buffer[128];
+static uint8_t   spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
 static uint8_t   rfcomm_send_credit = 0;
 
 static void packet_handler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
@@ -136,7 +139,6 @@ void bt_init() {
   hci_uart_config_t * config = NULL;
   remote_device_db_t * remote_db = NULL;
   hci_init(transport, config, control, remote_db);
-  hci_power_control(HCI_POWER_ON);
 
   // init L2CAP
   l2cap_init();
@@ -154,6 +156,8 @@ void bt_init() {
   sdp_create_spp_service((uint8_t*) & service_record_item->service_record, 1, "SPP Counter");
   log_printf("SDP service buffer size: %u\n\r", (uint16_t) (sizeof (service_record_item_t) + de_get_len((uint8_t*) & service_record_item->service_record)));
   sdp_register_service_internal(NULL, service_record_item);
+
+  hci_power_control(HCI_POWER_ON);
 }
 
 void bt_tasks() {

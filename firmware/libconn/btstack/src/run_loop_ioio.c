@@ -60,9 +60,8 @@
 // the run loop
 static linked_list_t data_sources;
 
-static linked_list_t timers;
-
 #ifdef HAVE_TICK
+static linked_list_t timers;
 static uint32_t system_ticks;
 #endif
 

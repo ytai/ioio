@@ -80,7 +80,9 @@ hci_connection_t * connection_for_handle(hci_con_handle_t con_handle){
 }
 
 static void hci_connection_timeout_handler(timer_source_t *timer){
+#if defined(HAVE_TIME) || defined(HAVE_TICK)
     hci_connection_t * connection = linked_item_get_user(&timer->item);
+#endif
 #ifdef HAVE_TIME
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -656,6 +658,8 @@ void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, r
     
     // register packet handlers with transport
     transport->register_packet_handler(&packet_handler);
+
+    hci_stack.state = HCI_STATE_OFF;
 }
 
 void hci_close(){

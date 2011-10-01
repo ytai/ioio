@@ -49,7 +49,7 @@ BOOL USBHostBluetoothInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   USB_DEVICE_DESCRIPTOR *pDev;
   USB_ENDPOINT_INFO *pEndpoint;
 
-  log_printf("USBHostBluetoothInit(0x%x, 0x%llx, 0x%x)", address, flags, clientDriverID);
+  log_printf("USBHostBluetoothInit(0x%x, 0x%lx, 0x%x)", address, flags, clientDriverID);
 
   // Initialize state
   memset(&gc_BluetoothDevData, 0, sizeof gc_BluetoothDevData);

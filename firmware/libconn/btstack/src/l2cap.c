@@ -82,9 +82,24 @@ static int l2cap_channel_ready_for_open(l2cap_channel_t *channel);
 
 
 void l2cap_init(){
-    
     new_credits_blocked = 0;
     signaling_responses_pending = 0;
+
+    // free all channels
+    while (l2cap_channels) {
+          linked_item_t *next = l2cap_channels->next;
+          btstack_memory_l2cap_channel_free(l2cap_channels);
+          l2cap_channels = next;
+    }
+
+    // free all services
+    while (l2cap_services) {
+          linked_item_t *next = l2cap_services->next;
+          btstack_memory_l2cap_service_free(l2cap_services);
+          l2cap_services = next;
+    }
+
+    packet_handler = null_packet_handler;
     
     // 
     // register callback with HCI

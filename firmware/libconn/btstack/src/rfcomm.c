@@ -257,6 +257,7 @@ static rfcomm_multiplexer_t * rfcomm_multiplexer_for_l2cap_cid(uint16_t l2cap_ci
     return NULL;
 }
 
+#ifdef HAVE_TICK
 static int rfcomm_multiplexer_has_channels(rfcomm_multiplexer_t * multiplexer){
     linked_item_t *it;
     for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
@@ -267,6 +268,7 @@ static int rfcomm_multiplexer_has_channels(rfcomm_multiplexer_t * multiplexer){
     }
     return 0;
 }
+#endif
 
 // MARK: RFCOMM CHANNEL HELPER
 
@@ -600,6 +602,7 @@ static void rfcomm_multiplexer_finalize(rfcomm_multiplexer_t * multiplexer){
     l2cap_disconnect_internal(l2cap_cid, 0x13);
 }
 
+#ifdef HAVE_TICK
 static void rfcomm_multiplexer_timer_handler(timer_source_t *timer){
     rfcomm_multiplexer_t * multiplexer = (rfcomm_multiplexer_t *) linked_item_get_user( (linked_item_t *) timer);
     if (!rfcomm_multiplexer_has_channels(multiplexer)){
@@ -607,6 +610,7 @@ static void rfcomm_multiplexer_timer_handler(timer_source_t *timer){
         rfcomm_multiplexer_finalize(multiplexer);
     }
 }
+#endif
 
 static void rfcomm_multiplexer_prepare_idle_timer(rfcomm_multiplexer_t * multiplexer){
 #ifdef HAVE_TICK
