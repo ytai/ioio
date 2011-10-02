@@ -32,6 +32,6 @@
 
 void bt_init();
 void bt_tasks();
-
+void bt_shutdown();
 
 #endif  // __BTAPP_H__

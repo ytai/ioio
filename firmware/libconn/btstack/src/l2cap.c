@@ -85,19 +85,8 @@ void l2cap_init(){
     new_credits_blocked = 0;
     signaling_responses_pending = 0;
 
-    // free all channels
-    while (l2cap_channels) {
-          linked_item_t *next = l2cap_channels->next;
-          btstack_memory_l2cap_channel_free(l2cap_channels);
-          l2cap_channels = next;
-    }
-
-    // free all services
-    while (l2cap_services) {
-          linked_item_t *next = l2cap_services->next;
-          btstack_memory_l2cap_service_free(l2cap_services);
-          l2cap_services = next;
-    }
+    l2cap_channels = NULL;
+    l2cap_services = NULL;
 
     packet_handler = null_packet_handler;
     
@@ -477,19 +466,19 @@ void l2cap_disconnect_internal(uint16_t local_cid, uint8_t reason){
 }
 
 static void l2cap_handle_connection_failed_for_addr(bd_addr_t address, uint8_t status){
-    linked_item_t *it = (linked_item_t *) &l2cap_channels;
-    while (it->next){
-        l2cap_channel_t * channel = (l2cap_channel_t *) it->next;
+    linked_item_t **it = &l2cap_channels;
+    while (*it){
+        l2cap_channel_t * channel = (l2cap_channel_t *) *it;
         if ( ! BD_ADDR_CMP( channel->address, address) ){
             if (channel->state == L2CAP_STATE_WAIT_CONNECTION_COMPLETE || channel->state == L2CAP_STATE_WILL_SEND_CREATE_CONNECTION) {
                 // failure, forward error code
                 l2cap_emit_channel_opened(channel, status);
                 // discard channel
-                it->next = it->next->next;
+                *it = (*it)->next;
                 btstack_memory_l2cap_channel_free(channel);
             }
         } else {
-            it = it->next;
+            it = &(*it)->next;
         }
     }
 }
@@ -517,6 +506,7 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
     hci_con_handle_t handle;
     l2cap_channel_t * channel;
     linked_item_t *it;
+    linked_item_t **pit;
     int hci_con_used;
     
     switch(packet[0]){
@@ -552,18 +542,20 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
         case HCI_EVENT_DISCONNECTION_COMPLETE:
             // send l2cap disconnect events for all channels on this handle
             handle = READ_BT_16(packet, 3);
-            it = (linked_item_t *) &l2cap_channels;
-            while (it->next){
-                l2cap_channel_t * channel = (l2cap_channel_t *) it->next;
+            pit = &l2cap_channels;
+            while (*pit){
+                l2cap_channel_t * channel = (l2cap_channel_t *) (*pit);
                 if ( channel->handle == handle ){
                     // update prev item before free'ing next element - don't call l2cap_finalize_channel_close
-                    it->next = it->next->next;
+                    *pit = (*pit)->next;
+                    log_printf("closing channel %d", channel->local_cid);
                     l2cap_emit_channel_closed(channel);
                     btstack_memory_l2cap_channel_free(channel);
                 } else {
-                    it = it->next;
+                    pit = &(*pit)->next;
                 }
             }
+            log_printf("done");
             break;
             
         case HCI_EVENT_NUMBER_OF_COMPLETED_PACKETS:
@@ -1004,11 +996,11 @@ void l2cap_unregister_service_internal(void *connection, uint16_t psm){
 
 //
 void l2cap_close_connection(void *connection){
-    linked_item_t *it;
+    linked_item_t *it, **pit;
     
     // close open channels - note to myself: no channel is freed, so no new for fancy iterator tricks
     l2cap_channel_t * channel;
-    for (it = (linked_item_t *) l2cap_channels; it ; it = it->next){
+    for (it = l2cap_channels; it ; it = it->next){
         channel = (l2cap_channel_t *) it;
         if (channel->connection == connection) {
             channel->state = L2CAP_STATE_WILL_SEND_DISCONNECT_REQUEST;
@@ -1016,14 +1008,14 @@ void l2cap_close_connection(void *connection){
     }   
     
     // unregister services
-    it = (linked_item_t *) &l2cap_services;
-    while (it->next) {
-        l2cap_service_t * service = (l2cap_service_t *) it->next;
+    pit = &l2cap_services;
+    while (*pit) {
+        l2cap_service_t * service = (l2cap_service_t *) *pit;
         if (service->connection == connection){
-            it->next = it->next->next;
+            *pit = (*pit)->next;
             btstack_memory_l2cap_service_free(service);
         } else {
-            it = it->next;
+            pit = &(*pit)->next;
         }
     }
     

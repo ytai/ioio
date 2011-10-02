@@ -102,7 +102,7 @@ static void sdp_emit_service_registered(void *connection, uint32_t handle, uint8
 
 service_record_item_t * sdp_get_record_for_handle(uint32_t handle){
     linked_item_t *it;
-    for (it = (linked_item_t *) sdp_service_records; it ; it = it->next){
+    for (it = sdp_service_records; it ; it = it->next){
         service_record_item_t * item = (service_record_item_t *) it;
         if (item->service_record_handle == handle){
             return item;
@@ -255,16 +255,16 @@ void sdp_unregister_service_internal(void *connection, uint32_t service_record_h
 
 // remove all service record for a client connection
 void sdp_unregister_services_for_connection(void *connection){
-    linked_item_t *it = (linked_item_t *) &sdp_service_records;
-    while (it->next){
-        service_record_item_t *record_item = (service_record_item_t *) it->next;
+    linked_item_t **it = &sdp_service_records;
+    while (*it){
+        service_record_item_t *record_item = (service_record_item_t *) *it;
         if (record_item->connection == connection){
-            it->next = it->next->next;
+            *it = (*it)->next;
 #ifndef EMBEDDED
             free(record_item);
 #endif
         } else {
-            it = it->next;
+            it = &(*it)->next;
         }
     }
 }
@@ -303,7 +303,7 @@ int sdp_handle_service_search_request(uint8_t * packet, uint16_t remote_mtu){
     // get and limit total count
     linked_item_t *it;
     uint16_t total_service_count   = 0;
-    for (it = (linked_item_t *) sdp_service_records; it ; it = it->next){
+    for (it = sdp_service_records; it ; it = it->next){
         service_record_item_t * item = (service_record_item_t *) it;
         if (!sdp_record_matches_service_search_pattern(item->service_record, serviceSearchPattern)) continue;
         total_service_count++;
@@ -317,7 +317,7 @@ int sdp_handle_service_search_request(uint8_t * packet, uint16_t remote_mtu){
     uint16_t current_service_count  = 0;
     uint16_t current_service_index  = 0;
     uint16_t matching_service_count = 0;
-    for (it = (linked_item_t *) sdp_service_records; it ; it = it->next, ++current_service_index){
+    for (it = sdp_service_records; it ; it = it->next, ++current_service_index){
         service_record_item_t * item = (service_record_item_t *) it;
 
         if (!sdp_record_matches_service_search_pattern(item->service_record, serviceSearchPattern)) continue;
@@ -430,7 +430,7 @@ int sdp_handle_service_attribute_request(uint8_t * packet, uint16_t remote_mtu){
 static uint16_t sdp_get_size_for_service_search_attribute_response(uint8_t * serviceSearchPattern, uint8_t * attributeIDList){
     uint16_t total_response_size = 0;
     linked_item_t *it;
-    for (it = (linked_item_t *) sdp_service_records; it ; it = it->next){
+    for (it = sdp_service_records; it ; it = it->next){
         service_record_item_t * item = (service_record_item_t *) it;
         
         if (!sdp_record_matches_service_search_pattern(item->service_record, serviceSearchPattern)) continue;
@@ -489,8 +489,8 @@ int sdp_handle_service_search_attribute_request(uint8_t * packet, uint16_t remot
     int      first_answer = 1;
     int      continuation = 0;
     uint16_t current_service_index = 0;
-    linked_item_t *it = (linked_item_t *) sdp_service_records;
-    for ( ; it ; it = it->next, ++current_service_index){
+    linked_item_t *it;;
+    for (it = sdp_service_records; it ; it = it->next, ++current_service_index){
         service_record_item_t * item = (service_record_item_t *) it;
         
         if (current_service_index < continuation_service_index ) continue;

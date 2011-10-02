@@ -667,6 +667,10 @@ void hci_close(){
     if (hci_stack.remote_device_db) {
         hci_stack.remote_device_db->close();
     }
+    while (hci_stack.connections) {
+        hci_shutdown_connection((hci_connection_t *) hci_stack.connections);
+    }
+    hci_power_control(HCI_POWER_OFF);
 }
 
 // State-Module-Driver overview

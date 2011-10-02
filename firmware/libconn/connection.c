@@ -56,10 +56,6 @@ static BT_STATE bt_state;
 static ADB_STATE adb_state;
 
 static void ConnBTTasks() {
-  if (!USBHostBluetoothIsDeviceAttached()) {
-    bt_state = STATE_BT_DISCONNECTED;
-    return;
-  }
 
   switch (bt_state) {
     case STATE_BT_DISCONNECTED:
@@ -70,11 +66,17 @@ static void ConnBTTasks() {
       break;
 
     case STATE_BT_INITIALIZED:
+      if (!USBHostBluetoothIsDeviceAttached()) {
+        // disconnected
+        bt_shutdown();
+        bt_state = STATE_BT_DISCONNECTED;
+      } else {
 #ifndef USB_ENABLE_TRANSFER_EVENT
-      USBHostBluetoothTasks();
+        USBHostBluetoothTasks();
 #endif
-      bt_tasks();
-      break;
+        bt_tasks();
+        break;
+      }
   }
 }
 

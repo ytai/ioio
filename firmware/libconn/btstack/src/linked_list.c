@@ -60,6 +60,8 @@ void linked_list_add(linked_list_t * list, linked_item_t *item){        // <-- a
     *list = item;
 }
 
+/*
+ BUG: does not work on empty list
 void linked_list_add_tail(linked_list_t * list, linked_item_t *item){   // <-- add item to list as last element
     // check if already in list
     linked_item_t *it;
@@ -71,6 +73,7 @@ void linked_list_add_tail(linked_list_t * list, linked_item_t *item){   // <-- a
     item->next = (linked_item_t*) 0;
     it->next = item;
 }
+*/
 
 /**
  * Remove data_source from run loop
@@ -78,10 +81,10 @@ void linked_list_add_tail(linked_list_t * list, linked_item_t *item){   // <-- a
  * @note: assumes that data_source_t.next is first element in data_source
  */
 int  linked_list_remove(linked_list_t * list, linked_item_t *item){    // <-- remove item from list
-    linked_item_t *it;
-    for (it = (linked_item_t *) list; it ; it = it->next){
-        if (it->next == item){
-            it->next =  item->next;
+    linked_item_t **it;
+    for (it = list; *it ; it = &(*it)->next) {
+        if (*it == item){
+            *it = (*it)->next;
             return 0;
         }
     }
@@ -89,7 +92,7 @@ int  linked_list_remove(linked_list_t * list, linked_item_t *item){    // <-- re
 }
 
 void linked_item_set_user(linked_item_t *item, void *user_data){
-    item->next = (linked_item_t *) 0;
+    item->next = 0;
     item->user_data = user_data;
 }
 
