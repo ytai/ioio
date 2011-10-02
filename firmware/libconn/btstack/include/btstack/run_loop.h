@@ -38,8 +38,9 @@
 #pragma once
 
 #include "config.h"
-
 #include <btstack/linked_list.h>
+
+#ifndef NO_RUN_LOOP
 
 #include <stdint.h>
 
@@ -105,3 +106,19 @@ void     embedded_trigger(void);
 }
 #endif
 
+#else  // NO_RUN_LOOP
+
+typedef struct timer {
+    linked_item_t item;
+    void  (*process)(struct timer *ts);      // <-- do processing
+} timer_source_t;
+
+#define run_loop_set_timer(...)
+#define run_loop_add_timer(...)
+#define run_loop_remove_timer(...) 0
+#define run_loop_init(...)
+#define run_loop_add_data_source(...)
+#define run_loop_remove_data_source(...) 0
+#define run_loop_execute()
+
+#endif  // NO_RUN_LOOP

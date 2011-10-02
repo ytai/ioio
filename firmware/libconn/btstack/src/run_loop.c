@@ -35,6 +35,10 @@
  *  Created by Matthias Ringwald on 6/6/09.
  */
 
+#include "config.h"
+
+#ifndef NO_RUN_LOOP
+
 #include <btstack/run_loop.h>
 
 #include <stdio.h>
@@ -43,7 +47,6 @@
 #include "run_loop_private.h"
 
 #include "debug.h"
-#include "config.h"
 
 static run_loop_t * the_run_loop = NULL;
 
@@ -146,3 +149,4 @@ void run_loop_init(RUN_LOOP_TYPE type){
     the_run_loop->init();
 }
 
+#endif  // NO_RUN_LOOP

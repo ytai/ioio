@@ -37,7 +37,6 @@
         <itemPath>btstack/src/rfcomm.c</itemPath>
         <itemPath>btstack/src/rfcomm.h</itemPath>
         <itemPath>btstack/src/run_loop.c</itemPath>
-        <itemPath>btstack/src/run_loop_ioio.c</itemPath>
         <itemPath>btstack/src/run_loop_private.h</itemPath>
         <itemPath>btstack/src/sdp.c</itemPath>
         <itemPath>btstack/src/sdp.h</itemPath>

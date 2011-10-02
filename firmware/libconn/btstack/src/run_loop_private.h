@@ -34,10 +34,11 @@
  *
  *  Created by Matthias Ringwald on 6/6/09.
  */
-
 #pragma once
 
 #include <btstack/run_loop.h>
+
+#ifndef NO_RUN_LOOP
 
 #ifdef HAVE_TIME
 #include <sys/time.h>
@@ -61,3 +62,5 @@ typedef struct {
 	void (*execute)(void);
 	void (*dump_timer)(void);
 } run_loop_t;
+
+#endif  // NO_RUN_LOOP

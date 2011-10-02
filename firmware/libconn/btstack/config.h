@@ -1,4 +1,5 @@
 #define EMBEDDED
+#define NO_RUN_LOOP
 
 //#define HAVE_INIT_SCRIPT
 //#define HAVE_BZERO
