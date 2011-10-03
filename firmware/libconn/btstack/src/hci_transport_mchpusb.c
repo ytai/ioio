@@ -45,10 +45,10 @@
 static uint8_t bulk_in[64];
 static uint8_t int_in[64];
 
-DEFINE_STATIC_BYTE_QUEUE(bulk_out, 1028);
-DEFINE_STATIC_BYTE_QUEUE(ctrl_out, 1028);
-BYTE botmp[256];
-BYTE cotmp[256];
+DEFINE_STATIC_BYTE_QUEUE(bulk_out, 1024);
+DEFINE_STATIC_BYTE_QUEUE(ctrl_out, 1024);
+int bosize;
+int cosize;
 
 void hci_transport_mchpusb_tasks() {
   if (!USBHostBlueToothIntInBusy()) {
@@ -58,14 +58,14 @@ void hci_transport_mchpusb_tasks() {
     USBHostBluetoothReadBulk(bulk_in, sizeof bulk_in);
   }
   if (ByteQueueSize(&bulk_out) && !USBHostBlueToothBulkOutBusy()) {
-    int size = ByteQueuePullByte(&bulk_out);
-    ByteQueuePullToBuffer(&bulk_out, botmp, size);
-    USBHostBluetoothWriteBulk(botmp, size);
+    const BYTE *data;
+    ByteQueuePeek(&bulk_out, &data, &bosize);
+    USBHostBluetoothWriteBulk(data, bosize);
   }
   if (ByteQueueSize(&ctrl_out) && !USBHostBlueToothControlOutBusy()) {
-    int size = ByteQueuePullByte(&ctrl_out);
-    ByteQueuePullToBuffer(&ctrl_out, cotmp, size);
-    USBHostBluetoothWriteControl(cotmp, size);
+    const BYTE *data;
+    ByteQueuePeek(&ctrl_out, &data, &cosize);
+    USBHostBluetoothWriteControl(data, cosize);
   }
 }
 
@@ -88,22 +88,16 @@ static int usb_close() {
 }
 
 static int usb_send_cmd_packet(uint8_t *packet, int size) {
-  ByteQueuePushByte(&ctrl_out, size);
   ByteQueuePushBuffer(&ctrl_out, packet, size);
   return 0;
 }
 
 static int usb_send_acl_packet(uint8_t *packet, int size) {
-  ByteQueuePushByte(&bulk_out, size);
   ByteQueuePushBuffer(&bulk_out, packet, size);
   return 0;
 }
 
 static int usb_send_packet(uint8_t packet_type, uint8_t * packet, int size) {
-  if (size > 255) {
-    log_printf("size too big: %d", size);
-    return -1;
-  }
   switch (packet_type) {
     case HCI_COMMAND_DATA_PACKET:
       return usb_send_cmd_packet(packet, size);
@@ -149,7 +143,13 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         DWORD size) {
   switch (event) {
     case BLUETOOTH_EVENT_WRITE_BULK_DONE:
+      ByteQueuePull(&bulk_out, bosize);
+      return TRUE;
+
     case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
+      ByteQueuePull(&ctrl_out, cosize);
+      return TRUE;
+
     case BLUETOOTH_EVENT_ATTACHED:
     case BLUETOOTH_EVENT_DETACHED:
       return TRUE;
