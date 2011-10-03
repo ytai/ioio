@@ -169,6 +169,9 @@ void bt_shutdown() {
 
 void bt_tasks() {
   hci_transport_mchpusb_tasks();
+  hci_run();
+  l2cap_run();
+  rfcomm_run();
 
   if (rfcomm_channel_id && rfcomm_send_credit) {
     rfcomm_grant_credits(rfcomm_channel_id, 1);

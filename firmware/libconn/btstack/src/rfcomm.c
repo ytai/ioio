@@ -107,7 +107,7 @@ static linked_list_t rfcomm_services = NULL;
 static void (*app_packet_handler)(void * connection, uint8_t packet_type,
                                   uint16_t channel, uint8_t *packet, uint16_t size);
 
-static void rfcomm_run(void);
+void rfcomm_run(void);
 static void rfcomm_hand_out_credits(void);
 static void rfcomm_channel_state_machine(rfcomm_channel_t *channel, rfcomm_channel_event_t *event);
 static void rfcomm_channel_state_machine_2(rfcomm_multiplexer_t * multiplexer, uint8_t dlci, rfcomm_channel_event_t *event);
@@ -1553,7 +1553,7 @@ static void rfcomm_channel_state_machine(rfcomm_channel_t *channel, rfcomm_chann
 
 // MARK: RFCOMM RUN
 // process outstanding signaling tasks
-static void rfcomm_run(void){
+void rfcomm_run(void){
     
     linked_item_t *it;
     linked_item_t *next;

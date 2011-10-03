@@ -43,6 +43,7 @@ extern "C" {
 #endif
     
 void rfcomm_init(void);
+void rfcomm_run(void);
 
 // register packet handler
 void rfcomm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
