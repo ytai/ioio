@@ -40,8 +40,15 @@
 #include "hci_transport.h"
 #include "hci_dump.h"
 
+#include "../../../app_layer_v1/byte_queue.h"
+
 static uint8_t bulk_in[64];
 static uint8_t int_in[64];
+
+DEFINE_STATIC_BYTE_QUEUE(bulk_out, 1028);
+DEFINE_STATIC_BYTE_QUEUE(ctrl_out, 1028);
+BYTE botmp[256];
+BYTE cotmp[256];
 
 void hci_transport_mchpusb_tasks() {
   if (!USBHostBlueToothIntInBusy()) {
@@ -49,6 +56,16 @@ void hci_transport_mchpusb_tasks() {
   }
   if (!USBHostBlueToothBulkInBusy()) {
     USBHostBluetoothReadBulk(bulk_in, sizeof bulk_in);
+  }
+  if (ByteQueueSize(&bulk_out) && !USBHostBlueToothBulkOutBusy()) {
+    int size = ByteQueuePullByte(&bulk_out);
+    ByteQueuePullToBuffer(&bulk_out, botmp, size);
+    USBHostBluetoothWriteBulk(botmp, size);
+  }
+  if (ByteQueueSize(&ctrl_out) && !USBHostBlueToothControlOutBusy()) {
+    int size = ByteQueuePullByte(&ctrl_out);
+    ByteQueuePullToBuffer(&ctrl_out, cotmp, size);
+    USBHostBluetoothWriteControl(cotmp, size);
   }
 }
 
@@ -61,6 +78,8 @@ static hci_transport_t hci_transport_mchpusb;
 static void (*packet_handler)(uint8_t packet_type, uint8_t *packet, uint16_t size) = dummy_handler;
 
 static int usb_open(void *transport_config) {
+  ByteQueueInit(&bulk_out, bulk_out_buf, sizeof bulk_out_buf);
+  ByteQueueInit(&ctrl_out, ctrl_out_buf, sizeof ctrl_out_buf);
   return 0;
 }
 
@@ -69,14 +88,22 @@ static int usb_close() {
 }
 
 static int usb_send_cmd_packet(uint8_t *packet, int size) {
-  return USB_SUCCESS == USBHostBluetoothWriteControl(packet, size) ? 0 : -1;
+  ByteQueuePushByte(&ctrl_out, size);
+  ByteQueuePushBuffer(&ctrl_out, packet, size);
+  return 0;
 }
 
 static int usb_send_acl_packet(uint8_t *packet, int size) {
-  return USB_SUCCESS == USBHostBluetoothWriteBulk(packet, size) ? 0 : -1;
+  ByteQueuePushByte(&bulk_out, size);
+  ByteQueuePushBuffer(&bulk_out, packet, size);
+  return 0;
 }
 
 static int usb_send_packet(uint8_t packet_type, uint8_t * packet, int size) {
+  if (size > 255) {
+    log_printf("size too big: %d", size);
+    return -1;
+  }
   switch (packet_type) {
     case HCI_COMMAND_DATA_PACKET:
       return usb_send_cmd_packet(packet, size);
@@ -88,14 +115,7 @@ static int usb_send_packet(uint8_t packet_type, uint8_t * packet, int size) {
 }
 
 static int usb_can_send_packet(uint8_t packet_type) {
-  switch (packet_type) {
-    case HCI_COMMAND_DATA_PACKET:
-      return !USBHostBlueToothBulkOutBusy();
-    case HCI_ACL_DATA_PACKET:
-      return !USBHostBlueToothControlOutBusy();
-    default:
-      return -1;
-  }
+  return 1;
 }
 
 static void usb_register_packet_handler(void (*handler)(uint8_t packet_type, uint8_t *packet, uint16_t size)) {

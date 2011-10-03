@@ -251,8 +251,8 @@ int l2cap_send_prepared(uint16_t local_cid, uint16_t len){
     
     --channel->packets_granted;
 
-    log_debug("l2cap_send_internal cid %u, handle %u, 1 credit used, credits left %u;\n",
-                  local_cid, channel->handle, channel->packets_granted);
+    //log_debug("l2cap_send_internal cid %u, handle %u, 1 credit used, credits left %u;\n",
+    //              local_cid, channel->handle, channel->packets_granted);
     
     uint8_t *acl_buffer = hci_get_outgoing_acl_packet_buffer();
 
@@ -555,7 +555,6 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
                     pit = &(*pit)->next;
                 }
             }
-            log_printf("done");
             break;
             
         case HCI_EVENT_NUMBER_OF_COMPLETED_PACKETS:
