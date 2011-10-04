@@ -111,6 +111,7 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
           break;
 
         case RFCOMM_EVENT_CHANNEL_CLOSED:
+          log_printf("RFCOMM channel closed.");
           rfcomm_channel_id = 0;
           break;
 
@@ -120,9 +121,8 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
       break;
 
     case RFCOMM_DATA_PACKET:
-      // hack: truncate data (we know that the packet is at least on byte bigger
-      //packet[size] = 0;
-      //puts((const char *) packet);
+      log_printf("INCOMING!");
+      log_print_buf(packet, size);
       rfcomm_send_credit = 1;
 
     default:

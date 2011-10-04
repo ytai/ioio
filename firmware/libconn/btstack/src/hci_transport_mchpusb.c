@@ -90,9 +90,9 @@ static int usb_send_packet(uint8_t packet_type, uint8_t * packet, int size) {
 static int usb_can_send_packet(uint8_t packet_type) {
   switch (packet_type) {
     case HCI_COMMAND_DATA_PACKET:
-      return !USBHostBlueToothBulkOutBusy();
-    case HCI_ACL_DATA_PACKET:
       return !USBHostBlueToothControlOutBusy();
+    case HCI_ACL_DATA_PACKET:
+      return !USBHostBlueToothBulkOutBusy();
     default:
       return -1;
   }
@@ -127,9 +127,14 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         USB_EVENT status,
         void *data,
         DWORD size) {
+  uint8_t e;
   switch (event) {
     case BLUETOOTH_EVENT_WRITE_BULK_DONE:
     case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
+      e = DAEMON_EVENT_HCI_PACKET_SENT;
+      packet_handler(HCI_EVENT_PACKET, &e, 1);
+      return TRUE;
+
     case BLUETOOTH_EVENT_ATTACHED:
     case BLUETOOTH_EVENT_DETACHED:
       return TRUE;
