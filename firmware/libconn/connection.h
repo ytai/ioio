@@ -38,6 +38,20 @@
 
 #include "GenericTypeDefs.h"
 
+typedef int CHANNEL_HANDLE;
+
+typedef enum {
+  CHANNEL_TYPE_ADB,
+  CHANNEL_TYPE_ADK,
+  CHANNEL_TYPE_BT
+} CHANNEL_TYPE;
+
+// data != NULL -> incoming data
+// data = NULL, size = 0 -> Closed normally
+// data = NULL, size = 1 -> Closed as result of error
+typedef void (*ChannelCallback) (CHANNEL_HANDLE ch, const void* data,
+                                 UINT32 size);
+
 // Reset the state of all connection modules.
 void ConnectionInit();
 
@@ -48,6 +62,14 @@ BOOL ConnectionTasks();
 
 // Resets USB connection. Connection will be dropped and then re-established.
 void ConnectionResetUSB();
+
+BOOL ConnectionTypeSupported(CHANNEL_TYPE con);
+BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con);
+CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb);
+CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb);
+void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size);
+BOOL ConnectionCanSend(CHANNEL_HANDLE ch);
+void ConnectionCloseChannel(CHANNEL_HANDLE ch);
 
 
 #endif  // __CONNECTION_H__

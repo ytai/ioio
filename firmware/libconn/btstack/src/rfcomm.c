@@ -1602,6 +1602,17 @@ void rfcomm_register_packet_handler(void (*handler)(void * connection, uint8_t p
 	app_packet_handler = handler;
 }
 
+int rfcomm_can_send(uint8_t rfcomm_cid) {
+    rfcomm_channel_t * channel = rfcomm_channel_for_rfcomm_cid(rfcomm_cid);
+    if (!channel){
+        log_error("rfcomm_send_internal cid %u doesn't exist!\n", rfcomm_cid);
+        return 0;
+    }
+
+    return channel->credits_outgoing && channel->packets_granted
+           && l2cap_can_send_packet_now(channel->multiplexer->l2cap_cid);
+}
+
 // send packet over specific channel
 int rfcomm_send_internal(uint8_t rfcomm_cid, uint8_t *data, uint16_t len){
 

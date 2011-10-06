@@ -44,37 +44,40 @@
 
 typedef enum {
   STATE_BT_DISCONNECTED,
+  STATE_BT_INITIALIZING,
   STATE_BT_INITIALIZED,
 } BT_STATE;
 
 typedef enum {
   STATE_ADB_DISCONNECTED,
-  STATE_ADB_INTIALIZED
+  STATE_ADB_INITIALIZING,
+  STATE_ADB_INITIALIZED
 } ADB_STATE;
 
 static BT_STATE bt_state;
 static ADB_STATE adb_state;
 
 static void ConnBTTasks() {
-
   switch (bt_state) {
     case STATE_BT_DISCONNECTED:
       if (USBHostBluetoothIsDeviceAttached()) {
-        bt_init();
+        BTInit();
         bt_state = STATE_BT_INITIALIZED;
       }
       break;
 
+    case STATE_BT_INITIALIZING:
     case STATE_BT_INITIALIZED:
       if (!USBHostBluetoothIsDeviceAttached()) {
         // disconnected
-        bt_shutdown();
+        BTShutdown();
         bt_state = STATE_BT_DISCONNECTED;
       } else {
 #ifndef USB_ENABLE_TRANSFER_EVENT
         USBHostBluetoothTasks();
 #endif
-        bt_tasks();
+        BTTasks();
+        bt_state = BTAccepting() ? STATE_BT_INITIALIZED : STATE_BT_INITIALIZING;
         break;
       }
   }
@@ -83,30 +86,36 @@ static void ConnBTTasks() {
 static void ConnADBTasks() {
   int res;
 
-  if (!USBHostAndroidIsDeviceAttached()) {
+  if (!ADBAttached()) {
     adb_state = STATE_ADB_DISCONNECTED;
     return;
   }
 
   switch (adb_state) {
     case STATE_ADB_DISCONNECTED:
-      if (USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB)) {
+      if (ADBAttached()) {
         ADBInit();
         ADBFileInit();
-        adb_state = STATE_ADB_INTIALIZED;
+        adb_state = STATE_ADB_INITIALIZED;
       }
       break;
 
-    case STATE_ADB_INTIALIZED:
+    case STATE_ADB_INITIALIZING:
+    case STATE_ADB_INITIALIZED:
+      res = ADBTasks();
+      if (res == -1) {
+        log_printf("Error occured. Resetting Android USB.");
+        USBHostAndroidReset();
+        break;
+      }
 #ifndef USB_ENABLE_TRANSFER_EVENT
       USBHostAndroidTasks();
 #endif
-      res = ADBTasks();
       if (res == 1) {
         ADBFileTasks();
-      } else if (res == -1) {
-        log_printf("Error occured. Resetting Android USB.");
-        USBHostAndroidReset();
+        adb_state = STATE_ADB_INITIALIZED;
+      } else if (res == 0) {
+        adb_state = STATE_ADB_INITIALIZING;
       }
       break;
   }
@@ -124,11 +133,100 @@ BOOL ConnectionTasks() {
   ConnBTTasks();
   ConnADBTasks();
 
-  return adb_state != STATE_ADB_DISCONNECTED || bt_state != STATE_BT_DISCONNECTED;
+  return adb_state != STATE_ADB_DISCONNECTED
+         || bt_state != STATE_BT_DISCONNECTED;
 }
 
 void ConnectionResetUSB() {
   USBHostShutdown();
+}
+
+BOOL ConnectionTypeSupported(CHANNEL_TYPE con) {
+  switch (con) {
+    case CHANNEL_TYPE_ADB:
+      return adb_state >= STATE_ADB_INITIALIZING;
+    case CHANNEL_TYPE_ADK:
+      return FALSE;  // TODO: implement
+    case CHANNEL_TYPE_BT:
+      return bt_state >= STATE_BT_INITIALIZING;
+    default:
+      return FALSE;
+  }
+}
+
+BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con) {
+  switch (con) {
+    case CHANNEL_TYPE_ADB:
+      return adb_state == STATE_ADB_INITIALIZED;
+    case CHANNEL_TYPE_ADK:
+      return FALSE;  // TODO: implement
+    case CHANNEL_TYPE_BT:
+      return bt_state == STATE_BT_INITIALIZED;
+    default:
+      return FALSE;
+  }
+}
+
+CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb) {
+  assert(ADBConnected());
+  return ADBOpen(name, cb) | (CHANNEL_TYPE_ADB << 8);
+}
+
+CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb) {
+  assert(BTAccepting());
+  BTSetCallback(cb);
+  return CHANNEL_TYPE_BT << 8;  // only one BT channel currently
+}
+
+void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
+  switch (ch >> 8) {
+    case CHANNEL_TYPE_ADB:
+      ADBWrite(ch & 0xFF, data, size);
+      break;
+
+    case CHANNEL_TYPE_ADK:
+      // TODO: implement
+      break;
+
+    case CHANNEL_TYPE_BT:
+      assert(ch & 0xFF == 0);
+      BTWrite(data, size);
+      break;
+  }
+}
+
+BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
+    switch (ch >> 8) {
+    case CHANNEL_TYPE_ADB:
+      return ADBChannelReady(ch & 0xFF);
+
+    case CHANNEL_TYPE_ADK:
+      return FALSE;  // TODO: implement
+
+    case CHANNEL_TYPE_BT:
+      assert(ch & 0xFF == 0);
+      return BTCanWrite();
+
+    default:
+      return FALSE;
+  }
+}
+
+void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
+    switch (ch >> 8) {
+    case CHANNEL_TYPE_ADB:
+      ADBClose(ch & 0xFF);
+      break;
+
+    case CHANNEL_TYPE_ADK:
+      // TODO: implement
+      break;
+
+    case CHANNEL_TYPE_BT:
+      assert(ch & 0xFF == 0);
+      BTClose();
+      break;
+  }
 }
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {

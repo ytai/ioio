@@ -32,6 +32,7 @@
 #include "bt_app.h"
 
 #include <string.h>
+#include <assert.h>
 
 #include "logging.h"
 #include "hci.h"
@@ -42,12 +43,17 @@
 #include "hci_transport.h"
 #include "btstack/sdp_util.h"
 
-static uint8_t   rfcomm_channel_nr = 1;
-static uint16_t  rfcomm_channel_id;
-static uint8_t   spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
-static uint8_t   rfcomm_send_credit = 0;
+static void DummyCallback(int h, const void *data, UINT32 size) {
+}
 
-static void packet_handler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
+
+static uint8_t    rfcomm_channel_nr = 1;
+static uint16_t   rfcomm_channel_id;
+static uint8_t    spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
+static uint8_t    rfcomm_send_credit = 0;
+static BTCallback client_callback;
+
+static void PacketHandler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
   bd_addr_t event_addr;
   uint8_t rfcomm_channel_nr;
   uint16_t mtu;
@@ -55,7 +61,6 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
   switch (packet_type) {
     case HCI_EVENT_PACKET:
       switch (packet[0]) {
-
         case BTSTACK_EVENT_STATE:
           // bt stack activated, get started - set local name
           if (packet[2] == HCI_STATE_WORKING) {
@@ -112,6 +117,7 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
 
         case RFCOMM_EVENT_CHANNEL_CLOSED:
           log_printf("RFCOMM channel closed.");
+          client_callback(rfcomm_channel_id, NULL, 0);
           rfcomm_channel_id = 0;
           break;
 
@@ -121,8 +127,7 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
       break;
 
     case RFCOMM_DATA_PACKET:
-      log_printf("INCOMING!");
-      log_print_buf(packet, size);
+      client_callback(rfcomm_channel_id, packet, size);
       rfcomm_send_credit = 1;
 
     default:
@@ -130,7 +135,7 @@ static void packet_handler(void * connection, uint8_t packet_type, uint16_t chan
   }
 }
 
-void bt_init() {
+void BTInit() {
   btstack_memory_init();
 
   // init HCI
@@ -142,33 +147,56 @@ void bt_init() {
 
   // init L2CAP
   l2cap_init();
-  l2cap_register_packet_handler(packet_handler);
+  l2cap_register_packet_handler(PacketHandler);
 
   // init RFCOMM
   rfcomm_init();
-  rfcomm_register_packet_handler(packet_handler);
+  rfcomm_register_packet_handler(PacketHandler);
   rfcomm_register_service_internal(NULL, rfcomm_channel_nr, 100); // reserved channel, mtu=100
 
   // init SDP, create record for SPP and register with SDP
   sdp_init();
   memset(spp_service_buffer, 0, sizeof (spp_service_buffer));
   service_record_item_t * service_record_item = (service_record_item_t *) spp_service_buffer;
-  sdp_create_spp_service((uint8_t*) & service_record_item->service_record, 1, "SPP Counter");
+  sdp_create_spp_service((uint8_t*) & service_record_item->service_record, 1, "IOIO-App");
   log_printf("SDP service buffer size: %u\n\r", (uint16_t) (sizeof (service_record_item_t) + de_get_len((uint8_t*) & service_record_item->service_record)));
   sdp_register_service_internal(NULL, service_record_item);
 
   hci_power_control(HCI_POWER_ON);
+
+  client_callback = DummyCallback;
 }
 
-void bt_shutdown() {
+void BTShutdown() {
   hci_close();
 }
 
-void bt_tasks() {
+void BTTasks() {
   hci_transport_mchpusb_tasks();
 
   if (rfcomm_channel_id && rfcomm_send_credit) {
     rfcomm_grant_credits(rfcomm_channel_id, 1);
     rfcomm_send_credit = 0;
   }
+}
+
+int BTAccepting() {
+  return rfcomm_channel_id != 0;
+}
+
+void BTSetCallback(BTCallback cb) {
+  client_callback = cb;
+}
+
+void BTWrite(const void *data, int size) {
+  assert(!(size >> 16));
+  rfcomm_send_internal(rfcomm_channel_id, (uint8_t *) data, size & 0xFFFF);
+}
+
+int BTCanWrite() {
+  return rfcomm_can_send(rfcomm_channel_id);
+}
+
+void BTClose() {
+  rfcomm_disconnect_internal(rfcomm_channel_id);
 }

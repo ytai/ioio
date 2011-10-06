@@ -60,6 +60,7 @@ void rfcomm_accept_connection_internal(uint16_t rfcomm_cid);
 void rfcomm_decline_connection_internal(uint16_t rfcomm_cid);
 void rfcomm_grant_credits(uint16_t rfcomm_cid, uint8_t credits);
 int  rfcomm_send_internal(uint8_t rfcomm_cid, uint8_t *data, uint16_t len);
+int  rfcomm_can_send(uint8_t rfcomm_cid);
 void rfcomm_close_connection(void *connection);
 
 #define UNLIMITED_INCOMING_CREDITS 0xff
