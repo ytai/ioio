@@ -41,7 +41,7 @@ typedef enum {
   STATE_IN_PATH
 } STATE;
 
-static const char prefix[] ROM = "    dataDir=";
+static const char prefix[] FORCEROM = "    dataDir=";
 static int cursor;
 static char result[MAX_PATH];
 static STATE state;

@@ -27,21 +27,27 @@
  * or implied.
  */
 
-#ifndef __BOOTLOADERDEFS_H__
-#define __BOOTLOADERDEFS_H__
+// This module provides functions for ongoing operation of the connection.
+// ConnectionInit() must be called once to reset the state.
+// ConnectionTasks() must be called periodically in order to provide context
+// for all connection services. In particular, the ADB-related services need
+// context in order to maintain communications.
+
+#ifndef __BOOTLOADERCONN_H__
+#define __BOOTLOADERCONN_H__
 
 #include "GenericTypeDefs.h"
-#include "board.h"
 
-#define FORCEROM __attribute__((space(auto_psv)))
+// Reset the state of all connection modules.
+void BootloaderConnInit();
 
-#define BOOTLOADER_MIN_APP_ADDRESS 0x4000
-#define BOOTLOADER_MAX_APP_ADDRESS (APP_PROGSPACE_END - 0x100)  // last page reseved for fingerprint
-#define BOOTLOADER_FINGERPRINT_ADDRESS BOOTLOADER_MAX_APP_ADDRESS
-#define BOOTLOADER_FINGERPRINT_PAGE (BOOTLOADER_FINGERPRINT_ADDRESS & 0xFFFFF400)
-#define BOOTLOADER_INVALID_ADDRESS ((DWORD) -1)
+// Needs to be called by the application periodically in order to provide
+// context for the service provided by the connection library.
+// Returns TRUE iff a USB device is connected.
+BOOL BootloaderConnTasks();
 
-static const char manager_app_name[] = "ioio.manager";
+// Resets USB connection. Connection will be dropped and then re-established.
+void BootloaderConnResetUSB();
 
 
-#endif  // __BOOTLOADERDEFS_H__
+#endif  // __BOOTLOADERCONN_H__

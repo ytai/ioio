@@ -3,7 +3,7 @@
                                                                                 
 Software License Agreement                                                      
                                                                                 
-Copyright © 2007-2008 Microchip Technology Inc. and its licensors.  All         
+Copyright ï¿½ 2007-2008 Microchip Technology Inc. and its licensors.  All         
 rights reserved.                                                                
                                                                                 
 Microchip licenses to you the right to: (1) install Software on a single        
@@ -35,27 +35,42 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 // Created by the Microchip USBConfig Utility, Version 0.0.12.0, 3/28/2008, 8:58:18
 
-#include "Compiler.h"
+#include "GenericTypeDefs.h"
+#include "HardwareProfile.h"
+#include "usb.h"
+#include "usb_host_android.h"
+#include "usb_host_bluetooth.h"
 
-#define _USB_CONFIG_VERSION_MAJOR 0
-#define _USB_CONFIG_VERSION_MINOR 0
-#define _USB_CONFIG_VERSION_DOT   12
-#define _USB_CONFIG_VERSION_BUILD 0
+// *****************************************************************************
+// Client Driver Function Pointer Table for the USB Embedded Host foundation
+// *****************************************************************************
 
-#define USB_SUPPORT_HOST
+CLIENT_DRIVER_TABLE usbClientDrvTable[] =
+{                                        
+    {
+        USBHostAndroidInit,
+        USBHostAndroidEventHandler,
+        0
+    },
+#ifndef DISABLE_BLUETOOTH
+    {
+        USBHostBluetoothInit,
+        USBHostBluetoothEventHandler,
+        0
+    }
+#endif
+};
 
-#define USB_PING_PONG_MODE  USB_PING_PONG__FULL_PING_PONG
+// *****************************************************************************
+// USB Embedded Host Targeted Peripheral List (TPL)
+// *****************************************************************************
 
-#define NUM_TPL_ENTRIES 2
+USB_TPL usbTPL[] =
+{
+//    { INIT_VID_PID( 0x18D1ul, 0x4E12ul ), 0, 0, {0} }, // ADK
+    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV} },  // ADB
+#ifndef DISABLE_BLUETOOTH
+    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, 1, {TPL_CLASS_DRV} }   // Bluetooth
+#endif
+};
 
-#define USB_ENABLE_TRANSFER_EVENT
-
-#define USB_MAX_GENERIC_DEVICES 1
-#define USB_NUM_CONTROL_NAKS 20
-#define USB_SUPPORT_INTERRUPT_TRANSFERS
-#define USB_SUPPORT_BULK_TRANSFERS
-#define USB_NUM_INTERRUPT_NAKS 3
-#define USB_INITIAL_VBUS_CURRENT (100/2)
-#define USB_INSERT_TIME (250+1)
-#define USB_HOST_APP_EVENT_HANDLER USB_ApplicationEventHandler
-//#define USB_BLUETOOTH_INTERRUPT_HANDLER USBBluetoothEventHandler

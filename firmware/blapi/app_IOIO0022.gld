@@ -14,8 +14,8 @@ OPTIONAL(-lpPIC24Fxxx)
 MEMORY
 {
   data  (a!xr)   : ORIGIN = 0x800,         LENGTH = 0x17800
-  app_ivt        : ORIGIN = 0x4000,        LENGTH = 0x110
-  program (xr)   : ORIGIN = 0x4110,        LENGTH = 0x111F0
+  app_ivt        : ORIGIN = 0x5000,        LENGTH = 0x110
+  program (xr)   : ORIGIN = 0x5110,        LENGTH = 0x101F0
 }
 
 INCLUDE ../blapi/app_BLAPI_3.gld

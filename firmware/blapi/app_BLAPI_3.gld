@@ -1,6 +1,6 @@
-__CODE_BASE = 0x4110;
-__APP_IVT_BASE = 0x4000;
-__BLAPI_BASE = 0x3F80;
+__CODE_BASE = 0x5110;
+__APP_IVT_BASE = 0x5000;
+__BLAPI_BASE = 0x4F80;
 _hardware_version   = __BLAPI_BASE + 0x00;
 _bootloader_version = __BLAPI_BASE + 0x08;
 

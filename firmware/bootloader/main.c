@@ -34,9 +34,9 @@
 #include "HardwareProfile.h"
 #include "board.h"
 #include "bootloader_defs.h"
-#include "libconn/adb.h"
-#include "libconn/adb_file.h"
-#include "libconn/connection.h"
+#include "libadb/adb.h"
+#include "libadb/adb_file.h"
+#include "bootloader_conn.h"
 #include "flash.h"
 #include "logging.h"
 #include "ioio_file.h"
@@ -111,6 +111,7 @@ void InitializeSystem() {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
+  MAIN_STATE_WAIT_ADB_READY,
   MAIN_STATE_FIND_PATH,
   MAIN_STATE_FIND_PATH_DONE,
   MAIN_STATE_AUTH_MANAGER,
@@ -295,10 +296,10 @@ int main() {
   log_init();
   log_printf("Hello from Bootloader!!!");
   InitializeSystem();
-  ConnectionInit();
+  BootloaderConnInit();
 
   while (1) {
-    BOOL connected = ConnectionTasks();
+    BOOL connected = BootloaderConnTasks();
     mLED_0 = (state == MAIN_STATE_ERROR) ? (led_counter++ >> 13) : !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
@@ -310,14 +311,21 @@ int main() {
           log_printf("Device connected!");
           if (ADBAttached()) {
             log_printf("ADB attached - attempting firmware upgrade");
-            manager_path = DUMPSYS_BUSY;
-            DumpsysInit();
-            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
-            state = MAIN_STATE_FIND_PATH;
+            state = MAIN_STATE_WAIT_ADB_READY;
           } else {
             log_printf("ADB not attached - skipping boot sequence");
             state = MAIN_STATE_RUN_APP;
           }
+        }
+        break;
+
+      case MAIN_STATE_WAIT_ADB_READY:
+        if (ADBConnected()) {
+            log_printf("ADB connected - starting boot sequence");
+            manager_path = DUMPSYS_BUSY;
+            DumpsysInit();
+            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
+            state = MAIN_STATE_FIND_PATH;
         }
         break;
 
@@ -361,7 +369,7 @@ int main() {
         break;
 
       case MAIN_STATE_RUN_APP:
-        ConnectionResetUSB();
+        BootloaderConnResetUSB();
         pass_usb_to_app = 1;
         log_printf("Running app...");
         __asm__("goto __APP_RESET");
