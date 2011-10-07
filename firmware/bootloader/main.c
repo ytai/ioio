@@ -111,6 +111,12 @@ void InitializeSystem() {
 
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
+
+          MAIN_STATE_WAIT_CAN_OPEN,
+          MAIN_STATE_RUNNING,
+
+
+
   MAIN_STATE_FIND_PATH,
   MAIN_STATE_FIND_PATH_DONE,
   MAIN_STATE_AUTH_MANAGER,
@@ -284,9 +290,23 @@ static void SignalRcon() {
 }
 #endif
 
+void PrinterCallback(CHANNEL_HANDLE ch, const void *data, UINT32 size) {
+  if (data) {
+    log_print_buf(data, size);
+  } else {
+    if (size == 0) {
+      log_printf("channel closed gradefully");
+    } else {
+      log_printf("channel closed on error");
+    }
+    state = MAIN_STATE_WAIT_CAN_OPEN;
+  }
+}
+
 int main() {
   ADB_FILE_HANDLE f;
   ADB_CHANNEL_HANDLE h;
+  CHANNEL_HANDLE ch;
 #ifdef SIGNAL_AFTER_BAD_RESET
   if (RCON & 0b1100001001000000) {
     SignalRcon();
@@ -303,8 +323,36 @@ int main() {
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }
+    switch (state) {
+      case MAIN_STATE_WAIT_CONNECT:
+        if (connected) {
+          if (ConnectionTypeSupported(CHANNEL_TYPE_BT)) {
+            state = MAIN_STATE_WAIT_CAN_OPEN;
+          } else {
+            state = MAIN_STATE_ERROR;
+          }
+        }
+        break;
 
-    switch(state) {
+      case MAIN_STATE_WAIT_CAN_OPEN:
+        if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+          ch = ConnectionOpenChannelBtServer(PrinterCallback);
+          state = MAIN_STATE_RUNNING;
+        }
+        break;
+
+      case MAIN_STATE_RUNNING:
+        if (ConnectionCanSend(ch) && led_counter == 0) {
+          ConnectionSend(ch, "ping", 4);
+        }
+        break;
+
+      default:
+        break;
+    }
+    continue;
+
+    switch (state) {
       case MAIN_STATE_WAIT_CONNECT:
         if (connected) {
           log_printf("Device connected!");

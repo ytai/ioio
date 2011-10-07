@@ -91,7 +91,8 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1012;NDEBUG"/>
+        <property key="preprocessor-macros"
+                  value="BOARD_VER=1012;NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -133,7 +134,7 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="1024"/>
         <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
@@ -246,7 +247,8 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="BOARD_VER=1013;NDEBUG"/>
+        <property key="preprocessor-macros"
+                  value="BOARD_VER=1013;NDEBUG;ENABLE_LOGGING"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -288,7 +290,7 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="2048"/>
         <property key="remove-unused-sections" value="true"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
