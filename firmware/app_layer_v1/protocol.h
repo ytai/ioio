@@ -44,7 +44,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#include "libconn/adb.h"
+#include "libconn/connection.h"
 #include "protocol_defs.h"
 
 // Initialize this module.
@@ -52,12 +52,12 @@
 // after the module has been initialized in order to reset it.
 // h is a channel handle, which will be used for sending outgoing protocol
 // messages.
-void AppProtocolInit(ADB_CHANNEL_HANDLE h);
+void AppProtocolInit(CHANNEL_HANDLE h);
 
 // Call this function peridically for providing context to this module.
 // h is a channel handle, which will be used for sending outgoing protocol
 // messages.
-void AppProtocolTasks(ADB_CHANNEL_HANDLE h);
+void AppProtocolTasks(CHANNEL_HANDLE h);
 
 // Process incoming protocol data.
 // data may not be NULL.

@@ -40,6 +40,8 @@
 
 typedef int CHANNEL_HANDLE;
 
+#define INVALID_CHANNEL_HANDLE (-1)
+
 typedef enum {
   CHANNEL_TYPE_ADB,
   CHANNEL_TYPE_ADK,

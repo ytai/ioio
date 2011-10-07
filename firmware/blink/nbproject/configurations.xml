@@ -27,24 +27,24 @@
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
-      <itemPath>../blapi/app_BLAPI_1.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0000.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0001.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0002.gld</itemPath>
-      <itemPath>../blapi/app_IOIO0003.gld</itemPath>
+      <itemPath>../blapi/app_BLAPI_3.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0020.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0021.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0022.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0023.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="IOIO0001" type="2">
+    <conf name="IOIO0021" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
-        <platform>3</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -104,7 +104,7 @@
         <property key="boot-ram" value="no_ram"/>
         <property key="extra-lib-directories" value=""/>
         <property key="secure-eeprom" value="no_eeprom"/>
-        <appendMe value="-T../blapi/app_IOIO0001.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0021.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
@@ -113,15 +113,15 @@
       <ICD3PlatformTool>
       </ICD3PlatformTool>
     </conf>
-    <conf name="IOIO0002" type="2">
+    <conf name="IOIO0022" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
-        <platform>3</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -157,6 +157,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value=""/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -167,34 +168,34 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0002.gld"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <appendMe value="-T../blapi/app_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
       </C30Global>
       <ICD3PlatformTool>
       </ICD3PlatformTool>
     </conf>
-    <conf name="IOIO0003" type="2">
+    <conf name="IOIO0023" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256DA206</targetDevice>
         <targetHeader></targetHeader>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_25</languageToolchainVersion>
-        <platform>3</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -230,6 +231,7 @@
         <property key="secure-write-protect" value="no_write_protect"/>
         <property key="warn-section-align" value="false"/>
         <property key="heap-size" value=""/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="stack-size" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="trace-symbols" value=""/>
@@ -240,21 +242,23 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="true"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
-        <appendMe value="-T../blapi/app_IOIO0003.gld"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <appendMe value="-T../blapi/app_IOIO0023.gld"/>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <ICD3PlatformTool>
       </ICD3PlatformTool>

@@ -161,7 +161,7 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
   }
 }
 
-void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
+void AppProtocolInit(CHANNEL_HANDLE h) {
   _prog_addressT p;
   bytes_transmitted = 0;
   rx_buffer_cursor = 0;
@@ -206,12 +206,12 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
   SyncInterruptLevel(prev);
 }
 
-void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
+void AppProtocolTasks(CHANNEL_HANDLE h) {
   UARTTasks();
   SPITasks();
   I2CTasks();
   ICSPTasks();
-  if (ADBChannelReady(h)) {
+  if (ConnectionCanSend(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
     int size;
@@ -221,7 +221,7 @@ void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
     }
     ByteQueuePeek(&tx_queue, &data, &size);
     if (size > 0) {
-      ADBWrite(h, data, size);
+      ConnectionSend(h, data, size);
       bytes_transmitted = size;
     }
     SyncInterruptLevel(prev);
