@@ -44,6 +44,18 @@ typedef enum {
 static STATE state = STATE_INIT;
 static CHANNEL_HANDLE handle;
 
+void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+
+static inline CHANNEL_HANDLE OpenAvailableChannel() {
+  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
+    return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+  }
+  if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+    return ConnectionOpenChannelBtServer(&AppCallback);
+  }
+  return INVALID_CHANNEL_HANDLE;
+}
+
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
     if (!AppProtocolHandleIncoming(data, data_len)) {
@@ -58,7 +70,7 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     } else {
       log_printf("Channel failed to open");
     }
-    handle = ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+    handle = OpenAvailableChannel();
     state = STATE_WAIT_CHANNEL_OPEN;
   }
 }
@@ -71,7 +83,8 @@ int main() {
   SoftReset();
   while (1) {
     ConnectionTasks();
-    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB);
+    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
+                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT);
     if (!can_open_channel
         && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
@@ -88,7 +101,7 @@ int main() {
       case STATE_WAIT_CONNECTION:
         if (can_open_channel) {
           log_printf("Connected");
-          handle = ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+          handle = OpenAvailableChannel();
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;

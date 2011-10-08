@@ -76,6 +76,64 @@ Change History:
 #include "HardwareProfile.h"
 //#include "USB/usb_hal.h"
 
+//#define DEBUG_HEAP
+#if defined(DEBUG_HEAP) && defined(ENABLE_LOGGING)
+#include "logging.h"
+
+static unsigned _total_nodes = 0;
+static unsigned _total_mem = 0;
+
+void *_debug_malloc(const char *file, int line, size_t size) {
+  static unsigned counter = 1;
+  void *ptr = malloc(size + 2 * sizeof(unsigned));
+  if (ptr) {
+    log_printf("malloc #%u, size=%u from %s: %d", counter, size, file, line);
+    ((unsigned *) ptr)[0] = counter;
+    ((unsigned *) ptr)[1] = size;
+    ++counter;
+    ++_total_nodes;
+    _total_mem += size;
+    log_printf("nodes=%u, mem=%u", _total_nodes, _total_mem);
+    return ((unsigned *) ptr) + 2;
+  } else {
+    log_printf("malloc FAILED, size=%u from %s: %d", size, file, line);
+    return NULL;
+  }
+}
+
+void _debug_free(const char *file, int line, void *ptr) {
+  if (ptr) {
+    unsigned *p = ((unsigned *) ptr) - 2;
+    unsigned counter = p[0];
+    unsigned size = p[1];
+    if (!(counter & 0x8000)) {
+      log_printf("free #%u from %s: %d", counter, file, line);
+      *p |= 0x8000;
+      free(p);
+      --_total_nodes;
+      _total_mem -= size;
+      log_printf("nodes=%u, mem=%u", _total_nodes, _total_mem);
+    } else {
+      log_printf("free ERROR, already freed #%u from %s: %d", counter & 0x7FFF, file, line);
+    }
+  } else {
+    log_printf("free ERROR: NULL from %s: %d", file, line);
+  }
+}
+
+#define debug_malloc(size) _debug_malloc(__FILE__, __LINE__, size)
+#define debug_free(ptr) _debug_free(__FILE__, __LINE__, ptr)
+
+#ifndef USB_MALLOC
+    #define USB_MALLOC(size) debug_malloc(size)
+#endif
+
+#ifndef USB_FREE
+    #define USB_FREE(ptr) debug_free(ptr)
+#endif
+
+#else
+
 #ifndef USB_MALLOC
     #define USB_MALLOC(size) malloc(size)
 #endif
@@ -83,6 +141,8 @@ Change History:
 #ifndef USB_FREE
     #define USB_FREE(ptr) free(ptr)
 #endif
+
+#endif  // defined(DEBUG_HEAP) && defined(ENABLE_LOGGING)
 
 #define USB_FREE_AND_CLEAR(ptr) {USB_FREE(ptr); ptr = NULL;}
 
@@ -4896,7 +4956,8 @@ BOOL _USB_ParseConfigurationDescriptor( void )
                         if ((newEndpointInfo = (USB_ENDPOINT_INFO *)USB_MALLOC( sizeof(USB_ENDPOINT_INFO) )) == NULL)
                         {
                             // Out of memory
-                            error = TRUE;   
+                            error = TRUE;
+                            break;
                         }
                         newEndpointInfo->bEndpointAddress           = *ptr++;
                         newEndpointInfo->bmAttributes.val           = *ptr++;

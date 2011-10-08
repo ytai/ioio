@@ -46,7 +46,6 @@
 static void DummyCallback(int h, const void *data, UINT32 size) {
 }
 
-
 static uint8_t    rfcomm_channel_nr = 1;
 static uint16_t   rfcomm_channel_id;
 static uint8_t    spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));

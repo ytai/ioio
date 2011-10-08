@@ -62,7 +62,7 @@ static void ConnBTTasks() {
     case STATE_BT_DISCONNECTED:
       if (USBHostBluetoothIsDeviceAttached()) {
         BTInit();
-        bt_state = STATE_BT_INITIALIZED;
+        bt_state = STATE_BT_INITIALIZING;
       }
       break;
 
