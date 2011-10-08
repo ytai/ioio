@@ -96,7 +96,7 @@ static void ConnADBTasks() {
       if (ADBAttached()) {
         ADBInit();
         ADBFileInit();
-        adb_state = STATE_ADB_INITIALIZED;
+        adb_state = STATE_ADB_INITIALIZING;
       }
       break;
 

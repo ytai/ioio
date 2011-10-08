@@ -53,8 +53,10 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   } else {
     // connection closed, soft reset and re-establish
     if (state == STATE_CONNECTED) {
-      log_printf("ADB channel closed");
+      log_printf("Channel closed");
       SoftReset();
+    } else {
+      log_printf("Channel failed to open");
     }
     handle = ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
     state = STATE_WAIT_CHANNEL_OPEN;
