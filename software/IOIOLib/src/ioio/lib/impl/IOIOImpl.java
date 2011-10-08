@@ -34,6 +34,7 @@ import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
+import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.PulseInput;
 import ioio.lib.api.PulseInput.ClockRate;
@@ -53,6 +54,8 @@ import java.io.IOException;
 import android.util.Log;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
+	private static final String TAG = "IOIOImpl";
+
 	enum State {
 		INIT, CONNECTED, INCOMPATIBLE, DEAD
 	}
@@ -92,10 +95,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException();
 		}
 		addDisconnectListener(this);
-		Log.d("IOIOImpl", "Waiting for IOIO connection");
+		Log.d(TAG, "Waiting for IOIO connection");
 		try {
 			try {
-				Log.d("IOIOImpl", "Waiting for underlying connection");
+				Log.d(TAG, "Waiting for underlying connection");
 				connection_.waitForConnect();
 				protocol_ = new IOIOProtocol(connection_.getInputStream(),
 						connection_.getOutputStream(), incomingState_);
@@ -103,18 +106,19 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				incomingState_.handleConnectionLost();
 				throw e;
 			}
-			Log.d("IOIOImpl", "Waiting for handshake");
+			Log.d(TAG, "Waiting for handshake");
 			incomingState_.waitConnectionEstablished();
-			Log.d("IOIOImpl", "Querying for required interface ID");
+			Log.d(TAG, "Querying for required interface ID");
 			checkInterfaceVersion();
-			Log.d("IOIOImpl", "Required interface ID is supported");
+			Log.d(TAG, "Required interface ID is supported");
 			state_ = State.CONNECTED;
-			Log.i("IOIOImpl", "IOIO connection established");
+			Log.i(TAG, "IOIO connection established");
 		} catch (ConnectionLostException e) {
+			Log.d(TAG, "Connection lost / aborted");
 			state_ = State.DEAD;
 			throw e;
 		} catch (InterruptedException e) {
-			Log.e("IOIOImpl", "Unexpected exception", e);
+			Log.e(TAG, "Unexpected exception", e);
 		}
 	}
 
@@ -126,6 +130,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	public void disconnected() {
 		state_ = State.DEAD;
+		// The IOIOConnection doesn't necessarily know about the disconnect
 		disconnect();
 	}
 
@@ -142,7 +147,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 		if (!incomingState_.waitForInterfaceSupport()) {
 			state_ = State.INCOMPATIBLE;
-			Log.e("IOIOImpl", "Required interface ID is not supported");
+			Log.e(TAG, "Required interface ID is not supported");
 			throw new IncompatibilityException(
 					"IOIO firmware does not support required firmware: "
 							+ new String(REQUIRED_INTERFACE_ID));

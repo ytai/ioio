@@ -28,6 +28,7 @@
  */
 package ioio.lib.impl;
 
+import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.IOException;
@@ -115,7 +116,6 @@ public class SocketIOIOConnection implements IOIOConnection {
 			try {
 				socket_.shutdownOutput();
 			} catch (IOException e1) {
-				Log.e("SocketIOIOConnection", "Unexpected exception", e1);
 			}
 		}
 	}

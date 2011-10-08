@@ -26,7 +26,7 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.impl;
+package ioio.lib.api;
 
 import java.io.InputStream;
 import java.io.OutputStream;
