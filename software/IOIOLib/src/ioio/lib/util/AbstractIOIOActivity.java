@@ -1,10 +1,14 @@
 package ioio.lib.util;
 
+import java.util.Vector;
+
 import ioio.lib.api.IOIO;
+import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import android.app.Activity;
+import android.os.Looper;
 import android.util.Log;
 
 /**
@@ -64,6 +68,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 * communication.
 	 */
 	protected abstract class IOIOThread extends Thread {
+		private static final String TAG = "AbstractIOIOActivity";
 		/** Subclasses should use this field for controlling the IOIO. */
 		protected IOIO ioio_;
 		private boolean abort_ = false;
@@ -73,13 +78,15 @@ public abstract class AbstractIOIOActivity extends Activity {
 		@Override
 		public final void run() {
 			super.run();
+			Looper.prepare();
 			while (true) {
 				try {
 					synchronized (this) {
 						if (abort_) {
 							break;
 						}
-						ioio_ = IOIOFactory.create();
+						ioio_ = IOIOFactory
+								.create(createMultiplexedConnection());
 					}
 					ioio_.waitForConnect();
 					connected_ = true;
@@ -96,8 +103,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} catch (IncompatibilityException e) {
-					Log.e("AbstractIOIOActivity",
-							"Incompatible IOIO firmware", e);
+					Log.e(TAG, "Incompatible IOIO firmware", e);
 					incompatible();
 					// nothing to do - just wait until physical disconnection
 					try {
@@ -106,8 +112,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 						ioio_.disconnect();
 					}
 				} catch (Exception e) {
-					Log.e("AbstractIOIOActivity",
-							"Unexpected exception caught", e);
+					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -149,18 +154,18 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * Subclasses should override this method for performing operations to
 		 * be done once as soon as IOIO communication is lost or closed.
 		 * Typically, this will include GUI changes corresponding to the change.
-		 * This method will only be called if setup() has been called.
-		 * The {@link #ioio_} member must not be used from within this method.
+		 * This method will only be called if setup() has been called. The
+		 * {@link #ioio_} member must not be used from within this method.
 		 */
 		protected void disconnected() throws InterruptedException {
 		}
 
 		/**
 		 * Subclasses should override this method for performing operations to
-		 * be done if an incompatible IOIO firmware is detected.
-		 * The {@link #ioio_} member must not be used from within this method.
-		 * This method will only be called once, until a compatible IOIO is
-		 * connected (i.e. {@link #setup()} gets called).
+		 * be done if an incompatible IOIO firmware is detected. The
+		 * {@link #ioio_} member must not be used from within this method. This
+		 * method will only be called once, until a compatible IOIO is connected
+		 * (i.e. {@link #setup()} gets called).
 		 */
 		protected void incompatible() {
 		}
@@ -174,6 +179,26 @@ public abstract class AbstractIOIOActivity extends Activity {
 			if (connected_) {
 				interrupt();
 			}
+		}
+
+		private IOIOConnection createMultiplexedConnection() {
+			Vector<IOIOConnection> connections = new Vector<IOIOConnection>();
+			try {
+				connections
+						.add(IOIOFactory
+								.createConnectionDynamically("ioio.lib.bluetooth.BluetoothIOIOConnection"));
+			} catch (ClassNotFoundException e) {
+				Log.w(TAG, "Bluetooth not supported");
+			}
+			try {
+				connections.add(IOIOFactory.createConnectionDynamically(
+						"ioio.lib.impl.SocketIOIOConnection", 4545));
+			} catch (ClassNotFoundException e) {
+			}
+
+			IOIOConnectionMultiplexer multiplexer = new IOIOConnectionMultiplexer(
+					connections.toArray(new IOIOConnection[connections.size()]));
+			return multiplexer;
 		}
 	}
 }

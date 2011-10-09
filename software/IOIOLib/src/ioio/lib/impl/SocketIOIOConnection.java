@@ -48,7 +48,7 @@ public class SocketIOIOConnection implements IOIOConnection {
 	private boolean server_owned_by_connect_ = true;
 	private boolean socket_owned_by_connect_ = true;
 	
-	public SocketIOIOConnection(int port) {
+	public SocketIOIOConnection(Integer port) {
 		port_ = port;
 	}
 
@@ -137,5 +137,4 @@ public class SocketIOIOConnection implements IOIOConnection {
 			throw new ConnectionLostException(e);
 		}
 	}
-
 }
