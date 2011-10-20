@@ -10,27 +10,14 @@
     android:text="@string/title"
     />
 
-	<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/up_throughput"></TextView>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/up_throughput_text" android:text="@string/default_throughput"></TextView>
-	</LinearLayout>
-	<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/down_throughput"></TextView>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/down_throughput_text" android:text="@string/default_throughput"></TextView>
-	</LinearLayout>
-	<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<TextView android:text="@string/both_throughput" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/both_throughput_text" android:text="@string/default_throughput"></TextView>
-	</LinearLayout>
-	<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<TextView android:text="@string/latency_avg" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/latency_avg_text" android:text="@string/default_latency_avg"></TextView>
-	</LinearLayout>
-	<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<TextView android:text="@string/latency_error" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/latency_error_text" android:text="@string/default_latency_error"></TextView>
-	</LinearLayout>
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/latency_histogram_text" android:text="@string/default_latency_histogram"></TextView>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/latency"></TextView>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/default_latency" android:id="@+id/latency"></TextView>
+    </LinearLayout>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/throughput"></TextView>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/default_throughput" android:id="@+id/throughput"></TextView>
+    </LinearLayout>
 
-	<Button android:text="@string/start_button" android:id="@+id/start_button" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/clear_button" android:text="@string/clear_button"></Button>
 </LinearLayout>
