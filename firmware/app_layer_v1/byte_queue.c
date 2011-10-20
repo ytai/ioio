@@ -93,7 +93,7 @@ void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len) {
 
 void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size) {
   *data = q->buf + q->read_cursor;
-  if (q->write_cursor < q->read_cursor) {
+  if (q->write_cursor <= q->read_cursor) {
     *size = q->capacity - q->read_cursor;
   } else {
     *size = q->write_cursor - q->read_cursor;
