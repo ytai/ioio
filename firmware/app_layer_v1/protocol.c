@@ -121,7 +121,8 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
 };
 
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 8192);
-static int bytes_transmitted;
+static int bytes_out;
+static int max_packet;
 
 typedef enum {
   WAIT_TYPE,
@@ -163,11 +164,12 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 
 void AppProtocolInit(CHANNEL_HANDLE h) {
   _prog_addressT p;
-  bytes_transmitted = 0;
+  bytes_out = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;
   rx_message_state = WAIT_TYPE;
   ByteQueueClear(&tx_queue);
+  max_packet = ConnectionGetMaxPacket(h);
 
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
@@ -214,15 +216,14 @@ void AppProtocolTasks(CHANNEL_HANDLE h) {
   if (ConnectionCanSend(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
-    int size;
-    if (bytes_transmitted) {
-      ByteQueuePull(&tx_queue, bytes_transmitted);
-      bytes_transmitted = 0;
+    if (bytes_out) {
+      ByteQueuePull(&tx_queue, bytes_out);
+      bytes_out = 0;
     }
-    ByteQueuePeek(&tx_queue, &data, &size);
-    if (size > 0) {
-      ConnectionSend(h, data, size);
-      bytes_transmitted = size;
+    ByteQueuePeek(&tx_queue, &data, &bytes_out);
+    if (bytes_out > 0) {
+      if (bytes_out > max_packet) bytes_out = max_packet;
+      ConnectionSend(h, data, bytes_out);
     }
     SyncInterruptLevel(prev);
   }
