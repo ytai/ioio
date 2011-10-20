@@ -72,6 +72,7 @@ CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb);
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size);
 BOOL ConnectionCanSend(CHANNEL_HANDLE ch);
 void ConnectionCloseChannel(CHANNEL_HANDLE ch);
+int ConnectionGetMaxPacket(CHANNEL_HANDLE ch);
 
 
 #endif  // __CONNECTION_H__

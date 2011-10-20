@@ -212,6 +212,21 @@ BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
   }
 }
 
+int ConnectionGetMaxPacket(CHANNEL_HANDLE ch) {
+    switch (ch >> 8) {
+    case CHANNEL_TYPE_ADB:
+    case CHANNEL_TYPE_ADK:
+      return 0x7FFF;  // unlimited
+
+    case CHANNEL_TYPE_BT:
+      assert(ch & 0xFF == 0);
+      return 242;
+
+    default:
+      return 0;
+  }
+}
+
 void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
     switch (ch >> 8) {
     case CHANNEL_TYPE_ADB:

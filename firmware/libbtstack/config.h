@@ -11,7 +11,7 @@
 #define ENABLE_LOG_INFO
 #define ENABLE_LOG_ERROR
 
-#define HCI_ACL_PAYLOAD_SIZE 52
+#define HCI_ACL_PAYLOAD_SIZE 252  // will make total packet 256
 
 //
 #define MAX_SPP_CONNECTIONS 1

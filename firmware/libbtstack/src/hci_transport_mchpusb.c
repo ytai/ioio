@@ -40,7 +40,7 @@
 #include "hci_transport.h"
 #include "hci_dump.h"
 
-static uint8_t bulk_in[64];
+static uint8_t bulk_in[256];
 static uint8_t int_in[64];
 
 void hci_transport_mchpusb_tasks() {
@@ -52,13 +52,10 @@ void hci_transport_mchpusb_tasks() {
   }
 }
 
-// prototypes
-static void dummy_handler(uint8_t packet_type, uint8_t *packet, uint16_t size);
-
 // single instance
 static hci_transport_t hci_transport_mchpusb;
 
-static void (*packet_handler)(uint8_t packet_type, uint8_t *packet, uint16_t size) = dummy_handler;
+static void (*packet_handler)(uint8_t packet_type, uint8_t *packet, uint16_t size) = NULL;
 
 static int usb_open(void *transport_config) {
   return 0;
@@ -105,9 +102,6 @@ static void usb_register_packet_handler(void (*handler)(uint8_t packet_type, uin
 
 static const char * usb_get_transport_name() {
   return "USB";
-}
-
-static void dummy_handler(uint8_t packet_type, uint8_t *packet, uint16_t size) {
 }
 
 // get usb singleton
