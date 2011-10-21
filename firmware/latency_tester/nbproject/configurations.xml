@@ -79,8 +79,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -106,19 +106,19 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value="conn;adb;usb;btstack"/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories"
                   value="../libadb/dist/PIC24FJ128DA106;../libconn/dist/PIC24FJ128DA106;../libbtstack/dist/PIC24FJ128DA106;../libusb/dist/PIC24FJ128DA106"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0021.gld"/>
       </C30-LD>
       <C30Global>
@@ -133,8 +133,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -144,8 +144,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
@@ -162,30 +162,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0022" type="2">
@@ -206,7 +206,7 @@
       </compileType>
       <C30>
         <property key="optimization-level" value="0"/>
-        <property key="preprocessor-macros" value="ENABLE_LOGGING"/>
+        <property key="preprocessor-macros" value=""/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -233,8 +233,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -260,19 +260,19 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value="conn;adb;usb;btstack"/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories"
                   value="../libadb/dist/PIC24FJ128DA206;../libconn/dist/PIC24FJ128DA206;../libbtstack/dist/PIC24FJ128DA206;../libusb/dist/PIC24FJ128DA206"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
@@ -289,8 +289,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -300,8 +300,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
@@ -318,30 +318,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0023" type="2">
@@ -389,8 +389,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="warning-level" value="emit-warnings"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -416,19 +416,19 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value="conn;adb;usb;btstack"/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories"
                   value="../libadb/dist/PIC24FJ256DA206;../libconn/dist/PIC24FJ256DA206;../libbtstack/dist/PIC24FJ256DA206;../libusb/dist/PIC24FJ256DA206"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
         <appendMe value="-T../blapi/app_IOIO0023.gld"/>
       </C30-LD>
       <C30Global>
@@ -443,8 +443,8 @@
         <property key="memories.id" value="false"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="COMPARATOR" value="true"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="INPUT CAPTURE 9" value="true"/>
@@ -454,8 +454,8 @@
         <property key="INPUT CAPTURE 5" value="true"/>
         <property key="INPUT CAPTURE 4" value="true"/>
         <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="RTCC" value="true"/>
         <property key="INPUT CAPTURE 1" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
@@ -472,30 +472,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
         <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
         <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
         <property key="TIMER2" value="true"/>
+        <property key="SPI 1" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
         <property key="CTMU" value="true"/>
-        <property key="CLOCK CONTROL" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="CLOCK CONTROL" value="true"/>
         <property key="I2C3" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="GRAPHICS" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
       </PICkit3PlatformTool>
     </conf>
   </confs>

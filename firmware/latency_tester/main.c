@@ -47,12 +47,6 @@ static CHANNEL_HANDLE handle;
 static int out_size = 0;
 static const BYTE *out_data;
 static int max_packet;
-
-/*
-static int cum_in = 0;
-static int cum_out = 0;
-*/
-
 DEFINE_STATIC_BYTE_QUEUE(out_queue, 4096);
 
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
@@ -69,8 +63,6 @@ static inline CHANNEL_HANDLE OpenAvailableChannel() {
 
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
-    // cum_in += data_len;
-    // log_printf("Got %d bytes", cum_in);
     const uint8_t *p = (const uint8_t *) data;
     while (data_len--) {
       ByteQueuePushByte(&out_queue, -*(p++));
@@ -101,8 +93,6 @@ void AppTasks() {
       if (out_size > max_packet) {
         out_size = max_packet;
       }
-      // cum_out += out_size;
-      // log_printf("Sending %d bytes", cum_out);
       ConnectionSend(handle, out_data, out_size);
     }
   }
