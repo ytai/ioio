@@ -33,6 +33,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "logging.h"
 #include "hci.h"
@@ -51,6 +52,7 @@ static uint16_t   rfcomm_channel_id;
 static uint8_t    spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
 static uint8_t    rfcomm_send_credit = 0;
 static BTCallback client_callback;
+static char       local_name[] = "IOIO (00:00)";  // the digits will be replaced by the MSB of the BD-ADDR
 
 static void PacketHandler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
   bd_addr_t event_addr;
@@ -63,7 +65,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
         case BTSTACK_EVENT_STATE:
           // bt stack activated, get started - set local name
           if (packet[2] == HCI_STATE_WORKING) {
-            hci_send_cmd(&hci_write_local_name, "IOIO");
+            hci_send_cmd(&hci_write_local_name, local_name);
           }
           break;
 
@@ -71,6 +73,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
           if (COMMAND_COMPLETE_EVENT(packet, hci_read_bd_addr)) {
             bt_flip_addr(event_addr, &packet[6]);
             log_printf("BD-ADDR: %s\n\r", bd_addr_to_str(event_addr));
+            sprintf(local_name, "IOIO (%02X:%02X)", event_addr[4], event_addr[5]);
             break;
           }
           if (COMMAND_COMPLETE_EVENT(packet, hci_write_local_name)) {
