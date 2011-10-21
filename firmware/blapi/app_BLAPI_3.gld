@@ -30,7 +30,7 @@ SECTIONS
   {
         *(.init);
         *(.user_init);
-        *(.handle);
+        KEEP(*(.handle));
         *(.libc) *(.libm) *(.libdsp);  /* keep together in this order */
         *(.lib*);
         KEEP(*(.isr*));  /* must be placed in order to be referenced below */
