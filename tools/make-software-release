@@ -1,8 +1,9 @@
 #!/bin/bash
 
 ZIP=zip
-TMPOUT=$(mktemp -t -u tmp.XXXXXXXX.zip)
+TMPOUT=$(mktemp -u -t ioio).zip
 PROJECTS="IOIOLib \
+          IOIOLibBT \
           applications/HelloIOIO \
           applications/HelloIOIOPower \
           applications/IOIOSimpleApp"
