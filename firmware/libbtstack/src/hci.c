@@ -651,8 +651,8 @@ static void event_handler(uint8_t *packet, int size){
     
     hci_stack.packet_handler(HCI_EVENT_PACKET, packet, size);
 	
-	// execute main loop
-	hci_run();
+    // execute main loop
+    hci_run();
 }
 
 void packet_handler(uint8_t packet_type, uint8_t *packet, uint16_t size){
@@ -1067,18 +1067,18 @@ void hci_run(){
                         log_info("hci_run: init script done\n\r");
                     }
                     // otherwise continue
-					hci_send_cmd(&hci_read_bd_addr);
-					break;
-				case 4:
-					hci_send_cmd(&hci_read_buffer_size);
-					break;
+                    hci_send_cmd(&hci_read_bd_addr);
+                    break;
+                case 4:
+                    hci_send_cmd(&hci_read_buffer_size);
+                    break;
                 case 5:
                     // ca. 15 sec
                     hci_send_cmd(&hci_write_page_timeout, 0x6000);
                     break;
-				case 6:
-					hci_send_cmd(&hci_write_scan_enable, 2 | hci_stack.discoverable); // page scan
-					break;
+                case 6:
+                    hci_send_cmd(&hci_write_scan_enable, 2 | hci_stack.discoverable); // page scan
+                    break;
                 case 7:
 #ifndef EMBEDDED
                 {
