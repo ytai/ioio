@@ -56,7 +56,7 @@ import ioio.lib.impl.SocketIOIOConnection;
  */
 public class IOIOFactory {
 	/** The TCP port used for communicating with the IOIO board. */
-	private static final int IOIO_PORT = 4545;
+	public static final int IOIO_PORT = 4545;
 
 	/**
 	 * Create a IOIO instance. This specific implementation creates a IOIO

@@ -6,7 +6,6 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -19,23 +18,12 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	private BluetoothSocket socket_ = null;
 	private boolean disconnect_ = false;
 	private boolean socket_owned_by_connect_ = true;
+	private final String name_;
+	private final String address_;
 
-	private BluetoothDevice findIOIO(BluetoothAdapter adapter)
-			throws ConnectionLostException {
-		try {
-			Set<BluetoothDevice> bondedDevices = adapter.getBondedDevices();
-			for (BluetoothDevice device : bondedDevices) {
-				if (device.getName().startsWith("IOIO")) {
-					return device;
-				}
-			}
-		} catch (SecurityException e) {
-			Log.e(TAG,
-					"Did you forget to declare uses-permission of android.permission.BLUETOOTH?");
-			throw e;
-		}
-		Log.w(TAG, "IOIO device not bound (paired)");
-		throw new ConnectionLostException();
+	public BluetoothIOIOConnection(String name, String address) {
+		name_ = name;
+		address_ = address;
 	}
 
 	@Override
@@ -46,9 +34,9 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 				if (disconnect_) {
 					throw new ConnectionLostException();
 				}
-				BluetoothDevice ioioDevice = findIOIO(adapter);
-				// socket_ =
-				// ioioDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+				BluetoothDevice ioioDevice = adapter.getRemoteDevice(address_);
+//				 socket_ =
+//				 ioioDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 				socket_ = ioioDevice
 						.createInsecureRfcommSocketToServiceRecord(UUID
 								.fromString("00001101-0000-1000-8000-00805F9B34FB"));
@@ -58,7 +46,9 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 			while (!disconnect_) {
 				try {
 					socket_.connect();
-					break;  // if we got here, we're connected
+					Log.d(TAG, "Established connection to device " + name_
+							+ " address: " + address_);
+					break; // if we got here, we're connected
 				} catch (IOException e) {
 					try {
 						Thread.sleep(1000);

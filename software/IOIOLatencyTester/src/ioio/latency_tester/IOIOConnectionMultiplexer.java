@@ -1,4 +1,4 @@
-package ioio.lib.util;
+package ioio.latency_tester;
 
 import java.io.InputStream;
 import java.io.OutputStream;

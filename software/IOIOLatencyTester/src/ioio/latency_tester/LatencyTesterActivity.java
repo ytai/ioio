@@ -3,7 +3,6 @@ package ioio.latency_tester;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.IOIOConnectionMultiplexer;
 
 import java.io.IOException;
 import java.io.InputStream;

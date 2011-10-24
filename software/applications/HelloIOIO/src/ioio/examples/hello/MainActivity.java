@@ -66,7 +66,7 @@ public class MainActivity extends AbstractIOIOActivity {
 		protected void loop() throws ConnectionLostException {
 			led_.write(!button_.isChecked());
 			try {
-				sleep(10);
+				sleep(100);
 			} catch (InterruptedException e) {
 			}
 		}
