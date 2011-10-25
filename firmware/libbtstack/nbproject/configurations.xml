@@ -51,6 +51,7 @@
       <itemPath>src/l2cap_signaling.c</itemPath>
       <itemPath>src/linked_list.c</itemPath>
       <itemPath>src/memory_pool.c</itemPath>
+      <itemPath>src/remote_device_db_memory.c</itemPath>
       <itemPath>src/rfcomm.c</itemPath>
       <itemPath>src/run_loop.c</itemPath>
       <itemPath>src/sdp.c</itemPath>
