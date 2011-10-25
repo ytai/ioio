@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if test $# -ne 1; then
-  echo "Usage: make-bl-and-fw out"
+  echo "Usage: make-bl-and-app out"
   exit 1
 fi
  
@@ -11,7 +11,7 @@ MERGE=tools/merge-hex
 function make-one-ioio {
   BL=firmware/bootloader/dist/$1/production/bootloader.production.hex
   FW=firmware/app_layer_v1/dist/$2/production/app_layer_v1.production.hex
-  OUT=$3
+  OUTPREFIX=$3
   if test ! -f $BL; then
     echo Missing file: $BL
     exit 1
@@ -20,16 +20,18 @@ function make-one-ioio {
     echo Missing file: $FW
     exit 1
   fi
-  TEMP=$(mktemp -t ioio)
-  $MERGE $BL $FW > $TEMP
-  $HEX2IOIO $TEMP $OUT
+  HEX=$OUTPREFIX.hex
+  $MERGE $BL $FW > $HEX
+  $HEX2IOIO $HEX $OUTPREFIX.ioio
 }
 
 TEMPDIR=$(mktemp -d -t ioio)
 
-make-one-ioio SPRK0012 IOIO0021 $TEMPDIR/SPRK0012.ioio
-make-one-ioio SPRK0013 IOIO0022 $TEMPDIR/SPRK0013.ioio
-make-one-ioio SPRK0014 IOIO0022 $TEMPDIR/SPRK0014.ioio
-make-one-ioio SPRK0015 IOIO0022 $TEMPDIR/SPRK0015.ioio
-make-one-ioio SPRK0016 IOIO0023 $TEMPDIR/SPRK0016.ioio
-zip -j $1 $TEMPDIR/* 
+make-one-ioio SPRK0012 IOIO0021 $TEMPDIR/SPRK0012
+make-one-ioio SPRK0013 IOIO0022 $TEMPDIR/SPRK0013
+make-one-ioio SPRK0014 IOIO0022 $TEMPDIR/SPRK0014
+make-one-ioio SPRK0015 IOIO0022 $TEMPDIR/SPRK0015
+make-one-ioio SPRK0016 IOIO0023 $TEMPDIR/SPRK0016
+zip -j $1.zip $TEMPDIR/*.hex
+zip -j $1.ioioimg $TEMPDIR/*.ioio
+ 
