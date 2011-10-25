@@ -49,10 +49,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * {@link IOIO#openPulseInput(ioio.lib.api.DigitalInput.Spec, ClockRate, PulseMode, boolean)}
  * . When created, some important configuration decisions have to be made: the
  * precision (single or double), the clock rate and the mode of operation. Modes
- * are straightforward: {@link PulseMode.POSITIVE} is used for measuring a
- * positive pulse, {@link PulseMode.NEGATIVE} a negative pulse, and
- * {@link PulseMode.FREQ} / {@link PulseMode.FREQ_SCALE_4} /
- * {@link PulseMode.FREQ_SCALE_16} are used for measuring frequency. The
+ * are straightforward: {@link PulseMode#POSITIVE} is used for measuring a
+ * positive pulse, {@link PulseMode#NEGATIVE} a negative pulse, and
+ * {@link PulseMode#FREQ} / {@link PulseMode#FREQ_SCALE_4} /
+ * {@link PulseMode#FREQ_SCALE_16} are used for measuring frequency. The
  * difference between the three scaling modes is that without scaling, the
  * frequency is determined by measurement of a single
  * (rising-edge-to-rising-edge) period. In x4 scaling, 4 consecutive periods are

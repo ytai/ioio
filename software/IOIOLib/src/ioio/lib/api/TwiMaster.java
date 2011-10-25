@@ -65,6 +65,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Typical usage:
  * 
  * <pre>
+ * {@code
  * // Uses the SDA1/SCL1 pins, I2C volatege levels at 100KHz. 
  * TwiMaster twi = ioio.openTwiMaster(1, TwiMaster.RATE_100KHz, false);
  * final byte[] request = new byte[]{ 0x23, 0x45 };
@@ -76,7 +77,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  *   // handle error
  * }
  * twi.close();  // free TWI module and pins
- * </pre>
+ * }</pre>
  * 
  * @see IOIO#openTwiMaster(int, Rate, boolean)
  */

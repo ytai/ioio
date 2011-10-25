@@ -46,7 +46,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <li>Enter / exit programming mode ( {@link #enterProgramming()} /
  * {@link #exitProgramming()}, respectively).</li>
  * <li>Executing a single instruction on the slave MCU (
- * {@link #executeInstruction()}).</li>
+ * {@link #executeInstruction(int)}).</li>
  * <li>Reading the value of the VISI register of the slave MCU into a read queue
  * ({@link #readVisi()}).</li>
  * </ul>
@@ -78,7 +78,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * int visi = icsp.waitVisiResult();   // should read 0x1234
  * icsp.exitProgramming();
  * icsp.close();                       // free ICSP module and pins
- * </pre>
+ * }</pre>
  * 
  * @see IOIO#openIcspMaster()
  */

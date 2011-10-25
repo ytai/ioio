@@ -412,8 +412,7 @@ public interface IOIO {
 	 */
 	public PulseInput openPulseInput(DigitalInput.Spec spec,
 			PulseInput.ClockRate rate, PulseInput.PulseMode mode,
-			boolean doublePrecision)
-			throws ConnectionLostException;
+			boolean doublePrecision) throws ConnectionLostException;
 
 	/**
 	 * Shorthand for openPulseInput(new DigitalInput.Spec(pin), rate, mode,
@@ -421,9 +420,10 @@ public interface IOIO {
 	 * with the given mode.
 	 * 
 	 * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseInput.ClockRate.RATE_16MHz, PulseMode, boolean)
+	 *      ioio.lib.api.PulseInput.ClockRate, PulseMode, boolean))
 	 */
-	public PulseInput openPulseInput(int pin, PulseMode mode) throws ConnectionLostException;
+	public PulseInput openPulseInput(int pin, PulseMode mode)
+			throws ConnectionLostException;
 
 	/**
 	 * Open a UART module, enabling a bulk transfer of byte buffers.

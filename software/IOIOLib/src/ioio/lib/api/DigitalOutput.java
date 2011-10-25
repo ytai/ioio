@@ -37,7 +37,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * DigitalOutput instances are obtained by calling
  * {@link IOIO#openDigitalOutput(Spec, boolean)}.
  * <p>
- * The value of the pin is set by calling {@link #write(Boolean)}.
+ * The value of the pin is set by calling {@link #write(boolean)}.
  * <p>
  * The instance is alive since its creation. If the connection with the IOIO
  * drops at any point, the instance transitions to a disconnected state, in

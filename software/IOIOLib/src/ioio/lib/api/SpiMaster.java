@@ -81,7 +81,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <p>
  * Typical usage (single slave, as per the example above):
  * 
- * <pre>
+ * <pre>{@code
  * // MISO, MOSI, CLK, SS on pins 3, 4, 5, 6, respectively.
  * SpiMaster spi = ioio.openSpiMaster(3, 4, 5, 6, SpiMaster.Rate.RATE_125K);
  * final byte[] request = new byte[]{ 0x23, 0x45 };
@@ -89,11 +89,11 @@ import ioio.lib.api.exception.ConnectionLostException;
  * spi.writeRead(request, 2, 4, response, 3);
  * ...
  * spi.close();  // free SPI module and pins
- * </pre>
+ * }</pre>
  * 
- * @see IOIO#openSpiMaster(ioio.lib.api.DigitalInput.Spec,
- *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
- *      ioio.lib.api.DigitalOutput.Spec[], Config)
+ * @see IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec,
+ *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[],
+ *      Config))
  */
 public interface SpiMaster extends Closeable {
 	/** Possible data rates for SPI, in Hz. */

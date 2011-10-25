@@ -24,10 +24,10 @@ import android.util.Log;
  * {@link #createIOIOThread()}, which should return an implementation of the
  * {@link IOIOThread} abstract class. In this implementation, the client
  * implements the {@link IOIOThread#setup()} method, which gets called as soon
- * as communication with the IOIO is established, and the
- * {@link IOIOThread#loop()} method, which gets called repetitively as long as
- * the IOIO is connected. Both methods should access the
- * {@link IOIOThread#ioio_} field for controlling the IOIO.
+ * as communication with the IOIO is established, and the {@link IOIOThread
+ * #loop()} method, which gets called repetitively as long as the IOIO is
+ * connected. Both methods should access the {@link IOIOThread#ioio_} field for
+ * controlling the IOIO.
  * 
  * In addition, the {@link IOIOThread#disconnected()} method may be overridden
  * in order to execute logic as soon as a disconnection occurs for whichever
@@ -79,8 +79,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 
 	/**
 	 * Subclasses should implement this method by returning a concrete subclass
-	 * of {@link IOIOThread}. <code>null</code> may be returned if the client is
-	 * not interested to connect a thread for this IOIO. In multi-IOIO
+	 * of {@link IOIOThread}. <code>null</code> may be returned if the client
+	 * is not interested to connect a thread for this IOIO. In multi-IOIO
 	 * scenarios, where you want to identify which IOIO the thread is for,
 	 * consider using {@link #createIOIOThread()} instead.
 	 * 
