@@ -35,11 +35,18 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 					throw new ConnectionLostException();
 				}
 				BluetoothDevice ioioDevice = adapter.getRemoteDevice(address_);
-//				 socket_ =
-//				 ioioDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-				socket_ = ioioDevice
-						.createInsecureRfcommSocketToServiceRecord(UUID
-								.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+				try {
+					// We're trying to create an insecure socket, which is only supported
+					// in API 10 and up. If we fail, we try a secure socket with is in API
+					// 7 and up.
+					socket_ = ioioDevice
+							.createInsecureRfcommSocketToServiceRecord(UUID
+									.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+				} catch (NoSuchMethodError e) {
+					socket_ = ioioDevice
+							.createRfcommSocketToServiceRecord(UUID
+									.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+				}
 				socket_owned_by_connect_ = false;
 			}
 			// keep trying to connect as long as we're not aborting
