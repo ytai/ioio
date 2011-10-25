@@ -41,10 +41,10 @@ typedef enum {
   STATE_IN_PATH
 } STATE;
 
-static const char BOOTCNST prefix[] = "    dataDir=";
-static int BOOTDATA cursor;
-static char BOOTDATA result[MAX_PATH];
-static STATE BOOTDATA state;
+static const char prefix[] FORCEROM = "    dataDir=";
+static int cursor;
+static char result[MAX_PATH];
+static STATE state;
 
 void DumpsysInit() {
   cursor = 0;

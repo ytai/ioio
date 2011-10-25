@@ -28,8 +28,7 @@
  */
 
 #include "Compiler.h"
-#include "blapi/adb.h"
-#include "blapi/bootloader.h"
+#include "libconn/connection.h"
 #include "features.h"
 #include "protocol.h"
 #include "logging.h"
@@ -43,9 +42,21 @@ typedef enum {
 } STATE;
 
 static STATE state = STATE_INIT;
-static ADB_CHANNEL_HANDLE handle;
+static CHANNEL_HANDLE handle;
 
-void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
+void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+
+static inline CHANNEL_HANDLE OpenAvailableChannel() {
+  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
+    return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+  }
+  if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+    return ConnectionOpenChannelBtServer(&AppCallback);
+  }
+  return INVALID_CHANNEL_HANDLE;
+}
+
+void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
     if (!AppProtocolHandleIncoming(data, data_len)) {
       // got corrupt input. need to close the connection and soft reset.
@@ -54,10 +65,12 @@ void ChannelCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   } else {
     // connection closed, soft reset and re-establish
     if (state == STATE_CONNECTED) {
-      log_printf("ADB channel closed");
+      log_printf("Channel closed");
       SoftReset();
+    } else {
+      log_printf("Channel failed to open");
     }
-    handle = ADBOpen("tcp:4545", &ChannelCallback);
+    handle = OpenAvailableChannel();
     state = STATE_WAIT_CHANNEL_OPEN;
   }
 }
@@ -66,32 +79,36 @@ int main() {
   log_init();
   log_printf("***** Hello from app-layer! *******\r\n");
 
+  ConnectionInit();
   SoftReset();
   while (1) {
-    BOOL adb_connected = BootloaderTasks();
-    if (!adb_connected && state > STATE_WAIT_CONNECTION) {
+    ConnectionTasks();
+    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
+                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT);
+    if (!can_open_channel
+        && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
-      log_printf("ADB disconnected");
+      log_printf("Disconnected");
       SoftReset();
       state = STATE_INIT;
     }
     switch (state) {
       case STATE_INIT:
-        handle = ADB_INVALID_CHANNEL_HANDLE;
+        handle = INVALID_CHANNEL_HANDLE;
         state = STATE_WAIT_CONNECTION;
         break;
 
       case STATE_WAIT_CONNECTION:
-        if (adb_connected) {
-          log_printf("ADB connected");
-          handle = ADBOpen("tcp:4545", &ChannelCallback);
+        if (can_open_channel) {
+          log_printf("Connected");
+          handle = OpenAvailableChannel();
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
 
       case STATE_WAIT_CHANNEL_OPEN:
-       if (ADBChannelReady(handle)) {
-          log_printf("ADB channel open");
+       if (ConnectionCanSend(handle)) {
+          log_printf("Channel open");
           AppProtocolInit(handle);
           state = STATE_CONNECTED;
         }
@@ -102,7 +119,7 @@ int main() {
         break;
 
       case STATE_ERROR:
-        ADBClose(handle);
+        ConnectionCloseChannel(handle);
         state = STATE_INIT;
         break;
     }

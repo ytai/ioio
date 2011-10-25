@@ -31,7 +31,8 @@
 
 #include <assert.h>
 #include <string.h>
-#include "blapi/bootloader.h"
+#include "libpic30.h"
+#include "blapi/version.h"
 #include "byte_queue.h"
 #include "features.h"
 #include "pwm.h"
@@ -48,7 +49,7 @@
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
-#define FW_IMPL_VER "IOIO0300"
+#define FW_IMPL_VER "IOIO0310"
 
 const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(HARD_RESET_ARGS),
@@ -120,7 +121,8 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
 };
 
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 8192);
-static int bytes_transmitted;
+static int bytes_out;
+static int max_packet;
 
 typedef enum {
   WAIT_TYPE,
@@ -160,19 +162,26 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
   }
 }
 
-void AppProtocolInit(ADB_CHANNEL_HANDLE h) {
-  bytes_transmitted = 0;
+void AppProtocolInit(CHANNEL_HANDLE h) {
+  _prog_addressT p;
+  bytes_out = 0;
   rx_buffer_cursor = 0;
   rx_message_remaining = 1;
   rx_message_state = WAIT_TYPE;
   ByteQueueClear(&tx_queue);
+  max_packet = ConnectionGetMaxPacket(h);
 
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
   msg.args.establish_connection.magic = IOIO_MAGIC;
-  BootloaderVersions(msg.args.establish_connection.hw_impl_ver,
-                     msg.args.establish_connection.bl_impl_ver);
+
+  _init_prog_address(p, hardware_version);
+  _memcpy_p2d16(msg.args.establish_connection.hw_impl_ver, p, 8);
+  _init_prog_address(p, bootloader_version);
+  _memcpy_p2d16(msg.args.establish_connection.bl_impl_ver, p, 8);
+
   memcpy(msg.args.establish_connection.fw_impl_ver, FW_IMPL_VER, 8);
+
   AppProtocolSendMessage(&msg);
 }
 
@@ -199,23 +208,22 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
   SyncInterruptLevel(prev);
 }
 
-void AppProtocolTasks(ADB_CHANNEL_HANDLE h) {
+void AppProtocolTasks(CHANNEL_HANDLE h) {
   UARTTasks();
   SPITasks();
   I2CTasks();
   ICSPTasks();
-  if (ADBChannelReady(h)) {
+  if (ConnectionCanSend(h)) {
     BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
-    int size;
-    if (bytes_transmitted) {
-      ByteQueuePull(&tx_queue, bytes_transmitted);
-      bytes_transmitted = 0;
+    if (bytes_out) {
+      ByteQueuePull(&tx_queue, bytes_out);
+      bytes_out = 0;
     }
-    ByteQueuePeek(&tx_queue, &data, &size);
-    if (size > 0) {
-      ADBWrite(h, data, size);
-      bytes_transmitted = size;
+    ByteQueuePeek(&tx_queue, &data, &bytes_out);
+    if (bytes_out > 0) {
+      if (bytes_out > max_packet) bytes_out = max_packet;
+      ConnectionSend(h, data, bytes_out);
     }
     SyncInterruptLevel(prev);
   }

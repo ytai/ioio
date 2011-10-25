@@ -4,7 +4,13 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
+import ioio.lib.util.IOIOConnectionDiscovery.IOIOConnectionSpec;
+
+import java.util.Collection;
+import java.util.LinkedList;
+
 import android.app.Activity;
+import android.os.Looper;
 import android.util.Log;
 
 /**
@@ -24,7 +30,9 @@ import android.util.Log;
  * 
  */
 public abstract class AbstractIOIOActivity extends Activity {
-	private IOIOThread ioio_thread_;
+	private static final String TAG = "AbstractIOIOActivity";
+	private IOIOConnectionSpec currentSpec_;
+	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
 
 	/**
 	 * Subclasses should call this method from their own onResume() if
@@ -33,8 +41,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		ioio_thread_ = createIOIOThread();
-		ioio_thread_.start();
+		createAllThreads();
+		startAllThreads();
 	}
 
 	/**
@@ -44,12 +52,89 @@ public abstract class AbstractIOIOActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		ioio_thread_.abort();
+		abortAllThreads();
 		try {
-			ioio_thread_.join();
+			joinAllThreads();
 		} catch (InterruptedException e) {
 		}
 	}
+
+	private void abortAllThreads() {
+		for (IOIOThread thread : threads_) {
+			thread.abort();
+		}
+	}
+
+	private void joinAllThreads() throws InterruptedException {
+		for (IOIOThread thread : threads_) {
+			thread.join();
+		}
+	}
+
+	private void createAllThreads() {
+		threads_.clear();
+		Collection<IOIOConnectionSpec> specs = getConnectionSpecs();
+		for (IOIOConnectionSpec spec : specs) {
+			currentSpec_ = spec;
+			IOIOThread thread = createIOIOThread(spec.className, spec.args);
+			if (thread != null) {
+				threads_.add(thread);
+			}
+		}
+	}
+
+	private void startAllThreads() {
+		for (IOIOThread thread : threads_) {
+			thread.start();
+		}
+	}
+
+	private Collection<IOIOConnectionSpec> getConnectionSpecs() {
+		Collection<IOIOConnectionSpec> result = new LinkedList<IOIOConnectionSpec>();
+		addConnectionSpecs("ioio.lib.util.SocketIOIOConnectionDiscovery",
+				result);
+		addConnectionSpecs(
+				"ioio.lib.bluetooth.BluetoothIOIOConnectionDiscovery", result);
+		return result;
+	}
+
+	private void addConnectionSpecs(String discoveryClassName,
+			Collection<IOIOConnectionSpec> result) {
+		try {
+			Class<?> cls = Class.forName(discoveryClassName);
+			IOIOConnectionDiscovery discovery = (IOIOConnectionDiscovery) cls
+					.newInstance();
+			discovery.getSpecs(result);
+		} catch (ClassNotFoundException e) {
+			Log.d(TAG, "Discovery class not found: " + discoveryClassName
+					+ ". Not adding.");
+		} catch (Exception e) {
+			Log.w(TAG,
+					"Exception caught while discovering connections - not adding connections of class "
+							+ discoveryClassName, e);
+		}
+	}
+
+	// private IOIOConnection createMultiplexedConnection() {
+	// Vector<IOIOConnection> connections = new Vector<IOIOConnection>();
+	// try {
+	// connections
+	// .add(IOIOFactory
+	// .createConnectionDynamically("ioio.lib.bluetooth.BluetoothIOIOConnection"));
+	// } catch (ClassNotFoundException e) {
+	// Log.w(TAG, "Bluetooth not supported");
+	// }
+	// try {
+	// connections.add(IOIOFactory.createConnectionDynamically(
+	// "ioio.lib.impl.SocketIOIOConnection", 4545));
+	// } catch (ClassNotFoundException e) {
+	// }
+	//
+	// IOIOConnectionMultiplexer multiplexer = new IOIOConnectionMultiplexer(
+	// connections.toArray(new IOIOConnection[connections.size()]));
+	// return multiplexer;
+	// }
+	// }
 
 	/**
 	 * Subclasses should implement this method by returning a concrete subclass
@@ -57,7 +142,14 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 * 
 	 * @return An implementation of {@link IOIOThread}
 	 */
-	protected abstract IOIOThread createIOIOThread();
+	protected IOIOThread createIOIOThread() {
+		return null;
+	}
+
+	protected IOIOThread createIOIOThread(String connectionClass,
+			Object[] connectionArgs) {
+		return createIOIOThread();
+	}
 
 	/**
 	 * An abstract class, which facilitates a thread dedicated for IOIO
@@ -68,18 +160,20 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
 		private boolean connected_ = true;
+		private final IOIOConnectionSpec spec_ = currentSpec_;
 
 		/** Not relevant to subclasses. */
 		@Override
 		public final void run() {
 			super.run();
+			Looper.prepare();
 			while (true) {
 				try {
 					synchronized (this) {
 						if (abort_) {
 							break;
 						}
-						ioio_ = IOIOFactory.create();
+						ioio_ = IOIOFactory.create(spec_.className, spec_.args);
 					}
 					ioio_.waitForConnect();
 					connected_ = true;
@@ -96,8 +190,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} catch (IncompatibilityException e) {
-					Log.e("AbstractIOIOActivity",
-							"Incompatible IOIO firmware", e);
+					Log.e(TAG, "Incompatible IOIO firmware", e);
 					incompatible();
 					// nothing to do - just wait until physical disconnection
 					try {
@@ -106,8 +199,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 						ioio_.disconnect();
 					}
 				} catch (Exception e) {
-					Log.e("AbstractIOIOActivity",
-							"Unexpected exception caught", e);
+					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -149,18 +241,18 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * Subclasses should override this method for performing operations to
 		 * be done once as soon as IOIO communication is lost or closed.
 		 * Typically, this will include GUI changes corresponding to the change.
-		 * This method will only be called if setup() has been called.
-		 * The {@link #ioio_} member must not be used from within this method.
+		 * This method will only be called if setup() has been called. The
+		 * {@link #ioio_} member must not be used from within this method.
 		 */
 		protected void disconnected() throws InterruptedException {
 		}
 
 		/**
 		 * Subclasses should override this method for performing operations to
-		 * be done if an incompatible IOIO firmware is detected.
-		 * The {@link #ioio_} member must not be used from within this method.
-		 * This method will only be called once, until a compatible IOIO is
-		 * connected (i.e. {@link #setup()} gets called).
+		 * be done if an incompatible IOIO firmware is detected. The
+		 * {@link #ioio_} member must not be used from within this method. This
+		 * method will only be called once, until a compatible IOIO is connected
+		 * (i.e. {@link #setup()} gets called).
 		 */
 		protected void incompatible() {
 		}

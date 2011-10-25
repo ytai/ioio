@@ -5,17 +5,17 @@
 This file provides local definitions used by the hardware interface for a USB
 Host application.
 
- File Name:       usb_host_local.h
- Dependencies:    None
- Processor:       PIC24F/PIC32MX
- Compiler:        C30/C32
- Company:         Microchip Technology, Inc.
+* File Name:       usb_host_local.h
+* Dependencies:    None
+* Processor:       PIC24/dsPIC30/dsPIC33/PIC32MX
+* Compiler:        C30 v2.01/C32 v0.00.18
+* Company:         Microchip Technology, Inc.
 
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the �Company�) for its PICmicro� Microcontroller is intended and
-supplied to you, the Company�s customer, for use solely and
+(the “Company”) for its PICmicro® Microcontroller is intended and
+supplied to you, the Company’s customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -24,7 +24,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN �AS IS� CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -375,6 +375,23 @@ HOLDING state machine values
 #define USB_RESUME_RECOVERY_TIME            (10+1)  // RESUME recovery time - 10 ms
 
 
+// *****************************************************************************
+/* USB Root Hub Information
+
+This structure contains information about the USB root hub.
+*/
+
+typedef struct _USB_ROOT_HUB_INFO
+{
+    union
+    {
+        struct
+        {
+            BYTE        bPowerGoodPort0 : 1;    // Power can turned on
+        };
+        BYTE            val;
+    }                   flags;
+} USB_ROOT_HUB_INFO;
 
 
 // *****************************************************************************

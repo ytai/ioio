@@ -30,7 +30,7 @@
 #include <string.h>
 
 #include "logging.h"
-#include "blapi/flash.h"
+#include "flash.h"
 #include "ioio_file.h"
 #include "bootloader_defs.h"
 
@@ -41,11 +41,11 @@ typedef enum {
   IOIO_FILE_STATE_WAIT_BLOCK
 } IOIO_FILE_STATE;
 
-static BYTE BOOTDATA ioio_file_buf[196];
-static BYTE BOOTDATA ioio_file_buf_pos;
-static BYTE BOOTDATA ioio_file_field_remaining;
-static DWORD BOOTDATA ioio_file_last_page;
-static IOIO_FILE_STATE BOOTDATA ioio_file_state;
+static BYTE ioio_file_buf[196];
+static BYTE ioio_file_buf_pos;
+static BYTE ioio_file_field_remaining;
+static DWORD ioio_file_last_page;
+static IOIO_FILE_STATE ioio_file_state;
 static const BYTE IOIO_FILE_HEADER[8] = { 'I', 'O', 'I', 'O', '\1', '\0', '\0', '\0' };
 
 static BOOL IOIOFileBlockDone() {

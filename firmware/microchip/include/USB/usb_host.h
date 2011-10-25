@@ -29,8 +29,8 @@ Summary:
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the �Company�) for its PICmicro� Microcontroller is intended and
-supplied to you, the Company�s customer, for use solely and
+(the “Company”) for its PICmicro® Microcontroller is intended and
+supplied to you, the Company’s customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -39,7 +39,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN �AS IS� CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -51,8 +51,6 @@ Change History
   -----    ----------------------------------
   2.6a-    No change
    2.7
-
-  2.7a     Added USB_HOST_APP_DATA_EVENT_HANDLER().
 *******************************************************************************/
 
 #ifndef __USBHOST_H__
@@ -1529,6 +1527,7 @@ BYTE    USBHostWrite( BYTE deviceAddress, BYTE endpoint, BYTE *data, DWORD size 
 
 #define USBHostWriteIsochronous( a, e, p ) USBHostWrite( a, e, (BYTE *)p, (DWORD)0 );
 
+
 //******************************************************************************
 //******************************************************************************
 // Section: Data Structures
@@ -1655,24 +1654,6 @@ typedef struct _USB_INTERFACE_INFO
 
 
 // *****************************************************************************
-/* USB Root Hub Information
-
-This structure contains information about the USB root hub.
-*/
-
-typedef struct _USB_ROOT_HUB_INFO
-{
-    union
-    {
-        struct
-        {
-            BYTE        bPowerGoodPort0 : 1;    // Power can turned on
-        };
-        BYTE            val;
-    }                   flags;
-} USB_ROOT_HUB_INFO;
-
-// *****************************************************************************
 /* USB Device Information
 
 This structure is used to hold all the information about an attached device.
@@ -1709,6 +1690,7 @@ typedef struct _USB_DEVICE_INFO
 } USB_DEVICE_INFO;
 
 USB_DEVICE_INFO* USBHostGetDeviceInfo();
+
 
 #endif
 

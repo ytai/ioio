@@ -119,6 +119,8 @@ public class IOIOProtocol {
 		0x01   // 8000
 	};
 
+	private static final String TAG = "IOIOProtocol";
+
 	enum PwmScale {
 		SCALE_1X(1, 0), SCALE_8X(8, 3), SCALE_64X(64, 2), SCALE_256X(256, 1);
 
@@ -131,18 +133,18 @@ public class IOIOProtocol {
 		}
 	}
 
-	private byte[] buf_ = new byte[128];
+	private byte[] outbuf_ = new byte[128];
 	private int pos_ = 0;
 
 	private void writeByte(int b) {
 		assert (b >= 0 && b < 256);
-//		Log.v("IOIOProtocol", "sending: 0x" + Integer.toHexString(b));
-		buf_[pos_++] = (byte) b;
+		//Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
+		outbuf_[pos_++] = (byte) b;
 	}
 
 	private void flush() throws IOException {
 		try {
-			out_.write(buf_, 0, pos_);
+			out_.write(outbuf_, 0, pos_);
 		} finally {
 			pos_ = 0;
 		}
@@ -501,6 +503,10 @@ public class IOIOProtocol {
 	}
 
 	class IncomingThread extends Thread {
+		private int readOffset_ = 0;
+		private int validBytes_ = 0;
+		private byte[] inbuf_ = new byte[64];
+
 		private int[] analogFramePins_ = new int[0];
 		private Set<Integer> removedPins_ = new HashSet<Integer>(
 				Constants.NUM_ANALOG_PINS);
@@ -525,18 +531,28 @@ public class IOIOProtocol {
 			}
 		}
 
-		private int readByte() throws IOException {
+		private void fillBuf() throws IOException {
 			try {
-				int b = in_.read();
-				if (b == -1)
+				validBytes_ = in_.read(inbuf_, 0, inbuf_.length);
+				if (validBytes_ <= 0) {
 					throw new IOException("Unexpected stream closure");
-//				 Log.v("IOIOProtocol", "received: 0x" +
-//				 Integer.toHexString(b));
-				return b;
+				}
+				//Log.v(TAG, "received " + validBytes_ + " bytes");
+				readOffset_ = 0;
 			} catch (IOException e) {
-				Log.i("IOIOProtocol", "IOIO disconnected");
+				Log.i(TAG, "IOIO disconnected");
 				throw e;
 			}
+		}
+
+		private int readByte() throws IOException {
+			if (readOffset_ == validBytes_) {
+				fillBuf();
+			}
+			int b = inbuf_[readOffset_++];
+			b &= 0xFF;  // make unsigned
+			//Log.v(TAG, "received: 0x" + Integer.toHexString(b));
+			return b;
 		}
 
 		private void readBytes(int size, byte[] buffer) throws IOException {

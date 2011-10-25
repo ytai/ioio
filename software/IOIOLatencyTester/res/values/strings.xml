@@ -2,14 +2,9 @@
 <resources>
     <string name="title">Latency tester for IOIO</string>
     <string name="app_name">IOIO Latency tester</string>
-	<string name="up_throughput">Up: </string>
-	<string name="down_throughput">Down: </string>
-	<string name="both_throughput">Both: </string>
-	<string name="latency_avg">Round trip: </string>
-	<string name="latency_error">Latency error: </string>
-	<string name="default_throughput">--(kb)/--(s)  --(kb/s)</string>
-	<string name="default_latency_avg">--(p)/--(s)  --(ms)</string>
-	<string name="default_latency_error">±--(ms)  --:--(max:min)</string>
-	<string name="default_latency_histogram" formatted="false">    --(1%) --(5%) --(10%) --(20%) --(50%) --(80%)</string>
-	<string name="start_button">Start test</string>
+	<string name="clear_button">Clear Stats</string>
+    <string name="latency">Latency:</string>
+    <string name="default_latency">xxx</string>
+    <string name="throughput">Throughput:</string>
+    <string name="default_throughput">xxx</string>
 </resources>

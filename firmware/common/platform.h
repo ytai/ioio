@@ -41,31 +41,57 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
-#define PLATFORM_IOIO_BASE 1000 // base platform number for 'official' IOIO platforms
+#define PLATFORM_IOIO_BASE 1000  // base platform number for 'official' IOIO platforms
+// BLAPI 1
 #define PLATFORM_IOIO0000 PLATFORM_IOIO_BASE + 0
 #define PLATFORM_IOIO0001 PLATFORM_IOIO_BASE + 1
 #define PLATFORM_IOIO0002 PLATFORM_IOIO_BASE + 2
 #define PLATFORM_IOIO0003 PLATFORM_IOIO_BASE + 3
+// BLAPI 3
+#define PLATFORM_IOIO0020 PLATFORM_IOIO_BASE + 20
+#define PLATFORM_IOIO0021 PLATFORM_IOIO_BASE + 21
+#define PLATFORM_IOIO0022 PLATFORM_IOIO_BASE + 22
+#define PLATFORM_IOIO0023 PLATFORM_IOIO_BASE + 23
 // add more platforms here!
+
+#define HARDWARE_IOIO_BASE 1000  // base hardware interface version number for 'official' IOIO platforms
+#define HARDWARE_IOIO0000 HARDWARE_IOIO_BASE + 0
+#define HARDWARE_IOIO0001 HARDWARE_IOIO_BASE + 1
+#define HARDWARE_IOIO0002 HARDWARE_IOIO_BASE + 2
+#define HARDWARE_IOIO0003 HARDWARE_IOIO_BASE + 3
 
 #ifndef PLATFORM
 #error Must define PLATFORM
 #endif
 
+// derive hardware from plaftform
+#if PLATFORM == PLATFORM_IOIO0000 || PLATFORM == PLATFORM_IOIO0020
+#define HARDWARE HARDWARE_IOIO0000
+#elif PLATFORM == PLATFORM_IOIO0001 || PLATFORM == PLATFORM_IOIO0021
+#define HARDWARE HARDWARE_IOIO0001
+#elif PLATFORM == PLATFORM_IOIO0002 || PLATFORM == PLATFORM_IOIO0022
+#define HARDWARE HARDWARE_IOIO0002
+#elif PLATFORM == PLATFORM_IOIO0003 || PLATFORM == PLATFORM_IOIO0023
+#define HARDWARE HARDWARE_IOIO0003
+#else
+#error Unknown hardware for PLATFORM
+#endif
+
+
 // sanity: assert MCU
-#if PLATFORM == PLATFORM_IOIO0000
+#if HARDWARE == HARDWARE_IOIO0000
   #ifndef __PIC24FJ256DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
-#elif PLATFORM == PLATFORM_IOIO0001
+#elif HARDWARE == HARDWARE_IOIO0001
   #ifndef __PIC24FJ128DA106__
     #error Platform and MCU mismatch - expecting PIC24FJ128DA106
   #endif
-#elif PLATFORM == PLATFORM_IOIO0002
+#elif HARDWARE == HARDWARE_IOIO0002
   #ifndef __PIC24FJ128DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ128DA206
   #endif
-#elif PLATFORM == PLATFORM_IOIO0003
+#elif HARDWARE == HARDWARE_IOIO0003
   #ifndef __PIC24FJ256DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
@@ -74,12 +100,12 @@
 #endif
 
 // number of pins of each platform
-#if PLATFORM == PLATFORM_IOIO0000
+#if HARDWARE == HARDWARE_IOIO0000
   #define NUM_PINS 50
-#elif PLATFORM >= PLATFORM_IOIO0001 && PLATFORM <= PLATFORM_IOIO0003
+#elif HARDWARE >= HARDWARE_IOIO0001 && HARDWARE <= HARDWARE_IOIO0003
   #define NUM_PINS 49
 #else
-  #error Unknown platform
+  #error Unknown hardware
 #endif
 
 #if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
@@ -91,6 +117,5 @@
 #else
   #error Unknown MCU
 #endif
-
 
 #endif  // __PLATFORM_H__

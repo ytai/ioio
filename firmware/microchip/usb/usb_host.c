@@ -31,8 +31,8 @@ USB_INTERRUPT_T1MSECIF equals 0x40.
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the �Company�) for its PICmicro� Microcontroller is intended and
-supplied to you, the Company�s customer, for use solely and
+(the “Company”) for its PICmicro® Microcontroller is intended and
+supplied to you, the Company’s customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -41,7 +41,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN �AS IS� CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -74,7 +74,65 @@ Change History:
 #include "usb_host_local.h"
 #include "usb_hal_local.h"
 #include "HardwareProfile.h"
-//#include "USB\usb_hal.h"
+//#include "USB/usb_hal.h"
+
+//#define DEBUG_HEAP
+#if defined(DEBUG_HEAP) && defined(ENABLE_LOGGING)
+#include "logging.h"
+
+static unsigned _total_nodes = 0;
+static unsigned _total_mem = 0;
+
+void *_debug_malloc(const char *file, int line, size_t size) {
+  static unsigned counter = 1;
+  void *ptr = malloc(size + 2 * sizeof(unsigned));
+  if (ptr) {
+    log_printf("malloc #%u, size=%u from %s: %d", counter, size, file, line);
+    ((unsigned *) ptr)[0] = counter;
+    ((unsigned *) ptr)[1] = size;
+    ++counter;
+    ++_total_nodes;
+    _total_mem += size;
+    log_printf("nodes=%u, mem=%u", _total_nodes, _total_mem);
+    return ((unsigned *) ptr) + 2;
+  } else {
+    log_printf("malloc FAILED, size=%u from %s: %d", size, file, line);
+    return NULL;
+  }
+}
+
+void _debug_free(const char *file, int line, void *ptr) {
+  if (ptr) {
+    unsigned *p = ((unsigned *) ptr) - 2;
+    unsigned counter = p[0];
+    unsigned size = p[1];
+    if (!(counter & 0x8000)) {
+      log_printf("free #%u from %s: %d", counter, file, line);
+      *p |= 0x8000;
+      free(p);
+      --_total_nodes;
+      _total_mem -= size;
+      log_printf("nodes=%u, mem=%u", _total_nodes, _total_mem);
+    } else {
+      log_printf("free ERROR, already freed #%u from %s: %d", counter & 0x7FFF, file, line);
+    }
+  } else {
+    log_printf("free ERROR: NULL from %s: %d", file, line);
+  }
+}
+
+#define debug_malloc(size) _debug_malloc(__FILE__, __LINE__, size)
+#define debug_free(ptr) _debug_free(__FILE__, __LINE__, ptr)
+
+#ifndef USB_MALLOC
+    #define USB_MALLOC(size) debug_malloc(size)
+#endif
+
+#ifndef USB_FREE
+    #define USB_FREE(ptr) debug_free(ptr)
+#endif
+
+#else
 
 #ifndef USB_MALLOC
     #define USB_MALLOC(size) malloc(size)
@@ -83,6 +141,8 @@ Change History:
 #ifndef USB_FREE
     #define USB_FREE(ptr) free(ptr)
 #endif
+
+#endif  // defined(DEBUG_HEAP) && defined(ENABLE_LOGGING)
 
 #define USB_FREE_AND_CLEAR(ptr) {USB_FREE(ptr); ptr = NULL;}
 
@@ -189,9 +249,9 @@ static USB_DEVICE_INFO               usbDeviceInfo;                             
 #endif
 static USB_ROOT_HUB_INFO             usbRootHubInfo;                             // Information about a specific port.
 
+static volatile WORD msec_count = 0;                                             // The current millisecond count.
 
 USB_DEVICE_INFO* USBHostGetDeviceInfo() { return &usbDeviceInfo; }
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -1472,6 +1532,11 @@ void USBHostTasks( void )
 
                         // Enable the ATTACH interrupt.
                         U1IEbits.ATTACHIE = 1;
+
+                        #if defined(USB_ENABLE_1MS_EVENT)
+                            U1OTGIR                 = USB_INTERRUPT_T1MSECIF; // The interrupt is cleared by writing a '1' to the flag.
+                            U1OTGIEbits.T1MSECIE    = 1;
+                        #endif
                     }
                     else
                     {
@@ -1587,6 +1652,17 @@ void USBHostTasks( void )
                                 usbDeviceInfo.deviceAddressAndSpeed = 0x80;
                                 U1ADDR                              = 0x80;
                                 U1EP0bits.LSPD                      = 1;
+                            } else {
+                                // FIX (ytai):
+                                // We may reach this point after a failed
+                                // enumeration (thus not passing through init
+                                // state). It may be that the address has
+                                // already been set. We want to set it back to
+                                // 0 either way.
+                                usbDeviceInfo.flags.bfIsLowSpeed    = 0;
+                                usbDeviceInfo.deviceAddressAndSpeed = 0x00;
+                                U1ADDR                              = 0x00;
+                                U1EP0bits.LSPD                      = 0;
                             }
 
                             // Reset all ping-pong buffers if they are being used.
@@ -2392,6 +2468,11 @@ void USBHostTasks( void )
                     U1EIR               = 0xFF;
                     U1IEbits.DETACHIE   = 1;
 
+                    #if defined(USB_ENABLE_1MS_EVENT)
+                        U1OTGIR                 = USB_INTERRUPT_T1MSECIF; // The interrupt is cleared by writing a '1' to the flag.
+                        U1OTGIEbits.T1MSECIE    = 1;
+                    #endif
+
                     switch (usbDeviceInfo.errorCode )
                     {
                         case USB_HOLDING_UNSUPPORTED_HUB:
@@ -2870,7 +2951,9 @@ void _USB_CheckCommandAndEnumerationAttempts( void )
 
 BOOL _USB_FindClassDriver( BYTE bClass, BYTE bSubClass, BYTE bProtocol, BYTE *pbClientDrv )
 {
-    int i;
+    USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA   eventData;
+    int                                     i;
+    USB_DEVICE_DESCRIPTOR                   *pDesc = (USB_DEVICE_DESCRIPTOR *)pDeviceDescriptor;
 
     i = 0;
     while (i < NUM_TPL_ENTRIES)
@@ -2880,11 +2963,24 @@ BOOL _USB_FindClassDriver( BYTE bClass, BYTE bSubClass, BYTE bProtocol, BYTE *pb
             (usbTPL[i].device.bSubClass      == bSubClass) &&
             (usbTPL[i].device.bProtocol      == bProtocol)   )
         {
-            *pbClientDrv = usbTPL[i].ClientDriver;
-            #ifdef DEBUG_MODE
-                UART2PrintString( "HOST: Client driver found.\r\n" );
-            #endif
-            return TRUE;
+            // Make sure the application layer does not have a problem with the selection.
+            // If the application layer returns FALSE, which it should if the event is not
+            // defined, then accept the selection.
+            eventData.idVendor          = pDesc->idVendor;              
+            eventData.idProduct         = pDesc->idProduct;             
+            eventData.bDeviceClass      = bClass;          
+            eventData.bDeviceSubClass   = bSubClass;       
+            eventData.bDeviceProtocol   = bProtocol;       
+
+            if (!USB_HOST_APP_EVENT_HANDLER( USB_ROOT_HUB, EVENT_OVERRIDE_CLIENT_DRIVER_SELECTION,
+                            &eventData, sizeof(USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA) ))
+            {
+                *pbClientDrv = usbTPL[i].ClientDriver;
+                #ifdef DEBUG_MODE
+                    UART2PrintString( "HOST: Client driver found.\r\n" );
+                #endif
+                return TRUE;
+            }    
         }
         i++;
     }
@@ -4530,6 +4626,92 @@ void _USB_NotifyClients( BYTE address, USB_EVENT event, void *data, unsigned int
     }
 } // _USB_NotifyClients
 
+/****************************************************************************
+  Function:
+    void _USB_NotifyClients( BYTE address, USB_EVENT event, void *data,
+                unsigned int size )
+
+  Description:
+    This routine notifies all active client drivers for the given device of
+    the given event.
+
+  Precondition:
+    None
+
+  Parameters:
+    BYTE address        - Address of the device generating the event
+    USB_EVENT event     - Event ID
+    void *data          - Pointer to event data
+    unsigned int size   - Size of data pointed to by data
+
+  Returns:
+    None
+
+  Remarks:
+    When this driver is modified to support multiple devices, this function
+    will require modification.
+  ***************************************************************************/
+
+void _USB_NotifyDataClients( BYTE address, USB_EVENT event, void *data, unsigned int size )
+{
+    USB_INTERFACE_INFO  *pInterface;
+
+    // Some events go to all drivers, some only to specific drivers.
+    switch(event)
+    {
+        default:
+            pInterface = usbDeviceInfo.pInterfaceList;
+            while (pInterface != NULL)  // Scan the interface list for all active drivers.
+            {
+                usbClientDrvTable[pInterface->clientDriver].DataEventHandler(address, event, data, size);
+                pInterface = pInterface->next;
+            }
+            break;
+    }
+} // _USB_NotifyClients
+
+/****************************************************************************
+  Function:
+    void _USB_NotifyAllDataClients( BYTE address, USB_EVENT event, void *data,
+                unsigned int size )
+
+  Description:
+    This routine notifies all client drivers (active or not) for the given device of
+    the given event.
+
+  Precondition:
+    None
+
+  Parameters:
+    BYTE address        - Address of the device generating the event
+    USB_EVENT event     - Event ID
+    void *data          - Pointer to event data
+    unsigned int size   - Size of data pointed to by data
+
+  Returns:
+    None
+
+  Remarks:
+    When this driver is modified to support multiple devices, this function
+    will require modification.
+  ***************************************************************************/
+#if defined(USB_ENABLE_1MS_EVENT) && defined(USB_HOST_APP_DATA_EVENT_HANDLER)
+void _USB_NotifyAllDataClients( BYTE address, USB_EVENT event, void *data, unsigned int size )
+{
+    WORD i;
+
+    // Some events go to all drivers, some only to specific drivers.
+    switch(event)
+    {
+        default:
+            for(i=0;i<NUM_CLIENT_DRIVER_ENTRIES;i++)
+            {
+                usbClientDrvTable[i].DataEventHandler(address, event, data, size);
+            }
+            break;
+    }
+} // _USB_NotifyClients
+#endif
 
 /****************************************************************************
   Function:
@@ -4774,7 +4956,8 @@ BOOL _USB_ParseConfigurationDescriptor( void )
                         if ((newEndpointInfo = (USB_ENDPOINT_INFO *)USB_MALLOC( sizeof(USB_ENDPOINT_INFO) )) == NULL)
                         {
                             // Out of memory
-                            error = TRUE;   
+                            error = TRUE;
+                            break;
                         }
                         newEndpointInfo->bEndpointAddress           = *ptr++;
                         newEndpointInfo->bmAttributes.val           = *ptr++;
@@ -5306,6 +5489,13 @@ void _USB1Interrupt( void )
         // The interrupt is cleared by writing a '1' to it.
         U1OTGIR = USB_INTERRUPT_T1MSECIF;
 
+        #if defined(USB_ENABLE_1MS_EVENT) && defined(USB_HOST_APP_DATA_EVENT_HANDLER)
+            msec_count++;
+
+            //Notify ping all client drivers of 1MSEC event (address, event, data, sizeof_data)
+            _USB_NotifyAllDataClients(0, EVENT_1MS, (void*)&msec_count, 0);
+        #endif
+
         #ifdef DEBUG_MODE
             UART2PutChar('~');
         #endif
@@ -5331,28 +5521,44 @@ void _USB1Interrupt( void )
 
             else
             {
+                if(numTimerInterrupts != 0)
+                {
+                    numTimerInterrupts--;
+
+                    if (numTimerInterrupts == 0)
+                    {
+                        //If we aren't using the 1ms events, then turn of the interrupt to
+                        // save CPU time
+                        #if !defined(USB_ENABLE_1MS_EVENT)
+                            // Turn off the timer interrupt.
+                            U1OTGIEbits.T1MSECIE = 0;
+                        #endif
+    
+                        // Advance to the next state.  We can do this here, because the only time
+                        // we'll get a timer interrupt is while we are in one of the holding states.
+                        _USB_SetNextSubSubState();
+                    }
+                }
+            }
+         #else
+
+            if(numTimerInterrupts != 0)
+            {
                 numTimerInterrupts--;
+
                 if (numTimerInterrupts == 0)
                 {
-                    // Turn off the timer interrupt.
-                    U1OTGIEbits.T1MSECIE = 0;
+                    //If we aren't using the 1ms events, then turn of the interrupt to
+                    // save CPU time
+                    #if !defined(USB_ENABLE_1MS_EVENT)
+                        // Turn off the timer interrupt.
+                        U1OTGIEbits.T1MSECIE = 0;
+                    #endif
 
                     // Advance to the next state.  We can do this here, because the only time
                     // we'll get a timer interrupt is while we are in one of the holding states.
                     _USB_SetNextSubSubState();
                 }
-            }
-         #else
-
-            numTimerInterrupts--;
-            if (numTimerInterrupts == 0)
-            {
-                // Turn off the timer interrupt.
-                U1OTGIEbits.T1MSECIE = 0;
-
-                // Advance to the next state.  We can do this here, because the only time
-                // we'll get a timer interrupt is while we are in one of the holding states.
-                _USB_SetNextSubSubState();
             }
          #endif
     }
@@ -5752,6 +5958,11 @@ void _USB1Interrupt( void )
     {
         USB_ENDPOINT_INFO           *pEndpoint;
         USB_INTERFACE_INFO          *pInterface;
+
+        #if defined(USB_ENABLE_SOF_EVENT) && defined(USB_HOST_APP_DATA_EVENT_HANDLER)
+            //Notify ping all client drivers of SOF event (address, event, data, sizeof_data)
+            _USB_NotifyDataClients(0, EVENT_SOF, NULL, 0);
+        #endif
 
         #ifdef DEBUG_MODE
 //            UART2PutChar( '$' );

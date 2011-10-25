@@ -1,0 +1,9 @@
+PROJECTS="libusb libconn libbtstack libadb bootloader app_layer_v1 blink latency_tester"
+
+for PROJ in $PROJECTS; do
+  echo ===========================================
+  echo $PROJ
+  echo ===========================================
+  make -C firmware/$PROJ $*
+done
+

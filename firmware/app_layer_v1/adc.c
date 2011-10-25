@@ -67,6 +67,7 @@ static inline void ScanDoneInterruptTrigger() {
 static inline void Timer3Prepare() {
   _T3IE = 0;       // disable interrupt
   _T3IF = 0;       // clear interrupt
+//  PR3   = 0x4E20;  // period is 20000 clocks
   PR3   = 0x07CF;  // period is 2000 clocks
   _T3IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
 }

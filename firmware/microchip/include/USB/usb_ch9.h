@@ -79,8 +79,6 @@ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
   ----   -----------
   2.6    Moved many of the CH9 defintions from the device stack files
          into this file.
-  2.6a-  No Change
-   2.7a
 ********************************************************************/
 //DOM-IGNORE-END
 

@@ -28,6 +28,7 @@
  */
 package ioio.lib.impl;
 
+import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class SocketIOIOConnection implements IOIOConnection {
 	private boolean server_owned_by_connect_ = true;
 	private boolean socket_owned_by_connect_ = true;
 	
-	public SocketIOIOConnection(int port) {
+	public SocketIOIOConnection(Integer port) {
 		port_ = port;
 	}
 
@@ -115,7 +116,6 @@ public class SocketIOIOConnection implements IOIOConnection {
 			try {
 				socket_.shutdownOutput();
 			} catch (IOException e1) {
-				Log.e("SocketIOIOConnection", "Unexpected exception", e1);
 			}
 		}
 	}
@@ -137,5 +137,4 @@ public class SocketIOIOConnection implements IOIOConnection {
 			throw new ConnectionLostException(e);
 		}
 	}
-
 }
