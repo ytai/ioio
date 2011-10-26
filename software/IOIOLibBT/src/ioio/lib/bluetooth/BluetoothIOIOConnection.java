@@ -17,7 +17,6 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	private static final String TAG = "BluetoothIOIOConnection";
 	private BluetoothSocket socket_ = null;
 	private boolean disconnect_ = false;
-	private boolean socket_owned_by_connect_ = true;
 	private final String name_;
 	private final String address_;
 
@@ -29,48 +28,52 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	@Override
 	public void waitForConnect() throws ConnectionLostException {
 		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		try {
-			synchronized (this) {
-				if (disconnect_) {
-					throw new ConnectionLostException();
-				}
-				BluetoothDevice ioioDevice = adapter.getRemoteDevice(address_);
-				try {
-					// We're trying to create an insecure socket, which is only supported
-					// in API 10 and up. If we fail, we try a secure socket with is in API
-					// 7 and up.
-					socket_ = ioioDevice
-							.createInsecureRfcommSocketToServiceRecord(UUID
-									.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-				} catch (NoSuchMethodError e) {
-					socket_ = ioioDevice
-							.createRfcommSocketToServiceRecord(UUID
-									.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-				}
-				socket_owned_by_connect_ = false;
+		final BluetoothDevice ioioDevice = adapter.getRemoteDevice(address_);
+		synchronized (this) {
+			if (disconnect_) {
+				throw new ConnectionLostException();
 			}
-			// keep trying to connect as long as we're not aborting
-			while (!disconnect_) {
-				try {
-					socket_.connect();
-					Log.d(TAG, "Established connection to device " + name_
-							+ " address: " + address_);
-					break; // if we got here, we're connected
-				} catch (IOException e) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-					}
-				}
-			}
-		} catch (IOException e) {
-			synchronized (this) {
-				disconnect_ = true;
+			Log.e(TAG, name_ + " Creating socket");
+			try {
+				socket_ = createSocket(ioioDevice);
+			} catch (IOException e) {
 				throw new ConnectionLostException(e);
 			}
-		} catch (ConnectionLostException e) {
-			disconnect_ = true;
-			throw e;
+			Log.e(TAG, name_ + " Created socket");
+		}
+		// keep trying to connect as long as we're not aborting
+		while (true) {
+			try {
+				Log.e(TAG, name_ + "Connecting");
+				socket_.connect();
+				Log.e(TAG, "Established connection to device " + name_
+						+ " address: " + address_);
+				break; // if we got here, we're connected
+			} catch (Exception e) {
+				if (disconnect_) {
+					throw new ConnectionLostException(e);
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
+	}
+
+	public BluetoothSocket createSocket(final BluetoothDevice device)
+			throws IOException {
+		try {
+			// We're trying to create an insecure socket, which is
+			// only supported
+			// in API 10 and up. If we fail, we try a secure socket
+			// with is in API
+			// 7 and up.
+			return device.createInsecureRfcommSocketToServiceRecord(UUID
+					.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+		} catch (NoSuchMethodError e) {
+			return device.createRfcommSocketToServiceRecord(UUID
+					.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 		}
 	}
 
@@ -81,7 +84,7 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		}
 		Log.d(TAG, "Client initiated disconnect");
 		disconnect_ = true;
-		if (!socket_owned_by_connect_) {
+		if (socket_ != null) {
 			try {
 				socket_.close();
 			} catch (IOException e) {
