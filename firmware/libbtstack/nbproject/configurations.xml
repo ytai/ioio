@@ -75,13 +75,23 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <languageToolchainVersion>3_30</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
         </archiverTool>
       </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
+        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
+        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID></makeCustomizationUserID>
+      </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
         <property key="preprocessor-macros" value=""/>
@@ -119,13 +129,23 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <languageToolchainVersion>3_30</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
         </archiverTool>
       </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
+        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
+        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID></makeCustomizationUserID>
+      </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
         <property key="preprocessor-macros" value=""/>
@@ -163,13 +183,23 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <languageToolchainVersion>3_30</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
         </archiverTool>
       </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
+        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
+        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID></makeCustomizationUserID>
+      </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
         <property key="preprocessor-macros" value=""/>
