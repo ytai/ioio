@@ -89,8 +89,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -118,6 +118,9 @@
       <C30-LD>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
       </PICkit3PlatformTool>
@@ -143,8 +146,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -172,6 +175,9 @@
       <C30-LD>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
       </PICkit3PlatformTool>
@@ -197,8 +203,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -226,6 +232,9 @@
       <C30-LD>
       </C30-LD>
       <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
+        <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
       </PICkit3PlatformTool>

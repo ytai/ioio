@@ -75,8 +75,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -90,6 +90,7 @@
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="enable-unroll-loops" value="false"/>
+        <property key="enable-symbols" value="true"/>
         <property key="data-model" value="large-data"/>
         <property key="isolate-each-function" value="true"/>
         <property key="enable-fatal-warnings" value="false"/>
@@ -97,6 +98,7 @@
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="enable-large-arrays" value="false"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
@@ -107,8 +109,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -149,6 +151,7 @@
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -190,30 +193,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ128DA106_ADB" type="3">
@@ -237,8 +240,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -269,8 +272,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -296,21 +299,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -352,30 +356,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
@@ -409,8 +413,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -441,8 +445,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -468,21 +472,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -524,30 +529,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ128DA206_ADB" type="3">
@@ -571,8 +576,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -603,8 +608,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -630,21 +635,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -686,30 +692,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
@@ -743,8 +749,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -775,8 +781,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -802,21 +808,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -858,30 +865,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ256DA206_ADB" type="3">
@@ -905,8 +912,8 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>NONE</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID></makeCustomizationUserID>
+        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
+        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -937,8 +944,8 @@
         <property key="list-source" value="false"/>
         <property key="list-assembly" value="false"/>
         <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="warning-level" value="emit-warnings"/>
         <property key="list-section-info" value="false"/>
         <property key="omit-forms" value="false"/>
         <property key="list-symbols" value="false"/>
@@ -964,21 +971,22 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-data-init" value="true"/>
         <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="input-libraries" value=""/>
         <property key="secure-ram" value="no_ram"/>
         <property key="enable-check-sections" value="false"/>
         <property key="enable-default-isr" value="true"/>
         <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="secure-eeprom" value="no_eeprom"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
+        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
@@ -1020,30 +1028,30 @@
         <property key="OUTPUT COMPARE 1" value="true"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="voltagevalue" value="3.25"/>
-        <property key="TIMER5" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
         <property key="SPI 3" value="true"/>
-        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
         <property key="SPI 2" value="true"/>
-        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
         <property key="SPI 1" value="true"/>
+        <property key="TIMER2" value="true"/>
         <property key="TIMER1" value="true"/>
-        <property key="CTMU" value="true"/>
         <property key="programmertogo.imagename" value=""/>
-        <property key="UCNFG1" value="true"/>
+        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="CRC" value="true"/>
+        <property key="UCNFG1" value="true"/>
         <property key="GRAPHICS" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="I2C3" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C1" value="true"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
       </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
