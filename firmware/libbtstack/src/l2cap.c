@@ -94,6 +94,7 @@ void l2cap_init(){
     // register callback with HCI
     //
     hci_register_packet_handler(&l2cap_packet_handler);
+    hci_connectable_control(0); // no services yet
 }
 
 
@@ -149,6 +150,16 @@ void l2cap_emit_connection_request(l2cap_channel_t *channel) {
     bt_store_16(event, 14, channel->remote_cid);
     hci_dump_packet( HCI_EVENT_PACKET, 0, event, sizeof(event));
     l2cap_dispatch(channel, HCI_EVENT_PACKET, event, sizeof(event));
+}
+
+static void l2cap_emit_service_registered(void *connection, uint8_t status, uint16_t psm){
+    uint8_t event[5];
+    event[0] = L2CAP_EVENT_SERVICE_REGISTERED;
+    event[1] = sizeof(event) - 2;
+    event[2] = status;
+    bt_store_16(event, 3, psm);
+    hci_dump_packet( HCI_EVENT_PACKET, 0, event, sizeof(event));
+    (*packet_handler)(connection, HCI_EVENT_PACKET, 0, event, sizeof(event));
 }
 
 void l2cap_emit_credits(l2cap_channel_t *channel, uint8_t credits) {
@@ -251,8 +262,8 @@ int l2cap_send_prepared(uint16_t local_cid, uint16_t len){
     
     --channel->packets_granted;
 
-    // log_debug("l2cap_send_internal cid %u, handle %u, 1 credit used, credits left %u;\n",
-    //              local_cid, channel->handle, channel->packets_granted);
+    log_debug("l2cap_send_internal cid %u, handle %u, 1 credit used, credits left %u;\n",
+                  local_cid, channel->handle, channel->packets_granted);
     
     uint8_t *acl_buffer = hci_get_outgoing_acl_packet_buffer();
 
@@ -333,7 +344,9 @@ void l2cap_run(void){
     
     uint8_t  config_options[4];
     linked_item_t *it;
-    for (it = (linked_item_t *) l2cap_channels; it ; it = it->next){
+    linked_item_t *next;
+    for (it = (linked_item_t *) l2cap_channels; it ; it = next){
+        next = it->next;    // cache next item as current item might get freed
         
         if (!hci_can_send_packet_now(HCI_COMMAND_DATA_PACKET)) break;
         if (!hci_can_send_packet_now(HCI_ACL_DATA_PACKET)) break;
@@ -355,7 +368,7 @@ void l2cap_run(void){
             case L2CAP_STATE_WILL_SEND_CONNECTION_RESPONSE_DECLINE:
                 l2cap_send_signaling_packet(channel->handle, CONNECTION_RESPONSE, channel->remote_sig_id, 0, 0, channel->reason, 0);
                 // discard channel - l2cap_finialize_channel_close without sending l2cap close event
-                linked_list_remove(&l2cap_channels, (linked_item_t *) channel);
+                linked_list_remove(&l2cap_channels, (linked_item_t *) channel); // -- remove from list
                 btstack_memory_l2cap_channel_free(channel);
                 break;
                 
@@ -396,7 +409,7 @@ void l2cap_run(void){
 
             case L2CAP_STATE_WILL_SEND_DISCONNECT_RESPONSE:
                 l2cap_send_signaling_packet( channel->handle, DISCONNECTION_RESPONSE, channel->remote_sig_id, channel->local_cid, channel->remote_cid);   
-                l2cap_finialize_channel_close(channel);
+                l2cap_finialize_channel_close(channel);  // -- remove from list
                 break;
                 
             case L2CAP_STATE_WILL_SEND_DISCONNECT_REQUEST:
@@ -466,19 +479,19 @@ void l2cap_disconnect_internal(uint16_t local_cid, uint8_t reason){
 }
 
 static void l2cap_handle_connection_failed_for_addr(bd_addr_t address, uint8_t status){
-    linked_item_t **it = &l2cap_channels;
-    while (*it){
-        l2cap_channel_t * channel = (l2cap_channel_t *) *it;
+    linked_item_t *it = (linked_item_t *) &l2cap_channels;
+    while (it->next){
+        l2cap_channel_t * channel = (l2cap_channel_t *) it->next;
         if ( ! BD_ADDR_CMP( channel->address, address) ){
             if (channel->state == L2CAP_STATE_WAIT_CONNECTION_COMPLETE || channel->state == L2CAP_STATE_WILL_SEND_CREATE_CONNECTION) {
                 // failure, forward error code
                 l2cap_emit_channel_opened(channel, status);
                 // discard channel
-                *it = (*it)->next;
+                it->next = it->next->next;
                 btstack_memory_l2cap_channel_free(channel);
             }
         } else {
-            it = &(*it)->next;
+            it = it->next;
         }
     }
 }
@@ -506,7 +519,6 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
     hci_con_handle_t handle;
     l2cap_channel_t * channel;
     linked_item_t *it;
-    linked_item_t **pit;
     int hci_con_used;
     
     switch(packet[0]){
@@ -542,17 +554,16 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
         case HCI_EVENT_DISCONNECTION_COMPLETE:
             // send l2cap disconnect events for all channels on this handle
             handle = READ_BT_16(packet, 3);
-            pit = &l2cap_channels;
-            while (*pit){
-                l2cap_channel_t * channel = (l2cap_channel_t *) (*pit);
+            it = (linked_item_t *) &l2cap_channels;
+            while (it->next){
+                l2cap_channel_t * channel = (l2cap_channel_t *) it->next;
                 if ( channel->handle == handle ){
                     // update prev item before free'ing next element - don't call l2cap_finalize_channel_close
-                    *pit = (*pit)->next;
-                    log_printf("closing channel %d", channel->local_cid);
+                    it->next = it->next->next;
                     l2cap_emit_channel_closed(channel);
                     btstack_memory_l2cap_channel_free(channel);
                 } else {
-                    pit = &(*pit)->next;
+                    it = it->next;
                 }
             }
             break;
@@ -723,7 +734,7 @@ void l2cap_signaling_handler_channel(l2cap_channel_t *channel, uint8_t *command)
     uint8_t  identifier = command[L2CAP_SIGNALING_COMMAND_SIGID_OFFSET];
     uint16_t result = 0;
     
-    log_info("signaling handler code %u, state %u\n", code, channel->state);
+    log_info("L2CAP signaling handler code %u, state %u\n", code, channel->state);
     
     // handle DISCONNECT REQUESTS seperately
     if (code == DISCONNECTION_REQUEST){
@@ -965,6 +976,7 @@ void l2cap_register_service_internal(void *connection, btstack_packet_handler_t 
     l2cap_service_t *service = l2cap_get_service(psm);
     if (service) {
         log_error("l2cap_register_service_internal: PSM %u already registered\n", psm);
+        l2cap_emit_service_registered(connection, L2CAP_SERVICE_ALREADY_REGISTERED, psm);
         return;
     }
     
@@ -973,6 +985,7 @@ void l2cap_register_service_internal(void *connection, btstack_packet_handler_t 
     service = btstack_memory_l2cap_service_get();
     if (!service) {
         log_error("l2cap_register_service_internal: no memory for l2cap_service_t\n");
+        l2cap_emit_service_registered(connection, BTSTACK_MEMORY_ALLOC_FAILED, psm);
         return;
     }
     
@@ -984,6 +997,12 @@ void l2cap_register_service_internal(void *connection, btstack_packet_handler_t 
 
     // add to services list
     linked_list_add(&l2cap_services, (linked_item_t *) service);
+    
+    // enable page scan
+    hci_connectable_control(1);
+
+    // done
+    l2cap_emit_service_registered(connection, 0, psm);
 }
 
 void l2cap_unregister_service_internal(void *connection, uint16_t psm){
@@ -991,15 +1010,19 @@ void l2cap_unregister_service_internal(void *connection, uint16_t psm){
     if (!service) return;
     linked_list_remove(&l2cap_services, (linked_item_t *) service);
     btstack_memory_l2cap_service_free(service);
+    
+    // disable page scan when no services registered
+    if (!linked_list_empty(&l2cap_services)) return;
+    hci_connectable_control(0);
 }
 
 //
 void l2cap_close_connection(void *connection){
-    linked_item_t *it, **pit;
+    linked_item_t *it;
     
     // close open channels - note to myself: no channel is freed, so no new for fancy iterator tricks
     l2cap_channel_t * channel;
-    for (it = l2cap_channels; it ; it = it->next){
+    for (it = (linked_item_t *) l2cap_channels; it ; it = it->next){
         channel = (l2cap_channel_t *) it;
         if (channel->connection == connection) {
             channel->state = L2CAP_STATE_WILL_SEND_DISCONNECT_REQUEST;
@@ -1007,14 +1030,14 @@ void l2cap_close_connection(void *connection){
     }   
     
     // unregister services
-    pit = &l2cap_services;
-    while (*pit) {
-        l2cap_service_t * service = (l2cap_service_t *) *pit;
+    it = (linked_item_t *) &l2cap_services;
+    while (it->next) {
+        l2cap_service_t * service = (l2cap_service_t *) it->next;
         if (service->connection == connection){
-            *pit = (*pit)->next;
+            it->next = it->next->next;
             btstack_memory_l2cap_service_free(service);
         } else {
-            pit = &(*pit)->next;
+            it = it->next;
         }
     }
     

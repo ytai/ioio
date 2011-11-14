@@ -38,6 +38,7 @@
 #pragma once
 
 #include "config.h"
+
 #include <btstack/linked_list.h>
 
 #ifndef NO_RUN_LOOP

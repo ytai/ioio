@@ -278,7 +278,7 @@ typedef struct {
     void (*packet_handler)(uint8_t packet_type, uint8_t *packet, uint16_t size);
 
     /* remote device db */
-    remote_device_db_t *remote_device_db;
+    remote_device_db_t const*remote_device_db;
     
     /* hci state machine */
     HCI_STATE state;
@@ -286,6 +286,7 @@ typedef struct {
     uint8_t   cmds_ready;
     
     uint8_t   discoverable;
+    uint8_t   connectable;
 
     /* buffer for scan enable cmd - 0xff no change */
     uint8_t   new_scan_enable_value;
@@ -301,13 +302,14 @@ uint16_t hci_create_cmd(uint8_t *hci_cmd_buffer, hci_cmd_t *cmd, ...);
 uint16_t hci_create_cmd_internal(uint8_t *hci_cmd_buffer, const hci_cmd_t *cmd, va_list argptr);
 
 // set up HCI
-void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t * remote_device_db);
+void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t const* remote_device_db);
 void hci_register_packet_handler(void (*handler)(uint8_t packet_type, uint8_t *packet, uint16_t size));
 void hci_close(void);
 
 // power and inquriy scan control
 int hci_power_control(HCI_POWER_MODE mode);
 void hci_discoverable_control(uint8_t enable);
+void hci_connectable_control(uint8_t enable);
 
 /**
  * run the hci control loop once

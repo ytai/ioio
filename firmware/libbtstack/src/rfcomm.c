@@ -237,7 +237,7 @@ static rfcomm_multiplexer_t * rfcomm_multiplexer_create_for_addr(bd_addr_t *addr
 
 static rfcomm_multiplexer_t * rfcomm_multiplexer_for_addr(bd_addr_t *addr){
     linked_item_t *it;
-    for (it = rfcomm_multiplexers; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_multiplexers; it ; it = it->next){
         rfcomm_multiplexer_t * multiplexer = ((rfcomm_multiplexer_t *) it);
         if (BD_ADDR_CMP(addr, multiplexer->remote_addr) == 0) {
             return multiplexer;
@@ -248,7 +248,7 @@ static rfcomm_multiplexer_t * rfcomm_multiplexer_for_addr(bd_addr_t *addr){
 
 static rfcomm_multiplexer_t * rfcomm_multiplexer_for_l2cap_cid(uint16_t l2cap_cid) {
     linked_item_t *it;
-    for (it = rfcomm_multiplexers; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_multiplexers; it ; it = it->next){
         rfcomm_multiplexer_t * multiplexer = ((rfcomm_multiplexer_t *) it);
         if (multiplexer->l2cap_cid == l2cap_cid) {
             return multiplexer;
@@ -347,7 +347,7 @@ static rfcomm_channel_t * rfcomm_channel_create(rfcomm_multiplexer_t * multiplex
 
 static rfcomm_channel_t * rfcomm_channel_for_rfcomm_cid(uint16_t rfcomm_cid){
     linked_item_t *it;
-    for (it = rfcomm_channels; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
         rfcomm_channel_t * channel = ((rfcomm_channel_t *) it);
         if (channel->rfcomm_cid == rfcomm_cid) {
             return channel;
@@ -358,7 +358,7 @@ static rfcomm_channel_t * rfcomm_channel_for_rfcomm_cid(uint16_t rfcomm_cid){
 
 static rfcomm_channel_t * rfcomm_channel_for_multiplexer_and_dlci(rfcomm_multiplexer_t * multiplexer, uint8_t dlci){
     linked_item_t *it;
-    for (it = rfcomm_channels; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
         rfcomm_channel_t * channel = ((rfcomm_channel_t *) it);
         if (channel->dlci == dlci && channel->multiplexer == multiplexer) {
             return channel;
@@ -369,7 +369,7 @@ static rfcomm_channel_t * rfcomm_channel_for_multiplexer_and_dlci(rfcomm_multipl
 
 static rfcomm_service_t * rfcomm_service_for_channel(uint8_t server_channel){
     linked_item_t *it;
-    for (it = rfcomm_services; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_services; it ; it = it->next){
         rfcomm_service_t * service = ((rfcomm_service_t *) it);
         if ( service->server_channel == server_channel){
             return service;
@@ -572,9 +572,9 @@ static void rfcomm_multiplexer_finalize(rfcomm_multiplexer_t * multiplexer){
     }
     
     // close and remove all channels
-    linked_item_t **it = &rfcomm_channels;
-    while (*it){
-        rfcomm_channel_t * channel = (rfcomm_channel_t *) (*it);
+    linked_item_t *it = (linked_item_t *) &rfcomm_channels;
+    while (it->next){
+        rfcomm_channel_t * channel = (rfcomm_channel_t *) it->next;
         if (channel->multiplexer == multiplexer) {
             // emit appropriate events
             if (channel->state == RFCOMM_CHANNEL_OPEN) {
@@ -583,11 +583,11 @@ static void rfcomm_multiplexer_finalize(rfcomm_multiplexer_t * multiplexer){
                 rfcomm_emit_channel_opened(channel, RFCOMM_MULTIPLEXER_STOPPED); 
             }
             // remove from list
-            (*it) = (*it)->next;
+            it->next = it->next->next;
             // free channel struct
             btstack_memory_rfcomm_channel_free(channel);
         } else {
-            it = &(*it)->next;
+            it = it->next;
         }
     }
     
@@ -637,7 +637,7 @@ static void rfcomm_multiplexer_opened(rfcomm_multiplexer_t *multiplexer){
     
     // transition of channels that wait for multiplexer 
     linked_item_t *it;
-    for (it = rfcomm_channels; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
         rfcomm_channel_t * channel = ((rfcomm_channel_t *) it);
         if (channel->multiplexer != multiplexer) continue;
         rfcomm_channel_state_machine(channel, &event);
@@ -885,7 +885,7 @@ static void rfcomm_multiplexer_state_machine(rfcomm_multiplexer_t * multiplexer,
 
 static void rfcomm_hand_out_credits(void){
     linked_item_t * it;
-    for (it = rfcomm_channels; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
         rfcomm_channel_t * channel = (rfcomm_channel_t *) it;
         if (channel->state != RFCOMM_CHANNEL_OPEN) {
             // log_info("RFCOMM_EVENT_CREDITS: multiplexer not open\n");
@@ -1459,8 +1459,9 @@ static void rfcomm_channel_state_machine(rfcomm_channel_t *channel, rfcomm_chann
                         channel->state_var &= ~RFCOMM_CHANNEL_STATE_VAR_SEND_CREDITS;
                         channel->state_var |= RFCOMM_CHANNEL_STATE_VAR_SENT_CREDITS;
                         if (channel->new_credits_incoming) {
-                            rfcomm_channel_send_credits(channel, channel->new_credits_incoming);
+                            uint8_t new_credits = channel->new_credits_incoming;
                             channel->new_credits_incoming = 0;
+                            rfcomm_channel_send_credits(channel, new_credits);
                         }
                         break;
 
@@ -1489,8 +1490,9 @@ static void rfcomm_channel_state_machine(rfcomm_channel_t *channel, rfcomm_chann
                         break;
                     }
                     if (channel->new_credits_incoming) {
-                        rfcomm_channel_send_credits(channel, channel->new_credits_incoming);
+                        uint8_t new_credits = channel->new_credits_incoming;
                         channel->new_credits_incoming = 0;
+                        rfcomm_channel_send_credits(channel, new_credits);
                         break;
                     }
                     break;
@@ -1558,7 +1560,7 @@ static void rfcomm_run(void){
     linked_item_t *it;
     linked_item_t *next;
     
-    for (it = rfcomm_multiplexers; it ; it = next){
+    for (it = (linked_item_t *) rfcomm_multiplexers; it ; it = next){
 
         next = it->next;    // be prepared for removal of channel in state machine
         
@@ -1573,7 +1575,7 @@ static void rfcomm_run(void){
         rfcomm_multiplexer_state_machine(multiplexer, MULT_EV_READY_TO_SEND);
     }
 
-    for (it = rfcomm_channels; it ; it = next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = next){
 
         next = it->next;    // be prepared for removal of channel in state machine
 
@@ -1722,14 +1724,14 @@ void rfcomm_register_service2(void * connection, uint8_t channel, uint16_t max_f
     // check if already registered
     rfcomm_service_t * service = rfcomm_service_for_channel(channel);
     if (service){
-        rfcomm_emit_service_registered(service->connection, RFCOMM_CHANNEL_ALREADY_REGISTERED, channel);
+        rfcomm_emit_service_registered(connection, RFCOMM_CHANNEL_ALREADY_REGISTERED, channel);
         return;
     }
     
     // alloc structure
     service = btstack_memory_rfcomm_service_get();
     if (!service) {
-        rfcomm_emit_service_registered(service->connection, BTSTACK_MEMORY_ALLOC_FAILED, channel);
+        rfcomm_emit_service_registered(connection, BTSTACK_MEMORY_ALLOC_FAILED, channel);
         return;
     }
     
@@ -1749,7 +1751,7 @@ void rfcomm_register_service2(void * connection, uint8_t channel, uint16_t max_f
     linked_list_add(&rfcomm_services, (linked_item_t *) service);
     
     // done
-    rfcomm_emit_service_registered(service->connection, 0, channel);
+    rfcomm_emit_service_registered(connection, 0, channel);
 }
 
 void rfcomm_register_service_with_initial_credits_internal(void * connection, uint8_t channel, uint16_t max_frame_size, uint8_t initial_credits){
@@ -1817,22 +1819,22 @@ void rfcomm_grant_credits(uint16_t rfcomm_cid, uint8_t credits){
 
 //
 void rfcomm_close_connection(void *connection){
-    linked_item_t *it, **pit;
+    linked_item_t *it;
     
     // close open channels 
-    for (it = rfcomm_channels; it ; it = it->next){
+    for (it = (linked_item_t *) rfcomm_channels; it ; it = it->next){
         ((rfcomm_channel_t *)it)->state = RFCOMM_CHANNEL_SEND_DISC;
     }
     
     // unregister services
-    pit = &rfcomm_services;
-    while (*pit) {
-        rfcomm_service_t * service = (rfcomm_service_t *) *pit;
+    it = (linked_item_t *) &rfcomm_services;
+    while (it->next) {
+        rfcomm_service_t * service = (rfcomm_service_t *) it->next;
         if (service->connection == connection){
-            *pit = (*pit)->next;
+            it->next = it->next->next;
             btstack_memory_rfcomm_service_free(service);
         } else {
-            pit = &(*pit)->next;
+            it = it->next;
         }
     }
 }

@@ -61,6 +61,8 @@
 #include "bt_control_iphone.h"
 #endif
 
+static void hci_update_scan_enable(void);
+
 // the STACK is here
 static hci_stack_t       hci_stack;
 
@@ -397,6 +399,8 @@ static void event_handler(uint8_t *packet, int size){
     hci_connection_t * conn;
     int i;
         
+    // printf("HCI:EVENT:%02x\n", packet[0]);
+    
     switch (packet[0]) {
                         
         case HCI_EVENT_COMMAND_COMPLETE:
@@ -512,7 +516,7 @@ static void event_handler(uint8_t *packet, int size){
             if (!hci_stack.remote_device_db) break;
             hci_add_connection_flags_for_flipped_bd_addr(&packet[2], HANDLE_LINK_KEY_REQUEST);
             hci_run();
-            // request already answered
+            // request handled by hci_run() as HANDLE_LINK_KEY_REQUEST gets set
             return;
             
         case HCI_EVENT_LINK_KEY_NOTIFICATION:
@@ -525,6 +529,10 @@ static void event_handler(uint8_t *packet, int size){
             
         case HCI_EVENT_PIN_CODE_REQUEST:
             hci_add_connection_flags_for_flipped_bd_addr(&packet[2], RECV_PIN_CODE_REQUEST);
+            // PIN CODE REQUEST means the link key request didn't succee -> delete stored link key
+            if (!hci_stack.remote_device_db) break;
+            bt_flip_addr(addr, &packet[2]);
+            hci_stack.remote_device_db->delete_link_key(&addr);
             break;
             
 #ifndef EMBEDDED
@@ -589,6 +597,7 @@ static void event_handler(uint8_t *packet, int size){
                             // outgoing connection failed, remove entry
                             linked_list_remove(&hci_stack.connections, (linked_item_t *) conn);
                             btstack_memory_hci_connection_free( conn );
+                            
                         }
                         // if authentication error, also delete link key
                         if (packet[3] == 0x05) {
@@ -608,6 +617,7 @@ static void event_handler(uint8_t *packet, int size){
                     conn->con_handle = READ_BT_16(packet, 4);
 
                     // TODO: store - role, peer address type, conn_interval, conn_latency, supervision timeout, master clock
+
                     // restart timer
                     // run_loop_set_timer(&conn->timeout, HCI_CONNECTION_TIMEOUT_MS);
                     // run_loop_add_timer(&conn->timeout);
@@ -673,7 +683,7 @@ void hci_register_packet_handler(void (*handler)(uint8_t packet_type, uint8_t *p
     hci_stack.packet_handler = handler;
 }
 
-void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t * remote_device_db){
+void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t const* remote_device_db){
     
     // reference to use transport layer implementation
     hci_stack.hci_transport = transport;
@@ -687,6 +697,7 @@ void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, r
     // no connections yet
     hci_stack.connections = NULL;
     hci_stack.discoverable = 0;
+    hci_stack.connectable = 0;
     
     // no pending cmds
     hci_stack.decline_reason = 0;
@@ -933,6 +944,7 @@ int hci_power_control(HCI_POWER_MODE power_mode){
                     if (bt_control_iphone_power_management_enabled()){
                         hci_stack.state = HCI_STATE_INITIALIZING;
                         hci_stack.substate = 6;
+                        hci_update_scan_enable();
                         break;
                     }
 #endif
@@ -962,6 +974,12 @@ int hci_power_control(HCI_POWER_MODE power_mode){
     return 0;
 }
 
+static void hci_update_scan_enable(void){
+    // 2 = page scan, 1 = inq scan
+    hci_stack.new_scan_enable_value  = hci_stack.connectable << 1 | hci_stack.discoverable;
+    hci_run();
+}
+
 void hci_discoverable_control(uint8_t enable){
     if (enable) enable = 1; // normalize argument
     
@@ -970,11 +988,18 @@ void hci_discoverable_control(uint8_t enable){
         return;
     }
     
-    // store request to send command but accept in higher layer view
-    hci_stack.new_scan_enable_value = 2 | enable; // 1 = inq scan, 2 = page scan
     hci_stack.discoverable = enable;
+    hci_update_scan_enable();
+}
     
-    hci_run();
+void hci_connectable_control(uint8_t enable){
+    if (enable) enable = 1; // normalize argument
+    
+    // don't emit event
+    if (hci_stack.connectable == enable) return;
+
+    hci_stack.connectable = enable;
+    hci_update_scan_enable();
 }
 
 void hci_run(){
@@ -1077,7 +1102,7 @@ void hci_run(){
                     hci_send_cmd(&hci_write_page_timeout, 0x6000);
                     break;
                 case 6:
-                    hci_send_cmd(&hci_write_scan_enable, 2 | hci_stack.discoverable); // page scan
+					hci_send_cmd(&hci_write_scan_enable, (hci_stack.connectable << 1) | hci_stack.discoverable); // page scan
                     break;
                 case 7:
 #ifndef EMBEDDED
@@ -1162,8 +1187,8 @@ void hci_run(){
                     // disable page and inquiry scan
                     if (!hci_can_send_packet_now(HCI_COMMAND_DATA_PACKET)) return;
                     
-                    log_info("HCI_STATE_HALTING, disabling inq & page scans\n");
-                    hci_send_cmd(&hci_write_scan_enable, 0); // none
+                    log_info("HCI_STATE_HALTING, disabling inq cans\n");
+                    hci_send_cmd(&hci_write_scan_enable, hci_stack.connectable << 1); // drop inquiry scan but keep page scan
                     
                     // continue in next sub state
                     hci_stack.substate++;
