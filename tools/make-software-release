@@ -31,6 +31,9 @@ for PROJECT in $PROJECTS; do
   let "i++"
 done
 
+echo Generating Javadoc for IOIOLib
+ant -q -f IOIOLib/javadoc.xml
+
 for PROJECT in $PROJECTS; do
   echo SOURCE: $PROJECT
   $ZIP -q -r $TMPOUT $PROJECT -x "$PROJECT/bin/*" "$PROJECT/gen/*"

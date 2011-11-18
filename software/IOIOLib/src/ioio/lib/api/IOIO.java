@@ -420,7 +420,7 @@ public interface IOIO {
 	 * with the given mode.
 	 * 
 	 * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseInput.ClockRate, PulseMode, boolean))
+	 *      ioio.lib.api.PulseInput.ClockRate, PulseMode, boolean)
 	 */
 	public PulseInput openPulseInput(int pin, PulseMode mode)
 			throws ConnectionLostException;

@@ -67,7 +67,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * GG: garbage bytes used for padding.
  * <p>
  * The IOIO SPI interface supports such fixed length message protocols using a
- * single method, {@link #writeRead(int, byte[], int, int, byte[], int), which
+ * single method, {@link #writeRead(int, byte[], int, int, byte[], int)}, which
  * gets the request data, and the lengths of the request, the response and the
  * total transaction bytes.
  * 
@@ -81,7 +81,8 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <p>
  * Typical usage (single slave, as per the example above):
  * 
- * <pre>{@code
+ * <pre>
+ * {@code
  * // MISO, MOSI, CLK, SS on pins 3, 4, 5, 6, respectively.
  * SpiMaster spi = ioio.openSpiMaster(3, 4, 5, 6, SpiMaster.Rate.RATE_125K);
  * final byte[] request = new byte[]{ 0x23, 0x45 };
@@ -91,9 +92,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * spi.close();  // free SPI module and pins
  * }</pre>
  * 
- * @see IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec,
- *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[],
- *      Config))
+ * @see IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)
  */
 public interface SpiMaster extends Closeable {
 	/** Possible data rates for SPI, in Hz. */
