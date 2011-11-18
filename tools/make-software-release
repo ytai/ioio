@@ -8,6 +8,12 @@ PROJECTS="IOIOLib \
           applications/HelloIOIOPower \
           applications/IOIOSimpleApp"
 
+TARGETS=(android-3 \
+         android-10 \
+         android-7 \
+         android-7 \
+         android-7)
+
 APKS="applications/HelloIOIO \
       applications/HelloIOIOPower \
       applications/IOIOSimpleApp"
@@ -19,15 +25,24 @@ fi
 
 cd software
 
+i=0
 for PROJECT in $PROJECTS; do
-  echo $PROJECT
+  (cd $PROJECT && android -s update project --name $(basename $PROJECT) --path . --target ${TARGETS[i]})
+  let "i++"
+done
+
+for PROJECT in $PROJECTS; do
+  echo SOURCE: $PROJECT
   $ZIP -q -r $TMPOUT $PROJECT -x "$PROJECT/bin/*" "$PROJECT/gen/*"
 done
 
 for APK in $APKS; do
-  echo $APK
+  echo BINARY: $APK
+  (cd $APK && ant -q debug >/dev/null)
   BASENAME=$(basename $APK)
+  APK_DEBUG="$APK/bin/$BASENAME-debug.apk"
   APK="$APK/bin/$BASENAME.apk"
+  mv $APK_DEBUG $APK
   $ZIP -q -j $TMPOUT $APK
 done
 
