@@ -89,6 +89,22 @@ all: .all-post
 .all-post: .all-impl
 # Add your post 'all' code here...
 
+# clobber
+.clobber-impl: .clobber-pre .depcheck-impl
+	@#echo "=> Running $@..."
+	for CONF in ${ALLCONFS}; \
+	do \
+		${MAKE} -f nbproject/Makefile-$${CONF}.mk SUBPROJECTS=${SUBPROJECTS} .clean-conf; \
+	done
+
+# all
+.all-impl: .all-pre .depcheck-impl
+	@#echo "=> Running $@..."
+	for CONF in ${ALLCONFS}; \
+	do \
+		${MAKE} -f nbproject/Makefile-$${CONF}.mk SUBPROJECTS=${SUBPROJECTS} .build-conf; \
+	done
+
 
 # help
 help: .help-post
