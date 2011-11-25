@@ -116,7 +116,15 @@ descriptor.  Then we check the VID and PID and make sure they appear in the TPL.
 #define SUBSUBSTATE_WAIT_FOR_GET_DEVICE_DESCRIPTOR      0x0001  //
 #define SUBSUBSTATE_GET_DEVICE_DESCRIPTOR_COMPLETE      0x0002  //
 
-#define SUBSTATE_VALIDATE_VID_PID                       0x0040  //
+#define SUBSTATE_ENABLE_ACCESSORY                       0x0040  //
+#define SUBSUBSTATE_SEND_GET_PROTOCOL                   0x0000  //
+#define SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL               0x0001  //
+#define SUBSUBSTATE_SEND_ACCESSORY_STRING               0x0002  //
+#define SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING           0x0003  //
+#define SUBSUBSTATE_SEND_START_ACCESSORY                0x0004  //
+#define SUBSUBSTATE_WAIT_FOR_START_ACCESSORY            0x0005  //
+
+#define SUBSTATE_VALIDATE_VID_PID                       0x0050  //
 
 /*
 *******************************************************************************
@@ -500,6 +508,7 @@ void                 _USB_ResetDATA0( BYTE endpoint );
 void                 _USB_SendToken( BYTE endpoint, BYTE tokenType );
 void                 _USB_SetBDT( BYTE  direction );
 BOOL                 _USB_TransferInProgress( void );
+BOOL                 _USB_IsAccessoryDevice( void );
 
 
 #endif // _USB_HOST_LOCAL_

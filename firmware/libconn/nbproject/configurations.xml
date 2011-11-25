@@ -4,12 +4,14 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>accessory.h</itemPath>
       <itemPath>bt_app.h</itemPath>
       <itemPath>connection.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>accessory.c</itemPath>
       <itemPath>bt_app.c</itemPath>
       <itemPath>connection.c</itemPath>
     </logicalFolder>

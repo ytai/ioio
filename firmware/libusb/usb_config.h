@@ -53,7 +53,15 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #define NUM_TPL_BLUETOOTH 1
 #endif
 
-#define NUM_TPL_ENTRIES (1 + NUM_TPL_BLUETOOTH)
+// number of TPL entries occupied by the android accessory driver
+#ifdef DISABLE_ACCESSORY
+#define NUM_TPL_ACCESSORY 0
+#else
+#define NUM_TPL_ACCESSORY 2
+#endif
+
+
+#define NUM_TPL_ENTRIES (1 + NUM_TPL_BLUETOOTH + NUM_TPL_ACCESSORY)
 
 // #define USB_ENABLE_TRANSFER_EVENT
 

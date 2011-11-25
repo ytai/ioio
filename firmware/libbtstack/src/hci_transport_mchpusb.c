@@ -30,6 +30,7 @@
 // Implementation of btstack hci transport layer over IOIO's bluetooth dongle
 // driver within the MCHPUSB host framework.
 
+#include <assert.h>
 #include "config.h"
 
 #include "usb_host_bluetooth.h"
@@ -40,21 +41,22 @@
 #include "hci_transport.h"
 #include "hci_dump.h"
 
-static uint8_t bulk_in[256];
-static uint8_t int_in[64];
+static uint8_t *bulk_in;
+static int bulk_in_size;
+static uint8_t *int_in;
+#define INT_IN_SIZE 64
 
 void hci_transport_mchpusb_tasks() {
   if (!USBHostBlueToothIntInBusy()) {
-    USBHostBluetoothReadInt(int_in, sizeof int_in);
+    USBHostBluetoothReadInt(int_in, INT_IN_SIZE);
   }
   if (!USBHostBlueToothBulkInBusy()) {
-    USBHostBluetoothReadBulk(bulk_in, sizeof bulk_in);
+    USBHostBluetoothReadBulk(bulk_in, bulk_in_size);
   }
 }
 
 // single instance
 static hci_transport_t hci_transport_mchpusb;
-
 static void (*packet_handler)(uint8_t packet_type, uint8_t *packet, uint16_t size) = NULL;
 
 static int usb_open(void *transport_config) {
@@ -106,7 +108,11 @@ static const char * usb_get_transport_name() {
 
 // get usb singleton
 
-hci_transport_t * hci_transport_mchpusb_instance() {
+hci_transport_t * hci_transport_mchpusb_instance(void *buf, int size) {
+  assert(size > INT_IN_SIZE + 256);
+  int_in = buf;
+  bulk_in = int_in + INT_IN_SIZE;
+  bulk_in_size = size - INT_IN_SIZE;
   hci_transport_mchpusb.open = usb_open;
   hci_transport_mchpusb.close = usb_close;
   hci_transport_mchpusb.send_packet = usb_send_packet;

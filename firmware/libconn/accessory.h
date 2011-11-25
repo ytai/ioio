@@ -27,20 +27,18 @@
  * or implied.
  */
 
-#ifndef __BTAPP_H__
-#define __BTAPP_H__
+#ifndef __ACCESSORY_H__
+#define __ACCESSORY_H__
 
 #include "GenericTypeDefs.h"
 
-typedef void (*BTCallback) (int h, const void *data, UINT32 size);
+typedef void (*AccessoryCallback) (int h, const void *data, UINT32 size);
 
-void BTInit(void *buf, int size);
-void BTTasks();
-void BTShutdown();
-int  BTAccepting();
-void BTSetCallback(BTCallback cb);
-void BTWrite(const void *data, int size);
-int  BTCanWrite();
-void BTClose();
+void AccessoryInit(void *buf, int size);
+void AccessoryShutdown();
+void AccessoryTasks();
+void AccessorySetCallback(AccessoryCallback cb);
+void AccessoryWrite(const void *data, int size);
+int  AccessoryCanWrite();
 
-#endif  // __BTAPP_H__
+#endif  // __ACCESSORY_H__

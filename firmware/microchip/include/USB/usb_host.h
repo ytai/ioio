@@ -1668,6 +1668,7 @@ typedef struct _USB_DEVICE_INFO
     BYTE                errorCode;                          // Error code of last operation.
     BYTE                deviceClientDriver;                 // Index of client driver for this device if bfUseDeviceClientDriver=1.
     WORD                currentConfigurationPower;          // Max power in milli-amps.
+    WORD                accessoryVersion;                   // The Android Accessory version supported by the device.
 
     USB_CONFIGURATION   *pConfigurationDescriptorList;      // Pointer to the list of Cnfiguration Descriptors of the attached device.
     USB_INTERFACE_INFO  *pInterfaceList;                    // List of interfaces on the attached device.

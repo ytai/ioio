@@ -34,6 +34,23 @@
 #include "common/logging.h"
 #include "app_layer_v1/byte_queue.h"
 
+// define in non-const arrays to ensure data space
+static char descManufacturer[] = "IOIO Open Source Project";
+static char descModel[] = "IOIO";
+static char descDesc[] = "IOIO Latency Tester";
+static char descVersion[] = "IOIO0300";
+static char descUri[] = "https://github.com/ytai/ioio/wiki/ADK";
+static char descSerial[] = "N/A";
+
+const char* accessoryDescs[6] = {
+  descManufacturer,
+  descModel,
+  descDesc,
+  descVersion,
+  descUri,
+  descSerial
+};
+
 typedef enum {
   STATE_INIT,
   STATE_WAIT_CONNECTION,

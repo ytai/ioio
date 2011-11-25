@@ -66,7 +66,7 @@
 
 // An identifier of an Android interface.
 typedef enum _ANDROID_INTERFACE_ID {
-  ANDROID_INTERFACE_ADK,  // ADK (OpenAccessory API)
+  ANDROID_INTERFACE_ACC,  // Android OpenAccessory
   ANDROID_INTERFACE_ADB,  // ADB (Android Debug Bridge)
   ANDROID_INTERFACE_MAX
 } ANDROID_INTERFACE_ID;

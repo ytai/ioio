@@ -33,6 +33,23 @@
 #include "protocol.h"
 #include "logging.h"
 
+// define in non-const arrays to ensure data space
+static char descManufacturer[] = "IOIO Open Source Project";
+static char descModel[] = "IOIO";
+static char descDesc[] = "IOIO Standard Application";
+static char descVersion[] = FW_IMPL_VER;
+static char descUri[] = "https://github.com/ytai/ioio/wiki/ADK";
+static char descSerial[] = "N/A";
+
+const char* accessoryDescs[6] = {
+  descManufacturer,
+  descModel,
+  descDesc,
+  descVersion,
+  descUri,
+  descSerial
+};
+
 typedef enum {
   STATE_INIT,
   STATE_WAIT_CONNECTION,
@@ -47,6 +64,9 @@ static CHANNEL_HANDLE handle;
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
 
 static inline CHANNEL_HANDLE OpenAvailableChannel() {
+  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ACC)) {
+    return ConnectionOpenChannelAccessory(&AppCallback);
+  }
   if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
     return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
   }
@@ -77,14 +97,15 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
 
 int main() {
   log_init();
-  log_printf("***** Hello from app-layer! *******\r\n");
+  log_printf("***** Hello from app-layer! *******");
 
   ConnectionInit();
   SoftReset();
   while (1) {
     ConnectionTasks();
     BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
-                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT);
+                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT)
+                            || ConnectionCanOpenChannel(CHANNEL_TYPE_ACC);
     if (!can_open_channel
         && state > STATE_WAIT_CONNECTION) {
       // just got disconnected
