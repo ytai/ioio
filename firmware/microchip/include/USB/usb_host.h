@@ -1635,6 +1635,11 @@ typedef struct _USB_INTERFACE_SETTING_INFO
 
 } USB_INTERFACE_SETTING_INFO;
 
+typedef struct _USB_INTERFACE_TYPE_INFO {
+    BYTE cls;     // Interface class
+    BYTE subcls;  // Interface subclass
+    BYTE proto;   // Interface protocol
+} USB_INTERFACE_TYPE_INFO;
 
 // *****************************************************************************
 /* Interface Information Structure
@@ -1649,7 +1654,7 @@ typedef struct _USB_INTERFACE_INFO
     USB_INTERFACE_SETTING_INFO  *pCurrentSetting;    // Current Alternate Interface setting
     BYTE                        interface;           // Interface number
     BYTE                        clientDriver;        // Index into client driver table for this Interface
-
+    USB_INTERFACE_TYPE_INFO     type;                // Interface type
 } USB_INTERFACE_INFO;
 
 

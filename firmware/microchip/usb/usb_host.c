@@ -4906,6 +4906,9 @@ BOOL _USB_ParseConfigurationDescriptor( void )
                 newInterfaceInfo->clientDriver          = ClientDriver;
                 newInterfaceInfo->pInterfaceSettings    = NULL;
                 newInterfaceInfo->pCurrentSetting       = NULL;
+                newInterfaceInfo->type.cls              = Class;
+                newInterfaceInfo->type.subcls           = SubClass;
+                newInterfaceInfo->type.proto            = Protocol;
 
                 // Insert it into the list.
                 newInterfaceInfo->next                  = pTempInterfaceList;
