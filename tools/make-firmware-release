@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+  echo "Usage: make-firmware-release boot-ver app-ver"
+  exit 1
+fi
+
+BOOT_VER=$1
+APP_VER=$2
+
+BOOT_CONFIGS=(SPRK001{2..6})
+BOOT_APP_CONFIGS=(IOIO002{1,2,2,2,3})
+APP_CONFIGS=(IOIO002{1..3})
+
+tools/make-ioio-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.ioioimg ${BOOT_CONFIGS[@]}
+tools/make-hex-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.zip ${BOOT_CONFIGS[@]}
+tools/make-ioio-bundle firmware/app_layer_v1/dist release/firmware/application/App-$APP_VER.ioioapp ${APP_CONFIGS[@]}
+
+DIST=$(mktemp -dt dist)
+
+for ((i = 0; i < ${#BOOT_CONFIGS[@]}; ++i)); do
+  BOOT_CONFIG=${BOOT_CONFIGS[i]}
+  APP_CONFIG=${BOOT_APP_CONFIGS[i]}
+  mkdir -p $DIST/$BOOT_CONFIG/production
+  tools/merge-hex firmware/bootloader/dist/$BOOT_CONFIG/production/*.hex firmware/app_layer_v1/dist/$APP_CONFIG/production/*.hex > $DIST/$BOOT_CONFIG/production/merged.hex
+done
+
+tools/make-ioio-bundle $DIST release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.ioioimg ${BOOT_CONFIGS[@]}
+tools/make-hex-bundle $DIST release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.zip ${BOOT_CONFIGS[@]}
+
+
