@@ -29,6 +29,7 @@ void AccessoryInit(void *buf, int size) {
   log_printf("AccessroyInit(%p, %d)", buf, size);
   rx_buf = buf;
   rx_buf_size = size;
+  channel_state = CHANNEL_INIT;
 }
 
 void AccessoryShutdown() {
