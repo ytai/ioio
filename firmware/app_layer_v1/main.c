@@ -52,7 +52,7 @@ const char* accessoryDescs[6] = {
 
 typedef enum {
   STATE_INIT,
-  STATE_WAIT_CONNECTION,
+  STATE_OPEN_CHANNEL,
   STATE_WAIT_CHANNEL_OPEN,
   STATE_CONNECTED,
   STATE_ERROR
@@ -64,14 +64,18 @@ static CHANNEL_HANDLE handle;
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
 
 static inline CHANNEL_HANDLE OpenAvailableChannel() {
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ACC)) {
-    return ConnectionOpenChannelAccessory(&AppCallback);
-  }
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
-    return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
-  }
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
-    return ConnectionOpenChannelBtServer(&AppCallback);
+  if (ConnectionTypeSupported(CHANNEL_TYPE_ADB)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
+      return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_ACC)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ACC)) {
+      return ConnectionOpenChannelAccessory(&AppCallback);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_BT)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+      return ConnectionOpenChannelBtServer(&AppCallback);
+    }
   }
   return INVALID_CHANNEL_HANDLE;
 }
@@ -90,8 +94,7 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     } else {
       log_printf("Channel failed to open");
     }
-    handle = OpenAvailableChannel();
-    state = STATE_WAIT_CHANNEL_OPEN;
+    state = STATE_OPEN_CHANNEL;
   }
 }
 
@@ -102,12 +105,9 @@ int main() {
   ConnectionInit();
   SoftReset();
   while (1) {
-    ConnectionTasks();
-    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
-                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT)
-                            || ConnectionCanOpenChannel(CHANNEL_TYPE_ACC);
-    if (!can_open_channel
-        && state > STATE_WAIT_CONNECTION) {
+    BOOL connected = ConnectionTasks();
+    if (!connected
+        && state > STATE_OPEN_CHANNEL) {
       // just got disconnected
       log_printf("Disconnected");
       SoftReset();
@@ -116,13 +116,12 @@ int main() {
     switch (state) {
       case STATE_INIT:
         handle = INVALID_CHANNEL_HANDLE;
-        state = STATE_WAIT_CONNECTION;
+        state = STATE_OPEN_CHANNEL;
         break;
 
-      case STATE_WAIT_CONNECTION:
-        if (can_open_channel) {
+      case STATE_OPEN_CHANNEL:
+        if ((handle = OpenAvailableChannel()) != INVALID_CHANNEL_HANDLE) {
           log_printf("Connected");
-          handle = OpenAvailableChannel();
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
