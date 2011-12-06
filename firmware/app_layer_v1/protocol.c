@@ -78,7 +78,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_PROG_EXIT_ARGS),
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_CONFIG_ARGS),
-  sizeof(SET_PIN_INCAP_ARGS)
+  sizeof(SET_PIN_INCAP_ARGS),
+  sizeof(SOFT_CLOSE_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -112,15 +113,23 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(RESERVED_ARGS),
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_STATUS_ARGS),
-  sizeof(INCAP_REPORT_ARGS)
+  sizeof(INCAP_REPORT_ARGS),
+  sizeof(SOFT_CLOSE_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
 };
 
+typedef enum {
+  STATE_OPEN,
+  STATE_CLOSING,
+  STATE_CLOSED
+} STATE;
+
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 8192);
 static int bytes_out;
 static int max_packet;
+static STATE state;
 
 typedef enum {
   WAIT_TYPE,
@@ -168,6 +177,7 @@ void AppProtocolInit(CHANNEL_HANDLE h) {
   rx_message_state = WAIT_TYPE;
   ByteQueueClear(&tx_queue);
   max_packet = ConnectionGetMaxPacket(h);
+  state = STATE_OPEN;
 
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
@@ -184,12 +194,14 @@ void AppProtocolInit(CHANNEL_HANDLE h) {
 }
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
+  if (state != STATE_OPEN) return;
   BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   SyncInterruptLevel(prev);
 }
 
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
+  if (state != STATE_OPEN) return;
   BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data, size);
@@ -199,6 +211,7 @@ void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* d
 void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
                                            const void* data1, int size1,
                                            const void* data2, int size2) {
+  if (state != STATE_OPEN) return;
   BYTE prev = SyncInterruptLevel(1);
   ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
   ByteQueuePushBuffer(&tx_queue, data1, size1);
@@ -207,6 +220,13 @@ void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
 }
 
 void AppProtocolTasks(CHANNEL_HANDLE h) {
+  if (state == STATE_CLOSED) return;
+  if (state == STATE_CLOSING && ByteQueueSize(&tx_queue) == 0) {
+    log_printf("Finished flushing, closing the channel.");
+    ConnectionCloseChannel(h);
+    state = STATE_CLOSED;
+    return;
+  }
   UARTTasks();
   SPITasks();
   I2CTasks();
@@ -463,6 +483,12 @@ static BOOL MessageDone() {
                   rx_msg.args.set_pin_incap.enable);
       break;
 
+    case SOFT_CLOSE:
+      log_printf("Soft close requested");
+      Echo();
+      state = STATE_CLOSING;
+      break;
+
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
     // Call Echo() if the message is to be echoed back.
 
@@ -474,6 +500,7 @@ static BOOL MessageDone() {
 
 BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
   assert(data);
+  if (state != STATE_OPEN) return FALSE;  // shouldn't get data after close
 
   while (data_len > 0) {
     // copy a chunk of data to rx_msg
