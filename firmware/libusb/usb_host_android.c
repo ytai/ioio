@@ -107,12 +107,18 @@ BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
     int i;
     log_printf("Encoutered interface %d, class 0x%x, subclass 0x%x, protocol, 0x%x",
         pIntInfo->interface, pIntInfo->type.cls, pIntInfo->type.subcls, pIntInfo->type.proto);
-    for (i = 0; i < ARRAY_SIZE(interfaceTable); ++i) {
-      InterfaceTableEntry *pEntry = &interfaceTable[i];
-      if (0 == memcmp(&pEntry->type, &pIntInfo->type, sizeof(USB_INTERFACE_TYPE_INFO))) {
-        pEntry->func(pIntInfo, pEntry->userData);
-        break;
+    if (flags & TPL_CLASS_DRV) {
+      // initialize interface according to the interface class table
+      for (i = 0; i < ARRAY_SIZE(interfaceTable); ++i) {
+        InterfaceTableEntry *pEntry = &interfaceTable[i];
+        if (0 == memcmp(&pEntry->type, &pIntInfo->type, sizeof(USB_INTERFACE_TYPE_INFO))) {
+          pEntry->func(pIntInfo, pEntry->userData);
+          break;
+        }
       }
+    } else {
+      // initialize according to the interface number
+      InitAndroidInterface(pIntInfo, pIntInfo->interface);
     }
   }
 
