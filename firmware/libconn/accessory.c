@@ -89,6 +89,7 @@ int AccessoryTasks() {
           log_printf("Write failed with error code %d", err);
           return -1;
         }
+        callback(0, NULL, 0);
         channel_state = CHANNEL_INIT;
       }
       break;
