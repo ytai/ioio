@@ -58,7 +58,8 @@ typedef enum {
 
 typedef enum {
   STATE_ACC_DISCONNECTED,
-  STATE_ACC_CONNECTED
+  STATE_ACC_INITIALIZING,
+  STATE_ACC_INITIALIZED
 } ACC_STATE;
 
 static BT_STATE bt_state;
@@ -90,8 +91,8 @@ static void ConnBTTasks() {
 #endif
         BTTasks();
         bt_state = BTAccepting() ? STATE_BT_INITIALIZED : STATE_BT_INITIALIZING;
-        break;
       }
+      break;
   }
 }
 
@@ -135,22 +136,30 @@ void ConnAccessoryTasks() {
     case STATE_ACC_DISCONNECTED:
       if (USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ACC)) {
         AccessoryInit(buf, BUF_SIZE);
-        acc_state = STATE_ACC_CONNECTED;
+        acc_state = STATE_ACC_INITIALIZING;
       }
       break;
 
-    case STATE_ACC_CONNECTED:
+    case STATE_ACC_INITIALIZING:
+    case STATE_ACC_INITIALIZED:
       if (!USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ACC)) {
         AccessoryShutdown();
         acc_state = STATE_ACC_DISCONNECTED;
       } else {
-        AccessoryTasks();
+        int res = AccessoryTasks();
+        if (res == -1) {
+          log_printf("Error occured. Resetting Android USB.");
+          USBHostAndroidReset();
+          break;
+        }
+        acc_state = res ? STATE_ACC_INITIALIZED : STATE_ACC_INITIALIZING;
       }
   }
 }
 
 void ConnectionInit() {
   BOOL res = USBHostInit(0);
+  (void) res;  // get rid of unused warning.
   assert(res);
   bt_state = STATE_BT_DISCONNECTED;
   adb_state = STATE_ADB_DISCONNECTED;
@@ -180,7 +189,7 @@ BOOL ConnectionTypeSupported(CHANNEL_TYPE con) {
     case CHANNEL_TYPE_ADB:
       return adb_state >= STATE_ADB_INITIALIZING;
     case CHANNEL_TYPE_ACC:
-      return acc_state == STATE_ACC_CONNECTED;
+      return acc_state >= STATE_ACC_INITIALIZING;
     case CHANNEL_TYPE_BT:
       return bt_state >= STATE_BT_INITIALIZING;
     default:
@@ -193,7 +202,7 @@ BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con) {
     case CHANNEL_TYPE_ADB:
       return adb_state == STATE_ADB_INITIALIZED;
     case CHANNEL_TYPE_ACC:
-      return acc_state == STATE_ACC_CONNECTED;
+      return acc_state == STATE_ACC_INITIALIZED;
     case CHANNEL_TYPE_BT:
       return bt_state == STATE_BT_INITIALIZED;
     default:
@@ -213,8 +222,8 @@ CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb) {
 }
 
 CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb) {
-  AccessorySetCallback(cb);
-  return CHANNEL_TYPE_ACC << 8;
+  assert(acc_state == STATE_ACC_INITIALIZED);
+  return AccessoryOpenChannel(cb) | CHANNEL_TYPE_ACC << 8;
 }
 
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
@@ -224,7 +233,7 @@ void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
       break;
 
     case CHANNEL_TYPE_ACC:
-      AccessoryWrite(data, size);
+      AccessoryWrite(ch, data, size);
       break;
 
     case CHANNEL_TYPE_BT:
@@ -240,7 +249,7 @@ BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
       return ADBChannelReady(ch & 0xFF);
 
     case CHANNEL_TYPE_ACC:
-      return AccessoryCanWrite();
+      return AccessoryCanWrite(ch);
 
     case CHANNEL_TYPE_BT:
       assert(ch & 0xFF == 0);

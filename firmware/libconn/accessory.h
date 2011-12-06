@@ -31,14 +31,15 @@
 #define __ACCESSORY_H__
 
 #include "GenericTypeDefs.h"
-
-typedef void (*AccessoryCallback) (int h, const void *data, UINT32 size);
+#include "connection.h"
 
 void AccessoryInit(void *buf, int size);
 void AccessoryShutdown();
-void AccessoryTasks();
-void AccessorySetCallback(AccessoryCallback cb);
-void AccessoryWrite(const void *data, int size);
-int  AccessoryCanWrite();
+// returns 1 if a channel can be opened, 0 if not, -1 on error
+int AccessoryTasks();
+CHANNEL_HANDLE AccessoryOpenChannel(ChannelCallback cb);
+void AccessoryCloseChannel(CHANNEL_HANDLE h);
+void AccessoryWrite(CHANNEL_HANDLE h, const void *data, int size);
+int  AccessoryCanWrite(CHANNEL_HANDLE h);
 
 #endif  // __ACCESSORY_H__
