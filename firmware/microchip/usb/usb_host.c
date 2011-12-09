@@ -3099,29 +3099,32 @@ BOOL _USB_FindClassDriver( BYTE bClass, BYTE bSubClass, BYTE bProtocol, BYTE *pb
     i = 0;
     while (i < NUM_TPL_ENTRIES)
     {
-        if ((usbTPL[i].flags.bfIsClassDriver == 1        ) &&
-            (usbTPL[i].device.bClass         == bClass   ) &&
-            (usbTPL[i].device.bSubClass      == bSubClass) &&
-            (usbTPL[i].device.bProtocol      == bProtocol)   )
+        if (usbTPL[i].flags.bfIsInterfaceDriver)
         {
-            // Make sure the application layer does not have a problem with the selection.
-            // If the application layer returns FALSE, which it should if the event is not
-            // defined, then accept the selection.
-            eventData.idVendor          = pDesc->idVendor;              
-            eventData.idProduct         = pDesc->idProduct;             
-            eventData.bDeviceClass      = bClass;          
-            eventData.bDeviceSubClass   = bSubClass;       
-            eventData.bDeviceProtocol   = bProtocol;       
-
-            if (!USB_HOST_APP_EVENT_HANDLER( USB_ROOT_HUB, EVENT_OVERRIDE_CLIENT_DRIVER_SELECTION,
-                            &eventData, sizeof(USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA) ))
+            if ((usbTPL[i].flags.bfIsClassDriver == 1        ) &&
+                (usbTPL[i].device.bClass         == bClass   ) &&
+                (usbTPL[i].device.bSubClass      == bSubClass) &&
+                (usbTPL[i].device.bProtocol      == bProtocol)   )
             {
-                *pbClientDrv = usbTPL[i].ClientDriver;
-                #ifdef DEBUG_MODE
-                    UART2PrintString( "HOST: Client driver found.\r\n" );
-                #endif
-                return TRUE;
-            }    
+                // Make sure the application layer does not have a problem with the selection.
+                // If the application layer returns FALSE, which it should if the event is not
+                // defined, then accept the selection.
+                eventData.idVendor          = pDesc->idVendor;
+                eventData.idProduct         = pDesc->idProduct;
+                eventData.bDeviceClass      = bClass;
+                eventData.bDeviceSubClass   = bSubClass;
+                eventData.bDeviceProtocol   = bProtocol;
+
+                if (!USB_HOST_APP_EVENT_HANDLER( USB_ROOT_HUB, EVENT_OVERRIDE_CLIENT_DRIVER_SELECTION,
+                                &eventData, sizeof(USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA) ))
+                {
+                    *pbClientDrv = usbTPL[i].ClientDriver;
+                    #ifdef DEBUG_MODE
+                        UART2PrintString( "HOST: Client driver found.\r\n" );
+                    #endif
+                    return TRUE;
+                }
+            }
         }
         i++;
     }
@@ -3169,51 +3172,54 @@ BOOL _USB_FindDeviceLevelClientDriver( void )
     usbDeviceInfo.flags.bfUseDeviceClientDriver = 0;
     while (i < NUM_TPL_ENTRIES)
     {
-        if (usbTPL[i].flags.bfIsClassDriver)
+        if (usbTPL[i].flags.bfIsDeviceDriver)
         {
-            // Check for a device-class client driver
-            if ((usbTPL[i].device.bClass    == pDesc->bDeviceClass   ) &&
-                (usbTPL[i].device.bSubClass == pDesc->bDeviceSubClass) &&
-                (usbTPL[i].device.bProtocol == pDesc->bDeviceProtocol)   )
-            {
-                #ifdef DEBUG_MODE
-                    UART2PrintString( "HOST: Device validated by class\r\n" );
-                #endif
-                usbDeviceInfo.flags.bfUseDeviceClientDriver = 1;
-            }
-        }
-        else
-        {
-            // Check for a device-specific client driver by VID & PID
-            #ifdef ALLOW_GLOBAL_VID_AND_PID
-            if (((usbTPL[i].device.idVendor  == pDesc->idVendor ) &&
-                 (usbTPL[i].device.idProduct == pDesc->idProduct)) ||
-                ((usbTPL[i].device.idVendor  == 0xFFFF) &&
-                 (usbTPL[i].device.idProduct == 0xFFFF)))
-            #else
-            if ((usbTPL[i].device.idVendor  == pDesc->idVendor ) &&
-                (usbTPL[i].device.idProduct == pDesc->idProduct)   )
-            #endif
-            {
-                #ifdef DEBUG_MODE
-                    UART2PrintString( "HOST: Device validated by VID/PID\r\n" );
-                #endif
-                usbDeviceInfo.flags.bfUseDeviceClientDriver = 1;
-            }
-        }
+          if (usbTPL[i].flags.bfIsClassDriver)
+          {
+              // Check for a device-class client driver
+              if ((usbTPL[i].device.bClass    == pDesc->bDeviceClass   ) &&
+                  (usbTPL[i].device.bSubClass == pDesc->bDeviceSubClass) &&
+                  (usbTPL[i].device.bProtocol == pDesc->bDeviceProtocol)   )
+              {
+                  #ifdef DEBUG_MODE
+                      UART2PrintString( "HOST: Device validated by class\r\n" );
+                  #endif
+                  usbDeviceInfo.flags.bfUseDeviceClientDriver = 1;
+              }
+          }
+          else
+          {
+              // Check for a device-specific client driver by VID & PID
+              #ifdef ALLOW_GLOBAL_VID_AND_PID
+              if (((usbTPL[i].device.idVendor  == pDesc->idVendor ) &&
+                   (usbTPL[i].device.idProduct == pDesc->idProduct)) ||
+                  ((usbTPL[i].device.idVendor  == 0xFFFF) &&
+                   (usbTPL[i].device.idProduct == 0xFFFF)))
+              #else
+              if ((usbTPL[i].device.idVendor  == pDesc->idVendor ) &&
+                  (usbTPL[i].device.idProduct == pDesc->idProduct)   )
+              #endif
+              {
+                  #ifdef DEBUG_MODE
+                      UART2PrintString( "HOST: Device validated by VID/PID\r\n" );
+                  #endif
+                  usbDeviceInfo.flags.bfUseDeviceClientDriver = 1;
+              }
+          }
 
-        if (usbDeviceInfo.flags.bfUseDeviceClientDriver)
-        {
-            // Save client driver info
-            usbDeviceInfo.deviceClientDriver = usbTPL[i].ClientDriver;
+          if (usbDeviceInfo.flags.bfUseDeviceClientDriver)
+          {
+              // Save client driver info
+              usbDeviceInfo.deviceClientDriver = usbTPL[i].ClientDriver;
 
-            // Select configuration if it is given in the TPL
-            if (usbTPL[i].flags.bfSetConfiguration)
-            {
-                usbDeviceInfo.currentConfiguration = usbTPL[i].bConfiguration;
-            }
+              // Select configuration if it is given in the TPL
+              if (usbTPL[i].flags.bfSetConfiguration)
+              {
+                  usbDeviceInfo.currentConfiguration = usbTPL[i].bConfiguration;
+              }
 
-            return TRUE;
+              return TRUE;
+          }
         }
 
         i++;

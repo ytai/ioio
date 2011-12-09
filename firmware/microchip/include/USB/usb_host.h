@@ -266,9 +266,11 @@ typedef struct _USB_TPL
         BYTE         val;                       //
         struct
         {
-            BYTE     bfAllowHNP      : 1;       // Is HNP allowed?
-            BYTE     bfIsClassDriver : 1;       // Client driver is a class-level driver
-            BYTE     bfSetConfiguration : 1;    // bConfiguration is valid
+            BYTE     bfAllowHNP          : 1;  // Is HNP allowed?
+            BYTE     bfIsClassDriver     : 1;  // Client driver is a class-level driver
+            BYTE     bfSetConfiguration  : 1;  // bConfiguration is valid
+            BYTE     bfIsDeviceDriver    : 1;  // driver can accpet a device
+            BYTE     bfIsInterfaceDriver : 1;  // driver can accept an interface
         };
     } flags;                                    //
 } USB_TPL;
@@ -281,6 +283,8 @@ typedef struct _USB_TPL
 #define TPL_ALLOW_HNP   0x01                    // Bitmask for Host Negotiation Protocol.
 #define TPL_CLASS_DRV   0x02                    // Bitmask for class driver support.
 #define TPL_SET_CONFIG  0x04                    // Bitmask for setting the configuration.
+#define TPL_DEVICE_DRV  0x08
+#define TPL_INTFC_DRV   0x10
 
 
 // *****************************************************************************
