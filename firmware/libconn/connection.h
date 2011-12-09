@@ -51,6 +51,9 @@ typedef enum {
 // data != NULL -> incoming data
 // data = NULL, size = 0 -> Closed normally
 // data = NULL, size = 1 -> Closed as result of error
+//
+// client should ignore ch. it is not guaranteed to be related to the actual
+// channel handle
 typedef void (*ChannelCallback) (CHANNEL_HANDLE ch, const void* data,
                                  UINT32 size);
 
