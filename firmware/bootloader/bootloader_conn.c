@@ -98,7 +98,7 @@ BOOL BootloaderConnTasks() {
   USBHostTasks();
   ConnADBTasks();
 
-  return USBHostAndroidIsDeviceAttached() || unknown_device_attached;
+  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB) || unknown_device_attached;
 }
 
 void BootloaderConnResetUSB() {

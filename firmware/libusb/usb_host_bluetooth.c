@@ -43,9 +43,11 @@ BLUETOOTH_DEVICE gc_BluetoothDevData;
 #define FOUND_INTERRUPT 0x04
 #define FOUND_ALL       0x07
 
-BOOL USBHostBluetoothInit(BYTE address, DWORD flags, BYTE clientDriverID) {
-  USB_DEVICE_INFO *pDevInfo = USBHostGetDeviceInfo();
-  USB_INTERFACE_INFO *pIntInfo;
+BOOL USBHostBluetoothInit(BYTE address,
+                          DWORD flags,
+                          BYTE clientDriverID,
+                          USB_DEVICE_INFO *pDevInfo,
+                          USB_INTERFACE_INFO *pIntInfo) {
   USB_DEVICE_DESCRIPTOR *pDev;
   USB_ENDPOINT_INFO *pEndpoint;
 
@@ -61,12 +63,20 @@ BOOL USBHostBluetoothInit(BYTE address, DWORD flags, BYTE clientDriverID) {
   gc_BluetoothDevData.ID.pid  =  pDev->idProduct;
   gc_BluetoothDevData.driverID = clientDriverID;
 
-  // We're looking for an interface with one bulk in, one bulk out, and one
-  // interrupt endpoints.
+  // We're looking for an interface with:
+  // - class 0xe0 subclass 0x01 protocol 0x01
+  // - one bulk in, one bulk out, and one interrupt endpoints.
   // When found, save the endpoint addresses for the interfaces
   for (pIntInfo = pDevInfo->pInterfaceList; pIntInfo; pIntInfo = pIntInfo->next) {
+    log_printf("Encoutered interface %d, class 0x%x, subclass 0x%x, protocol, 0x%x",
+        pIntInfo->interface, pIntInfo->type.cls, pIntInfo->type.subcls, pIntInfo->type.proto);
+
+    if (pIntInfo->type.cls != 0xE0
+        || pIntInfo->type.subcls != 0x01
+        || pIntInfo->type.proto != 0x01) continue;
+
     unsigned int found = 0;
-    
+
     for (pEndpoint = pIntInfo->pCurrentSetting->pEndpointList;
          pEndpoint;
          pEndpoint = pEndpoint->next) {
@@ -104,8 +114,8 @@ BOOL USBHostBluetoothInit(BYTE address, DWORD flags, BYTE clientDriverID) {
 good:
   gc_BluetoothDevData.initialized = 1;
   log_printf("Bluetooth Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x",
-              flags, address, gc_BluetoothDevData.ID.vid, gc_BluetoothDevData.ID.pid);
-  
+      flags, address, gc_BluetoothDevData.ID.vid, gc_BluetoothDevData.ID.pid);
+
   USBHostBluetoothCallback(BLUETOOTH_EVENT_ATTACHED, USB_SUCCESS, NULL, 0);
   return TRUE;
 }

@@ -169,9 +169,7 @@ void ConnectionInit() {
 BOOL ConnectionTasks() {
   USBHostTasks();
 #ifndef USB_ENABLE_TRANSFER_EVENT
-  if (USBHostAndroidIsDeviceAttached()) {
-      USBHostAndroidTasks();
-  }
+  USBHostAndroidTasks();
 #endif
   ConnBTTasks();
   ConnADBTasks();
@@ -233,7 +231,7 @@ void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
       break;
 
     case CHANNEL_TYPE_ACC:
-      AccessoryWrite(ch, data, size);
+      AccessoryWrite(ch & 0xFF, data, size);
       break;
 
     case CHANNEL_TYPE_BT:
@@ -249,7 +247,7 @@ BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
       return ADBChannelReady(ch & 0xFF);
 
     case CHANNEL_TYPE_ACC:
-      return AccessoryCanWrite(ch);
+      return AccessoryCanWrite(ch & 0xFF);
 
     case CHANNEL_TYPE_BT:
       assert(ch & 0xFF == 0);
@@ -282,8 +280,7 @@ void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
       break;
 
     case CHANNEL_TYPE_ACC:
-      // can't really close, just detach
-      USBHostAndroidReset();
+      AccessoryCloseChannel(ch & 0xFF);
       break;
 
     case CHANNEL_TYPE_BT:

@@ -2498,7 +2498,7 @@ void USBHostTasks( void )
                                     UART2PrintString( "HOST: Using device client driver.\r\n" );
                                 #endif
                                 temp = usbDeviceInfo.deviceClientDriver;
-                                if (!usbClientDrvTable[temp].Initialize(usbDeviceInfo.deviceAddress, usbClientDrvTable[temp].flags, temp))
+                                if (!usbClientDrvTable[temp].Initialize(usbDeviceInfo.deviceAddress, usbClientDrvTable[temp].flags, temp, &usbDeviceInfo, NULL))
                                 {
                                     _USB_SetErrorCode( USB_HOLDING_CLIENT_INIT_ERROR );
                                     _USB_SetHoldState();
@@ -2516,7 +2516,7 @@ void USBHostTasks( void )
                                 while (pCurrentInterface)
                                 {
                                     temp = pCurrentInterface->clientDriver;
-                                    if (!usbClientDrvTable[temp].Initialize(usbDeviceInfo.deviceAddress, usbClientDrvTable[temp].flags, temp))
+                                    if (!usbClientDrvTable[temp].Initialize(usbDeviceInfo.deviceAddress, usbClientDrvTable[temp].flags, temp, &usbDeviceInfo, pCurrentInterface))
                                     {
                                         _USB_SetErrorCode( USB_HOLDING_CLIENT_INIT_ERROR );
                                         _USB_SetHoldState();
@@ -4803,7 +4803,7 @@ void _USB_NotifyClients( BYTE address, USB_EVENT event, void *data, unsigned int
     When this driver is modified to support multiple devices, this function
     will require modification.
   ***************************************************************************/
-
+#ifdef USB_HOST_APP_DATA_EVENT_HANDLER
 void _USB_NotifyDataClients( BYTE address, USB_EVENT event, void *data, unsigned int size )
 {
     USB_INTERFACE_INFO  *pInterface;
@@ -4821,6 +4821,7 @@ void _USB_NotifyDataClients( BYTE address, USB_EVENT event, void *data, unsigned
             break;
     }
 } // _USB_NotifyClients
+#endif
 
 /****************************************************************************
   Function:

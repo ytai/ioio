@@ -48,10 +48,17 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 CLIENT_DRIVER_TABLE usbClientDrvTable[] =
 {                                        
     {
-        USBHostAndroidInit,
+        USBHostAndroidInitInterface,
+        USBHostAndroidEventHandler,
+        1
+    },
+#ifndef DISABLE_ACCESSORY
+    {
+        USBHostAndroidInitDevice,
         USBHostAndroidEventHandler,
         0
     },
+#endif
 #ifndef DISABLE_BLUETOOTH
     {
         USBHostBluetoothInit,
@@ -61,6 +68,18 @@ CLIENT_DRIVER_TABLE usbClientDrvTable[] =
 #endif
 };
 
+// an enum to match the indices of the drivers in the table according to macros
+typedef enum {
+  AND_INT,
+#ifndef DISABLE_ACCESSORY
+  AND_DEV,
+#endif
+#ifndef DISABLE_BLUETOOTH
+  BT_DEV
+#endif
+} INDEX;
+
+
 // *****************************************************************************
 // USB Embedded Host Targeted Peripheral List (TPL)
 // *****************************************************************************
@@ -68,12 +87,12 @@ CLIENT_DRIVER_TABLE usbClientDrvTable[] =
 USB_TPL usbTPL[] =
 {
 #ifndef DISABLE_ACCESSORY
-    { INIT_VID_PID( 0x18D1ul, 0x2D00ul )    , 0, 0, {TPL_DEVICE_DRV} },                 // Accessory without ADB
-    { INIT_VID_PID( 0x18D1ul, 0x2D01ul )    , 0, 0, {TPL_DEVICE_DRV} },                 // Accessory with ADB
+    { INIT_VID_PID( 0x18D1ul, 0x2D00ul )    , 0, AND_DEV, {TPL_DEVICE_DRV} },                 // Accessory without ADB
+    { INIT_VID_PID( 0x18D1ul, 0x2D01ul )    , 0, AND_DEV, {TPL_DEVICE_DRV} },                 // Accessory with ADB
 #endif
-    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, 0, {TPL_CLASS_DRV | TPL_INTFC_DRV} },  // ADB
+    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, AND_INT, {TPL_CLASS_DRV | TPL_INTFC_DRV} },  // ADB
 #ifndef DISABLE_BLUETOOTH
-    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, 1, {TPL_CLASS_DRV | TPL_DEVICE_DRV} }  // Bluetooth
+    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, BT_DEV,  {TPL_CLASS_DRV | TPL_DEVICE_DRV} }  // Bluetooth
 #endif
 };
 
