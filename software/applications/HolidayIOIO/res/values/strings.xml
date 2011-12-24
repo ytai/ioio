@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Holiday IOIO</string>
     <string name="frequency">Frequency</string>
-    <string name="fade_speed">Fade Speed</string>
+    <string name="fade">Fade Time</string>
 
 </resources>

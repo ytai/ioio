@@ -14,18 +14,18 @@
         android:id="@+id/frequencySeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="100" android:progress="10"/>
+        android:max="100" android:progress="20"/>
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/fade_speed" />
+        android:text="@string/fade" />
 
     <SeekBar
         android:id="@+id/fadeSeekBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:max="100" android:progress="10"/>
+        android:layout_height="wrap_content" android:max="100" android:progress="80"/>
 
     <ImageView
         android:id="@+id/imageView1"
