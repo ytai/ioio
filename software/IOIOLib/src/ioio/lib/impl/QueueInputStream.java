@@ -54,6 +54,38 @@ public class QueueInputStream extends InputStream {
 			throw new IOException("Interrupted");
 		}
 	}
+	
+	@Override
+	synchronized public int read(byte[] b,int off,int len)
+     	throws IOException
+     	{
+	
+		try 
+		{
+			while (!closed_ && queue_.isEmpty())
+			{
+				wait();
+			}
+			if (closed_) 
+			{
+				throw new IOException("Stream has been closed");
+			}
+		
+		}
+		catch (InterruptedException e) 
+		{
+			throw new IOException("Interrupted");
+		}
+	
+		int counter = off;
+		int size = queue_.size();
+		while (queue_.size()>0)
+		{
+			b[counter] = queue_.remove()& 0xFF;
+			counter++;
+		}
+		return size;
+	 }
 
 	synchronized public void write(byte[] data, int size) {
 		for (int i = 0; i < size; ++i) {
