@@ -34,6 +34,7 @@ public class IOIOSimpleApp extends AbstractIOIOActivity {
 		private DigitalOutput led_;
 
 		
+		@Override
 		public void setup() throws ConnectionLostException {
 			try {
 				input_ = ioio_.openAnalogInput(40);
@@ -46,6 +47,7 @@ public class IOIOSimpleApp extends AbstractIOIOActivity {
 			}
 		}
 		
+		@Override
 		public void loop() throws ConnectionLostException {
 			try {
 				final float reading = input_.read();

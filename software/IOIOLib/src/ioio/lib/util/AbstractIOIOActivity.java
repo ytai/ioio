@@ -53,23 +53,23 @@ public abstract class AbstractIOIOActivity extends Activity {
 	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
 
 	/**
-	 * Subclasses should call this method from their own onResume() if
+	 * Subclasses should call this method from their own onStart() if
 	 * overloaded. It takes care of connecting with the IOIO.
 	 */
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
 		createAllThreads();
 		startAllThreads();
 	}
 
 	/**
-	 * Subclasses should call this method from their own onPause() if
+	 * Subclasses should call this method from their own onStop() if
 	 * overloaded. It takes care of disconnecting from the IOIO.
 	 */
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onStop() {
+		super.onStop();
 		abortAllThreads();
 		try {
 			joinAllThreads();

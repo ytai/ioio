@@ -74,6 +74,7 @@ public class QueueInputStream extends InputStream {
 	@Override
 	synchronized public void close() {
 		closed_ = true;
+		notifyAll();
 	}
 
 }

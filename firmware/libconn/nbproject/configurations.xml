@@ -34,8 +34,8 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30</languageToolchainVersion>
-        <platform>4</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
@@ -48,8 +48,7 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -135,8 +134,8 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30</languageToolchainVersion>
-        <platform>4</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
@@ -149,8 +148,7 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
@@ -236,8 +234,8 @@
         <targetHeader></targetHeader>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30</languageToolchainVersion>
-        <platform>4</platform>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <archiverTool>
@@ -250,8 +248,7 @@
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
         <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
-        <makeCustomizationUseOfUserID>makeCustomizationUseOfUserID</makeCustomizationUseOfUserID>
-        <makeCustomizationUserID>makeCustomizationUserID</makeCustomizationUserID>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
