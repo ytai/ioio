@@ -134,6 +134,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		disconnect();
 	}
 
+	@Override
 	public void waitForDisconnect() throws InterruptedException {
 		incomingState_.waitDisconnect();
 	}

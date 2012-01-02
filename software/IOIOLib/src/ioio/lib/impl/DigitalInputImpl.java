@@ -54,6 +54,7 @@ public class DigitalInputImpl extends AbstractPin implements DigitalInput,
 		notifyAll();
 	}
 
+	@Override
 	synchronized public void waitForValue(boolean value)
 			throws InterruptedException, ConnectionLostException {
 		checkState();

@@ -53,6 +53,7 @@ public class AbstractResource implements Closeable, DisconnectListener {
 		}
 	}
 
+	@Override
 	synchronized public void close() {
 		if (state_ == State.CLOSED) {
 			throw new IllegalStateException("Trying to use a closed resouce");

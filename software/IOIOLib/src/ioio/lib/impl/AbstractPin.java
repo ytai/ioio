@@ -38,6 +38,7 @@ public abstract class AbstractPin extends AbstractResource {
 		pinNum_ = pinNum;
 	}
 
+	@Override
 	synchronized public void close() {
 		super.close();
 		ioio_.closePin(pinNum_);
