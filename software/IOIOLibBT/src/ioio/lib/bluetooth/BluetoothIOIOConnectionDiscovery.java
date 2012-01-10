@@ -61,6 +61,8 @@ public class BluetoothIOIOConnectionDiscovery implements
 			Log.e(TAG,
 					"Did you forget to declare uses-permission of android.permission.BLUETOOTH?");
 			throw e;
+		} catch (NoClassDefFoundError e) {
+			Log.w(TAG, "Bluetooth is not supported on this device.", e);
 		}
 	}
 }
