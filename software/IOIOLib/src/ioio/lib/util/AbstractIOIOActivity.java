@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import android.app.Activity;
-import android.os.Looper;
 import android.util.Log;
 
 /**
@@ -53,10 +52,10 @@ import android.util.Log;
  * {@link #createIOIOThread()}, which should return an implementation of the
  * {@link IOIOThread} abstract class. In this implementation, the client
  * implements the {@link IOIOThread#setup()} method, which gets called as soon
- * as communication with the IOIO is established, and the {@link IOIOThread
- * #loop()} method, which gets called repetitively as long as the IOIO is
- * connected. Both methods should access the {@link IOIOThread#ioio_} field for
- * controlling the IOIO.
+ * as communication with the IOIO is established, and the
+ * {@link IOIOThread #loop()} method, which gets called repetitively as long as
+ * the IOIO is connected. Both methods should access the
+ * {@link IOIOThread#ioio_} field for controlling the IOIO.
  * 
  * In addition, the {@link IOIOThread#disconnected()} method may be overridden
  * in order to execute logic as soon as a disconnection occurs for whichever
@@ -93,8 +92,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 	}
 
 	/**
-	 * Subclasses should call this method from their own onStop() if
-	 * overloaded. It takes care of disconnecting from the IOIO.
+	 * Subclasses should call this method from their own onStop() if overloaded.
+	 * It takes care of disconnecting from the IOIO.
 	 */
 	@Override
 	protected void onStop() {
@@ -108,8 +107,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 
 	/**
 	 * Subclasses should implement this method by returning a concrete subclass
-	 * of {@link IOIOThread}. <code>null</code> may be returned if the client
-	 * is not interested to connect a thread for this IOIO. In multi-IOIO
+	 * of {@link IOIOThread}. <code>null</code> may be returned if the client is
+	 * not interested to connect a thread for this IOIO. In multi-IOIO
 	 * scenarios, where you want to identify which IOIO the thread is for,
 	 * consider using {@link #createIOIOThread()} instead.
 	 * 
@@ -185,9 +184,10 @@ public abstract class AbstractIOIOActivity extends Activity {
 		 * be done once as soon as IOIO communication is lost or closed.
 		 * Typically, this will include GUI changes corresponding to the change.
 		 * This method will only be called if setup() has been called. The
-		 * {@link #ioio_} member must not be used from within this method.
+		 * {@link #ioio_} member must not be used from within this method. This
+		 * method should not block for long, since it may cause an ANR.
 		 */
-		protected void disconnected() throws InterruptedException {
+		protected void disconnected() {
 		}
 
 		/**
@@ -204,7 +204,6 @@ public abstract class AbstractIOIOActivity extends Activity {
 		@Override
 		public final void run() {
 			super.run();
-			Looper.prepare();
 			while (true) {
 				try {
 					synchronized (this) {
@@ -226,29 +225,27 @@ public abstract class AbstractIOIOActivity extends Activity {
 					}
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
-					break;
 				} catch (IncompatibilityException e) {
 					Log.e(TAG, "Incompatible IOIO firmware", e);
 					incompatible();
 					// nothing to do - just wait until physical disconnection
-					try {
-						ioio_.waitForDisconnect();
-					} catch (InterruptedException e1) {
-						ioio_.disconnect();
-					}
 				} catch (Exception e) {
 					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
-					try {
-						if (ioio_ != null) {
+					if (ioio_ != null) {
+						try {
 							ioio_.waitForDisconnect();
-							if (connected_) {
-								disconnected();
-							}
+						} catch (InterruptedException e1) {
 						}
-					} catch (InterruptedException e) {
+						synchronized (this) {
+							ioio_ = null;
+						}
+						if (connected_) {
+							disconnected();
+							connected_ = false;
+						}
 					}
 				}
 			}
