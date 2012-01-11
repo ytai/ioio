@@ -1,5 +1,6 @@
 package ioio.test_bed;
 
+import ioio.lib.android.AbstractIOIOActivity;
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
@@ -20,7 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-public class IOIOTestBed extends Activity {
+public class IOIOTestBed extends AbstractIOIOActivity {
 	private static final String LOG_TAG = "IOIO_TEST_BED";
 	private static final int PIN_COUNT = 48;
 
@@ -44,89 +45,59 @@ public class IOIOTestBed extends Activity {
 		ODD_TEXT = (TextView) findViewById(R.id.odd_text);
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Log.i(LOG_TAG, "onResume()");
-		thread = new MainThread();
-		thread.start();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Log.i(LOG_TAG, "onPaush()");
-		try {
-			thread.abort();
-		} catch (InterruptedException e) {
-			Log.w(LOG_TAG, e);
-		}
-	}
-
-	class MainThread extends Thread {
+	class MainThread extends IOIOThread {
 		Thread ledThread;
-		private IOIO ioio;
-		boolean shouldRun = true;
+
+		public MainThread() {
+			disableUI();
+		}
+		
+		@Override
+		protected void setup() throws ConnectionLostException,
+				InterruptedException {
+			Log.i(LOG_TAG, "Connected.");
+			ledThread = new LEDThread(ioio_);
+			ledThread.start();
+			Log.i(LOG_TAG, "Thread started");
+			runTest();
+		}
 
 		@Override
-		public void run() {
-			while (shouldRun) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						EVEN_TEXT.setText("???");
-						EVEN_TEXT.setTextColor(Color.RED);
-						ODD_TEXT.setText("???");
-						ODD_TEXT.setTextColor(Color.RED);
-					}
-				});
+		protected void loop() throws ConnectionLostException,
+				InterruptedException {
+		}
 
-				Log.i(LOG_TAG, "Connecting to IOIO...");
+		@Override
+		protected void disconnected() {
+			Log.i(LOG_TAG, "IOIO disconnected");
+			disableUI();
+			if (ledThread != null) {
+				Log.i(LOG_TAG, "Joining LED thread...");
+				ledThread.interrupt();
 				try {
-					ioio = IOIOFactory.create();
-					ioio.waitForConnect();
-					Log.i(LOG_TAG, "Connected.");
-					ledThread = new LEDThread(ioio);
-					ledThread.start();
-					Log.i(LOG_TAG, "Thread started");
-					runTest();
-				} catch (ConnectionLostException e) {
-					Log.e(LOG_TAG, "Failed to connect", e);
-				} catch (IncompatibilityException e) {
-					Log.e(LOG_TAG, "Incompatbile firmware!", e);
-				}
-				if (ledThread != null) {
-					Log.i(LOG_TAG, "Joining LED thread...");
-					ledThread.interrupt();
-					try {
-						ledThread.join();
-						ledThread = null;
-						Log.i(LOG_TAG, "Joined LED thread...");
-					} catch (InterruptedException e) {
-					}
-				}
-				if (ioio != null) {
-					Log.i(LOG_TAG, "Waiting for IOIO to finish disconnecting...");
-					try {
-						//ioio.disconnect();
-						ioio.waitForDisconnect();
-						ioio = null;
-						Log.i(LOG_TAG, "IOIO disconnected");
-					} catch (InterruptedException e) {
-					}
+					ledThread.join();
+					ledThread = null;
+					Log.i(LOG_TAG, "Joined LED thread...");
+				} catch (InterruptedException e) {
 				}
 			}
 		}
 
-		synchronized public void abort() throws InterruptedException {
-			Log.i(LOG_TAG, "disconnet()");
-			shouldRun = false;
-			if (ioio != null) {
-				Log.i(LOG_TAG, "Disconnecting IOIO");
-				ioio.disconnect();
-			}
-			join();
-			Log.i(LOG_TAG, "Disconnect complete");
+		@Override
+		protected void incompatible() {
+			Log.e(LOG_TAG, "Incompatbile firmware!");
+		}
+
+		private void disableUI() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					EVEN_TEXT.setText("???");
+					EVEN_TEXT.setTextColor(Color.RED);
+					ODD_TEXT.setText("???");
+					ODD_TEXT.setTextColor(Color.RED);
+				}
+			});
 		}
 
 		private void runTest() {
@@ -146,7 +117,7 @@ public class IOIOTestBed extends Activity {
 					if (IGNORE_PINS_SET.contains(i)) {
 						pins.add(null);
 					} else {
-						pins.add(ioio.openDigitalInput(i, Mode.PULL_UP));
+						pins.add(ioio_.openDigitalInput(i, Mode.PULL_UP));
 					}
 				}
 				while (true) {
@@ -241,5 +212,10 @@ public class IOIOTestBed extends Activity {
 				textView.setTextColor(color);
 			}
 		});
+	}
+
+	@Override
+	protected IOIOThread createIOIOThread() {
+		return new MainThread();
 	}
 }

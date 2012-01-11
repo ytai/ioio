@@ -27,42 +27,37 @@
  * or implied.
  */
 
-package ioio.lib.bluetooth;
+package ioio.lib.impl;
 
-import ioio.lib.util.IOIOConnectionDiscovery;
+import ioio.lib.api.IOIOConnection;
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
 
 import java.util.Collection;
-import java.util.Set;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.util.Log;
-
-public class BluetoothIOIOConnectionDiscovery implements
-		IOIOConnectionDiscovery {
-
-	private static final String TAG = "BluetoothIOIOConnectionDiscovery";
+public class SocketIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
+	/** The TCP port used for communicating with the IOIO board. */
+	public static final int IOIO_PORT = 4545;
 
 	@Override
-	public void getSpecs(Collection<IOIOConnectionSpec> result) {
-		try {
-			final BluetoothAdapter adapter = BluetoothAdapter
-					.getDefaultAdapter();
-			Set<BluetoothDevice> bondedDevices = adapter.getBondedDevices();
-			for (BluetoothDevice device : bondedDevices) {
-				if (device.getName().startsWith("IOIO")) {
-					result.add(new IOIOConnectionSpec(
-							BluetoothIOIOConnection.class.getName(),
-							new Object[] { device.getName(),
-									device.getAddress() }));
-				}
+	public void getFactories(Collection<IOIOConnectionFactory> result) {
+		result.add(new IOIOConnectionFactory() {
+			private Integer port_ = new Integer(IOIO_PORT);
+			
+			@Override
+			public String getType() {
+				return SocketIOIOConnection.class.getCanonicalName();
 			}
-		} catch (SecurityException e) {
-			Log.e(TAG,
-					"Did you forget to declare uses-permission of android.permission.BLUETOOTH?");
-			throw e;
-		} catch (NoClassDefFoundError e) {
-			Log.w(TAG, "Bluetooth is not supported on this device.", e);
-		}
+			
+			@Override
+			public Object getExtra() {
+				return port_;
+			}
+			
+			@Override
+			public IOIOConnection createConnection() {
+				return new SocketIOIOConnection(IOIO_PORT);
+			}
+		});
 	}
 }

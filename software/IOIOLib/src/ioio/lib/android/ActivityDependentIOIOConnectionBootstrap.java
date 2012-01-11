@@ -27,20 +27,15 @@
  * or implied.
  */
 
-package ioio.lib.util;
+package ioio.lib.android;
 
-import java.util.Collection;
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import android.app.Activity;
 
-public interface IOIOConnectionDiscovery {
-	public static class IOIOConnectionSpec {
-		public final String className;
-		public final Object[] args;
-		
-		public IOIOConnectionSpec(String c, Object[] a) {
-			className = c;
-			args = a;
-		}
-	}
-	
-	public void getSpecs(Collection<IOIOConnectionSpec> result);
+
+public interface ActivityDependentIOIOConnectionBootstrap extends IOIOConnectionBootstrap {
+	public void onCreate(Activity activity);
+	public void onDestroy();
+	public void open();
+	public void close();
 }

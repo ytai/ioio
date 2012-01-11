@@ -2,7 +2,7 @@ package ioio.examples.holiday;
 
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.android.AbstractIOIOActivity;
 
 import java.util.List;
 

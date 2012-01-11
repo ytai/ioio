@@ -108,10 +108,15 @@ public class MainActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} finally {
-					try {
-						ioio_.waitForDisconnect();
-					} catch (InterruptedException e) {
-					}
+						if (ioio_ != null) {
+							try {
+								ioio_.waitForDisconnect();
+							} catch (InterruptedException e) {
+							}
+						}
+						synchronized (this) {
+							ioio_ = null;
+						}
 				}
 			}
 		}
@@ -131,8 +136,10 @@ public class MainActivity extends Activity {
 		}
 
 		/**
-		 * Set the text line on top of the screen. 
-		 * @param id The string ID of the message to present.
+		 * Set the text line on top of the screen.
+		 * 
+		 * @param id
+		 *            The string ID of the message to present.
 		 */
 		private void setText(final int id) {
 			runOnUiThread(new Runnable() {

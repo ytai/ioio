@@ -27,18 +27,15 @@
  * or implied.
  */
 
-package ioio.lib.util;
-
-import ioio.lib.api.IOIOFactory;
-import ioio.lib.impl.SocketIOIOConnection;
+package ioio.lib.spi;
 
 import java.util.Collection;
 
-public class SocketIOIOConnectionDiscovery implements IOIOConnectionDiscovery {
-
-	@Override
-	public void getSpecs(Collection<IOIOConnectionSpec> result) {
-		result.add(new IOIOConnectionSpec(SocketIOIOConnection.class.getName(),
-				new Object[] { new Integer(IOIOFactory.IOIO_PORT) }));
-	}
+/**
+ * Implementing class must have a default constructor. The default constructor
+ * must throw a NoRuntimeSupportException in case the required libraries for
+ * implementing the connections are not available in run-time.
+ */
+public interface IOIOConnectionBootstrap {
+	public void getFactories(Collection<IOIOConnectionFactory> result);
 }

@@ -27,18 +27,20 @@
  * or implied.
  */
 
-package ioio.lib.util;
+package ioio.lib.android;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
+import ioio.lib.api.IOIOFactory.ConnectionSpec;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
-import ioio.lib.util.IOIOConnectionDiscovery.IOIOConnectionSpec;
+import ioio.lib.spi.IOIOConnectionBootstrap;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -66,19 +68,51 @@ import android.util.Log;
  * In a more advanced use case, more than one IOIO is available. In this case, a
  * thread will be created for each IOIO, whose semantics are as defined above.
  * If the client needs to be able to distinguish between them, it is possible to
- * override {@link #createIOIOThread(String, Object[])} instead of
+ * override {@link #createIOIOThread(String, Object)} instead of
  * {@link #createIOIOThread()}. The first argument provided will contain the
  * connection class name, such as ioio.lib.impl.SocketIOIOConnection for a
  * connection established over a TCP socket (which is used over ADB). The second
  * argument will contain information specific to the connection type. For
- * example, in the case of SocketIOIOConnection, the array will contain an
- * {@link Integer} representing the local port number.
+ * example, in the case of SocketIOIOConnection, the second argument will
+ * contain an {@link Integer} representing the local port number.
  * 
  */
 public abstract class AbstractIOIOActivity extends Activity {
 	private static final String TAG = "AbstractIOIOActivity";
-	private IOIOConnectionSpec currentSpec_;
 	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
+	private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOFactory
+			.getBootstraps();
+	private ConnectionSpec currentConnectionSpec_;
+
+	/**
+	 * Subclasses should call this method from their own onCreate() if
+	 * overloaded. It takes care of connecting with the IOIO.
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
+				((ActivityDependentIOIOConnectionBootstrap) bootstrap)
+						.onCreate(this);
+			}
+		}
+	}
+
+	/**
+	 * Subclasses should call this method from their own onDestroy() if
+	 * overloaded. It takes care of connecting with the IOIO.
+	 */
+	@Override
+	protected void onDestroy() {
+		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
+				((ActivityDependentIOIOConnectionBootstrap) bootstrap)
+						.onDestroy();
+			}
+		}
+		super.onDestroy();
+	}
 
 	/**
 	 * Subclasses should call this method from their own onStart() if
@@ -106,17 +140,18 @@ public abstract class AbstractIOIOActivity extends Activity {
 	}
 
 	/**
-	 * Subclasses should implement this method by returning a concrete subclass
-	 * of {@link IOIOThread}. <code>null</code> may be returned if the client is
-	 * not interested to connect a thread for this IOIO. In multi-IOIO
-	 * scenarios, where you want to identify which IOIO the thread is for,
-	 * consider using {@link #createIOIOThread()} instead.
+	 * Subclasses must either implement this method or its other overload by
+	 * returning a concrete subclass of {@link IOIOThread}. <code>null</code>
+	 * may be returned if the client is not interested to create a thread for
+	 * this IOIO. In multi-IOIO scenarios, where you want to identify which IOIO
+	 * the thread is for, consider using {@link #createIOIOThread()} instead.
 	 * 
 	 * @return An implementation of {@link IOIOThread}, or <code>null</code> to
 	 *         skip.
 	 */
 	protected IOIOThread createIOIOThread() {
-		return null;
+		throw new RuntimeException(
+				"Client must override on of the createIOIOThread overloads!");
 	}
 
 	/**
@@ -130,20 +165,21 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 * wireless connection, any wired connection attempts may be rejected, thus
 	 * saving resources used for listening for incoming wired connections.
 	 * 
-	 * @param connectionClass
-	 *            The fully-qualified name of the connection class used to
-	 *            connect to the IOIO.
-	 * @param connectionArgs
-	 *            A list of arguments passed to the constructor of the
-	 *            connection class. Should provide information that enables
-	 *            distinguishing between different IOIO instances using the same
-	 *            connection class.
+	 * @param connectionType
+	 *            A unique name of the connection type. Typically, the
+	 *            fully-qualified name of the connection class used to connect
+	 *            to the IOIO.
+	 * @param extra
+	 *            A connection-type-specific object with extra information on
+	 *            the specific connection. Should provide information that
+	 *            enables distinguishing between different IOIO instances using
+	 *            the same connection class. For example, a Bluetooth connection
+	 *            type, might have the remote IOIO's Bluetooth name as extra.
 	 * 
 	 * @return An implementation of {@link IOIOThread}, or <code>null</code> to
 	 *         skip.
 	 */
-	protected IOIOThread createIOIOThread(String connectionClass,
-			Object[] connectionArgs) {
+	protected IOIOThread createIOIOThread(String connectionType, Object extra) {
 		return createIOIOThread();
 	}
 
@@ -156,7 +192,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
 		private boolean connected_ = true;
-		private final IOIOConnectionSpec spec_ = currentSpec_;
+		private final ConnectionSpec connectionspec_ = currentConnectionSpec_;
 
 		/**
 		 * Subclasses should override this method for performing operations to
@@ -204,14 +240,20 @@ public abstract class AbstractIOIOActivity extends Activity {
 		@Override
 		public final void run() {
 			super.run();
-			while (true) {
+			while (!abort_) {
 				try {
 					synchronized (this) {
 						if (abort_) {
 							break;
 						}
-						ioio_ = IOIOFactory.create(spec_.className, spec_.args);
+						ioio_ = IOIOFactory.create(connectionspec_);
 					}
+				} catch (Exception e) {
+					Log.e(TAG, "Failed to create IOIO, aborting IOIOThread!");
+					return;
+				}
+				// if we got here, we have a ioio_!
+				try {
 					ioio_.waitForConnect();
 					connected_ = true;
 					setup();
@@ -220,9 +262,6 @@ public abstract class AbstractIOIOActivity extends Activity {
 					}
 					ioio_.disconnect();
 				} catch (ConnectionLostException e) {
-					if (abort_) {
-						break;
-					}
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
 				} catch (IncompatibilityException e) {
@@ -234,18 +273,16 @@ public abstract class AbstractIOIOActivity extends Activity {
 					ioio_.disconnect();
 					break;
 				} finally {
-					if (ioio_ != null) {
-						try {
-							ioio_.waitForDisconnect();
-						} catch (InterruptedException e1) {
-						}
-						synchronized (this) {
-							ioio_ = null;
-						}
-						if (connected_) {
-							disconnected();
-							connected_ = false;
-						}
+					try {
+						ioio_.waitForDisconnect();
+					} catch (InterruptedException e1) {
+					}
+					synchronized (this) {
+						ioio_ = null;
+					}
+					if (connected_) {
+						disconnected();
+						connected_ = false;
 					}
 				}
 			}
@@ -277,10 +314,11 @@ public abstract class AbstractIOIOActivity extends Activity {
 
 	private void createAllThreads() {
 		threads_.clear();
-		Collection<IOIOConnectionSpec> specs = getConnectionSpecs();
-		for (IOIOConnectionSpec spec : specs) {
-			currentSpec_ = spec;
-			IOIOThread thread = createIOIOThread(spec.className, spec.args);
+		Collection<ConnectionSpec> specs = IOIOFactory.getConnectionSpecs();
+		for (ConnectionSpec spec : specs) {
+			currentConnectionSpec_ = spec;
+			IOIOThread thread = createIOIOThread(spec.getType(),
+					spec.getExtra());
 			if (thread != null) {
 				threads_.add(thread);
 			}
@@ -293,29 +331,4 @@ public abstract class AbstractIOIOActivity extends Activity {
 		}
 	}
 
-	private Collection<IOIOConnectionSpec> getConnectionSpecs() {
-		Collection<IOIOConnectionSpec> result = new LinkedList<IOIOConnectionSpec>();
-		addConnectionSpecs("ioio.lib.util.SocketIOIOConnectionDiscovery",
-				result);
-		addConnectionSpecs(
-				"ioio.lib.bluetooth.BluetoothIOIOConnectionDiscovery", result);
-		return result;
-	}
-
-	private void addConnectionSpecs(String discoveryClassName,
-			Collection<IOIOConnectionSpec> result) {
-		try {
-			Class<?> cls = Class.forName(discoveryClassName);
-			IOIOConnectionDiscovery discovery = (IOIOConnectionDiscovery) cls
-					.newInstance();
-			discovery.getSpecs(result);
-		} catch (ClassNotFoundException e) {
-			Log.d(TAG, "Discovery class not found: " + discoveryClassName
-					+ ". Not adding.");
-		} catch (Exception e) {
-			Log.w(TAG,
-					"Exception caught while discovering connections - not adding connections of class "
-							+ discoveryClassName, e);
-		}
-	}
 }

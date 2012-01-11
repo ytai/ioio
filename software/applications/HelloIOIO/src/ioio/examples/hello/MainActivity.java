@@ -1,9 +1,8 @@
 package ioio.examples.hello;
 
-import ioio.examples.hello.R;
+import ioio.lib.android.AbstractIOIOActivity;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.AbstractIOIOActivity;
 import android.os.Bundle;
 import android.widget.ToggleButton;
 

@@ -28,10 +28,15 @@
  */
 package ioio.lib.api;
 
-import java.lang.reflect.Constructor;
-
 import ioio.lib.impl.IOIOImpl;
-import ioio.lib.impl.SocketIOIOConnection;
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+
+import android.util.Log;
 
 /**
  * Factory class for creating instances of the IOIO interface.
@@ -55,67 +60,126 @@ import ioio.lib.impl.SocketIOIOConnection;
  * </pre>
  */
 public class IOIOFactory {
-	/** The TCP port used for communicating with the IOIO board. */
-	public static final int IOIO_PORT = 4545;
+	/**
+	 * A connection specification. Represents a possible communication channel
+	 * to a IOIO.
+	 */
+	public interface ConnectionSpec {
+		/**
+		 * A unique name of the connection type. Typically a fully-qualified
+		 * name of the connection class.
+		 */
+		public String getType();
+
+		/**
+		 * Extra information on the connection. This is specific to the
+		 * connection type. For example, for a Bluetooth connection, this is an
+		 * array containing the name and the Bluetooth address of the remote
+		 * IOIO.
+		 */
+		public Object getExtra();
+	}
 
 	/**
 	 * Create a IOIO instance. This specific implementation creates a IOIO
 	 * instance which works with the actual IOIO board connected via a TCP
 	 * connection (typically over a wired USB connection).
-	 *
+	 * 
 	 * @return The IOIO instance.
 	 */
 	public static IOIO create() {
+		Collection<ConnectionSpec> specs = getConnectionSpecs();
 		try {
-			return create(SocketIOIOConnection.class.getName(), IOIO_PORT);
-		} catch (ClassNotFoundException e) {
-			// we shouldn't get here - this class must always exist.
-			throw new RuntimeException("Something is very wrong here");
+			return create(specs.iterator().next());
+		} catch (NoSuchElementException e) {
+			Log.e(TAG, "No connection is available. This shouldn't happen.");
+			throw e;
 		}
+	}
+
+	/**
+	 * Create a IOIO instance, based on a connection specification.
+	 * 
+	 * @param spec
+	 *            The connection specification, which was obtained from
+	 *            {@link #getConnectionSpecs()}.
+	 * @return The IOIO instance.
+	 */
+	public static IOIO create(ConnectionSpec spec) {
+		IOIOConnectionFactory factory = (IOIOConnectionFactory) spec;
+		IOIOConnection connection = factory.createConnection();
+		return create(connection);
+	}
+
+	/**
+	 * Get all available connection specifications. This is a list of all
+	 * currently available communication channels in which a IOIO may be
+	 * available. The client typically passes elements of this collection to
+	 * {@link #create(ConnectionSpec)}, possibly after filtering based on the
+	 * specification's properties.
+	 * 
+	 * @return A collection of specifications.
+	 */
+	public static Collection<ConnectionSpec> getConnectionSpecs() {
+		Collection<IOIOConnectionFactory> result = new LinkedList<IOIOConnectionFactory>();
+		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+			bootstrap.getFactories(result);
+		}
+		return new LinkedList<ConnectionSpec>(result);
 	}
 
 	/**
 	 * Create a IOIO instance with a user-provided underlying connection class.
 	 * This method should be used for establishing a non-standard connection to
 	 * the IOIO board.
-	 *
-	 * @param connectionClassName
-	 *            The name of the connection class. Must have a public default
-	 *            constructor.
-	 *
+	 * 
+	 * @param connection
+	 *            An instance of a IOIO connection.
+	 * 
 	 * @return The IOIO instance.
-	 * @throws ClassNotFoundException The given class name was not found.
 	 */
-	public static IOIO create(String connectionClassName, Object... args) throws ClassNotFoundException {
-		IOIOConnection connection = createConnectionDynamically(connectionClassName, args);
-		return create(connection);
-	}
-
 	public static IOIO create(IOIOConnection connection) {
 		return new IOIOImpl(connection);
 	}
+	
+	/**
+	 * For advanced usage only!
+	 * Used for special runtime handling of bootstrap classes.
+	 * @return The bootstraps.
+	 */
+	public static Collection<IOIOConnectionBootstrap> getBootstraps() {
+		return bootstraps_;
+	}
 
-	public static IOIOConnection createConnectionDynamically(
-			String connectionClassName, Object... args)
-			throws ClassNotFoundException {
-		Class<?> cls;
-		cls = Class.forName(connectionClassName);
-		Object instance;
+	private static final String TAG = "IOIOFactory";
+	private static Collection<IOIOConnectionBootstrap> bootstraps_ = initializeBootstraps();
+
+	private static Collection<IOIOConnectionBootstrap> initializeBootstraps() {
+		final Collection<IOIOConnectionBootstrap> result = new LinkedList<IOIOConnectionBootstrap>();
+		String[] classNames = new String[] {
+				"ioio.lib.impl.SocketIOIOConnectionBootstrap",
+				"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
+				"ioio.lib.android.accessory.AccessoryConnectionBootstrap" };
+		for (String className : classNames) {
+			initializeBootstrap(className, result);
+		}
+		return result;
+	}
+
+	private static void initializeBootstrap(String className,
+			Collection<IOIOConnectionBootstrap> result) {
 		try {
-			Class<?>[] argTypes = new Class<?>[args.length];
-			for (int i = 0; i < args.length; ++i) {
-				argTypes[i] = args[i].getClass();
-			}
-			Constructor<?> constructor = cls.getConstructor(argTypes);
-			instance = constructor.newInstance(args);
+			Class<? extends IOIOConnectionBootstrap> bootstrapClass = Class
+					.forName(className).asSubclass(
+							IOIOConnectionBootstrap.class);
+			result.add(bootstrapClass.newInstance());
+		} catch (ClassNotFoundException e) {
+			Log.d(TAG, "Bootstrap class not found: " + className
+					+ ". Not adding.");
 		} catch (Exception e) {
-			throw new IllegalArgumentException(
-					"Provided class does not have a public ctor with the right signature", e);
+			Log.w(TAG,
+					"Exception caught while attempting to initialize accessory connection factory",
+					e);
 		}
-		if (!(instance instanceof IOIOConnection)) {
-			throw new IllegalArgumentException(
-					"Provided class does not implement IOIOConnection");
-		}
-		return (IOIOConnection) instance;
 	}
 }
