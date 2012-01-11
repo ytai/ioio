@@ -35,8 +35,6 @@
 #include "logging.h"
 #include "libusb/usb_config.h"
 #include "libusb/usb_host_android.h"
-#include "usb/usb.h"
-#include "usb/usb_host.h"
 #include "adb_private.h"
 #include "adb_file_private.h"
 
