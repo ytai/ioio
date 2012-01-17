@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -121,6 +122,11 @@ public abstract class AbstractIOIOActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
+				((ActivityDependentIOIOConnectionBootstrap) bootstrap).open();
+			}
+		}
 		createAllThreads();
 		startAllThreads();
 	}
@@ -131,11 +137,28 @@ public abstract class AbstractIOIOActivity extends Activity {
 	 */
 	@Override
 	protected void onStop() {
-		super.onStop();
 		abortAllThreads();
 		try {
 			joinAllThreads();
 		} catch (InterruptedException e) {
+		}
+		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
+				((ActivityDependentIOIOConnectionBootstrap) bootstrap).close();
+			}
+		}
+		super.onStop();
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+			for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+				if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
+					((ActivityDependentIOIOConnectionBootstrap) bootstrap).open();
+				}
+			}
 		}
 	}
 
@@ -260,7 +283,6 @@ public abstract class AbstractIOIOActivity extends Activity {
 					while (!abort_) {
 						loop();
 					}
-					ioio_.disconnect();
 				} catch (ConnectionLostException e) {
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
@@ -286,6 +308,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 					}
 				}
 			}
+			Log.d(TAG, "IOIOThread is exiting");
 		}
 
 		/** Not relevant to subclasses. */

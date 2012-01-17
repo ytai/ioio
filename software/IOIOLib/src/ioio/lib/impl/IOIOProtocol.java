@@ -90,6 +90,7 @@ public class IOIOProtocol {
 	static final int INCAP_STATUS                        = 0x1B;
 	static final int SET_PIN_INCAP                       = 0x1C;
 	static final int INCAP_REPORT                        = 0x1C;
+	static final int SOFT_CLOSE                          = 0x1D;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -172,6 +173,11 @@ public class IOIOProtocol {
 
 	synchronized public void softReset() throws IOException {
 		writeByte(SOFT_RESET);
+		flush();
+	}
+
+	synchronized public void softClose() throws IOException {
+		writeByte(SOFT_CLOSE);
 		flush();
 	}
 
@@ -767,6 +773,11 @@ public class IOIOProtocol {
 						readBytes(size, data);
 						handler_.handleIncapReport(arg1 & 0x0F, size, data);
 						break;
+
+					case SOFT_CLOSE:
+						Log.d(TAG, "Received soft close.");
+						throw new IOException("Soft close");
+
 
 					default:
 						in_.close();

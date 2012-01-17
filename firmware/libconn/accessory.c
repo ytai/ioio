@@ -20,12 +20,13 @@ static ChannelCallback callback = &DummyCallback;
 static void *rx_buf;
 static int rx_buf_size;
 static CHANNEL_STATE channel_state;
-static uint8_t close_msg = 0xFF;
+static uint8_t is_channel_open;
 
 
 void AccessoryInit(void *buf, int size) {
   rx_buf = buf;
   rx_buf_size = size;
+  is_channel_open = 0;
   channel_state = CHANNEL_INIT;
 }
 
@@ -40,6 +41,8 @@ int AccessoryTasks() {
 
   switch (channel_state) {
     case CHANNEL_INIT:
+      USBHostAndroidRead(rx_buf, 1, ANDROID_INTERFACE_ACC);
+      channel_state = CHANNEL_WAIT_OPEN;
       break;
 
     case CHANNEL_WAIT_OPEN:
@@ -48,8 +51,13 @@ int AccessoryTasks() {
           log_printf("Read failed with error code %d", err);
           return -1;
         }
-        USBHostAndroidRead(rx_buf, rx_buf_size, ANDROID_INTERFACE_ACC);
-        channel_state = CHANNEL_OPEN;
+        USBHostAndroidWrite(&is_channel_open, 1, ANDROID_INTERFACE_ACC);
+        if (is_channel_open) {
+          USBHostAndroidRead(rx_buf, rx_buf_size, ANDROID_INTERFACE_ACC);
+          channel_state = CHANNEL_OPEN;
+        } else {
+          channel_state = CHANNEL_WAIT_CLOSED;
+        }
       }
       break;
 
@@ -62,7 +70,10 @@ int AccessoryTasks() {
         if (size) {
           callback(0, rx_buf, size);
         }
-        USBHostAndroidRead(rx_buf, rx_buf_size, ANDROID_INTERFACE_ACC);
+        // Channel might have been closed from within the callback.
+        if (channel_state == CHANNEL_OPEN) {
+          USBHostAndroidRead(rx_buf, rx_buf_size, ANDROID_INTERFACE_ACC);
+        }
       }
       break;
 
@@ -81,17 +92,17 @@ int AccessoryTasks() {
 }
 
 CHANNEL_HANDLE AccessoryOpenChannel(ChannelCallback cb) {
-  assert(channel_state == CHANNEL_INIT);
+  assert(channel_state < CHANNEL_OPEN);
 
   callback = cb;
-  USBHostAndroidRead(rx_buf, 1, ANDROID_INTERFACE_ACC);
-  channel_state = CHANNEL_WAIT_OPEN;
+  is_channel_open = 1;
   return 0;
 }
 
 void AccessoryCloseChannel(CHANNEL_HANDLE h) {
   assert(h == 0);
   assert(channel_state == CHANNEL_OPEN);
+  is_channel_open = 0;
   channel_state = CHANNEL_WAIT_CLOSED;
 }
 
@@ -104,8 +115,8 @@ void AccessoryWrite(CHANNEL_HANDLE h, const void *data, int size) {
 int AccessoryCanWrite(CHANNEL_HANDLE h) {
   BYTE err;
   assert(h == 0);
-  assert(channel_state == CHANNEL_OPEN || channel_state == CHANNEL_WAIT_OPEN);
-  if (channel_state == CHANNEL_WAIT_OPEN) return 0;
+  assert(channel_state <= CHANNEL_OPEN);
+  if (channel_state != CHANNEL_OPEN) return 0;
   int res = USBHostAndroidTxIsComplete(&err, ANDROID_INTERFACE_ACC);
   if (res && err != USB_SUCCESS) {
     log_printf("Write failed with error code %d", err);

@@ -500,7 +500,10 @@ static BOOL MessageDone() {
 
 BOOL AppProtocolHandleIncoming(const BYTE* data, UINT32 data_len) {
   assert(data);
-  if (state != STATE_OPEN) return FALSE;  // shouldn't get data after close
+  if (state != STATE_OPEN) {
+    log_printf("Shouldn't get data after close!");
+    return FALSE;
+  }
 
   while (data_len > 0) {
     // copy a chunk of data to rx_msg

@@ -60,7 +60,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private static final String TAG = "AccessoryIOIOConnection";
 
 	private enum State {
-		WAIT_ATTACH, WAIT_PERMISSION, OPEN, CLOSED
+		CLOSED, WAIT_PERMISSION, OPEN
 	}
 
 	private enum InstanceState {
@@ -70,7 +70,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private Activity activity_;
 	private UsbManager usbManager_;
 	private UsbAccessory accessory_;
-	private State state_ = State.WAIT_ATTACH;
+	private State state_ = State.CLOSED;
 	private PendingIntent pendingIntent_;
 	private ParcelFileDescriptor fileDescriptor_;
 	private FileInputStream inputStream_;
@@ -90,7 +90,8 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	@Override
 	public synchronized void open() {
-		if (state_ != State.WAIT_ATTACH) {
+		Log.d(TAG, "open()");
+		if (state_ != State.CLOSED) {
 			return;
 		}
 		UsbAccessory[] accessories = usbManager_.getAccessoryList();
@@ -104,11 +105,14 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 				usbManager_.requestPermission(accessory_, pendingIntent_);
 				setState(State.WAIT_PERMISSION);
 			}
+		} else {
+			Log.d(TAG, "No accessory found.");
 		}
 	}
 
 	@Override
 	public synchronized void close() {
+		Log.d(TAG, "close()");
 		if (state_ == State.OPEN) {
 			closeStreams();
 		} else if (state_ == State.WAIT_PERMISSION) {
@@ -134,6 +138,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	}
 
 	private void openStreams() {
+		Log.d(TAG, "openStreams()");
 		try {
 			fileDescriptor_ = usbManager_.openAccessory(accessory_);
 			if (fileDescriptor_ != null) {
@@ -153,10 +158,10 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private void closeStreams() {
 		try {
 			fileDescriptor_.close();
+			Log.d(TAG, "Accessory is closed.");
 		} catch (IOException e) {
-			Log.e(TAG, "failed to proprly close accessory", e);
+			Log.e(TAG, "Failed to proprly close accessory", e);
 		}
-		setState(State.CLOSED);
 	}
 
 	@Override
@@ -165,7 +170,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		String action = intent.getAction();
 		if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
 			close();
-			setState(State.WAIT_ATTACH);
 			// } else if
 			// (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
 			// open();
@@ -181,6 +185,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	}
 
 	private void setState(State state) {
+		Log.d(TAG, "State set to: " + state);
 		state_ = state;
 		notifyAll();
 	}
@@ -212,7 +217,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					try {
 						AccessoryConnectionBootstrap.this.wait();
 					} catch (InterruptedException e) {
-						Log.e(TAG, "Don't interrupt me! Call disconnect()");
 					}
 				}
 				if (instanceState_ == InstanceState.DEAD) {
@@ -220,14 +224,40 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 				}
 				localInputStream_ = inputStream_;
 				localOutputStream_ = outputStream_;
-				try {
-					// soft-open the connection
+			}
+			try {
+				while (instanceState_ != InstanceState.CONNECTED) {
+					if (instanceState_ == InstanceState.DEAD
+							|| state_ != State.OPEN) {
+						Log.v(TAG,
+								"Connection aborted or device physically disconnected.");
+						throw new ConnectionLostException();
+					}
+					// Soft-open the connection
+					Log.v(TAG, "Soft-opening.");
 					localOutputStream_.write(0x00);
-				} catch (IOException e) {
-					instanceState_ = InstanceState.DEAD;
-					throw new ConnectionLostException();
+					// We're going to block now. We're counting on the IOIO to
+					// write back a byte, or otherwise we're locked until
+					// physical disconnection. This is a known OpenAccessory
+					// bug:
+					// http://code.google.com/p/android/issues/detail?id=20545
+					if (localInputStream_.read() == 1) {
+						Log.v(TAG, "Accessory ready to open connection.");
+						instanceState_ = InstanceState.CONNECTED;
+					} else {
+						Log.v(TAG,
+								"Accessory not ready to open connection. Sleeping.");
+						trySleep(1000);
+					}
 				}
-				instanceState_ = InstanceState.CONNECTED;
+			} catch (IOException e) {
+				instanceState_ = InstanceState.DEAD;
+				// It takes some time between the physical disconnection of
+				// an accessory to when it is actually removed from the
+				// list and reported to be detached. To avoid thrashing
+				// during this period, we sleep after an IOException.
+				trySleep(1000);
+				throw new ConnectionLostException();
 			}
 		}
 
@@ -236,6 +266,15 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 			synchronized (AccessoryConnectionBootstrap.this) {
 				instanceState_ = InstanceState.DEAD;
 				AccessoryConnectionBootstrap.this.notifyAll();
+			}
+		}
+
+		private void trySleep(long time) {
+			synchronized (AccessoryConnectionBootstrap.this) {
+				try {
+					AccessoryConnectionBootstrap.this.wait(time);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}

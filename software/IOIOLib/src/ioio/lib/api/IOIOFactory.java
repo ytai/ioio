@@ -158,8 +158,8 @@ public class IOIOFactory {
 		final Collection<IOIOConnectionBootstrap> result = new LinkedList<IOIOConnectionBootstrap>();
 		String[] classNames = new String[] {
 				"ioio.lib.impl.SocketIOIOConnectionBootstrap",
-				"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
-				"ioio.lib.android.accessory.AccessoryConnectionBootstrap" };
+				"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
+				"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" };
 		for (String className : classNames) {
 			initializeBootstrap(className, result);
 		}

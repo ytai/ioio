@@ -84,6 +84,7 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
     if (!AppProtocolHandleIncoming(data, data_len)) {
       // got corrupt input. need to close the connection and soft reset.
+      log_printf("Protocol error");
       state = STATE_ERROR;
     }
   } else {
@@ -140,6 +141,7 @@ int main() {
 
       case STATE_ERROR:
         ConnectionCloseChannel(handle);
+        SoftReset();
         state = STATE_INIT;
         break;
     }
