@@ -90,7 +90,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	@Override
 	public synchronized void open() {
-		Log.d(TAG, "open()");
 		if (state_ != State.CLOSED) {
 			return;
 		}
@@ -112,7 +111,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	@Override
 	public synchronized void close() {
-		Log.d(TAG, "close()");
 		if (state_ == State.OPEN) {
 			closeStreams();
 		} else if (state_ == State.WAIT_PERMISSION) {
@@ -138,7 +136,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	}
 
 	private void openStreams() {
-		Log.d(TAG, "openStreams()");
 		try {
 			fileDescriptor_ = usbManager_.openAccessory(accessory_);
 			if (fileDescriptor_ != null) {
@@ -158,7 +155,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private void closeStreams() {
 		try {
 			fileDescriptor_.close();
-			Log.d(TAG, "Accessory is closed.");
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to proprly close accessory", e);
 		}
@@ -166,7 +162,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	@Override
 	public synchronized void onReceive(Context context, Intent intent) {
-		Log.v(TAG, "Received intent: " + intent);
 		String action = intent.getAction();
 		if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
 			close();
@@ -185,7 +180,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	}
 
 	private void setState(State state) {
-		Log.d(TAG, "State set to: " + state);
 		state_ = state;
 		notifyAll();
 	}
@@ -229,12 +223,9 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 				while (instanceState_ != InstanceState.CONNECTED) {
 					if (instanceState_ == InstanceState.DEAD
 							|| state_ != State.OPEN) {
-						Log.v(TAG,
-								"Connection aborted or device physically disconnected.");
 						throw new ConnectionLostException();
 					}
 					// Soft-open the connection
-					Log.v(TAG, "Soft-opening.");
 					localOutputStream_.write(0x00);
 					// We're going to block now. We're counting on the IOIO to
 					// write back a byte, or otherwise we're locked until
@@ -242,11 +233,8 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					// bug:
 					// http://code.google.com/p/android/issues/detail?id=20545
 					if (localInputStream_.read() == 1) {
-						Log.v(TAG, "Accessory ready to open connection.");
 						instanceState_ = InstanceState.CONNECTED;
 					} else {
-						Log.v(TAG,
-								"Accessory not ready to open connection. Sleeping.");
 						trySleep(1000);
 					}
 				}

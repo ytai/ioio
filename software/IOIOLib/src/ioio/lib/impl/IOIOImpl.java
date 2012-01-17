@@ -99,7 +99,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		Log.d(TAG, "Waiting for IOIO connection");
 		try {
 			try {
-				Log.d(TAG, "Waiting for underlying connection");
+				Log.v(TAG, "Waiting for underlying connection");
 				connection_.waitForConnect();
 				synchronized (this) {
 					if (disconnect_) {
@@ -114,11 +114,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				incomingState_.handleConnectionLost();
 				throw e;
 			}
-			Log.d(TAG, "Waiting for handshake");
+			Log.v(TAG, "Waiting for handshake");
 			incomingState_.waitConnectionEstablished();
-			Log.d(TAG, "Querying for required interface ID");
+			Log.v(TAG, "Querying for required interface ID");
 			checkInterfaceVersion();
-			Log.d(TAG, "Required interface ID is supported");
+			Log.v(TAG, "Required interface ID is supported");
 			state_ = State.CONNECTED;
 			Log.i(TAG, "IOIO connection established");
 		} catch (ConnectionLostException e) {

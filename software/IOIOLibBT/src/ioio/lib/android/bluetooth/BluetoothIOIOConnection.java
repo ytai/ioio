@@ -70,9 +70,9 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		// keep trying to connect as long as we're not aborting
 		while (true) {
 			try {
-				Log.d(TAG, "Attempting to connect to Bluetooth device: " + name_);
+				Log.v(TAG, "Attempting to connect to Bluetooth device: " + name_);
 				socket_.connect();
-				Log.d(TAG, "Established connection to device " + name_
+				Log.v(TAG, "Established connection to device " + name_
 						+ " address: " + address_);
 				break; // if we got here, we're connected
 			} catch (Exception e) {
@@ -108,7 +108,7 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		if (disconnect_) {
 			return;
 		}
-		Log.d(TAG, "Client initiated disconnect");
+		Log.v(TAG, "Client initiated disconnect");
 		disconnect_ = true;
 		if (socket_ != null) {
 			try {
