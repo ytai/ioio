@@ -33,6 +33,7 @@ import ioio.lib.android.ActivityDependentIOIOConnectionBootstrap;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.NoRuntimeSupportException;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -44,6 +45,7 @@ import java.util.Collection;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -75,6 +77,15 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private ParcelFileDescriptor fileDescriptor_;
 	private FileInputStream inputStream_;
 	private FileOutputStream outputStream_;
+
+	public AccessoryConnectionBootstrap() throws NoRuntimeSupportException {
+		try {
+			Class.forName("com.android.future.usb.UsbManager");
+		} catch (ClassNotFoundException e) {
+			throw new NoRuntimeSupportException(
+					"Accessory is not supported on this device.");
+		}
+	}
 
 	@Override
 	public void onCreate(Activity activity) {
