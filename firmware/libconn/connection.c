@@ -35,8 +35,6 @@
 
 #include "logging.h"
 #include "usb_config.h"
-#include "usb/usb.h"
-#include "usb/usb_host.h"
 #include "usb_host_android.h"
 #include "usb_host_bluetooth.h"
 #include "adb_private.h"

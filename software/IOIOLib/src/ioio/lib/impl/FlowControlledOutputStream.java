@@ -91,12 +91,11 @@ public class FlowControlledOutputStream extends OutputStream {
 
 	@Override
 	synchronized public void close() {
+		if (closed_) {
+			return;
+		}
 		closed_ = true;
 		notifyAll();
-		thread_.interrupt();
-	}
-
-	synchronized public void kill() {
 		thread_.interrupt();
 	}
 
