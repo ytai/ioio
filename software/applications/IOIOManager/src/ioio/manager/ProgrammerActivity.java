@@ -30,7 +30,7 @@ package ioio.manager;
 
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.android.AbstractIOIOActivity;
 import ioio.manager.IOIOFileProgrammer.ProgressListener;
 import ioio.manager.IOIOFileReader.FormatException;
 
@@ -441,7 +441,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void disconnected() throws InterruptedException {
+		protected void disconnected() {
 			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 		}
 		
@@ -503,6 +503,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		}
 	}
 
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
