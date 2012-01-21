@@ -87,7 +87,8 @@ public class UartImpl extends AbstractResource implements DataModuleListener, Se
 	@Override
 	synchronized public void disconnected() {
 		super.disconnected();
-		outgoing_.kill();
+		incoming_.kill();
+		outgoing_.close();
 	}
 
 	@Override

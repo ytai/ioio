@@ -36,20 +36,54 @@ import java.util.concurrent.ArrayBlockingQueue;
 import android.util.Log;
 
 public class QueueInputStream extends InputStream {
+	private enum State {
+		OPEN, CLOSED, KILLED
+	};
+
 	private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
-	private boolean closed_ = false;
+	private State state_ = State.OPEN;
 
 	@Override
 	synchronized public int read() throws IOException {
 		try {
-			while (!closed_ && queue_.isEmpty()) {
+			while (state_ == State.OPEN && queue_.isEmpty()) {
 				wait();
 			}
-			if (closed_) {
+			if (state_ == State.KILLED) {
 				throw new IOException("Stream has been closed");
 			}
+			if (state_ == State.CLOSED && queue_.isEmpty()) {
+				return -1;
+			}
 			return ((int) queue_.remove()) & 0xFF;
+		} catch (InterruptedException e) {
+			throw new IOException("Interrupted");
+		}
+	}
+
+	@Override
+	synchronized public int read(byte[] b, int off, int len) throws IOException {
+		if (len == 0) {
+			return 0;
+		}
+		try {
+			while (state_ == State.OPEN && queue_.isEmpty()) {
+				wait();
+			}
+			if (state_ == State.KILLED) {
+				throw new IOException("Stream has been closed");
+			}
+			if (state_ == State.CLOSED && queue_.isEmpty()) {
+				return -1;
+			}
+			if (len > queue_.size()) {
+				len = queue_.size();
+			}
+			for (int i = 0; i < len; ++i) {
+				b[off++] = queue_.remove();
+			}
+			return len;
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted");
 		}
@@ -73,7 +107,18 @@ public class QueueInputStream extends InputStream {
 
 	@Override
 	synchronized public void close() {
-		closed_ = true;
+		if (state_ != State.OPEN) {
+			return;
+		}
+		state_ = State.CLOSED;
+		notifyAll();
+	}
+
+	synchronized public void kill() {
+		if (state_ != State.OPEN) {
+			return;
+		}
+		state_ = State.KILLED;
 		notifyAll();
 	}
 
