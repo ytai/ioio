@@ -16,7 +16,7 @@ tools/make-ioio-bundle firmware/bootloader/dist release/firmware/bootloader/Boot
 tools/make-hex-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.zip ${BOOT_CONFIGS[@]}
 tools/make-ioio-bundle firmware/app_layer_v1/dist release/firmware/application/App-$APP_VER.ioioapp ${APP_CONFIGS[@]}
 
-DIST=$(mktemp -dt dist)
+DIST=$(mktemp -dt dist.XXXXXX)
 
 for ((i = 0; i < ${#BOOT_CONFIGS[@]}; ++i)); do
   BOOT_CONFIG=${BOOT_CONFIGS[i]}
