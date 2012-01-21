@@ -298,7 +298,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	public String getImplVersion(VersionType v) throws ConnectionLostException {
-		checkState();
+		if (state_ == State.INIT) {
+			throw new IllegalStateException(
+					"Connection has not yet been established");
+		}
 		switch (v) {
 		case HARDWARE_VER:
 			return incomingState_.hardwareId_;
@@ -307,7 +310,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "IOIO0311";
+			return "IOIO0321";
 		}
 		return null;
 	}
