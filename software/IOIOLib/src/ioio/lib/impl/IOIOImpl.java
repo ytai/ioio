@@ -361,7 +361,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		checkState();
 		PinFunctionMap.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
-		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin);
+		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin, startValue);
 		addDisconnectListener(result);
 		openPins_[spec.pin] = true;
 		try {
