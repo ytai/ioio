@@ -34,17 +34,23 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.io.IOException;
 
 public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
-	DigitalOutputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
+	boolean value_;
+
+	DigitalOutputImpl(IOIOImpl ioio, int pin, boolean startValue) throws ConnectionLostException {
 		super(ioio, pin);
+		value_ = startValue;
 	}
 
 	@Override
 	synchronized public void write(boolean val) throws ConnectionLostException {
 		checkState();
-		try {
-			ioio_.protocol_.setDigitalOutLevel(pinNum_, val);
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
+		if (val != value_) {
+			try {
+				ioio_.protocol_.setDigitalOutLevel(pinNum_, val);
+				value_ = val;
+			} catch (IOException e) {
+				throw new ConnectionLostException(e);
+			}
 		}
 	}
 }
