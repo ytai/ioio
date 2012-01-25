@@ -98,10 +98,13 @@ DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IF)
 DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IE)
 DEFINE_REG_SETTERS_1B(NUM_SPI_MODULES, _SPI, IP)
 
+static void SPIConfigMasterInternal(int spi_num, int scale, int div, int smp_end, int clk_edge,
+               int clk_pol, int external);
+
 void SPIInit() {
   int i;
   for (i = 0; i < NUM_SPI_MODULES; ++i) {
-    SPIConfigMaster(i, 0, 0, 0, 0, 0);
+    SPIConfigMasterInternal(i, 0, 0, 0, 0, 0, 0);
     Set_SPIIP[i](5);  // int. priority 5
   }
 }
@@ -114,12 +117,14 @@ static inline void SPISendStatus(int spi_num, int enabled) {
   AppProtocolSendMessage(&msg);
 }
 
-void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
-               int clk_pol) {
+static void SPIConfigMasterInternal(int spi_num, int scale, int div, int smp_end, int clk_edge,
+               int clk_pol, int external) {
   volatile SPIREG* regs = spi_reg[spi_num];
   SPI_STATE* spi = &spis[spi_num];
-  log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi_num, scale, div,
-             smp_end, clk_edge, clk_pol);
+  if (external) {
+    log_printf("SPIConfigMaster(%d, %d, %d, %d, %d, %d)", spi_num, scale, div,
+               smp_end, clk_edge, clk_pol);
+  }
   Set_SPIIE[spi_num](0);  // disable int.
   regs->spixstat = 0x0000;  // disable SPI
   // clear SW buffers
@@ -129,7 +134,9 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
   spi->num_messages_rx_queue = 0;
   spi->packet_state = PACKET_STATE_IDLE;
   if (scale || div) {
-    SPISendStatus(spi_num, 1);
+    if (external) {
+      SPISendStatus(spi_num, 1);
+    }
     spi->num_tx_since_last_report = TX_BUF_SIZE;
     regs->spixcon1 = (smp_end << 9)
                      | (clk_edge << 8)
@@ -143,8 +150,15 @@ void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
     Set_SPIIF[spi_num](1);  // set int. flag, so int. will occur as soon as data is
                         // written
   } else {
-    SPISendStatus(spi_num, 0);
+    if (external) {
+      SPISendStatus(spi_num, 0);
+    }
   }
+}
+
+void SPIConfigMaster(int spi_num, int scale, int div, int smp_end, int clk_edge,
+               int clk_pol) {
+  SPIConfigMasterInternal(spi_num, scale, div, smp_end, clk_edge, clk_pol, 1);
 }
 
 static void SPIReportTxStatus(int spi_num) {
