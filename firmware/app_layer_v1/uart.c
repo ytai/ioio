@@ -64,10 +64,12 @@ DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIE)
 DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIF)
 DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIP)
 
+static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity, int external);
+
 void UARTInit() {
   int i;
   for (i = 0; i < NUM_UART_MODULES; ++i) {
-    UARTConfig(i, 0, 0, 0, 0);
+    UARTConfigInternal(i, 0, 0, 0, 0, 0);
     Set_URXIP[i](4);  // RX int. priority 4
     Set_UTXIP[i](4);  // TX int. priority 4
   }
@@ -81,11 +83,13 @@ static inline void UARTSendStatus(int uart_num, int enabled) {
   AppProtocolSendMessage(&msg);
 }
 
-void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
+static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity, int external) {
   volatile UART* regs = uart_reg[uart_num];
   UART_STATE* uart = &uarts[uart_num];
-  log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
-             two_stop_bits, parity);
+  if (external) {
+    log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
+               two_stop_bits, parity);
+  }
   SAVE_UART_FOR_LOG(uart_num);
   Set_URXIE[uart_num](0);  // disable RX int.
   Set_UTXIE[uart_num](0);  // disable TX int.
@@ -95,7 +99,9 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
   ByteQueueInit(&uart->tx_queue, uart->tx_buffer, TX_BUF_SIZE);
   uart->num_tx_since_last_report = 0;
   if (rate) {
-    UARTSendStatus(uart_num, 1);
+    if (external) {
+      UARTSendStatus(uart_num, 1);
+    }
     regs->uxbrg = rate;
     Set_URXIF[uart_num](0);  // clear RX int.
     Set_UTXIF[uart_num](0);  // clear TX int.
@@ -104,9 +110,16 @@ void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int pari
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
     uart->num_tx_since_last_report = TX_BUF_SIZE;
   } else {
-    UARTSendStatus(uart_num, 0);
+    if (external) {
+      UARTSendStatus(uart_num, 0);
+    }
   }
 }
+
+void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
+  UARTConfigInternal(uart_num, rate, speed4x, two_stop_bits, parity, 1);
+}
+
 
 static void UARTReportTxStatus(int uart_num) {
   int report;

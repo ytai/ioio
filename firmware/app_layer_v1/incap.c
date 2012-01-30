@@ -62,11 +62,13 @@ typedef enum {
 static EDGE_STATE edge_states[NUM_INCAP_MODULES];
 static WORD con1_vals[NUM_INCAP_MODULES];
 
+static void InCapConfigInternal(int incap_num, int double_prec, int mode, int clock, int external);
+
 void InCapInit() {
   log_printf("InCapInit()");
   int i;
   for (i = 0; i < NUM_INCAP_MODULES; ++i) {
-    InCapConfig(i, 0, 0, 0);
+    InCapConfigInternal(i, 0, 0, 0, 0);
   }
   PR5 = 0x0138;  // 5ms period = 200Hz
   TMR5 = 0x0000;
@@ -74,13 +76,15 @@ void InCapInit() {
   _T5IE = 1;
 }
 
-void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
+static void InCapConfigInternal(int incap_num, int double_prec, int mode, int clock, int external) {
   volatile INCAP_REG* reg = incap_regs + incap_num;
   volatile INCAP_REG* reg2 = reg + 1;
   OUTGOING_MESSAGE msg;
   msg.type = INCAP_STATUS;
   msg.args.incap_status.incap_num = incap_num;
-  log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode, clock);
+  if (external) {
+    log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode, clock);
+  }
   
   Set_ICIE[incap_num](0);  // disable interrupts
 
@@ -104,8 +108,10 @@ void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
   static const unsigned int ictsel[] = { 7 << 10, 0 << 10, 2 << 10, 3 << 10};
 
   if (mode) {
-    msg.args.incap_status.enabled = 1;
-    AppProtocolSendMessage(&msg);
+    if (external) {
+      msg.args.incap_status.enabled = 1;
+      AppProtocolSendMessage(&msg);
+    }
     EDGE_STATE edge = initial_edge[mode - 1];
     edge_states[incap_num] = edge;
     Set_ICIP[incap_num](edge == LEADING ? 6 : 1);
@@ -117,9 +123,15 @@ void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
     }
     con1_vals[incap_num] = ictsel[clock] | icm_ici[mode - 1];
   } else {
-    msg.args.incap_status.enabled = 0;
-    AppProtocolSendMessage(&msg);
+    if (external) {
+      msg.args.incap_status.enabled = 0;
+      AppProtocolSendMessage(&msg);
+    }
   }
+}
+
+void InCapConfig(int incap_num, int double_prec, int mode, int clock) {
+  InCapConfigInternal(incap_num, double_prec, mode, clock, 1);
 }
 
 inline static int NumBytes16(WORD val) {

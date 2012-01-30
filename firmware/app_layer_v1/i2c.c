@@ -104,12 +104,14 @@ DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IF)
 DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IE)
 DEFINE_REG_SETTERS_1B(NUM_I2C_MODULES, _MI2C, IP)
 
+static void I2CConfigMasterInternal(int i2c_num, int rate, int smbus_levels, int external);
+
 void I2CInit() {
   log_printf("I2CInit()");
   int i;
   for (i = 0; i < NUM_I2C_MODULES; ++i) {
     Set_MI2CIP[i](4);  // interrupt priority 4
-    I2CConfigMaster(i, 0, 0);
+    I2CConfigMasterInternal(i, 0, 0, 0);
   }
 }
 
@@ -121,12 +123,14 @@ static inline void I2CSendStatus(int i2c_num, int enabled) {
   AppProtocolSendMessage(&msg);
 }
 
-void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
+static void I2CConfigMasterInternal(int i2c_num, int rate, int smbus_levels, int external) {
   volatile I2CREG* regs = i2c_reg[i2c_num];
   I2C_STATE* i2c = i2c_states + i2c_num;
   static const unsigned int brg_values[] = { 0x9D, 0x25, 0x0D };
-  
-  log_printf("I2CConfigMaster(%d, %d, %d)", i2c_num, rate, smbus_levels);
+
+  if (external) {
+    log_printf("I2CConfigMaster(%d, %d, %d)", i2c_num, rate, smbus_levels);
+  }
   Set_MI2CIE[i2c_num](0);  // disable interrupt
   regs->con = 0x0000;  // disable module
   Set_MI2CIF[i2c_num](0);  // clear interrupt
@@ -136,7 +140,9 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
   i2c->num_messages_rx_queue = 0;
   i2c->message_state = STATE_START;
   if (rate) {
-    I2CSendStatus(i2c_num, 1);
+    if (external) {
+      I2CSendStatus(i2c_num, 1);
+    }
     i2c->num_tx_since_last_report = TX_BUF_SIZE;
     regs->brg = brg_values[rate - 1];
     regs->con = (1 << 15)               // enable
@@ -144,8 +150,14 @@ void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
                 | (smbus_levels << 8);  // use SMBus levels
     Set_MI2CIF[i2c_num](1);  // signal interrupt
   } else {
-    I2CSendStatus(i2c_num, 0);
+    if (external) {
+      I2CSendStatus(i2c_num, 0);
+    }
   }
+}
+
+void I2CConfigMaster(int i2c_num, int rate, int smbus_levels) {
+  I2CConfigMasterInternal(i2c_num, rate, smbus_levels, 1);
 }
 
 static void I2CReportTxStatus(int i2c_num) {
