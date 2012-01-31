@@ -1,7 +1,8 @@
 package ioio.tests.torture;
 
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 
 class ResourceAllocator {
 	static final int PIN_PAIR_DIGITAL = 0x0001; 
@@ -44,7 +45,7 @@ class ResourceAllocator {
 		}
 	}
 	
-	Queue<PinPair> pinPairs_ = new LinkedList<ResourceAllocator.PinPair>();
+	List<PinPair> pinPairs_ = new LinkedList<ResourceAllocator.PinPair>();
 	private int[] peripherals_;
 	
 	public ResourceAllocator() {
@@ -69,12 +70,12 @@ class ResourceAllocator {
 	
 	public synchronized int allocatePinPair(int caps) throws InterruptedException {
 		while (true) {
-			for (int i = 0; i < pinPairs_.size(); ++i) {
-				PinPair p = pinPairs_.remove();
+			PinPair p;
+			for (Iterator<PinPair> i = pinPairs_.iterator(); i.hasNext();) {
+				 p = i.next();
 				if ((p.caps & caps) != 0) {
+					i.remove();
 					return p.first_pin_num;
-				} else {
-					pinPairs_.add(p);
 				}
 			}
 			wait();
