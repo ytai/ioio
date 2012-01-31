@@ -652,4 +652,20 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 					"Connection has not yet been established");
 		}
 	}
+
+	@Override
+	public synchronized void beginBatch() throws ConnectionLostException {
+		checkState();
+		protocol_.beginBatch();
+	}
+
+	@Override
+	public synchronized void endBatch() throws ConnectionLostException {
+		checkState();
+		try {
+			protocol_.endBatch();
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+	}
 }
