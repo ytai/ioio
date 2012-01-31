@@ -134,13 +134,28 @@ public class IOIOProtocol {
 		}
 	}
 
-	private byte[] outbuf_ = new byte[128];
+	private byte[] outbuf_ = new byte[256];
 	private int pos_ = 0;
+	private int batchCounter_ = 0;
 
-	private void writeByte(int b) {
+	private void writeByte(int b) throws IOException {
 		assert (b >= 0 && b < 256);
+		if (pos_ == outbuf_.length) {
+			// buffer is full
+			flush();
+		}
 		//Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
 		outbuf_[pos_++] = (byte) b;
+	}
+	
+	public synchronized void beginBatch() {
+		++batchCounter_;
+	}
+	
+	public synchronized void endBatch() throws IOException {
+		if (--batchCounter_ == 0) {
+			flush();
+		}
 	}
 
 	private void flush() throws IOException {
@@ -163,22 +178,25 @@ public class IOIOProtocol {
 	}
 
 	synchronized public void hardReset() throws IOException {
+		beginBatch();
 		writeByte(HARD_RESET);
 		writeByte('I');
 		writeByte('O');
 		writeByte('I');
 		writeByte('O');
-		flush();
+		endBatch();
 	}
 
 	synchronized public void softReset() throws IOException {
+		beginBatch();
 		writeByte(SOFT_RESET);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void softClose() throws IOException {
+		beginBatch();
 		writeByte(SOFT_CLOSE);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void checkInterface(byte[] interfaceId)
@@ -187,71 +205,80 @@ public class IOIOProtocol {
 			throw new IllegalArgumentException(
 					"interface ID must be exactly 8 bytes long");
 		}
+		beginBatch();
 		writeByte(CHECK_INTERFACE);
 		for (int i = 0; i < 8; ++i) {
 			writeByte(interfaceId[i]);
 		}
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setDigitalOutLevel(int pin, boolean level)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_DIGITAL_OUT_LEVEL);
 		writeByte(pin << 2 | (level ? 1 : 0));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinPwm(int pin, int pwmNum, boolean enable)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_PWM);
 		writeByte(pin & 0x3F);
 		writeByte((enable ? 0x80 : 0x00) | (pwmNum & 0x0F));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPwmDutyCycle(int pwmNum, int dutyCycle,
 			int fraction) throws IOException {
+		beginBatch();
 		writeByte(SET_PWM_DUTY_CYCLE);
 		writeByte(pwmNum << 2 | fraction);
 		writeTwoBytes(dutyCycle);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPwmPeriod(int pwmNum, int period, PwmScale scale)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_PWM_PERIOD);
 		writeByte(((scale.encoding & 0x02) << 6) | (pwmNum << 1)
 				| (scale.encoding & 0x01));
 		writeTwoBytes(period);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinIncap(int pin, int incapNum, boolean enable)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_INCAP);
 		writeByte(pin);
 		writeByte(incapNum | (enable ? 0x80 : 0x00));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void incapClose(int incapNum) throws IOException {
+		beginBatch();
 		writeByte(INCAP_CONFIGURE);
 		writeByte(incapNum);
 		writeByte(0x00);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void incapConfigure(int incapNum, boolean double_prec,
 			int mode, int clock) throws IOException {
+		beginBatch();
 		writeByte(INCAP_CONFIGURE);
 		writeByte(incapNum);
 		writeByte((double_prec ? 0x80 : 0x00) | (mode << 3) | clock);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void i2cWriteRead(int i2cNum, boolean tenBitAddr,
 			int address, int writeSize, int readSize, byte[] writeData)
 			throws IOException {
+		beginBatch();
 		writeByte(I2C_WRITE_READ);
 		writeByte(((address >> 8) << 6) | (tenBitAddr ? 0x20 : 0x00) | i2cNum);
 		writeByte(address & 0xFF);
@@ -260,16 +287,17 @@ public class IOIOProtocol {
 		for (int i = 0; i < writeSize; ++i) {
 			writeByte(((int) writeData[i]) & 0xFF);
 		}
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinDigitalOut(int pin, boolean value,
 			DigitalOutput.Spec.Mode mode) throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_DIGITAL_OUT);
 		writeByte((pin << 2)
 				| (mode == DigitalOutput.Spec.Mode.OPEN_DRAIN ? 0x01 : 0x00)
 				| (value ? 0x02 : 0x00));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinDigitalIn(int pin,
@@ -280,16 +308,18 @@ public class IOIOProtocol {
 		} else if (mode == DigitalInput.Spec.Mode.PULL_DOWN) {
 			pull = 2;
 		}
+		beginBatch();
 		writeByte(SET_PIN_DIGITAL_IN);
 		writeByte((pin << 2) | pull);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setChangeNotify(int pin, boolean changeNotify)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_CHANGE_NOTIFY);
 		writeByte((pin << 2) | (changeNotify ? 0x01 : 0x00));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void registerPeriodicDigitalSampling(int pin,
@@ -298,16 +328,18 @@ public class IOIOProtocol {
 	}
 
 	synchronized public void setPinAnalogIn(int pin) throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_ANALOG_IN);
 		writeByte(pin);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setAnalogInSampling(int pin, boolean enable)
 			throws IOException {
+		beginBatch();
 		writeByte(SET_ANALOG_IN_SAMPLING);
 		writeByte((enable ? 0x80 : 0x00) | (pin & 0x3F));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void uartData(int uartNum, int numBytes, byte data[])
@@ -317,12 +349,13 @@ public class IOIOProtocol {
 					"A maximum of 64 bytes can be sent in one uartData message. Got: "
 							+ numBytes);
 		}
+		beginBatch();
 		writeByte(UART_DATA);
 		writeByte((numBytes - 1) | uartNum << 6);
 		for (int i = 0; i < numBytes; ++i) {
 			writeByte(((int) data[i]) & 0xFF);
 		}
-		flush();
+		endBatch();
 	}
 
 	synchronized public void uartConfigure(int uartNum, int rate,
@@ -330,50 +363,56 @@ public class IOIOProtocol {
 			throws IOException {
 		int parbits = parity == Uart.Parity.EVEN ? 1
 				: (parity == Uart.Parity.ODD ? 2 : 0);
+		beginBatch();
 		writeByte(UART_CONFIG);
 		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
 				| (stopbits == Uart.StopBits.TWO ? 0x04 : 0x00) | parbits);
 		writeTwoBytes(rate);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void uartClose(int uartNum) throws IOException {
+		beginBatch();
 		writeByte(UART_CONFIG);
 		writeByte(uartNum << 6);
 		writeTwoBytes(0);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinUart(int pin, int uartNum, boolean tx,
 			boolean enable) throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_UART);
 		writeByte(pin);
 		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | uartNum);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void spiConfigureMaster(int spiNum,
 			SpiMaster.Config config) throws IOException {
+		beginBatch();
 		writeByte(SPI_CONFIGURE_MASTER);
 		writeByte((spiNum << 5) | SCALE_DIV[config.rate.ordinal()]);
 		writeByte((config.sampleOnTrailing ? 0x00 : 0x02)
 				| (config.invertClk ? 0x01 : 0x00));
-		flush();
+		endBatch();
 	}
 
 	synchronized public void spiClose(int spiNum) throws IOException {
+		beginBatch();
 		writeByte(SPI_CONFIGURE_MASTER);
 		writeByte(spiNum << 5);
 		writeByte(0x00);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void setPinSpi(int pin, int mode, boolean enable,
 			int spiNum) throws IOException {
+		beginBatch();
 		writeByte(SET_PIN_SPI);
 		writeByte(pin);
 		writeByte((1 << 4) | (mode << 2) | spiNum);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void spiMasterRequest(int spiNum, int ssPin,
@@ -381,6 +420,7 @@ public class IOIOProtocol {
 			throws IOException {
 		final boolean dataNeqTotal = (dataBytes != totalBytes);
 		final boolean resNeqTotal = (responseBytes != totalBytes);
+		beginBatch();
 		writeByte(SPI_MASTER_REQUEST);
 		writeByte((spiNum << 6) | ssPin);
 		writeByte((dataNeqTotal ? 0x80 : 0x00) | (resNeqTotal ? 0x40 : 0x00)
@@ -394,55 +434,63 @@ public class IOIOProtocol {
 		for (int i = 0; i < dataBytes; ++i) {
 			writeByte(((int) data[i]) & 0xFF);
 		}
-		flush();
+		endBatch();
 	}
 
 	synchronized public void i2cConfigureMaster(int i2cNum, Rate rate,
 			boolean smbusLevels) throws IOException {
 		int rateBits = (rate == Rate.RATE_1MHz ? 3
 				: (rate == Rate.RATE_400KHz ? 2 : 1));
+		beginBatch();
 		writeByte(I2C_CONFIGURE_MASTER);
 		writeByte((smbusLevels ? 0x80 : 0) | (rateBits << 5) | i2cNum);
-		flush();
+		endBatch();
 	}
 
 	synchronized public void i2cClose(int i2cNum) throws IOException {
+		beginBatch();
 		writeByte(I2C_CONFIGURE_MASTER);
 		writeByte(i2cNum);
-		flush();
+		endBatch();
 	}
 
 	public void icspOpen() throws IOException {
+		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x01);
-		flush();
+		endBatch();
 	}
 
 	public void icspClose() throws IOException {
+		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x00);
-		flush();
+		endBatch();
 	}
 
 	public void icspEnter() throws IOException {
+		beginBatch();
 		writeByte(ICSP_PROG_ENTER);
-		flush();
+		endBatch();
 	}
 
 	public void icspExit() throws IOException {
+		beginBatch();
 		writeByte(ICSP_PROG_EXIT);
-		flush();
+		endBatch();
 	}
 
 	public void icspSix(int instruction) throws IOException {
+		beginBatch();
 		writeByte(ICSP_SIX);
 		writeThreeBytes(instruction);
-		flush();
+		endBatch();
 	}
 
 	public void icspRegout() throws IOException {
+		beginBatch();
 		writeByte(ICSP_REGOUT);
-		flush();
+		endBatch();
 	}
 
 	public interface IncomingHandler {
