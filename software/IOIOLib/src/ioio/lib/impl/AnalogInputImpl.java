@@ -28,22 +28,31 @@
  */
 package ioio.lib.impl;
 
-import java.io.IOException;
-
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.InputPinListener;
 
-public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListener {
+import java.io.IOException;
+
+public class AnalogInputImpl extends AbstractPin implements AnalogInput,
+		InputPinListener {
 	private int value_;
 	private boolean valid_ = false;
-	
+
+	short[] buffer_;
+	int bufferSize_;
+	int bufferCapacity_;
+	int bufferReadCursor_;
+	int bufferWriteCursor_;
+	int bufferOverflowCount_ = 0;
+
 	AnalogInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
 		super(ioio, pin);
 	}
-	
+
 	@Override
-	public float getVoltage() throws InterruptedException, ConnectionLostException {
+	public float getVoltage() throws InterruptedException,
+			ConnectionLostException {
 		return read() * getReference();
 	}
 
@@ -55,18 +64,20 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 	@Override
 	synchronized public void setValue(int value) {
 		// Log.v("AnalogInputImpl", "Pin " + pinNum_ + " value is " + value);
-		assert(value >= 0 || value < 1024);
-		value_ = value; 
+		assert (value >= 0 && value < 1024);
+		value_ = value;
 		if (!valid_) {
 			valid_ = true;
 			notifyAll();
 		}
+		bufferPush((short) value);
 	}
 
 	@Override
-	synchronized public float read() throws InterruptedException, ConnectionLostException {
+	synchronized public float read() throws InterruptedException,
+			ConnectionLostException {
 		checkState();
-		while (!valid_ && state_ != State.DISCONNECTED) {
+		while (!valid_ && state_ == State.OPEN) {
 			wait();
 		}
 		checkState();
@@ -86,5 +97,83 @@ public class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPi
 			ioio_.protocol_.setAnalogInSampling(pinNum_, false);
 		} catch (IOException e) {
 		}
+	}
+
+	@Override
+	public synchronized void setBuffer(int capacity)
+			throws ConnectionLostException {
+		checkState();
+		if (capacity <= 0) {
+			buffer_ = null;
+		} else {
+			buffer_ = new short[capacity];
+		}
+		bufferCapacity_ = capacity;
+		bufferSize_ = 0;
+		bufferReadCursor_ = 0;
+		bufferWriteCursor_ = 0;
+		bufferOverflowCount_ = 0;
+	}
+
+	@Override
+	public float readBuffered() throws InterruptedException,
+			ConnectionLostException {
+		checkState();
+		return (float) bufferPull() / 1023.0f;
+	}
+
+	@Override
+	public float getVoltageBuffered() throws InterruptedException,
+			ConnectionLostException {
+		return readBuffered() * getReference();
+	}
+
+	private void bufferPush(short value) {
+		if (buffer_ == null) {
+			return;
+		}
+		if (bufferSize_ == bufferCapacity_) {
+			++bufferOverflowCount_;
+		} else {
+			++bufferSize_;
+		}
+		buffer_[bufferWriteCursor_++] = value;
+		if (bufferWriteCursor_ == bufferCapacity_) {
+			bufferWriteCursor_ = 0;
+		}
+		notifyAll();
+	}
+
+	private synchronized short bufferPull() throws InterruptedException,
+			ConnectionLostException {
+		if (buffer_ == null) {
+			throw new IllegalStateException(
+					"Need to call setBuffer() before reading buffered values.");
+		}
+		while (bufferSize_ == 0 && state_ == State.OPEN) {
+			wait();
+		}
+		checkState();
+		short result = buffer_[bufferReadCursor_++];
+		if (bufferReadCursor_ == bufferCapacity_) {
+			bufferReadCursor_ = 0;
+		}
+		--bufferSize_;
+		return result;
+	}
+
+	@Override
+	public int getOverflowCount() throws ConnectionLostException {
+		return bufferOverflowCount_;
+	}
+
+	@Override
+	public float getSampleRate() throws ConnectionLostException {
+		return 1000.0f;
+	}
+
+	@Override
+	public int available() throws ConnectionLostException {
+		return bufferSize_;
 	}
 }
