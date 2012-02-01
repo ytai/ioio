@@ -88,7 +88,6 @@ import ioio.lib.api.exception.ConnectionLostException;
  * }
  * ...
  * potentiometer.close();  // pin 40 can now be used for something else.
- * }
  * </pre>
  * 
  * @see IOIO#openAnalogInput(int)
