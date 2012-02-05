@@ -28,14 +28,16 @@
  */
 package ioio.manager;
 
+import ioio.lib.api.IOIO;
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 
 class Scripts {
 	private static int NUM_ATTEMPTS = 20;
 	
-	private static void exitResetVector(IcspMaster icsp)
+	private static void exitResetVector(IOIO ioio, IcspMaster icsp)
 			throws ConnectionLostException {
+		ioio.beginBatch();
 		icsp.executeInstruction(0x040200); // GOTO 0x200
 		icsp.executeInstruction(0x040200); // GOTO 0x200
 		icsp.executeInstruction(0x000000); // NOP
@@ -43,11 +45,13 @@ class Scripts {
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x040200); // GOTO 0x200
 		icsp.executeInstruction(0x000000); // NOP
+		ioio.endBatch();
 	}
 
-	public static int getDeviceId(IcspMaster icsp)
+	public static int getDeviceId(IOIO ioio, IcspMaster icsp)
 			throws ConnectionLostException, InterruptedException {
-		exitResetVector(icsp);
+		ioio.beginBatch();
+		exitResetVector(ioio, icsp);
 		icsp.executeInstruction(0x200FF0); // MOV #0x00FF, W0
 		icsp.executeInstruction(0x8802A0); // MOV W0, TBLPAG
 		icsp.executeInstruction(0x200006); // MOV #0x0000, W6
@@ -59,15 +63,17 @@ class Scripts {
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x883C20); // MOV W0, VISI
 		icsp.executeInstruction(0x000000); // NOP
+		ioio.endBatch();
 		icsp.readVisi();
 		icsp.executeInstruction(0x000000); // NOP
 		return icsp.waitVisiResult();
 	}
 
-	public static void chipErase(IcspMaster icsp)
+	public static void chipErase(IOIO ioio, IcspMaster icsp)
 			throws ConnectionLostException, InterruptedException,
 			TimeoutException {
-		exitResetVector(icsp);
+		ioio.beginBatch();
+		exitResetVector(ioio, icsp);
 		icsp.executeInstruction(0x2404FA); // MOV #0x404F, W10
 		icsp.executeInstruction(0x883B0A); // MOV W10, NVMCON
 
@@ -78,13 +84,15 @@ class Scripts {
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x000000); // NOP
 
-		initiateWrite(icsp);
-		waitWriteDone(icsp);
+		initiateWrite(ioio, icsp);
+		ioio.endBatch();
+		waitWriteDone(ioio, icsp);
 	}
 
-	public static void readBlock(IcspMaster icsp, int addr, int numInst,
+	public static void readBlock(IOIO ioio, IcspMaster icsp, int addr, int numInst,
 			int[] buf) throws ConnectionLostException, InterruptedException {
-		exitResetVector(icsp);
+		ioio.beginBatch();
+		exitResetVector(ioio, icsp);
 		// Initialize the Write Pointer (W7) to point to the VISI register.
 		icsp.executeInstruction(0x207847); // MOV #VISI, W7
 		icsp.executeInstruction(0x000000); // NOP
@@ -105,7 +113,9 @@ class Scripts {
 			icsp.executeInstruction(0xBA0B96); // TBLRDL [W6], [W7]
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0x000000); // NOP
+			ioio.endBatch();
 			icsp.readVisi();
+			ioio.beginBatch();
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0xBADBB6); // TBLRDH.B [W6++], [W7++]
 			icsp.executeInstruction(0x000000); // NOP
@@ -113,12 +123,16 @@ class Scripts {
 			icsp.executeInstruction(0xBAD3D6); // TBLRDH.B [++W6], [W7--]
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0x000000); // NOP
+			ioio.endBatch();
 			icsp.readVisi();
+			ioio.beginBatch();
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0xBA0BB6); // TBLRDL [W6++], [W7]
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0x000000); // NOP
+			ioio.endBatch();
 			icsp.readVisi();
+			ioio.beginBatch();
 			icsp.executeInstruction(0x000000); // NOP
 
 			// Reset device internal PC.
@@ -126,6 +140,7 @@ class Scripts {
 			icsp.executeInstruction(0x000000); // NOP
 			addr += 4;
 		}
+		ioio.endBatch();
 
 		int mid = 0;
 		for (int i = 0; i < numInst; ++i) {
@@ -139,11 +154,12 @@ class Scripts {
 		}
 	}
 
-	public static void writeBlock(IcspMaster icsp, int addr, int[] buf)
+	public static void writeBlock(IOIO ioio, IcspMaster icsp, int addr, int[] buf)
 			throws ConnectionLostException, InterruptedException,
 			TimeoutException {
 		assert (buf.length >= 64);
-		exitResetVector(icsp);
+		ioio.beginBatch();
+		exitResetVector(ioio, icsp);
 		// Set the NVMCON to program 64 instruction words.
 		icsp.executeInstruction(0x24001A); // MOV #0x4001, W10
 		icsp.executeInstruction(0x883B0A); // MOV W10, NVMCON
@@ -208,18 +224,21 @@ class Scripts {
 			// latches.
 		}
 
-		initiateWrite(icsp);
-		waitWriteDone(icsp);
+		initiateWrite(ioio, icsp);
+		ioio.endBatch();
+		waitWriteDone(ioio, icsp);
 	}
 
-	private static void initiateWrite(IcspMaster icsp)
+	private static void initiateWrite(IOIO ioio, IcspMaster icsp)
 			throws ConnectionLostException {
+		ioio.beginBatch();
 		icsp.executeInstruction(0xA8E761); // BSET NVMCON, #WR
 		icsp.executeInstruction(0x000000); // NOP
 		icsp.executeInstruction(0x000000); // NOP
+		ioio.endBatch();
 	}
 
-	private static void waitWriteDone(IcspMaster icsp)
+	private static void waitWriteDone(IOIO ioio, IcspMaster icsp)
 			throws ConnectionLostException, InterruptedException,
 			TimeoutException {
 		int attempts = NUM_ATTEMPTS;
@@ -227,11 +246,13 @@ class Scripts {
 			if (attempts-- == 0) {
 				throw new TimeoutException();
 			}
+			ioio.beginBatch();
 			icsp.executeInstruction(0x040200); // GOTO 0x200
 			icsp.executeInstruction(0x000000); // NOP
 			icsp.executeInstruction(0x803B02); // MOV NVMCON, W2
 			icsp.executeInstruction(0x883C22); // MOV W2, VISI
 			icsp.executeInstruction(0x000000); // NOP
+			ioio.endBatch();
 			icsp.readVisi();
 			icsp.executeInstruction(0x000000); // NOP
 		} while ((icsp.waitVisiResult() & (1 << 15)) != 0);

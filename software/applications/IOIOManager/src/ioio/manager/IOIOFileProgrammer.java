@@ -28,6 +28,7 @@
  */
 package ioio.manager;
 
+import ioio.lib.api.IOIO;
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.manager.IOIOFileReader.FormatException;
@@ -51,21 +52,21 @@ public class IOIOFileProgrammer {
 		return nblocks;
 	}
 
-	public static void programIOIOFileBlock(IcspMaster icsp, IOIOFileReader file)
+	public static void programIOIOFileBlock(IOIO ioio, IcspMaster icsp, IOIOFileReader file)
 			throws ConnectionLostException, InterruptedException,
 			FormatException, TimeoutException {
 		int[] block = new int[64];
 		parseBlock(file.currentBlock(), block);
-		Scripts.writeBlock(icsp, file.currentAddress(), block);
+		Scripts.writeBlock(ioio, icsp, file.currentAddress(), block);
 	}
 
-	public static boolean verifyIOIOFileBlock(IcspMaster icsp,
+	public static boolean verifyIOIOFileBlock(IOIO ioio, IcspMaster icsp,
 			IOIOFileReader file) throws ConnectionLostException,
 			InterruptedException, FormatException {
 		int[] fileBlock = new int[64];
 		int[] actualBlock = new int[64];
 		parseBlock(file.currentBlock(), fileBlock);
-		Scripts.readBlock(icsp, file.currentAddress(), 64, actualBlock);
+		Scripts.readBlock(ioio, icsp, file.currentAddress(), 64, actualBlock);
 		if (!Arrays.equals(fileBlock, actualBlock)) {
 			for (int i = 0; i < 64; ++i) {
 				if (fileBlock[i] != actualBlock[i]) {

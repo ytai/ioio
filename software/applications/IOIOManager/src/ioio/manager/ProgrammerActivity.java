@@ -347,7 +347,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 			case STATE_TARGET_CONNECTED:
 			case STATE_UNKOWN_TARGET_CONNECTED:
 				icsp_.enterProgramming();
-				int targetId = Scripts.getDeviceId(icsp_);
+				int targetId = Scripts.getDeviceId(ioio_, icsp_);
 				if (targetId == 0xFFFF) {
 					setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
 				} else {
@@ -366,7 +366,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				try {
 					icsp_.enterProgramming();
 					setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
-					Scripts.chipErase(icsp_);
+					Scripts.chipErase(ioio_, icsp_);
 					toast(R.string.success);
 				} catch (ConnectionLostException e) {
 					toast(R.string.erase_failed);
@@ -391,7 +391,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 					setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
 					IOIOFileReader file = new IOIOFileReader(selectedImage_);
 					nTotalBlocks_ = IOIOFileProgrammer.countBlocks(file);
-					Scripts.chipErase(icsp_);
+					Scripts.chipErase(ioio_, icsp_);
 					setProgrammerState(ProgrammerState.STATE_PROGRAM_IN_PROGRESS);
 					nBlocksDone_ = 0;
 					file.rewind();
@@ -400,7 +400,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 							toast(R.string.aborted);
 							return;
 						}
-						IOIOFileProgrammer.programIOIOFileBlock(icsp_, file);
+						IOIOFileProgrammer.programIOIOFileBlock(ioio_, icsp_, file);
 						blockDone();
 					}
 					setProgrammerState(ProgrammerState.STATE_VERIFY_IN_PROGRESS);
@@ -412,7 +412,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 							return;
 						}
 						if (!IOIOFileProgrammer
-								.verifyIOIOFileBlock(icsp_, file)) {
+								.verifyIOIOFileBlock(ioio_, icsp_, file)) {
 							toast(R.string.verify_failed);
 							return;
 						}
