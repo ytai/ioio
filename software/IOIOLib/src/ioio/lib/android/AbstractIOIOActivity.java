@@ -102,9 +102,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-				((ActivityDependentIOIOConnectionBootstrap) bootstrap)
-						.onCreate(this);
+			if (bootstrap instanceof ContextWrapperDependent) {
+				((ContextWrapperDependent) bootstrap).onCreate(this);
 			}
 		}
 	}
@@ -116,9 +115,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-				((ActivityDependentIOIOConnectionBootstrap) bootstrap)
-						.onDestroy();
+			if (bootstrap instanceof ContextWrapperDependent) {
+				((ContextWrapperDependent) bootstrap).onDestroy();
 			}
 		}
 		super.onDestroy();
@@ -132,8 +130,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-				((ActivityDependentIOIOConnectionBootstrap) bootstrap).open();
+			if (bootstrap instanceof ContextWrapperDependent) {
+				((ContextWrapperDependent) bootstrap).open();
 			}
 		}
 		createAllThreads();
@@ -152,8 +150,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 		} catch (InterruptedException e) {
 		}
 		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-				((ActivityDependentIOIOConnectionBootstrap) bootstrap).close();
+			if (bootstrap instanceof ContextWrapperDependent) {
+				((ContextWrapperDependent) bootstrap).close();
 			}
 		}
 		super.onStop();
@@ -164,9 +162,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 		super.onNewIntent(intent);
 		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
 			for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-				if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-					((ActivityDependentIOIOConnectionBootstrap) bootstrap)
-							.open();
+				if (bootstrap instanceof ContextWrapperDependent) {
+					((ContextWrapperDependent) bootstrap).open();
 				}
 			}
 		}

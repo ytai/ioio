@@ -29,9 +29,10 @@
 
 package ioio.lib.android.accessory;
 
-import ioio.lib.android.ActivityDependentIOIOConnectionBootstrap;
+import ioio.lib.android.ContextWrapperDependent;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
 
@@ -43,10 +44,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.ParcelFileDescriptor;
@@ -56,7 +57,7 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
-		ActivityDependentIOIOConnectionBootstrap, IOIOConnectionFactory {
+		ContextWrapperDependent, IOIOConnectionBootstrap, IOIOConnectionFactory {
 	private static final String ACTION_USB_PERMISSION = "ioio.lib.accessory.action.USB_PERMISSION";
 	private static final String TAG = "AccessoryIOIOConnection";
 
@@ -68,7 +69,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		INIT, CONNECTED, DEAD
 	};
 
-	private Activity activity_;
+	private ContextWrapper activity_;
 	private UsbManager usbManager_;
 	private UsbAccessory accessory_;
 	private State state_ = State.CLOSED;
@@ -87,9 +88,9 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	}
 
 	@Override
-	public void onCreate(Activity activity) {
-		activity_ = activity;
-		usbManager_ = UsbManager.getInstance(activity);
+	public void onCreate(ContextWrapper wrapper) {
+		activity_ = wrapper;
+		usbManager_ = UsbManager.getInstance(wrapper);
 		registerReceiver();
 	}
 

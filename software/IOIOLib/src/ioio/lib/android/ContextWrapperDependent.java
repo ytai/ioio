@@ -29,12 +29,11 @@
 
 package ioio.lib.android;
 
-import ioio.lib.spi.IOIOConnectionBootstrap;
-import android.app.Activity;
+import android.content.ContextWrapper;
 
 
-public interface ActivityDependentIOIOConnectionBootstrap extends IOIOConnectionBootstrap {
-	public void onCreate(Activity activity);
+public interface ContextWrapperDependent {
+	public void onCreate(ContextWrapper wrapper);
 	public void onDestroy();
 	public void open();
 	public void close();
