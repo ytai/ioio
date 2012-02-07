@@ -29,11 +29,10 @@
 package ioio.lib.api;
 
 import ioio.lib.impl.IOIOImpl;
-import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.IOIOConnectionRegistry;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 import android.util.Log;
@@ -61,26 +60,6 @@ import android.util.Log;
  */
 public class IOIOFactory {
 	/**
-	 * A connection specification. Represents a possible communication channel
-	 * to a IOIO.
-	 */
-	public interface ConnectionSpec {
-		/**
-		 * A unique name of the connection type. Typically a fully-qualified
-		 * name of the connection class.
-		 */
-		public String getType();
-
-		/**
-		 * Extra information on the connection. This is specific to the
-		 * connection type. For example, for a Bluetooth connection, this is an
-		 * array containing the name and the Bluetooth address of the remote
-		 * IOIO.
-		 */
-		public Object getExtra();
-	}
-
-	/**
 	 * Create a IOIO instance. This specific implementation creates a IOIO
 	 * instance which works with the actual IOIO board connected via a TCP
 	 * connection (typically over a wired USB connection).
@@ -88,44 +67,14 @@ public class IOIOFactory {
 	 * @return The IOIO instance.
 	 */
 	public static IOIO create() {
-		Collection<ConnectionSpec> specs = getConnectionSpecs();
+		Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+				.getConnectionFactories();
 		try {
-			return create(specs.iterator().next());
+			return create(factories.iterator().next().createConnection());
 		} catch (NoSuchElementException e) {
 			Log.e(TAG, "No connection is available. This shouldn't happen.");
 			throw e;
 		}
-	}
-
-	/**
-	 * Create a IOIO instance, based on a connection specification.
-	 * 
-	 * @param spec
-	 *            The connection specification, which was obtained from
-	 *            {@link #getConnectionSpecs()}.
-	 * @return The IOIO instance.
-	 */
-	public static IOIO create(ConnectionSpec spec) {
-		IOIOConnectionFactory factory = (IOIOConnectionFactory) spec;
-		IOIOConnection connection = factory.createConnection();
-		return create(connection);
-	}
-
-	/**
-	 * Get all available connection specifications. This is a list of all
-	 * currently available communication channels in which a IOIO may be
-	 * available. The client typically passes elements of this collection to
-	 * {@link #create(ConnectionSpec)}, possibly after filtering based on the
-	 * specification's properties.
-	 * 
-	 * @return A collection of specifications.
-	 */
-	public static Collection<ConnectionSpec> getConnectionSpecs() {
-		Collection<IOIOConnectionFactory> result = new LinkedList<IOIOConnectionFactory>();
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			bootstrap.getFactories(result);
-		}
-		return new LinkedList<ConnectionSpec>(result);
 	}
 
 	/**
@@ -141,45 +90,6 @@ public class IOIOFactory {
 	public static IOIO create(IOIOConnection connection) {
 		return new IOIOImpl(connection);
 	}
-	
-	/**
-	 * For advanced usage only!
-	 * Used for special runtime handling of bootstrap classes.
-	 * @return The bootstraps.
-	 */
-	public static Collection<IOIOConnectionBootstrap> getBootstraps() {
-		return bootstraps_;
-	}
 
 	private static final String TAG = "IOIOFactory";
-	private static Collection<IOIOConnectionBootstrap> bootstraps_ = initializeBootstraps();
-
-	private static Collection<IOIOConnectionBootstrap> initializeBootstraps() {
-		final Collection<IOIOConnectionBootstrap> result = new LinkedList<IOIOConnectionBootstrap>();
-		String[] classNames = new String[] {
-				"ioio.lib.impl.SocketIOIOConnectionBootstrap",
-				"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
-				"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" };
-		for (String className : classNames) {
-			initializeBootstrap(className, result);
-		}
-		return result;
-	}
-
-	private static void initializeBootstrap(String className,
-			Collection<IOIOConnectionBootstrap> result) {
-		try {
-			Class<? extends IOIOConnectionBootstrap> bootstrapClass = Class
-					.forName(className).asSubclass(
-							IOIOConnectionBootstrap.class);
-			result.add(bootstrapClass.newInstance());
-		} catch (ClassNotFoundException e) {
-			Log.d(TAG, "Bootstrap class not found: " + className
-					+ ". Not adding.");
-		} catch (Exception e) {
-			Log.w(TAG,
-					"Exception caught while attempting to initialize accessory connection factory",
-					e);
-		}
-	}
 }

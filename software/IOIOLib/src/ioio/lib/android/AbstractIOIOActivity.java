@@ -31,10 +31,11 @@ package ioio.lib.android;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
-import ioio.lib.api.IOIOFactory.ConnectionSpec;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.IOIOConnectionRegistry;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -80,10 +81,18 @@ import android.util.Log;
  */
 public abstract class AbstractIOIOActivity extends Activity {
 	private static final String TAG = "AbstractIOIOActivity";
+
+	static {
+		IOIOConnectionRegistry
+				.addBootstraps(new String[] {
+						"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
+						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" });
+	}
+
 	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
-	private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOFactory
+	private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
 			.getBootstraps();
-	private ConnectionSpec currentConnectionSpec_;
+	private IOIOConnectionFactory currentConnectionFactory_;
 
 	/**
 	 * Subclasses should call this method from their own onCreate() if
@@ -156,7 +165,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
 			for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
 				if (bootstrap instanceof ActivityDependentIOIOConnectionBootstrap) {
-					((ActivityDependentIOIOConnectionBootstrap) bootstrap).open();
+					((ActivityDependentIOIOConnectionBootstrap) bootstrap)
+							.open();
 				}
 			}
 		}
@@ -215,7 +225,7 @@ public abstract class AbstractIOIOActivity extends Activity {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
 		private boolean connected_ = true;
-		private final ConnectionSpec connectionspec_ = currentConnectionSpec_;
+		private final IOIOConnectionFactory connectionFactory_ = currentConnectionFactory_;
 
 		/**
 		 * Subclasses should override this method for performing operations to
@@ -269,7 +279,8 @@ public abstract class AbstractIOIOActivity extends Activity {
 						if (abort_) {
 							break;
 						}
-						ioio_ = IOIOFactory.create(connectionspec_);
+						ioio_ = IOIOFactory.create(connectionFactory_
+								.createConnection());
 					}
 				} catch (Exception e) {
 					Log.e(TAG, "Failed to create IOIO, aborting IOIOThread!");
@@ -337,11 +348,12 @@ public abstract class AbstractIOIOActivity extends Activity {
 
 	private void createAllThreads() {
 		threads_.clear();
-		Collection<ConnectionSpec> specs = IOIOFactory.getConnectionSpecs();
-		for (ConnectionSpec spec : specs) {
-			currentConnectionSpec_ = spec;
-			IOIOThread thread = createIOIOThread(spec.getType(),
-					spec.getExtra());
+		Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+				.getConnectionFactories();
+		for (IOIOConnectionFactory factory : factories) {
+			currentConnectionFactory_ = factory;
+			IOIOThread thread = createIOIOThread(factory.getType(),
+					factory.getExtra());
 			if (thread != null) {
 				threads_.add(thread);
 			}
