@@ -30,7 +30,9 @@ package ioio.manager;
 
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.android.AbstractIOIOActivity;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.AbstractIOIOActivity;
 import ioio.manager.IOIOFileProgrammer.ProgressListener;
 import ioio.manager.IOIOFileReader.FormatException;
 
@@ -318,11 +320,11 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 	}
 
 	@Override
-	protected IOIOThread createIOIOThread() {
+	protected IOIOLooper createIOIOLooper() {
 		return new MainIOIOThread();
 	}
 
-	class MainIOIOThread extends IOIOThread implements ProgressListener {
+	class MainIOIOThread extends BaseIOIOLooper implements ProgressListener {
 		private int nTotalBlocks_;
 		private int nBlocksDone_;
 		private IcspMaster icsp_;
@@ -335,7 +337,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void loop() throws ConnectionLostException,
+		public void loop() throws ConnectionLostException,
 				InterruptedException {
 			if (programmerState_ == ProgrammerState.STATE_TARGET_CONNECTED
 					&& desiredState_ != ProgrammerState.STATE_IOIO_DISCONNECTED) {
@@ -358,7 +360,7 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 						setProgrammerState(ProgrammerState.STATE_TARGET_CONNECTED);
 					}
 				}
-				sleep(100);
+				Thread.sleep(100);
 				icsp_.exitProgramming();
 				break;
 
@@ -437,16 +439,16 @@ public class ProgrammerActivity extends AbstractIOIOActivity {
 				}
 				break;
 			}
-			sleep(100);
+			Thread.sleep(100);
 		}
 
 		@Override
-		protected void disconnected() {
+		public void disconnected() {
 			setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
 		}
 		
 		@Override
-		protected void incompatible() {
+		public void incompatible() {
 			setProgrammerState(ProgrammerState.STATE_IOIO_INCOMPATIBLE);
 		}
 

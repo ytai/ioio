@@ -1,13 +1,13 @@
 package ioio.test_bed;
 
-import ioio.lib.android.AbstractIOIOActivity;
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
-import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.api.exception.IncompatibilityException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.AbstractIOIOActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,7 +32,6 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 
 	private static final int SAMPLING_DELAY = 100;
 	private static final int LED_BLINK_SPEED = 250;
-	private MainThread thread;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -45,7 +43,7 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 		ODD_TEXT = (TextView) findViewById(R.id.odd_text);
 	}
 
-	class MainThread extends IOIOThread {
+	class MainThread extends BaseIOIOLooper {
 		Thread ledThread;
 
 		public MainThread() {
@@ -63,12 +61,12 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void loop() throws ConnectionLostException,
+		public void loop() throws ConnectionLostException,
 				InterruptedException {
 		}
 
 		@Override
-		protected void disconnected() {
+		public void disconnected() {
 			Log.i(LOG_TAG, "IOIO disconnected");
 			disableUI();
 			if (ledThread != null) {
@@ -84,7 +82,7 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void incompatible() {
+		public void incompatible() {
 			Log.e(LOG_TAG, "Incompatbile firmware!");
 		}
 
@@ -215,7 +213,7 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 	}
 
 	@Override
-	protected IOIOThread createIOIOThread() {
+	protected IOIOLooper createIOIOLooper() {
 		return new MainThread();
 	}
 }

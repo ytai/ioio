@@ -29,12 +29,12 @@
 
 package ioio.lib.android.accessory;
 
-import ioio.lib.android.ContextWrapperDependent;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
+import ioio.lib.util.android.ContextWrapperDependent;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -118,6 +118,11 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		} else {
 			Log.d(TAG, "No accessory found.");
 		}
+	}
+	
+	@Override
+	public void reopen() {
+		open();
 	}
 
 	@Override

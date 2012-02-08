@@ -2,7 +2,9 @@ package ioio.examples.holiday;
 
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.android.AbstractIOIOActivity;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.AbstractIOIOActivity;
 
 import java.util.List;
 
@@ -149,7 +151,7 @@ public class HolidayIOIOActivity extends AbstractIOIOActivity {
 		}
 	}
 
-	class IOIOThread extends AbstractIOIOActivity.IOIOThread {
+	class IOIOThread extends BaseIOIOLooper {
 		private SpiMaster spi_;
 
 		@Override
@@ -158,7 +160,7 @@ public class HolidayIOIOActivity extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void loop() throws ConnectionLostException {
+		public void loop() throws ConnectionLostException {
 			// We have 32 LEDs. Each one of them gets lit with probability
 			// frequency_. If lit, we pick a random pixel from the current preview
 			// frame and use its color. Otherwise, we set the LED to black and
@@ -180,7 +182,7 @@ public class HolidayIOIOActivity extends AbstractIOIOActivity {
 						buffer1_.length, null, 0);
 				spi_.writeRead(buffer2_, buffer2_.length, buffer2_.length,
 						null, 0);
-				sleep(50);
+				Thread.sleep(50);
 			} catch (InterruptedException e1) {
 			}
 		}
@@ -236,7 +238,7 @@ public class HolidayIOIOActivity extends AbstractIOIOActivity {
 	}
 
 	@Override
-	protected AbstractIOIOActivity.IOIOThread createIOIOThread() {
+	protected IOIOLooper createIOIOLooper() {
 		return new IOIOThread();
 	}
 

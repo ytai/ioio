@@ -27,7 +27,7 @@
  * or implied.
  */
 
-package ioio.lib.android;
+package ioio.lib.util.android;
 
 import android.content.ContextWrapper;
 
@@ -36,5 +36,6 @@ public interface ContextWrapperDependent {
 	public void onCreate(ContextWrapper wrapper);
 	public void onDestroy();
 	public void open();
+	public void reopen();
 	public void close();
 }

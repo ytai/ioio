@@ -30,7 +30,7 @@ package ioio.lib.api;
 
 import ioio.lib.impl.IOIOImpl;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.IOIOConnectionRegistry;
+import ioio.lib.util.IOIOConnectionRegistry;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;

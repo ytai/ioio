@@ -1,8 +1,10 @@
 package ioio.tests.torture;
 
-import ioio.lib.android.AbstractIOIOActivity;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.AbstractIOIOActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -14,7 +16,7 @@ public class MainActivity extends AbstractIOIOActivity {
 		setContentView(R.layout.main);
 	}
 
-	class IOIOThread extends AbstractIOIOActivity.IOIOThread {
+	class IOIOThread extends BaseIOIOLooper {
 		private static final String TAG = "TortureTest";
 		private ResourceAllocator alloc_ = new ResourceAllocator();
 		private TestProvider provider_;
@@ -32,12 +34,11 @@ public class MainActivity extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void loop() throws ConnectionLostException,
-				InterruptedException {
+		public void loop() throws ConnectionLostException, InterruptedException {
 		}
 
 		@Override
-		protected void disconnected() {
+		public void disconnected() {
 			Log.i(TAG, "IOIO disconnected, killing workers");
 			for (int i = 0; i < workers_.length; ++i) {
 				if (workers_[i] != null) {
@@ -57,7 +58,7 @@ public class MainActivity extends AbstractIOIOActivity {
 		}
 
 		@Override
-		protected void incompatible() {
+		public void incompatible() {
 			Log.e(TAG, "Incompatibility detected");
 		}
 
@@ -79,7 +80,7 @@ public class MainActivity extends AbstractIOIOActivity {
 	}
 
 	@Override
-	protected IOIOThread createIOIOThread() {
+	protected IOIOLooper createIOIOLooper() {
 		return new IOIOThread();
 	}
 }

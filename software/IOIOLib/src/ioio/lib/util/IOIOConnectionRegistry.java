@@ -26,7 +26,10 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.spi;
+package ioio.lib.util;
+
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;
