@@ -34,7 +34,7 @@
 
 typedef void (*BTCallback) (int h, const void *data, UINT32 size);
 
-void BTInit();
+void BTInit(void *buf, int size);
 void BTTasks();
 void BTShutdown();
 int  BTAccepting();

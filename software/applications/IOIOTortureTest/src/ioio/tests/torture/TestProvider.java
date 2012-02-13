@@ -1,9 +1,10 @@
 package ioio.tests.torture;
 
+import ioio.lib.api.IOIO;
+
 import java.util.List;
 import java.util.Random;
 
-import ioio.lib.api.IOIO;
 import android.app.Activity;
 import android.widget.TextView;
 

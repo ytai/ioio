@@ -266,9 +266,11 @@ typedef struct _USB_TPL
         BYTE         val;                       //
         struct
         {
-            BYTE     bfAllowHNP      : 1;       // Is HNP allowed?
-            BYTE     bfIsClassDriver : 1;       // Client driver is a class-level driver
-            BYTE     bfSetConfiguration : 1;    // bConfiguration is valid
+            BYTE     bfAllowHNP          : 1;  // Is HNP allowed?
+            BYTE     bfIsClassDriver     : 1;  // Client driver is a class-level driver
+            BYTE     bfSetConfiguration  : 1;  // bConfiguration is valid
+            BYTE     bfIsDeviceDriver    : 1;  // driver can accpet a device
+            BYTE     bfIsInterfaceDriver : 1;  // driver can accept an interface
         };
     } flags;                                    //
 } USB_TPL;
@@ -281,6 +283,176 @@ typedef struct _USB_TPL
 #define TPL_ALLOW_HNP   0x01                    // Bitmask for Host Negotiation Protocol.
 #define TPL_CLASS_DRV   0x02                    // Bitmask for class driver support.
 #define TPL_SET_CONFIG  0x04                    // Bitmask for setting the configuration.
+#define TPL_DEVICE_DRV  0x08
+#define TPL_INTFC_DRV   0x10
+
+
+//******************************************************************************
+//******************************************************************************
+// Section: Data Structures
+//
+// These data structures are all internal to the stack.
+//******************************************************************************
+//******************************************************************************
+
+// *****************************************************************************
+/* USB Bus Information
+
+This structure is used to hold information about the USB bus status.
+*/
+typedef struct _USB_BUS_INFO
+{
+    volatile union
+    {
+        struct
+        {
+            BYTE        bfControlTransfersDone      : 1;    // All control transfers in the current frame are complete.
+            BYTE        bfInterruptTransfersDone    : 1;    // All interrupt transfers in the current frame are complete.
+            BYTE        bfIsochronousTransfersDone  : 1;    // All isochronous transfers in the current frame are complete.
+            BYTE        bfBulkTransfersDone         : 1;    // All bulk transfers in the current frame are complete.
+            BYTE        bfTokenAlreadyWritten       : 1;    // A token has already been written to the USB module
+        };
+        WORD            val;                                //
+    }                   flags;                              //
+//    volatile DWORD      dBytesSentInFrame;                  // The number of bytes sent during the current frame. Isochronous use only.
+    volatile BYTE       lastBulkTransaction;                // The last bulk transaction sent.
+    volatile BYTE       countBulkTransactions;              // The number of active bulk transactions.
+} USB_BUS_INFO;
+
+
+// *****************************************************************************
+/* USB Configuration Node
+
+This structure is used to make a linked list of all the configuration
+descriptors of an attached device.
+*/
+typedef struct _USB_CONFIGURATION
+{
+    BYTE                        *descriptor;    // Complete Configuration Descriptor.
+    struct _USB_CONFIGURATION   *next;          // Pointer to next node.
+    BYTE                        configNumber;   // Number of this Configuration.
+} USB_CONFIGURATION;
+
+
+// *****************************************************************************
+/* Endpoint Information Node
+
+This structure contains all the needed information about an endpoint.  Multiple
+endpoints form a linked list.
+*/
+typedef struct _USB_ENDPOINT_INFO
+{
+    struct _USB_ENDPOINT_INFO   *next;                  // Pointer to the next node in the list.
+
+    volatile union
+    {
+        struct
+        {
+            BYTE        bfErrorCount            : 5;    // Not used for isochronous.
+            BYTE        bfStalled               : 1;    // Received a STALL.  Requires host interaction to clear.
+            BYTE        bfError                 : 1;    // Error count excessive. Must be cleared by the application.
+            BYTE        bfUserAbort             : 1;    // User terminated transfer.
+            BYTE        bfTransferSuccessful    : 1;    // Received an ACK.
+            BYTE        bfTransferComplete      : 1;    // Transfer done, status obtained.
+            BYTE        bfUseDTS                : 1;    // Use DTS error checking.
+            BYTE        bfNextDATA01            : 1;    // The value of DTS for the next transfer.
+            BYTE        bfLastTransferNAKd      : 1;    // The last transfer attempted NAK'd.
+            BYTE        bfNAKTimeoutEnabled     : 1;    // Endpoint will time out if too many NAKs are received.
+        };
+        WORD            val;
+    }                           status;
+    WORD                        wInterval;                      // Polling interval for interrupt and isochronous endpoints.
+    volatile WORD               wIntervalCount;                 // Current interval count.
+    WORD                        wMaxPacketSize;                 // Endpoint packet size.
+    DWORD                       dataCountMax;                   // Amount of data to transfer during the transfer. Not used for isochronous transfers.
+    WORD                        dataCountMaxSETUP;              // Amount of data in the SETUP packet (if applicable).
+    volatile DWORD              dataCount;                      // Count of bytes transferred.
+    BYTE                        *pUserDataSETUP;                // Pointer to data for the SETUP packet (if applicable).
+    BYTE                        *pUserData;                     // Pointer to data for the transfer.
+    volatile BYTE               transferState;                  // State of endpoint tranfer.
+    BYTE                        clientDriver;                   // Client driver index for events
+    BYTE                        bEndpointAddress;               // Endpoint address
+    TRANSFER_ATTRIBUTES         bmAttributes;                   // Endpoint attributes, including transfer type.
+    volatile BYTE               bErrorCode;                     // If bfError is set, this indicates the reason
+    volatile WORD               countNAKs;                      // Count of NAK's of current transaction.
+    WORD                        timeoutNAKs;                    // Count of NAK's for a timeout, if bfNAKTimeoutEnabled.
+
+} USB_ENDPOINT_INFO;
+
+
+// *****************************************************************************
+/* Interface Setting Information Structure
+
+This structure contains information about one interface.
+*/
+typedef struct _USB_INTERFACE_SETTING_INFO
+{
+    struct _USB_INTERFACE_SETTING_INFO *next;    // Pointer to the next node in the list.
+
+    BYTE                interfaceAltSetting; // Alternate Interface setting
+    USB_ENDPOINT_INFO   *pEndpointList;      // List of endpoints associated with this interface setting
+
+} USB_INTERFACE_SETTING_INFO;
+
+typedef struct _USB_INTERFACE_TYPE_INFO {
+    BYTE cls;     // Interface class
+    BYTE subcls;  // Interface subclass
+    BYTE proto;   // Interface protocol
+} USB_INTERFACE_TYPE_INFO;
+
+// *****************************************************************************
+/* Interface Information Structure
+
+This structure contains information about one interface.
+*/
+typedef struct _USB_INTERFACE_INFO
+{
+    struct _USB_INTERFACE_INFO  *next;        // Pointer to the next node in the list.
+
+    USB_INTERFACE_SETTING_INFO  *pInterfaceSettings; // Pointer to the list of alternate settings.
+    USB_INTERFACE_SETTING_INFO  *pCurrentSetting;    // Current Alternate Interface setting
+    BYTE                        interface;           // Interface number
+    BYTE                        clientDriver;        // Index into client driver table for this Interface
+    USB_INTERFACE_TYPE_INFO     type;                // Interface type
+} USB_INTERFACE_INFO;
+
+
+// *****************************************************************************
+/* USB Device Information
+
+This structure is used to hold all the information about an attached device.
+*/
+typedef struct _USB_DEVICE_INFO
+{
+    USB_CONFIGURATION   *currentConfigurationDescriptor;    // Descriptor of the current Configuration.
+    BYTE                currentConfiguration;               // Value of current Configuration.
+    BYTE                attributesOTG;                      // OTG attributes.
+    BYTE                deviceAddressAndSpeed;              // Device address and low/full speed indication.
+    BYTE                deviceAddress;                      // Device address.
+    BYTE                errorCode;                          // Error code of last operation.
+    BYTE                deviceClientDriver;                 // Index of client driver for this device if bfUseDeviceClientDriver=1.
+    WORD                currentConfigurationPower;          // Max power in milli-amps.
+    WORD                accessoryVersion;                   // The Android Accessory version supported by the device.
+
+    USB_CONFIGURATION   *pConfigurationDescriptorList;      // Pointer to the list of Cnfiguration Descriptors of the attached device.
+    USB_INTERFACE_INFO  *pInterfaceList;                    // List of interfaces on the attached device.
+    USB_ENDPOINT_INFO   *pEndpoint0;                        // Pointer to a structure that describes EP0.
+
+    volatile union
+    {
+        struct
+        {
+            BYTE        bfIsLowSpeed                : 1;    // If the device is low speed (default = 0).
+            BYTE        bfSupportsOTG               : 1;    // If the device supports OTG (default = 0).
+            BYTE        bfConfiguredOTG             : 1;    // If OTG on the device has been configured (default = 0).
+            BYTE        bfAllowHNP                  : 1;    // If Host Negotiation Protocol is allowed (default = 0).
+            BYTE        bfPingPongIn                : 1;    // Ping-pong status of IN buffers (default = 0).
+            BYTE        bfPingPongOut               : 1;    // Ping-pong status of OUT buffers (default = 0).
+            BYTE        bfUseDeviceClientDriver     : 1;    // Indicates driver should use a single client driver (deviceClientDriver)
+        };
+        WORD            val;
+    }                   flags;
+} USB_DEVICE_INFO;
 
 
 // *****************************************************************************
@@ -360,9 +532,13 @@ typedef BOOL (*USB_CLIENT_EVENT_HANDLER) ( BYTE address, USB_EVENT event, void *
     There may be multiple client drivers.  If so, the USB host layer will
     call the initialize routine for each of the clients that are in the
     selected configuration.
-  ***************************************************************************/
+ ***************************************************************************/
 
-typedef BOOL (*USB_CLIENT_INIT)   ( BYTE address, DWORD flags, BYTE clientDriverID );
+typedef BOOL(*USB_CLIENT_INIT) (BYTE address,
+                                DWORD flags,
+                                BYTE clientDriverID,
+                                USB_DEVICE_INFO* pDevInfo,
+                                USB_INTERFACE_INFO* pIntInfo);
 
 
 /****************************************************************************
@@ -418,56 +594,6 @@ typedef BOOL (*USB_CLIENT_INIT)   ( BYTE address, DWORD flags, BYTE clientDriver
     #define USB_HOST_APP_EVENT_HANDLER(a,e,d,s) TRUE
 #endif
 
-
-/****************************************************************************
-  Function:
-    BOOL USB_HOST_APP_DATA_EVENT_HANDLER ( BYTE address, USB_EVENT event,
-            void *data, DWORD size )
-
-  Summary:
-    This is a typedef to use when defining the application level data events
-    handler.
-
-  Description:
-    This function is implemented by the application.  The function name can
-    be anything - the macro USB_HOST_APP_EVENT_HANDLER must be set in
-    usb_config.h to the name of the application function.
-
-    In the application layer, this function is responsible for handling all
-    application-level data events that are generated by the stack.  See the
-    enumeration USB_EVENT for a complete list of all events that can occur.
-    Note that only data events, such as EVENT_DATA_ISOC_READ, will be
-    passed to this event handler.
-
-    If the application can handle the event successfully, the function
-    should return TRUE.  
-
-  Precondition:
-    None
-
-  Parameters:
-    BYTE address        - Address of the USB device generating the event
-    USB_EVENT event     - Event that occurred
-    void *data          - Optional pointer to data for the event
-    DWORD size          - Size of the data pointed to by *data
-
-  Return Values:
-    TRUE    - Event was processed successfully
-    FALSE   - Event was not processed successfully
-
-  Remarks:
-    If this function is not provided by the application, then all application
-    events are assumed to function without error.
-  ***************************************************************************/
-#if defined( USB_HOST_APP_DATA_EVENT_HANDLER )
-    BOOL USB_HOST_APP_DATA_EVENT_HANDLER ( BYTE address, USB_EVENT event, void *data, DWORD size );
-#else
-    // If the application does not provide an event handler, then we will
-    // assume that all events function without error.
-    #define USB_HOST_APP_DATA_EVENT_HANDLER(a,e,d,s) TRUE
-#endif
-
-
 // *****************************************************************************
 /* Client Driver Table Structure
 
@@ -481,11 +607,11 @@ typedef struct _CLIENT_DRIVER_TABLE
 {
     USB_CLIENT_INIT          Initialize;     // Initialization routine
     USB_CLIENT_EVENT_HANDLER EventHandler;   // Event routine
-    
+
     #ifdef USB_HOST_APP_DATA_EVENT_HANDLER
     USB_CLIENT_EVENT_HANDLER DataEventHandler;  // Data Event routine
     #endif
-    
+
     DWORD                    flags;          // Initialization flags
 
 } CLIENT_DRIVER_TABLE;
@@ -1526,175 +1652,6 @@ BYTE    USBHostWrite( BYTE deviceAddress, BYTE endpoint, BYTE *data, DWORD size 
   ***************************************************************************/
 
 #define USBHostWriteIsochronous( a, e, p ) USBHostWrite( a, e, (BYTE *)p, (DWORD)0 );
-
-
-//******************************************************************************
-//******************************************************************************
-// Section: Data Structures
-//
-// These data structures are all internal to the stack.
-//******************************************************************************
-//******************************************************************************
-
-// *****************************************************************************
-/* USB Bus Information
-
-This structure is used to hold information about the USB bus status.
-*/
-typedef struct _USB_BUS_INFO
-{
-    volatile union
-    {
-        struct
-        {
-            BYTE        bfControlTransfersDone      : 1;    // All control transfers in the current frame are complete.
-            BYTE        bfInterruptTransfersDone    : 1;    // All interrupt transfers in the current frame are complete.
-            BYTE        bfIsochronousTransfersDone  : 1;    // All isochronous transfers in the current frame are complete.
-            BYTE        bfBulkTransfersDone         : 1;    // All bulk transfers in the current frame are complete.
-            BYTE        bfTokenAlreadyWritten       : 1;    // A token has already been written to the USB module
-        };
-        WORD            val;                                //
-    }                   flags;                              //
-//    volatile DWORD      dBytesSentInFrame;                  // The number of bytes sent during the current frame. Isochronous use only.
-    volatile BYTE       lastBulkTransaction;                // The last bulk transaction sent.
-    volatile BYTE       countBulkTransactions;              // The number of active bulk transactions.
-} USB_BUS_INFO;
-
-
-// *****************************************************************************
-/* USB Configuration Node
-
-This structure is used to make a linked list of all the configuration
-descriptors of an attached device.
-*/
-typedef struct _USB_CONFIGURATION
-{
-    BYTE                        *descriptor;    // Complete Configuration Descriptor.
-    struct _USB_CONFIGURATION   *next;          // Pointer to next node.
-    BYTE                        configNumber;   // Number of this Configuration.
-} USB_CONFIGURATION;
-
-
-// *****************************************************************************
-/* Endpoint Information Node
-
-This structure contains all the needed information about an endpoint.  Multiple
-endpoints form a linked list.
-*/
-typedef struct _USB_ENDPOINT_INFO
-{
-    struct _USB_ENDPOINT_INFO   *next;                  // Pointer to the next node in the list.
-
-    volatile union
-    {
-        struct
-        {
-            BYTE        bfErrorCount            : 5;    // Not used for isochronous.
-            BYTE        bfStalled               : 1;    // Received a STALL.  Requires host interaction to clear.
-            BYTE        bfError                 : 1;    // Error count excessive. Must be cleared by the application.
-            BYTE        bfUserAbort             : 1;    // User terminated transfer.
-            BYTE        bfTransferSuccessful    : 1;    // Received an ACK.
-            BYTE        bfTransferComplete      : 1;    // Transfer done, status obtained.
-            BYTE        bfUseDTS                : 1;    // Use DTS error checking.
-            BYTE        bfNextDATA01            : 1;    // The value of DTS for the next transfer.
-            BYTE        bfLastTransferNAKd      : 1;    // The last transfer attempted NAK'd.
-            BYTE        bfNAKTimeoutEnabled     : 1;    // Endpoint will time out if too many NAKs are received.
-        };
-        WORD            val;
-    }                           status;
-    WORD                        wInterval;                      // Polling interval for interrupt and isochronous endpoints.
-    volatile WORD               wIntervalCount;                 // Current interval count.
-    WORD                        wMaxPacketSize;                 // Endpoint packet size.
-    DWORD                       dataCountMax;                   // Amount of data to transfer during the transfer. Not used for isochronous transfers.
-    WORD                        dataCountMaxSETUP;              // Amount of data in the SETUP packet (if applicable).
-    volatile DWORD              dataCount;                      // Count of bytes transferred.
-    BYTE                        *pUserDataSETUP;                // Pointer to data for the SETUP packet (if applicable).
-    BYTE                        *pUserData;                     // Pointer to data for the transfer.
-    volatile BYTE               transferState;                  // State of endpoint tranfer.
-    BYTE                        clientDriver;                   // Client driver index for events
-    BYTE                        bEndpointAddress;               // Endpoint address
-    TRANSFER_ATTRIBUTES         bmAttributes;                   // Endpoint attributes, including transfer type.
-    volatile BYTE               bErrorCode;                     // If bfError is set, this indicates the reason
-    volatile WORD               countNAKs;                      // Count of NAK's of current transaction.
-    WORD                        timeoutNAKs;                    // Count of NAK's for a timeout, if bfNAKTimeoutEnabled.
-
-} USB_ENDPOINT_INFO;
-
-
-// *****************************************************************************
-/* Interface Setting Information Structure
-
-This structure contains information about one interface.
-*/
-typedef struct _USB_INTERFACE_SETTING_INFO
-{
-    struct _USB_INTERFACE_SETTING_INFO *next;    // Pointer to the next node in the list.
-
-    BYTE                interfaceAltSetting; // Alternate Interface setting
-    USB_ENDPOINT_INFO   *pEndpointList;      // List of endpoints associated with this interface setting
-
-} USB_INTERFACE_SETTING_INFO;
-
-typedef struct _USB_INTERFACE_TYPE_INFO {
-    BYTE cls;     // Interface class
-    BYTE subcls;  // Interface subclass
-    BYTE proto;   // Interface protocol
-} USB_INTERFACE_TYPE_INFO;
-
-// *****************************************************************************
-/* Interface Information Structure
-
-This structure contains information about one interface.
-*/
-typedef struct _USB_INTERFACE_INFO
-{
-    struct _USB_INTERFACE_INFO  *next;        // Pointer to the next node in the list.
-
-    USB_INTERFACE_SETTING_INFO  *pInterfaceSettings; // Pointer to the list of alternate settings.
-    USB_INTERFACE_SETTING_INFO  *pCurrentSetting;    // Current Alternate Interface setting
-    BYTE                        interface;           // Interface number
-    BYTE                        clientDriver;        // Index into client driver table for this Interface
-    USB_INTERFACE_TYPE_INFO     type;                // Interface type
-} USB_INTERFACE_INFO;
-
-
-// *****************************************************************************
-/* USB Device Information
-
-This structure is used to hold all the information about an attached device.
-*/
-typedef struct _USB_DEVICE_INFO
-{
-    USB_CONFIGURATION   *currentConfigurationDescriptor;    // Descriptor of the current Configuration.
-    BYTE                currentConfiguration;               // Value of current Configuration.
-    BYTE                attributesOTG;                      // OTG attributes.
-    BYTE                deviceAddressAndSpeed;              // Device address and low/full speed indication.
-    BYTE                deviceAddress;                      // Device address.
-    BYTE                errorCode;                          // Error code of last operation.
-    BYTE                deviceClientDriver;                 // Index of client driver for this device if bfUseDeviceClientDriver=1.
-    WORD                currentConfigurationPower;          // Max power in milli-amps.
-
-    USB_CONFIGURATION   *pConfigurationDescriptorList;      // Pointer to the list of Cnfiguration Descriptors of the attached device.
-    USB_INTERFACE_INFO  *pInterfaceList;                    // List of interfaces on the attached device.
-    USB_ENDPOINT_INFO   *pEndpoint0;                        // Pointer to a structure that describes EP0.
-
-    volatile union
-    {
-        struct
-        {
-            BYTE        bfIsLowSpeed                : 1;    // If the device is low speed (default = 0).
-            BYTE        bfSupportsOTG               : 1;    // If the device supports OTG (default = 0).
-            BYTE        bfConfiguredOTG             : 1;    // If OTG on the device has been configured (default = 0).
-            BYTE        bfAllowHNP                  : 1;    // If Host Negotiation Protocol is allowed (default = 0).
-            BYTE        bfPingPongIn                : 1;    // Ping-pong status of IN buffers (default = 0).
-            BYTE        bfPingPongOut               : 1;    // Ping-pong status of OUT buffers (default = 0).
-            BYTE        bfUseDeviceClientDriver     : 1;    // Indicates driver should use a single client driver (deviceClientDriver)
-        };
-        WORD            val;
-    }                   flags;
-} USB_DEVICE_INFO;
-
-USB_DEVICE_INFO* USBHostGetDeviceInfo();
 
 
 #endif

@@ -28,10 +28,14 @@
  */
 package ioio.lib.api;
 
-import java.lang.reflect.Constructor;
-
 import ioio.lib.impl.IOIOImpl;
-import ioio.lib.impl.SocketIOIOConnection;
+import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.util.IOIOConnectionRegistry;
+
+import java.util.Collection;
+import java.util.NoSuchElementException;
+
+import android.util.Log;
 
 /**
  * Factory class for creating instances of the IOIO interface.
@@ -55,22 +59,21 @@ import ioio.lib.impl.SocketIOIOConnection;
  * </pre>
  */
 public class IOIOFactory {
-	/** The TCP port used for communicating with the IOIO board. */
-	public static final int IOIO_PORT = 4545;
-
 	/**
 	 * Create a IOIO instance. This specific implementation creates a IOIO
 	 * instance which works with the actual IOIO board connected via a TCP
 	 * connection (typically over a wired USB connection).
-	 *
+	 * 
 	 * @return The IOIO instance.
 	 */
 	public static IOIO create() {
+		Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+				.getConnectionFactories();
 		try {
-			return create(SocketIOIOConnection.class.getName(), IOIO_PORT);
-		} catch (ClassNotFoundException e) {
-			// we shouldn't get here - this class must always exist.
-			throw new RuntimeException("Something is very wrong here");
+			return create(factories.iterator().next().createConnection());
+		} catch (NoSuchElementException e) {
+			Log.e(TAG, "No connection is available. This shouldn't happen.");
+			throw e;
 		}
 	}
 
@@ -78,44 +81,15 @@ public class IOIOFactory {
 	 * Create a IOIO instance with a user-provided underlying connection class.
 	 * This method should be used for establishing a non-standard connection to
 	 * the IOIO board.
-	 *
-	 * @param connectionClassName
-	 *            The name of the connection class. Must have a public default
-	 *            constructor.
-	 *
+	 * 
+	 * @param connection
+	 *            An instance of a IOIO connection.
+	 * 
 	 * @return The IOIO instance.
-	 * @throws ClassNotFoundException The given class name was not found.
 	 */
-	public static IOIO create(String connectionClassName, Object... args) throws ClassNotFoundException {
-		IOIOConnection connection = createConnectionDynamically(connectionClassName, args);
-		return create(connection);
-	}
-
 	public static IOIO create(IOIOConnection connection) {
 		return new IOIOImpl(connection);
 	}
 
-	public static IOIOConnection createConnectionDynamically(
-			String connectionClassName, Object... args)
-			throws ClassNotFoundException {
-		Class<?> cls;
-		cls = Class.forName(connectionClassName);
-		Object instance;
-		try {
-			Class<?>[] argTypes = new Class<?>[args.length];
-			for (int i = 0; i < args.length; ++i) {
-				argTypes[i] = args[i].getClass();
-			}
-			Constructor<?> constructor = cls.getConstructor(argTypes);
-			instance = constructor.newInstance(args);
-		} catch (Exception e) {
-			throw new IllegalArgumentException(
-					"Provided class does not have a public ctor with the right signature", e);
-		}
-		if (!(instance instanceof IOIOConnection)) {
-			throw new IllegalArgumentException(
-					"Provided class does not implement IOIOConnection");
-		}
-		return (IOIOConnection) instance;
-	}
+	private static final String TAG = "IOIOFactory";
 }

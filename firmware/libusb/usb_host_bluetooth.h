@@ -50,6 +50,7 @@
 #include "GenericTypeDefs.h"
 #include "usb_config.h"
 #include "USB/usb_common.h"
+#include "USB/usb_host.h"
 #include "usb_host_driver_common.h"
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +85,16 @@ extern BLUETOOTH_DEVICE gc_BluetoothDevData; // Information about the attached d
 // the USB host layer. Should not be called directly by the client.
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOL USBHostBluetoothInit ( BYTE address, DWORD flags, BYTE clientDriverID );
-BOOL USBHostBluetoothEventHandler ( BYTE address, USB_EVENT event, void *data, DWORD size );
+BOOL USBHostBluetoothInit(BYTE address,
+                          DWORD flags,
+                          BYTE clientDriverID,
+                          USB_DEVICE_INFO *pDevInfo,
+                          USB_INTERFACE_INFO *pIntInfo);
 
+BOOL USBHostBluetoothEventHandler(BYTE address,
+                                  USB_EVENT event,
+                                  void *data,
+                                  DWORD size );
 
 ////////////////////////////////////////////////////////////////////////////////
 // The following code is the public API of the driver - should be used by the

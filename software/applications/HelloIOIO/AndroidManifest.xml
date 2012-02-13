@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      android:versionCode="1"
-      android:versionName="1.0" package="ioio.examples.hello">
-    <uses-sdk android:targetSdkVersion="10" android:minSdkVersion="7"/>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+	android:versionCode="1" android:versionName="1.0" package="ioio.examples.hello">
+	<uses-sdk android:targetSdkVersion="10" android:minSdkVersion="3" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.BLUETOOTH" />
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:label="@string/app_name" android:name="MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-    </application>
+	<application android:icon="@drawable/icon" android:label="@string/app_name">
+		<uses-library android:name="com.android.future.usb.accessory"
+			android:required="false" />
+		<activity android:label="@string/app_name" android:name="MainActivity"
+			android:launchMode="singleTask">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+			</intent-filter>
+			<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+				android:resource="@xml/accessory_filter" />
+		</activity>
+	</application>
 </manifest>

@@ -1,9 +1,10 @@
 package ioio.examples.hello;
 
-import ioio.examples.hello.R;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.AbstractIOIOActivity;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.AbstractIOIOActivity;
 import android.os.Bundle;
 import android.widget.ToggleButton;
 
@@ -36,7 +37,7 @@ public class MainActivity extends AbstractIOIOActivity {
 	 * been established (which might happen several times!). Then, loop() will
 	 * be called repetitively until the IOIO gets disconnected.
 	 */
-	class IOIOThread extends AbstractIOIOActivity.IOIOThread {
+	class IOIOThread extends BaseIOIOLooper {
 		/** The on-board LED. */
 		private DigitalOutput led_;
 
@@ -63,10 +64,10 @@ public class MainActivity extends AbstractIOIOActivity {
 		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#loop()
 		 */
 		@Override
-		protected void loop() throws ConnectionLostException {
+		public void loop() throws ConnectionLostException {
 			led_.write(!button_.isChecked());
 			try {
-				sleep(100);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 		}
@@ -78,7 +79,7 @@ public class MainActivity extends AbstractIOIOActivity {
 	 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
 	 */
 	@Override
-	protected AbstractIOIOActivity.IOIOThread createIOIOThread() {
+	protected IOIOLooper createIOIOLooper() {
 		return new IOIOThread();
 	}
 }

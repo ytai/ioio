@@ -166,6 +166,7 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 			return false;
 		}
 
+		@Override
 		public View getGroupView(int groupPosition, boolean isExpanded,
 				View convertView, ViewGroup parent) {
 			if (convertView == null) {

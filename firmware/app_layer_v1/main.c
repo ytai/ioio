@@ -33,9 +33,26 @@
 #include "protocol.h"
 #include "logging.h"
 
+// define in non-const arrays to ensure data space
+static char descManufacturer[] = "IOIO Open Source Project";
+static char descModel[] = "IOIO";
+static char descDesc[] = "IOIO Standard Application";
+static char descVersion[] = FW_IMPL_VER;
+static char descUri[] = "https://github.com/ytai/ioio/wiki/ADK";
+static char descSerial[] = "N/A";
+
+const char* accessoryDescs[6] = {
+  descManufacturer,
+  descModel,
+  descDesc,
+  descVersion,
+  descUri,
+  descSerial
+};
+
 typedef enum {
   STATE_INIT,
-  STATE_WAIT_CONNECTION,
+  STATE_OPEN_CHANNEL,
   STATE_WAIT_CHANNEL_OPEN,
   STATE_CONNECTED,
   STATE_ERROR
@@ -47,11 +64,18 @@ static CHANNEL_HANDLE handle;
 void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
 
 static inline CHANNEL_HANDLE OpenAvailableChannel() {
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
-    return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
-  }
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
-    return ConnectionOpenChannelBtServer(&AppCallback);
+  if (ConnectionTypeSupported(CHANNEL_TYPE_ADB)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
+      return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_ACC)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ACC)) {
+      return ConnectionOpenChannelAccessory(&AppCallback);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_BT)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+      return ConnectionOpenChannelBtServer(&AppCallback);
+    }
   }
   return INVALID_CHANNEL_HANDLE;
 }
@@ -60,6 +84,7 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
   if (data) {
     if (!AppProtocolHandleIncoming(data, data_len)) {
       // got corrupt input. need to close the connection and soft reset.
+      log_printf("Protocol error");
       state = STATE_ERROR;
     }
   } else {
@@ -70,23 +95,20 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     } else {
       log_printf("Channel failed to open");
     }
-    handle = OpenAvailableChannel();
-    state = STATE_WAIT_CHANNEL_OPEN;
+    state = STATE_OPEN_CHANNEL;
   }
 }
 
 int main() {
   log_init();
-  log_printf("***** Hello from app-layer! *******\r\n");
+  log_printf("***** Hello from app-layer! *******");
 
   ConnectionInit();
   SoftReset();
   while (1) {
-    ConnectionTasks();
-    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
-                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT);
-    if (!can_open_channel
-        && state > STATE_WAIT_CONNECTION) {
+    BOOL connected = ConnectionTasks();
+    if (!connected
+        && state > STATE_OPEN_CHANNEL) {
       // just got disconnected
       log_printf("Disconnected");
       SoftReset();
@@ -95,13 +117,12 @@ int main() {
     switch (state) {
       case STATE_INIT:
         handle = INVALID_CHANNEL_HANDLE;
-        state = STATE_WAIT_CONNECTION;
+        state = STATE_OPEN_CHANNEL;
         break;
 
-      case STATE_WAIT_CONNECTION:
-        if (can_open_channel) {
+      case STATE_OPEN_CHANNEL:
+        if ((handle = OpenAvailableChannel()) != INVALID_CHANNEL_HANDLE) {
           log_printf("Connected");
-          handle = OpenAvailableChannel();
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
@@ -120,6 +141,7 @@ int main() {
 
       case STATE_ERROR:
         ConnectionCloseChannel(handle);
+        SoftReset();
         state = STATE_INIT;
         break;
     }

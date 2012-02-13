@@ -137,11 +137,11 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
   }
 }
 
-void BTInit() {
+void BTInit(void *buf, int size) {
   btstack_memory_init();
 
   // init HCI
-  hci_transport_t * transport = hci_transport_mchpusb_instance();
+  hci_transport_t * transport = hci_transport_mchpusb_instance(buf, size);
   bt_control_t * control = NULL;
   hci_uart_config_t * config = NULL;
   remote_device_db_t * remote_db = NULL;

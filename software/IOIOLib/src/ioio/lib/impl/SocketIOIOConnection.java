@@ -41,6 +41,7 @@ import java.net.SocketException;
 import android.util.Log;
 
 public class SocketIOIOConnection implements IOIOConnection {
+	private static final String TAG = "SocketIOIOConnection";
 	private final int port_;
 	private ServerSocket server_ = null;
 	private Socket socket_ = null;
@@ -48,7 +49,7 @@ public class SocketIOIOConnection implements IOIOConnection {
 	private boolean server_owned_by_connect_ = true;
 	private boolean socket_owned_by_connect_ = true;
 	
-	public SocketIOIOConnection(Integer port) {
+	public SocketIOIOConnection(int port) {
 		port_ = port;
 	}
 
@@ -59,13 +60,13 @@ public class SocketIOIOConnection implements IOIOConnection {
 				if (disconnect_) {
 					throw new ConnectionLostException();
 				}
-				Log.d("SocketIOIOConnection", "Creating server socket");
+				Log.v(TAG, "Creating server socket");
 				server_ = new ServerSocket(port_);
 				server_owned_by_connect_ = false;
 			}
-			Log.d("SocketIOIOConnection", "Waiting for TCP connection");
+			Log.v(TAG, "Waiting for TCP connection");
 			socket_ = server_.accept();
-			Log.d("SocketIOIOConnection", "TCP connected");
+			Log.v(TAG, "TCP connected");
 			synchronized (this) {
 				if (disconnect_) {
 					socket_.close();
@@ -80,18 +81,18 @@ public class SocketIOIOConnection implements IOIOConnection {
 					try {
 						server_.close();
 					} catch (IOException e1) {
-						Log.e("SocketIOIOConnection", "Unexpected exception", e1);
+						Log.e(TAG, "Unexpected exception", e1);
 					}
 				}
 				if (socket_owned_by_connect_ && socket_ != null) {
 					try {
 						socket_.close();
 					} catch (IOException e1) {
-						Log.e("SocketIOIOConnection", "Unexpected exception", e1);
+						Log.e(TAG, "Unexpected exception", e1);
 					}
 				}
 				if (e instanceof SocketException && e.getMessage().equals("Permission denied")) {
-					Log.e("SocketIOIOConnection", "Did you forget to declare uses-permission of android.permission.INTERNET?");
+					Log.e(TAG, "Did you forget to declare uses-permission of android.permission.INTERNET?");
 				}
 				throw new ConnectionLostException(e);
 			}
@@ -103,13 +104,13 @@ public class SocketIOIOConnection implements IOIOConnection {
 		if (disconnect_) {
 			return;
 		}
-		Log.d("SocketIOIOConnection", "Client initiated disconnect");
+		Log.v(TAG, "Client initiated disconnect");
 		disconnect_ = true;
 		if (!server_owned_by_connect_) {
 			try {
 				server_.close();
 			} catch (IOException e1) {
-				Log.e("SocketIOIOConnection", "Unexpected exception", e1);
+				Log.e(TAG, "Unexpected exception", e1);
 			}
 		}
 		if (!socket_owned_by_connect_) {

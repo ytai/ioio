@@ -47,6 +47,9 @@
 #include "libconn/connection.h"
 #include "protocol_defs.h"
 
+// Human-readable string describing app firmware version.
+#define FW_IMPL_VER "IOIO0321"
+
 // Initialize this module.
 // This function completely resets the module's state and can be called even
 // after the module has been initialized in order to reset it.

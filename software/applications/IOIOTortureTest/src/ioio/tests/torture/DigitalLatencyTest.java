@@ -1,14 +1,14 @@
 package ioio.tests.torture;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.util.Log;
-
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.util.Log;
 
 class DigitalLatencyTest implements Test<List<Float>> {
 	private final IOIO ioio_;
@@ -34,8 +34,8 @@ class DigitalLatencyTest implements Test<List<Float>> {
 		try {
 			boolean value = false;
 			for (int i = 0; i < 10; ++i) {
-				out.write(value);
 				long start = System.nanoTime();
+				out.write(value);
 				in.waitForValue(value);
 				results.add((System.nanoTime() - start) / 1000000.f);
 				value = !value;

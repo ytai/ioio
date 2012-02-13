@@ -40,85 +40,71 @@
 
 ANDROID_DEVICE gc_DevData;
 
-// TODO: make this a generic mechanism for usage of composite devices.
-//       throw away interface entries from TPL table.
-//       separate Android device to two independent interfaces.
-typedef BOOL (*InterfaceInitFunc) (USB_INTERFACE_INFO *, int);
-typedef struct {
-  USB_INTERFACE_TYPE_INFO type;
-  InterfaceInitFunc       func;
-  int                     userData;
-} InterfaceTableEntry;
+BOOL USBHostAndroidInitInterface(BYTE address,
+                                 DWORD iid,
+                                 BYTE clientDriverID,
+                                 USB_DEVICE_INFO *pDevInfo,
+                                 USB_INTERFACE_INFO *pIntInfo) {
+  USB_DEVICE_DESCRIPTOR *pDev = (USB_DEVICE_DESCRIPTOR *) USBHostGetDeviceDescriptor(address);
+  USB_ENDPOINT_INFO *pFirstEpInfo;
+  USB_ENDPOINT_INFO *pSecondEpInfo;
+  ANDROID_INTERFACE *pInterface;
+  log_printf("USBHostAndroidInitInterface(0x%x, 0x%lx, 0x%x)", address, iid, clientDriverID);
+  assert(iid < ANDROID_INTERFACE_MAX);
 
-BOOL InitAndroidInterface (USB_INTERFACE_INFO *pIntInfo, int iid) {
-    USB_ENDPOINT_INFO *pFirstEpInfo;
-    USB_ENDPOINT_INFO *pSecondEpInfo;
-    ANDROID_INTERFACE *pInterface;
-    assert(iid < ANDROID_INTERFACE_MAX);
+  pInterface = &gc_DevData.interfaces[iid];
+  pFirstEpInfo = pIntInfo->pCurrentSetting->pEndpointList;
+  if (!pFirstEpInfo) { log_printf("No end-points"); return FALSE; }
+  pSecondEpInfo = pFirstEpInfo->next;
+  if (!pSecondEpInfo) { log_printf("Only one end-point"); return FALSE; }
+  if (pSecondEpInfo->next) { log_printf("Too many end-points"); return FALSE; }
 
-    pInterface = &gc_DevData.interfaces[iid];
-    pFirstEpInfo = pIntInfo->pCurrentSetting->pEndpointList;
-    if (!pFirstEpInfo) { log_printf("No end-points"); return FALSE; }
-    pSecondEpInfo = pFirstEpInfo->next;
-    if (!pSecondEpInfo) { log_printf("Only one end-point"); return FALSE; }
-    if (pSecondEpInfo->next) { log_printf("Too many end-points"); return FALSE; }
+  if (pFirstEpInfo->bEndpointAddress & 0x80) {
+      if (pSecondEpInfo->bEndpointAddress & 0x80) {
+        log_printf("Need one input and one output end-point");
+        return FALSE;
+      }
+      pInterface->inEndpoint = pFirstEpInfo->bEndpointAddress;
+      pInterface->outEndpoint = pSecondEpInfo->bEndpointAddress;
+  } else {
+      if (!(pSecondEpInfo->bEndpointAddress & 0x80)) {
+        log_printf("Need one input and one output end-point");
+        return FALSE;
+      }
+      pInterface->inEndpoint = pSecondEpInfo->bEndpointAddress;
+      pInterface->outEndpoint = pFirstEpInfo->bEndpointAddress;
+  }
+  pInterface->flags.initialized = 1;
+  log_printf("Successfully initialized Android inteface %ld. IN_EP=0x%x OUT_EP=0x%x",
+             iid, pInterface->inEndpoint, pInterface->outEndpoint);
 
-    if (pFirstEpInfo->bEndpointAddress & 0x80) {
-        if (pSecondEpInfo->bEndpointAddress & 0x80) {
-          log_printf("Need one input and one output end-point");
-          return FALSE;
-        }
-        pInterface->inEndpoint = pFirstEpInfo->bEndpointAddress;
-        pInterface->outEndpoint = pSecondEpInfo->bEndpointAddress;
-    } else {
-        if (!(pSecondEpInfo->bEndpointAddress & 0x80)) {
-          log_printf("Need one input and one output end-point");
-          return FALSE;
-        }
-        pInterface->inEndpoint = pSecondEpInfo->bEndpointAddress;
-        pInterface->outEndpoint = pFirstEpInfo->bEndpointAddress;
-    }
-    gc_DevData.interfaces[iid].flags.initialized = 1;
-    log_printf("Successfully initialized Android inteface %d. IN_EP=0x%x OUT_EP=0x%x",
-               iid, pInterface->inEndpoint, pInterface->outEndpoint);
-    return TRUE;
+  // Save device the address, VID, & PID
+  gc_DevData.ID.deviceAddress = address;
+  gc_DevData.ID.vid  =  pDev->idVendor;
+  gc_DevData.ID.pid  =  pDev->idProduct;
+
+  return TRUE;
 }
 
-static InterfaceTableEntry interfaceTable[] = {
-  {{ 0xFF, 0x42, 0x01 }, &InitAndroidInterface, ANDROID_INTERFACE_ADB }
-};
-
-BOOL USBHostAndroidInit(BYTE address, DWORD flags, BYTE clientDriverID) {
-  USB_INTERFACE_INFO *pIntInfo;
-  USB_DEVICE_DESCRIPTOR *pDev;
-  USB_DEVICE_INFO *pDevInfo = USBHostGetDeviceInfo();
+BOOL USBHostAndroidInitDevice(BYTE address,
+                              DWORD iid,
+                              BYTE clientDriverID,
+                              USB_DEVICE_INFO *pDevInfo,
+                              USB_INTERFACE_INFO *pIntInfo) {
+  log_printf("USBHostAndroidInitDevice(0x%x, 0x%lx, 0x%x)", address, iid, clientDriverID);
 
   // Initialize state
   memset(&gc_DevData, 0, sizeof gc_DevData);
   
-  // Save device the address, VID, & PID
-  gc_DevData.ID.deviceAddress = address;
-  pDev = (USB_DEVICE_DESCRIPTOR *) USBHostGetDeviceDescriptor(address);
-  gc_DevData.ID.vid  =  pDev->idVendor;
-  gc_DevData.ID.pid  =  pDev->idProduct;
-  
-  // Save the endpoint addresses for the interfaces
   for (pIntInfo = pDevInfo->pInterfaceList; pIntInfo; pIntInfo = pIntInfo->next) {
-    int i;
     log_printf("Encoutered interface %d, class 0x%x, subclass 0x%x, protocol, 0x%x",
         pIntInfo->interface, pIntInfo->type.cls, pIntInfo->type.subcls, pIntInfo->type.proto);
-    for (i = 0; i < ARRAY_SIZE(interfaceTable); ++i) {
-      InterfaceTableEntry *pEntry = &interfaceTable[i];
-      if (0 == memcmp(&pEntry->type, &pIntInfo->type, sizeof(USB_INTERFACE_TYPE_INFO))) {
-        pEntry->func(pIntInfo, pEntry->userData);
-        break;
-      }
-    }
+    // initialize according to the interface number
+    USBHostAndroidInitInterface(address, pIntInfo->interface, 0, pDevInfo, pIntInfo);
   }
 
-  gc_DevData.initialized = 1;
-  log_printf("Android Client Initalized: flags=0x%lx address=%d VID=0x%x PID=0x%x",
-              flags, address, gc_DevData.ID.vid, gc_DevData.ID.pid);
+  log_printf("Android device initalized: address=%d VID=0x%x PID=0x%x",
+             address, gc_DevData.ID.vid, gc_DevData.ID.pid);
   
   return TRUE;
 } //  USBHostAndroidInit
@@ -172,15 +158,14 @@ BOOL USBHostAndroidEventHandler(BYTE address, USB_EVENT event, void *data, DWORD
 }  // USBHostAndroidEventHandler
 
 
-void USBHostAndroidGetDeviceId(USB_DEVICE_ID *pDevID) {
-  assert(gc_DevData.initialized);
-  assert(pDevID != NULL);
-  *pDevID = gc_DevData.ID;
-}  // USBHostAndroidGetDeviceId
+//void USBHostAndroidGetDeviceId(USB_DEVICE_ID *pDevID) {
+//  assert(pDevID != NULL);
+//  *pDevID = gc_DevData.ID;
+//}  // USBHostAndroidGetDeviceId
 
 
 void USBHostAndroidReset() {
-  assert(USBHostAndroidIsDeviceAttached());
+  assert(gc_DevData.ID.deviceAddress != 0);
   USBHostResetDevice(gc_DevData.ID.deviceAddress);
   memset(&gc_DevData, 0, sizeof gc_DevData);
 }
@@ -226,13 +211,13 @@ void USBHostAndroidTasks(void) {
   for (iid = 0; iid < ANDROID_INTERFACE_MAX; ++iid) {
     ANDROID_INTERFACE *pInterface = &gc_DevData.interfaces[iid];
 
-    if (gc_DevData.ID.deviceAddress && gc_DevData.initialized && pInterface->flags.initialized) {
+    if (gc_DevData.ID.deviceAddress && pInterface->flags.initialized) {
       if (pInterface->flags.rxBusy) {
         if (USBHostTransferIsComplete(gc_DevData.ID.deviceAddress, pInterface->inEndpoint, &errorCode, &byteCount)) {
-            pInterface->flags.rxBusy = 0;
-            pInterface->rxLength     = byteCount;
-            pInterface->rxErrorCode  = errorCode;
-            log_printf("Received message with %ld bytes", byteCount);
+          pInterface->flags.rxBusy = 0;
+          pInterface->rxLength     = byteCount;
+          pInterface->rxErrorCode  = errorCode;
+          log_printf("Received message with %ld bytes on endpoint 0x%x", byteCount, pInterface->inEndpoint);
         }
       }
 

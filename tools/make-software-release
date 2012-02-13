@@ -1,17 +1,19 @@
 #!/bin/bash
 
 ZIP=zip
-TMPOUT=$(mktemp -u -t ioio).zip
+TMPOUT=$(mktemp -ut ioio.XXXXXX.zip)
 PROJECTS="IOIOLib \
           IOIOLibBT \
+          IOIOLibAccessory \
           applications/HelloIOIO \
           applications/HelloIOIOPower \
           applications/IOIOSimpleApp"
 
 TARGETS=(android-3 \
          android-10 \
+         'Google Inc.:Google APIs:10' \
          android-7 \
-         android-7 \
+         android-3 \
          android-7)
 
 APKS="applications/HelloIOIO \
@@ -27,7 +29,7 @@ cd software
 
 i=0
 for PROJECT in $PROJECTS; do
-  (cd $PROJECT && android -s update project --name $(basename $PROJECT) --path . --target ${TARGETS[i]})
+  (cd $PROJECT && android -s update project --name $(basename $PROJECT) --path . --target "${TARGETS[i]}")
   let "i++"
 done
 

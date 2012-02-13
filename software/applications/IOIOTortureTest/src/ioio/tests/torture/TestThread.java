@@ -1,10 +1,11 @@
 package ioio.tests.torture;
 
+import ioio.lib.api.exception.ConnectionLostException;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.util.Log;
-import ioio.lib.api.exception.ConnectionLostException;
 
 class TestThread extends Thread {
 	private final TestProvider provider_;

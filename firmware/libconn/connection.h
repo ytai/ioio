@@ -44,13 +44,16 @@ typedef int CHANNEL_HANDLE;
 
 typedef enum {
   CHANNEL_TYPE_ADB,
-  CHANNEL_TYPE_ADK,
+  CHANNEL_TYPE_ACC,
   CHANNEL_TYPE_BT
 } CHANNEL_TYPE;
 
 // data != NULL -> incoming data
 // data = NULL, size = 0 -> Closed normally
 // data = NULL, size = 1 -> Closed as result of error
+//
+// client should ignore ch. it is not guaranteed to be related to the actual
+// channel handle
 typedef void (*ChannelCallback) (CHANNEL_HANDLE ch, const void* data,
                                  UINT32 size);
 
@@ -69,6 +72,7 @@ BOOL ConnectionTypeSupported(CHANNEL_TYPE con);
 BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con);
 CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb);
 CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb);
+CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb);
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size);
 BOOL ConnectionCanSend(CHANNEL_HANDLE ch);
 void ConnectionCloseChannel(CHANNEL_HANDLE ch);

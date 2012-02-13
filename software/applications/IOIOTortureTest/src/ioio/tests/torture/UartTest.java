@@ -107,9 +107,10 @@ public class UartTest implements Test<Boolean> {
 			super.run();
 			try {
 				while (count_-- > 0) {
-					byte expected = (byte) rand_.nextInt();
+					int expected = rand_.nextInt() & 0xFF;
 					int read = in_.read();
 					if (read != expected) {
+						Log.e("IOIOTortureTest", "Expected: " + expected + " got: " + read);
 						return;
 					} else {
 						bytesVerified_++;

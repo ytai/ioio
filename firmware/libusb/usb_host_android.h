@@ -58,6 +58,7 @@
 
 #include "usb_config.h"
 #include "USB/usb_common.h"
+#include "USB/usb_host.h"
 #include "usb_host_driver_common.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@
 
 // An identifier of an Android interface.
 typedef enum _ANDROID_INTERFACE_ID {
-  ANDROID_INTERFACE_ADK,  // ADK (OpenAccessory API)
+  ANDROID_INTERFACE_ACC,  // Android OpenAccessory
   ANDROID_INTERFACE_ADB,  // ADB (Android Debug Bridge)
   ANDROID_INTERFACE_MAX
 } ANDROID_INTERFACE_ID;
@@ -96,7 +97,6 @@ typedef struct _ANDROID_INTERFACE {
 typedef struct {
   USB_DEVICE_ID     ID;  // Identification information about the device
   ANDROID_INTERFACE interfaces[ANDROID_INTERFACE_MAX];  // Interfaces
-  BOOL              initialized;
 } ANDROID_DEVICE;
 
 extern ANDROID_DEVICE   gc_DevData; // Information about the attached device.
@@ -106,8 +106,22 @@ extern ANDROID_DEVICE   gc_DevData; // Information about the attached device.
 // the USB host layer. Should not be called directly by the client.
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOL USBHostAndroidInit ( BYTE address, DWORD flags, BYTE clientDriverID );
-BOOL USBHostAndroidEventHandler ( BYTE address, USB_EVENT event, void *data, DWORD size );
+BOOL USBHostAndroidInitDevice(BYTE address,
+                              DWORD iid,
+                              BYTE clientDriverID,
+                              USB_DEVICE_INFO *pDevInfo,
+                              USB_INTERFACE_INFO *pIntInfo);
+
+BOOL USBHostAndroidInitInterface(BYTE address,
+                                 DWORD iid,
+                                 BYTE clientDriverID,
+                                 USB_DEVICE_INFO *pDevInfo,
+                                 USB_INTERFACE_INFO *pIntInfo);
+
+BOOL USBHostAndroidEventHandler(BYTE address,
+                                USB_EVENT event,
+                                void *data,
+                                DWORD size);
 
 
 ////////////////////////////////////////////////////////////////////////////////

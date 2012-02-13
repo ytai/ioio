@@ -55,6 +55,7 @@ import android.util.Log;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
 	private static final String TAG = "IOIOImpl";
+	private boolean disconnect_ = false;
 
 	enum State {
 		INIT, CONNECTED, INCOMPATIBLE, DEAD
@@ -86,7 +87,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	synchronized public void waitForConnect() throws ConnectionLostException,
+	public void waitForConnect() throws ConnectionLostException,
 			IncompatibilityException {
 		if (state_ == State.CONNECTED) {
 			return;
@@ -98,19 +99,26 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		Log.d(TAG, "Waiting for IOIO connection");
 		try {
 			try {
-				Log.d(TAG, "Waiting for underlying connection");
+				Log.v(TAG, "Waiting for underlying connection");
 				connection_.waitForConnect();
-				protocol_ = new IOIOProtocol(connection_.getInputStream(),
-						connection_.getOutputStream(), incomingState_);
+				synchronized (this) {
+					if (disconnect_) {
+						throw new ConnectionLostException();
+					}
+					protocol_ = new IOIOProtocol(connection_.getInputStream(),
+							connection_.getOutputStream(), incomingState_);
+					// Once this block exits, a disconnect will also involve
+					// softClose().
+				}
 			} catch (ConnectionLostException e) {
 				incomingState_.handleConnectionLost();
 				throw e;
 			}
-			Log.d(TAG, "Waiting for handshake");
+			Log.v(TAG, "Waiting for handshake");
 			incomingState_.waitConnectionEstablished();
-			Log.d(TAG, "Querying for required interface ID");
+			Log.v(TAG, "Querying for required interface ID");
 			checkInterfaceVersion();
-			Log.d(TAG, "Required interface ID is supported");
+			Log.v(TAG, "Required interface ID is supported");
 			state_ = State.CONNECTED;
 			Log.i(TAG, "IOIO connection established");
 		} catch (ConnectionLostException e) {
@@ -123,15 +131,32 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public void disconnect() {
+	public synchronized void disconnect() {
+		Log.d(TAG, "Client requested disconnect.");
+		if (disconnect_) {
+			return;
+		}
+		disconnect_ = true;
+		try {
+			if (protocol_ != null) {
+				protocol_.softClose();
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Soft close failed", e);
+		}
 		connection_.disconnect();
 	}
 
 	@Override
-	public void disconnected() {
+	public synchronized void disconnected() {
 		state_ = State.DEAD;
+		if (disconnect_) {
+			return;
+		}
+		Log.d(TAG, "Physical disconnect.");
+		disconnect_ = true;
 		// The IOIOConnection doesn't necessarily know about the disconnect
-		disconnect();
+		connection_.disconnect();
 	}
 
 	@Override
@@ -273,7 +298,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	public String getImplVersion(VersionType v) throws ConnectionLostException {
-		checkState();
+		if (state_ == State.INIT) {
+			throw new IllegalStateException(
+					"Connection has not yet been established");
+		}
 		switch (v) {
 		case HARDWARE_VER:
 			return incomingState_.hardwareId_;
@@ -282,7 +310,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "IOIO0311";
+			return "IOIO0321";
 		}
 		return null;
 	}
@@ -557,12 +585,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			checkPinFree(slaveSelect[i].pin);
 			ssPins[i] = slaveSelect[i].pin;
 		}
-		
+
 		int spiNum = spiAllocator_.allocateModule();
 		SpiMasterImpl spi = new SpiMasterImpl(this, spiNum, mosi.pin, miso.pin,
 				clk.pin, ssPins);
 		addDisconnectListener(spi);
-		
+
 		openPins_[miso.pin] = true;
 		openPins_[mosi.pin] = true;
 		openPins_[clk.pin] = true;
