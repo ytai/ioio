@@ -7,7 +7,7 @@ import ioio.lib.util.IOIOLooperProvider;
 
 import android.content.ContextWrapper;
 
-class IOIOAndroidApplicationHelper extends IOIOApplicationHelper {
+public class IOIOAndroidApplicationHelper extends IOIOApplicationHelper {
 	private final ContextWrapper contextWrapper_;
 
 	public IOIOAndroidApplicationHelper(ContextWrapper wrapper,
