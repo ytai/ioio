@@ -39,6 +39,7 @@ import java.util.UUID;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Build;
 import android.util.Log;
 
 public class BluetoothIOIOConnection implements IOIOConnection {
@@ -89,15 +90,13 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 
 	public static BluetoothSocket createSocket(final BluetoothDevice device)
 			throws IOException {
-		try {
-			// We're trying to create an insecure socket, which is
-			// only supported
-			// in API 10 and up. If we fail, we try a secure socket
-			// with is in API
-			// 7 and up.
+		if (Build.VERSION.SDK_INT >= 10 ) {
+			// We're trying to create an insecure socket, which is only
+			// supported in API 10 and up. Otherwise, we try a secure socket
+			// which is in API 7 and up.
 			return device.createInsecureRfcommSocketToServiceRecord(UUID
 					.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-		} catch (NoSuchMethodError e) {
+		} else {
 			return device.createRfcommSocketToServiceRecord(UUID
 					.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 		}
