@@ -57,10 +57,6 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private static final String TAG = "IOIOImpl";
 	private boolean disconnect_ = false;
 
-	enum State {
-		INIT, CONNECTED, INCOMPATIBLE, DEAD
-	}
-
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
 			'I', 'O', '0', '0', '0', '3' };
 
@@ -162,6 +158,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	public void waitForDisconnect() throws InterruptedException {
 		incomingState_.waitDisconnect();
+	}
+
+	@Override
+	public State getState() {
+		return state_;
 	}
 
 	private void checkInterfaceVersion() throws IncompatibilityException,

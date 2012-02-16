@@ -110,6 +110,20 @@ public interface IOIO {
 	}
 
 	/**
+	 * A state of a IOIO instance.
+	 */
+	public enum State {
+		/** Connection not yet established. */
+		INIT,
+		/** Connected. */
+		CONNECTED,
+		/** Connection established, incompatible firmware detected. */
+		INCOMPATIBLE,
+		/** Disconnected. Instance is useless. */
+		DEAD
+	}
+
+	/**
 	 * Establishes connection with the IOIO board.
 	 * <p>
 	 * This method is blocking until connection is established. This method can
@@ -156,6 +170,12 @@ public interface IOIO {
 	 * @see #waitForConnect()
 	 */
 	public void waitForDisconnect() throws InterruptedException;
+
+	/**
+	 * Gets the connections state.
+	 * @return The connection state.
+	 */
+	public State getState();
 
 	/**
 	 * Resets the entire state (returning to initial state), without dropping

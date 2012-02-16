@@ -51,7 +51,7 @@ public class IOIOApplicationHelper {
 					ioio_.waitForConnect();
 					connected_ = true;
 					looper_.setup(ioio_);
-					while (!abort_) {
+					while (!abort_ && ioio_.getState() == IOIO.State.CONNECTED) {
 						looper_.loop();
 					}
 				} catch (ConnectionLostException e) {
