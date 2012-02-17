@@ -12,6 +12,21 @@ import java.util.LinkedList;
 
 import android.util.Log;
 
+/**
+ * A helper class for creating different kinds of IOIO based applications.
+ * 
+ * This class implements a common life-cycle for applications interacting with
+ * IOIO devices.
+ * <p>
+ * When the application starts, call {@link #start()}, which will in turn
+ * attempt to create a thread for each possible IOIO connection channel. Each
+ * thread will have a respective {@link IOIOLooper}, which the client provides,
+ * through which the client gets context for working with the IOIO.
+ * <p>
+ * When the application exits, call {@link #stop()}, which will disconnect all
+ * open connections and will abort and join all the threads.
+ * 
+ */
 public class IOIOApplicationHelper {
 	/**
 	 * An abstract class, which facilitates a thread dedicated for communication
@@ -23,13 +38,12 @@ public class IOIOApplicationHelper {
 		private boolean connected_ = true;
 		private final IOIOLooper looper_;
 		private final IOIOConnectionFactory connectionFactory_;
-	
+
 		IOIOThread(IOIOLooper looper, IOIOConnectionFactory factory) {
 			looper_ = looper;
 			connectionFactory_ = factory;
 		}
-	
-		/** Not relevant to subclasses. */
+
 		@Override
 		public final void run() {
 			super.run();
@@ -82,7 +96,7 @@ public class IOIOApplicationHelper {
 			}
 			Log.d(TAG, "IOIOThread is exiting");
 		}
-	
+
 		/** Not relevant to subclasses. */
 		public synchronized final void abort() {
 			abort_ = true;
@@ -99,7 +113,7 @@ public class IOIOApplicationHelper {
 	protected final IOIOLooperProvider looperProvider_;
 	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
 	protected Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
-				.getBootstraps();
+			.getBootstraps();
 
 	public IOIOApplicationHelper(IOIOLooperProvider provider) {
 		looperProvider_ = provider;

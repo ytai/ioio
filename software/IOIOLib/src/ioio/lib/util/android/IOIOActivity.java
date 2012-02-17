@@ -29,7 +29,7 @@
 
 package ioio.lib.util.android;
 
-
+import ioio.lib.impl.SocketIOIOConnection;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
 import android.app.Activity;
@@ -37,38 +37,37 @@ import android.content.Intent;
 import android.os.Bundle;
 
 /**
- * A convenience class for easy creation of IOIO-based applications.
+ * A convenience class for easy creation of IOIO-based activities.
  * 
- * It is used by creating a concrete Activity in your application, which extends
- * this class. This class then takes care of proper creation and abortion of the
- * IOIO connection and of a dedicated thread for IOIO communication.
- * 
+ * It is used by creating a concrete {@link Activity} in your application, which
+ * extends this class. This class then takes care of proper creation and
+ * abortion of the IOIO connection and of a dedicated thread for IOIO
+ * communication.
+ * <p>
  * In the basic usage the client should extend this class and implement
- * {@link #createIOIOThread()}, which should return an implementation of the
- * {@link IOIOThread} abstract class. In this implementation, the client
- * implements the {@link IOIOThread#setup()} method, which gets called as soon
- * as communication with the IOIO is established, and the
- * {@link IOIOThread #loop()} method, which gets called repetitively as long as
- * the IOIO is connected. Both methods should access the
- * {@link IOIOThread#ioio_} field for controlling the IOIO.
- * 
- * In addition, the {@link IOIOThread#disconnected()} method may be overridden
+ * {@link #createIOIOLooper()}, which should return an implementation of the
+ * {@link IOIOLooper} interface. In this implementation, the client implements
+ * the {@link IOIOLooper#setup(ioio.lib.api.IOIO)} method, which gets called as
+ * soon as communication with the IOIO is established, and the
+ * {@link IOIOLooper#loop()} method, which gets called repetitively as long as
+ * the IOIO is connected.
+ * <p>
+ * In addition, the {@link IOIOLooper#disconnected()} method may be overridden
  * in order to execute logic as soon as a disconnection occurs for whichever
- * reason. The {@link IOIOThread#incompatible()} method may be overridden in
+ * reason. The {@link IOIOLooper#incompatible()} method may be overridden in
  * order to take action in case where a IOIO whose firmware is incompatible with
  * the IOIOLib version that application is built with.
- * 
+ * <p>
  * In a more advanced use case, more than one IOIO is available. In this case, a
  * thread will be created for each IOIO, whose semantics are as defined above.
  * If the client needs to be able to distinguish between them, it is possible to
- * override {@link #createIOIOThread(String, Object)} instead of
- * {@link #createIOIOThread()}. The first argument provided will contain the
+ * override {@link #createIOIOLooper(String, Object)} instead of
+ * {@link #createIOIOLooper()}. The first argument provided will contain the
  * connection class name, such as ioio.lib.impl.SocketIOIOConnection for a
  * connection established over a TCP socket (which is used over ADB). The second
  * argument will contain information specific to the connection type. For
- * example, in the case of SocketIOIOConnection, the second argument will
- * contain an {@link Integer} representing the local port number.
- * 
+ * example, in the case of {@link SocketIOIOConnection}, the second argument
+ * will contain an {@link Integer} representing the local port number.
  */
 public abstract class IOIOActivity extends Activity implements
 		IOIOLooperProvider {
@@ -125,12 +124,15 @@ public abstract class IOIOActivity extends Activity implements
 
 	/**
 	 * Subclasses must either implement this method or its other overload by
-	 * returning a concrete subclass of {@link IOIOThread}. <code>null</code>
-	 * may be returned if the client is not interested to create a thread for
-	 * this IOIO. In multi-IOIO scenarios, where you want to identify which IOIO
-	 * the thread is for, consider using {@link #createIOIOThread()} instead.
+	 * returning an implementation of {@link IOIOLooper}. A dedicated thread
+	 * will be created for each available IOIO, from which the
+	 * {@link IOIOLooper}'s methods will be invoked. <code>null</code> may be
+	 * returned if the client is not interested to create a thread for this
+	 * IOIO. In multi-IOIO scenarios, where you want to identify which IOIO the
+	 * thread is for, consider overriding
+	 * {@link #createIOIOLooper(String, Object)} instead.
 	 * 
-	 * @return An implementation of {@link IOIOThread}, or <code>null</code> to
+	 * @return An implementation of {@link IOIOLooper}, or <code>null</code> to
 	 *         skip.
 	 */
 	protected IOIOLooper createIOIOLooper() {

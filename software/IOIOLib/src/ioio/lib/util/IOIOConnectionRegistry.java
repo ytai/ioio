@@ -28,6 +28,7 @@
  */
 package ioio.lib.util;
 
+import ioio.lib.api.IOIOConnection;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 
@@ -36,6 +37,28 @@ import java.util.LinkedList;
 
 import android.util.Log;
 
+/**
+ * A utility class for managing available connection types to IOIO.
+ * <p>
+ * <b>For advanced usage only!</b>
+ * <p>
+ * This class facilitates dynamic linkage and instantiation of different IOIO
+ * connection types. {@link IOIOConnectionBootstrap} classes enable creation of
+ * {@link IOIOConnectionFactory} instances, from which concrete
+ * {@link IOIOConnection}s are created. The binding to
+ * {@link IOIOConnectionBootstrap} is dynamic, thus enabling linkage to succeed
+ * with or without those bootstraps. Likewise, during runtime, the absence of
+ * bootstraps is handled gracefully.
+ * 
+ * A typical usage will call {@link #addBootstraps(String[])} with a list of
+ * class names to be sought from a static initializer block. It may then call
+ * {@link #getBootstraps()} to obtain any bootstrap classes that are available
+ * in runtime, in case the bootstrap classes themselves need some runtime
+ * handling. Last, the {@link #getConnectionFactories()} will return a
+ * collection of {@link IOIOConnectionFactory}, each representing one possible
+ * communication channel to a IOIO.
+ * 
+ */
 public class IOIOConnectionRegistry {
 	/**
 	 * Get all available connection specifications. This is a list of all
