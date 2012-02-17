@@ -7,7 +7,7 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-public class IOIOTestBed extends AbstractIOIOActivity {
+public class IOIOTestBed extends IOIOActivity {
 	private static final String LOG_TAG = "IOIO_TEST_BED";
 	private static final int PIN_COUNT = 48;
 
@@ -43,10 +43,10 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 		ODD_TEXT = (TextView) findViewById(R.id.odd_text);
 	}
 
-	class MainThread extends BaseIOIOLooper {
+	class Looper extends BaseIOIOLooper {
 		Thread ledThread;
 
-		public MainThread() {
+		public Looper() {
 			disableUI();
 		}
 		
@@ -214,6 +214,6 @@ public class IOIOTestBed extends AbstractIOIOActivity {
 
 	@Override
 	protected IOIOLooper createIOIOLooper() {
-		return new MainThread();
+		return new Looper();
 	}
 }

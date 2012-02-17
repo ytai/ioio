@@ -7,13 +7,13 @@ import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class IOIOSimpleApp extends AbstractIOIOActivity {
+public class IOIOSimpleApp extends IOIOActivity {
 	private TextView textView_;
 	private SeekBar seekBar_;
 	private ToggleButton toggleButton_;
@@ -30,7 +30,7 @@ public class IOIOSimpleApp extends AbstractIOIOActivity {
         enableUi(false);
     }
 	
-	class IOIOThread extends BaseIOIOLooper {
+	class Looper extends BaseIOIOLooper {
 		private AnalogInput input_;
 		private PwmOutput pwmOutput_;
 		private DigitalOutput led_;
@@ -68,7 +68,7 @@ public class IOIOSimpleApp extends AbstractIOIOActivity {
 
 	@Override
 	protected IOIOLooper createIOIOLooper() {
-		return new IOIOThread();
+		return new Looper();
 	}
 
 	private void enableUi(final boolean enable) {

@@ -4,19 +4,19 @@ import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-public class MainActivity extends AbstractIOIOActivity {
+public class MainActivity extends IOIOActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 	}
 
-	class IOIOThread extends BaseIOIOLooper {
+	class Looper extends BaseIOIOLooper {
 		private static final String TAG = "TortureTest";
 		private ResourceAllocator alloc_ = new ResourceAllocator();
 		private TestProvider provider_;
@@ -81,6 +81,6 @@ public class MainActivity extends AbstractIOIOActivity {
 
 	@Override
 	protected IOIOLooper createIOIOLooper() {
-		return new IOIOThread();
+		return new Looper();
 	}
 }

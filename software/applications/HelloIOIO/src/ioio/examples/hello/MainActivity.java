@@ -4,7 +4,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.widget.ToggleButton;
 
@@ -13,10 +13,10 @@ import android.widget.ToggleButton;
  * 
  * It displays a toggle button on the screen, which enables control of the
  * on-board LED. This example shows a very simple usage of the IOIO, by using
- * the {@link AbstractIOIOActivity} class. For a more advanced use case, see the
+ * the {@link IOIOActivity} class. For a more advanced use case, see the
  * HelloIOIOPower example.
  */
-public class MainActivity extends AbstractIOIOActivity {
+public class MainActivity extends IOIOActivity {
 	private ToggleButton button_;
 
 	/**
@@ -37,7 +37,7 @@ public class MainActivity extends AbstractIOIOActivity {
 	 * been established (which might happen several times!). Then, loop() will
 	 * be called repetitively until the IOIO gets disconnected.
 	 */
-	class IOIOThread extends BaseIOIOLooper {
+	class Looper extends BaseIOIOLooper {
 		/** The on-board LED. */
 		private DigitalOutput led_;
 
@@ -80,6 +80,6 @@ public class MainActivity extends AbstractIOIOActivity {
 	 */
 	@Override
 	protected IOIOLooper createIOIOLooper() {
-		return new IOIOThread();
+		return new Looper();
 	}
 }

@@ -32,7 +32,7 @@ import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 import ioio.manager.IOIOFileProgrammer.ProgressListener;
 import ioio.manager.IOIOFileReader.FormatException;
 
@@ -55,7 +55,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ProgrammerActivity extends AbstractIOIOActivity {
+public class ProgrammerActivity extends IOIOActivity {
 	enum ProgrammerState {
 		STATE_IOIO_DISCONNECTED, STATE_IOIO_CONNECTED, STATE_TARGET_CONNECTED, STATE_UNKOWN_TARGET_CONNECTED, STATE_ERASE_START, STATE_PROGRAM_START, STATE_PROGRAM_IN_PROGRESS, STATE_ERASE_IN_PROGRESS, STATE_VERIFY_IN_PROGRESS, STATE_IOIO_INCOMPATIBLE
 	}

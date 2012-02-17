@@ -78,7 +78,7 @@ import android.util.Log;
  * example, in the case of SocketIOIOConnection, the second argument will
  * contain an {@link Integer} representing the local port number.
  * 
- * @deprecated Please use {@link ioio.lib.util.android.AbstractIOIOActivity}
+ * @deprecated Please use {@link ioio.lib.util.android.IOIOActivity}
  *             instead.
  */
 public abstract class AbstractIOIOActivity extends Activity {

@@ -4,7 +4,7 @@ import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.AbstractIOIOActivity;
+import ioio.lib.util.android.IOIOActivity;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
  *
  * @author ytai
  */
-public class HolidayIOIOActivity extends AbstractIOIOActivity {
+public class HolidayIOIOActivity extends IOIOActivity {
 	private static final String TAG = "HolidayIOIO";
 	private Camera camera_;
 	RGB[] frame_ = null;

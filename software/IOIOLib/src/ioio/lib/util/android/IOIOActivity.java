@@ -70,7 +70,7 @@ import android.os.Bundle;
  * contain an {@link Integer} representing the local port number.
  * 
  */
-public abstract class AbstractIOIOActivity extends Activity implements
+public abstract class IOIOActivity extends Activity implements
 		IOIOLooperProvider {
 	private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(
 			this, this);
