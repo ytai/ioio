@@ -13,7 +13,7 @@ TARGETS=(android-3 \
          android-10 \
          'Google Inc.:Google APIs:10' \
          android-7 \
-         android-3 \
+         android-7 \
          android-7)
 
 APKS="applications/HelloIOIO \
