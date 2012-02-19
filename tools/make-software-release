@@ -6,7 +6,7 @@ PROJECTS="IOIOLib \
           IOIOLibBT \
           IOIOLibAccessory \
           applications/HelloIOIO \
-          applications/HelloIOIOPower \
+          applications/HelloIOIOService \
           applications/IOIOSimpleApp"
 
 TARGETS=(android-3 \
@@ -17,7 +17,7 @@ TARGETS=(android-3 \
          android-7)
 
 APKS="applications/HelloIOIO \
-      applications/HelloIOIOPower \
+      applications/HelloIOIOService \
       applications/IOIOSimpleApp"
 
 if test $# -ne 1; then
