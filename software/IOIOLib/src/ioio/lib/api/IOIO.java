@@ -173,6 +173,7 @@ public interface IOIO {
 
 	/**
 	 * Gets the connections state.
+	 * 
 	 * @return The connection state.
 	 */
 	public State getState();
@@ -440,7 +441,8 @@ public interface IOIO {
 	 * with the given mode.
 	 * 
 	 * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.PulseInput.ClockRate, PulseMode, boolean)
+	 *      ioio.lib.api.PulseInput.ClockRate,
+	 *      ioio.lib.api.PulseInput.PulseMode, boolean)
 	 */
 	public PulseInput openPulseInput(int pin, PulseMode mode)
 			throws ConnectionLostException;
@@ -498,12 +500,12 @@ public interface IOIO {
 
 	/**
 	 * Shorthand for
-	 * {@link #openUart(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, int, Parity, StopBits)}
+	 * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)}
 	 * , where the input pins use their default specs. {@link #INVALID_PIN} can
 	 * be used on either pin if a TX- or RX-only UART is needed.
 	 * 
-	 * @see #openUart(ioio.lib.api.DigitalInput.Spec,
-	 *      ioio.lib.api.DigitalOutput.Spec, int, Parity, StopBits)
+	 * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
+	 *      Uart.StopBits)
 	 */
 	public Uart openUart(int rx, int tx, int baud, Parity parity,
 			StopBits stopbits) throws ConnectionLostException;
@@ -572,9 +574,12 @@ public interface IOIO {
 			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
 			throws ConnectionLostException;
 
-/**
-	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
-	 * where the pins are all open with the default modes and default configuration values are used.
+	/**
+	 * Shorthand for
+	 * {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)}
+	 * , where the pins are all open with the default modes and default
+	 * configuration values are used.
+	 * 
 	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
 	 *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
 	 *      ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)
@@ -584,10 +589,12 @@ public interface IOIO {
 			throws ConnectionLostException;
 
 	/**
-	 * Shorthand for {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config),
-	 * where the MISO pins is opened with pull up, and the other pins are open
-	 * with the default modes and default configuration values are used.
-	 * In this version, a single slave is used.
+	 * Shorthand for
+	 * {@link #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)}
+	 * , where the MISO pins is opened with pull up, and the other pins are open
+	 * with the default modes and default configuration values are used. In this
+	 * version, a single slave is used.
+	 * 
 	 * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec,
 	 *      ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec,
 	 *      ioio.lib.api.DigitalOutput.Spec[], ioio.lib.api.SpiMaster.Config)

@@ -46,7 +46,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * for measuring a turning shaft's speed.
  * <p>
  * {@link PulseInput} instances are obtained by calling
- * {@link IOIO#openPulseInput(ioio.lib.api.DigitalInput.Spec, ClockRate, PulseMode, boolean)}
+ * {@link IOIO#openPulseInput(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.PulseInput.ClockRate, ioio.lib.api.PulseInput.PulseMode, boolean)}
  * . When created, some important configuration decisions have to be made: the
  * precision (single or double), the clock rate and the mode of operation. Modes
  * are straightforward: {@link PulseMode#POSITIVE} is used for measuring a

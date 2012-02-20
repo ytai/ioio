@@ -41,7 +41,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * between this slave and a respective pin on the master. The MISO line should
  * operate in pull-up mode, using either the internal pull-up or an external
  * resistor. SpiMaster instances are obtained by calling
- * {@link IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)}.
+ * {@link IOIO#openSpiMaster(DigitalInput.Spec, DigitalOutput.Spec, DigitalOutput.Spec, DigitalOutput.Spec[], SpiMaster.Config)}.
  * <p>
  * The SPI protocol is comprised of simultaneous sending and receiving of data
  * between the bus master and a single slave. By the very nature of this
@@ -90,9 +90,11 @@ import ioio.lib.api.exception.ConnectionLostException;
  * spi.writeRead(request, 2, 4, response, 3);
  * ...
  * spi.close();  // free SPI module and pins
- * }</pre>
+ * }
+ * </pre>
  * 
- * @see IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)
+ * @see IOIO#openSpiMaster(DigitalInput.Spec, DigitalOutput.Spec,
+ *      DigitalOutput.Spec, DigitalOutput.Spec[], SpiMaster.Config)
  */
 public interface SpiMaster extends Closeable {
 	/** Possible data rates for SPI, in Hz. */
@@ -148,7 +150,7 @@ public interface SpiMaster extends Closeable {
 		 * Constructor with common defaults. Equivalent to Config(rate, false,
 		 * false)
 		 * 
-		 * @see #Config(Rate, boolean, boolean)
+		 * @see SpiMaster.Config#Config(SpiMaster.Config.Rate, boolean, boolean)
 		 */
 		public Config(Rate rate) {
 			this(rate, false, false);
@@ -165,7 +167,7 @@ public interface SpiMaster extends Closeable {
 	 * @param slave
 	 *            The slave index. It is determined by the index of its
 	 *            slave-select pin, as per the array passed to
-	 *            {@link IOIO#openSpiMaster(Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[], Config)}
+	 *            {@link IOIO#openSpiMaster(DigitalInput.Spec, DigitalOutput.Spec, DigitalOutput.Spec, DigitalOutput.Spec[], SpiMaster.Config)}
 	 *            .
 	 * @param writeData
 	 *            A byte array of data to write. May be null if writeSize is 0.

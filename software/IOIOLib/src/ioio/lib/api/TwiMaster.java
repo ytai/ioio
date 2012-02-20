@@ -39,7 +39,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * requires a physical connection of two lines (SDA, SCL) shared by all the bus
  * nodes, where the SDA is open-drain and externally pulled-up. TwiMaster
  * instances are obtained by calling
- * {@link IOIO#openTwiMaster(int, Rate, boolean)}.
+ * {@link IOIO#openTwiMaster(int, ioio.lib.api.TwiMaster.Rate, boolean)}.
  * <p>
  * TWI is the generic name for the specific I2C and SMBus protocols, differing
  * mostly by the voltage levels they require. This module supports both.
@@ -79,7 +79,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * twi.close();  // free TWI module and pins
  * }</pre>
  * 
- * @see IOIO#openTwiMaster(int, Rate, boolean)
+ * @see IOIO#openTwiMaster(int, ioio.lib.api.TwiMaster.Rate, boolean)
  */
 public interface TwiMaster extends Closeable {
 	enum Rate {

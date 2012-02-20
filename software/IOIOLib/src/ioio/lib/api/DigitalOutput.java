@@ -35,7 +35,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <p>
  * A digital input pin can be used to generate logic-level signals.
  * DigitalOutput instances are obtained by calling
- * {@link IOIO#openDigitalOutput(Spec, boolean)}.
+ * {@link IOIO#openDigitalOutput(DigitalOutput.Spec, boolean)}.
  * <p>
  * The value of the pin is set by calling {@link #write(boolean)}.
  * <p>
@@ -101,7 +101,7 @@ public interface DigitalOutput extends Closeable {
 		/**
 		 * Shorthand for Spec(pin, Mode.NORMAL).
 		 * 
-		 * @see #Spec(int, Mode)
+		 * @see DigitalOutput.Spec#Spec(int, DigitalOutput.Spec.Mode)
 		 */
 		public Spec(int pin) {
 			this(pin, Mode.NORMAL);

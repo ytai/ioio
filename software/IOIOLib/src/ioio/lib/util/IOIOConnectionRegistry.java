@@ -29,6 +29,7 @@
 package ioio.lib.util;
 
 import ioio.lib.api.IOIOConnection;
+import ioio.lib.api.IOIOFactory;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 
@@ -64,7 +65,7 @@ public class IOIOConnectionRegistry {
 	 * Get all available connection specifications. This is a list of all
 	 * currently available communication channels in which a IOIO may be
 	 * available. The client typically passes elements of this collection to
-	 * {@link #create(ConnectionSpec)}, possibly after filtering based on the
+	 * {@link IOIOFactory#create(IOIOConnection)}, possibly after filtering based on the
 	 * specification's properties.
 	 * 
 	 * @return A collection of specifications.

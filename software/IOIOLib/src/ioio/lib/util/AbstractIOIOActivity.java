@@ -54,18 +54,20 @@ import android.util.Log;
  * 
  * In the basic usage the client should extend this class and implement
  * {@link #createIOIOThread()}, which should return an implementation of the
- * {@link IOIOThread} abstract class. In this implementation, the client
- * implements the {@link IOIOThread#setup()} method, which gets called as soon
- * as communication with the IOIO is established, and the
- * {@link IOIOThread #loop()} method, which gets called repetitively as long as
- * the IOIO is connected. Both methods should access the
- * {@link IOIOThread#ioio_} field for controlling the IOIO.
+ * {@link AbstractIOIOActivity.IOIOThread} abstract class. In this
+ * implementation, the client implements the
+ * {@link AbstractIOIOActivity.IOIOThread#setup()} method, which gets called as
+ * soon as communication with the IOIO is established, and the
+ * {@link AbstractIOIOActivity.IOIOThread#loop()} method, which gets called
+ * repetitively as long as the IOIO is connected. Both methods should access the
+ * {@link AbstractIOIOActivity.IOIOThread#ioio_} field for controlling the IOIO.
  * 
- * In addition, the {@link IOIOThread#disconnected()} method may be overridden
- * in order to execute logic as soon as a disconnection occurs for whichever
- * reason. The {@link IOIOThread#incompatible()} method may be overridden in
- * order to take action in case where a IOIO whose firmware is incompatible with
- * the IOIOLib version that application is built with.
+ * In addition, the {@link AbstractIOIOActivity.IOIOThread#disconnected()}
+ * method may be overridden in order to execute logic as soon as a disconnection
+ * occurs for whichever reason. The
+ * {@link AbstractIOIOActivity.IOIOThread#incompatible()} method may be
+ * overridden in order to take action in case where a IOIO whose firmware is
+ * incompatible with the IOIOLib version that application is built with.
  * 
  * In a more advanced use case, more than one IOIO is available. In this case, a
  * thread will be created for each IOIO, whose semantics are as defined above.
@@ -78,8 +80,7 @@ import android.util.Log;
  * example, in the case of SocketIOIOConnection, the second argument will
  * contain an {@link Integer} representing the local port number.
  * 
- * @deprecated Please use {@link ioio.lib.util.android.IOIOActivity}
- *             instead.
+ * @deprecated Please use {@link ioio.lib.util.android.IOIOActivity} instead.
  */
 public abstract class AbstractIOIOActivity extends Activity {
 	private static final String TAG = "AbstractIOIOActivity";
