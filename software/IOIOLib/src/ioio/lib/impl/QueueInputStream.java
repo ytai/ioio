@@ -35,7 +35,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import android.util.Log;
 
-public class QueueInputStream extends InputStream {
+class QueueInputStream extends InputStream {
 	private enum State {
 		OPEN, CLOSED, KILLED
 	};

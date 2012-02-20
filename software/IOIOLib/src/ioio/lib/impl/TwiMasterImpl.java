@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
 
-public class TwiMasterImpl extends AbstractResource implements TwiMaster,
+class TwiMasterImpl extends AbstractResource implements TwiMaster,
 		DataModuleListener, Sender {
 	class TwiResult implements Result {
 		boolean ready_ = false;

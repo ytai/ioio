@@ -34,7 +34,7 @@ import ioio.lib.impl.IncomingState.InputPinListener;
 
 import java.io.IOException;
 
-public class AnalogInputImpl extends AbstractPin implements AnalogInput,
+class AnalogInputImpl extends AbstractPin implements AnalogInput,
 		InputPinListener {
 	private int value_;
 	private boolean valid_ = false;

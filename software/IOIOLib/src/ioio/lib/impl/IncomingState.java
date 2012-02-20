@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
 
-public class IncomingState implements IncomingHandler {
+class IncomingState implements IncomingHandler {
 	enum ConnectionState {
 		INIT, ESTABLISHED, CONNECTED, DISCONNECTED, UNSUPPORTED_IID
 	}

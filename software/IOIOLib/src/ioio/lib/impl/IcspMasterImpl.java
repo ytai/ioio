@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class IcspMasterImpl extends AbstractResource implements IcspMaster,
+class IcspMasterImpl extends AbstractResource implements IcspMaster,
 		DataModuleListener {
 	private Queue<Integer> resultQueue_ = new LinkedList<Integer>();
 	private int rxRemaining_ = 0;

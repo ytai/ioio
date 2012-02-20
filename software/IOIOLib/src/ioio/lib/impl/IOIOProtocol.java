@@ -43,7 +43,7 @@ import java.util.Set;
 
 import android.util.Log;
 
-public class IOIOProtocol {
+class IOIOProtocol {
 	static final int HARD_RESET                          = 0x00;
 	static final int ESTABLISH_CONNECTION                = 0x00;
 	static final int SOFT_RESET                          = 0x01;

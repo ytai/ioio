@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
 
-public class SpiMasterImpl extends AbstractResource implements SpiMaster,
+class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		DataModuleListener, Sender {
 	public class SpiResult implements Result {
 		boolean ready_;

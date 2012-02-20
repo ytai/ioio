@@ -33,7 +33,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.IOException;
 
-public class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
+class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 	boolean value_;
 
 	DigitalOutputImpl(IOIOImpl ioio, int pin, boolean startValue) throws ConnectionLostException {

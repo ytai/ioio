@@ -34,7 +34,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * A pin used for digital input.
  * <p>
  * A digital input pin can be used to read logic-level signals. DigitalInput
- * instances are obtained by calling {@link IOIO#openDigitalInput(Spec)}.
+ * instances are obtained by calling {@link IOIO#openDigitalInput(DigitalInput.Spec)}.
  * <p>
  * The value of the pin is obtained by calling {@link #read()}. It is also
  * possible for the client to block until a certain level is sensed, by using

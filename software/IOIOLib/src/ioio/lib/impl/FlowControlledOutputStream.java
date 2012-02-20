@@ -33,7 +33,7 @@ import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class FlowControlledOutputStream extends OutputStream {
+class FlowControlledOutputStream extends OutputStream {
 	interface Sender {
 		void send(byte[] data, int size);
 	}

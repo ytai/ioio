@@ -33,7 +33,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.IOException;
 
-public class PwmImpl extends AbstractResource implements PwmOutput {
+class PwmImpl extends AbstractResource implements PwmOutput {
 	private final int pwmNum_;
 	private final int pinNum_;
 	private final float baseUs_;

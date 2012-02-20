@@ -29,7 +29,7 @@
 package ioio.lib.impl;
 
 
-public class PinFunctionMap {
+class PinFunctionMap {
 	private static final boolean[] PERIPHERAL_OUT = new boolean[] { true,
 			false, false, true, true, true, true, true, false, false, true,
 			true, true, true, true, false, false, false, false, false, false,

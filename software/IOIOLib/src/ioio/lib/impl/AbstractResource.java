@@ -32,7 +32,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DisconnectListener;
 import ioio.lib.api.Closeable;
 
-public class AbstractResource implements Closeable, DisconnectListener {
+class AbstractResource implements Closeable, DisconnectListener {
 	enum State {
 		OPEN,
 		CLOSED,

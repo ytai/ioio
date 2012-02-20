@@ -7,7 +7,7 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class IncapImpl extends AbstractPin implements DataModuleListener,
+class IncapImpl extends AbstractPin implements DataModuleListener,
 		PulseInput {
 	private static final int MAX_QUEUE_LEN = 32;
 	private final PulseMode mode_;

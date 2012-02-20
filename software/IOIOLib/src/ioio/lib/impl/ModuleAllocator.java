@@ -44,7 +44,7 @@ import java.util.TreeSet;
  *
  * @author birmiwal
  */
-public class ModuleAllocator {
+class ModuleAllocator {
     private final Set<Integer> availableModuleIds_;
     private final Set<Integer> allocatedModuleIds_;
 	private final String name_;
