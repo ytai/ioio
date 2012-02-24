@@ -59,5 +59,18 @@ void log_init() {
   UART2Init();
 }
 
+int write(int handle, void *buffer, unsigned int len) {
+  if (handle == 1 || handle == 2) {
+    const char *p = buffer;
+    int i;
+    for (i = 0; i < len; ++i) {
+      UART2PutChar(*p++);
+    }
+    return len;
+  } else {
+    return -1;
+  }
+}
+
 
 #endif  // DEBUG_MODE
