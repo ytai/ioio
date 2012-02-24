@@ -233,7 +233,7 @@ void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
       break;
 
     case CHANNEL_TYPE_BT:
-      assert(ch & 0xFF == 0);
+      assert((ch & 0xFF) == 0);
       BTWrite(data, size);
       break;
   }
@@ -248,7 +248,7 @@ BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
       return AccessoryCanWrite(ch & 0xFF);
 
     case CHANNEL_TYPE_BT:
-      assert(ch & 0xFF == 0);
+      assert((ch & 0xFF) == 0);
       return BTCanWrite();
 
     default:
@@ -263,7 +263,7 @@ int ConnectionGetMaxPacket(CHANNEL_HANDLE ch) {
       return 0x7FFF;  // unlimited
 
     case CHANNEL_TYPE_BT:
-      assert(ch & 0xFF == 0);
+      assert((ch & 0xFF) == 0);
       return 242;
 
     default:
@@ -282,7 +282,7 @@ void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
       break;
 
     case CHANNEL_TYPE_BT:
-      assert(ch & 0xFF == 0);
+      assert((ch & 0xFF) == 0);
       BTClose();
       break;
   }
