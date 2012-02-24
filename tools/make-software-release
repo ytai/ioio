@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ $(uname -o) = Cygwin ]; then
+  ANDROID='cmd /C android'
+else
+  ANDROID=android
+fi
 
 ZIP=zip
 TMPOUT=$(mktemp -ut ioio.XXXXXX.zip)
@@ -29,7 +34,7 @@ cd software
 
 i=0
 for PROJECT in $PROJECTS; do
-  (cd $PROJECT && android -s update project --name $(basename $PROJECT) --path . --target "${TARGETS[i]}")
+  (cd $PROJECT && $ANDROID -s update project --name $(basename $PROJECT) --path . --target "${TARGETS[i]}")
   let "i++"
 done
 
