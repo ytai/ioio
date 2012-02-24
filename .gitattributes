@@ -1,3 +1,4 @@
 * text=auto eol=lf
-proguard.cfg eol=crlf
+proguard.cfg
+*.xml
 
