@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="public" author="true" classpath="." destdir="doc" doctitle="IOIOLib Documentation" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="ioio.lib.api,ioio.lib.api.exception,ioio.lib.util" source="1.6" sourcepath="src:gen" splitindex="true" use="true" version="true"/>
+        <javadoc access="public" author="true" classpath="." destdir="doc" doctitle="IOIOLib Documentation" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="ioio.lib.api,ioio.lib.util.android,ioio.lib.api.exception,ioio.lib.util,ioio.lib.spi" source="1.6" sourcepath="src" splitindex="true" use="true" version="true"/>
     </target>
 </project>
