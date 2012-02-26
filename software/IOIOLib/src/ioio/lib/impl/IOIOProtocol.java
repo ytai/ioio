@@ -91,6 +91,8 @@ class IOIOProtocol {
 	static final int SET_PIN_INCAP                       = 0x1C;
 	static final int INCAP_REPORT                        = 0x1C;
 	static final int SOFT_CLOSE                          = 0x1D;
+	static final int RGB_LED_MATRIX_ENABLE               = 0x1E;
+	static final int RGB_LED_MATRIX_FRAME                = 0x1F;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -490,6 +492,23 @@ class IOIOProtocol {
 	public void icspRegout() throws IOException {
 		beginBatch();
 		writeByte(ICSP_REGOUT);
+		endBatch();
+	}
+
+	public void rgbLedMatrixEnable(boolean enable) throws IOException {
+		beginBatch();
+		writeByte(RGB_LED_MATRIX_ENABLE);
+		writeByte(enable ? 1 : 0);
+		endBatch();
+	}
+
+	public void rgbLedMatrixFrame(byte[] data) throws IOException {
+		assert data.length == 768;
+		beginBatch();
+		writeByte(RGB_LED_MATRIX_FRAME);
+		for (int i = 0; i < 768; ++i) {
+			writeByte(((int) data[i]) & 0xFF);
+		}
 		endBatch();
 	}
 

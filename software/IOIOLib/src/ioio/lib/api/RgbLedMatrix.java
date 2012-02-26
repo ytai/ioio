@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2012 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -26,21 +26,51 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.impl;
+package ioio.lib.api;
 
-class Constants {
-	static final int NUM_PINS = 49;
-	static final int NUM_ANALOG_PINS = 16;
-	static final int NUM_PWM_MODULES = 9;
-	static final int NUM_UART_MODULES = 4;
-	static final int NUM_SPI_MODULES = 3;
-	static final int NUM_TWI_MODULES = 3;
-	static final int[] INCAP_MODULES_DOUBLE = new int[] { 0, 2, 4};
-	static final int[] INCAP_MODULES_SINGLE = new int[] { 6, 7, 8};
-	static final int BUFFER_SIZE = 1024;
-	static final int PACKET_BUFFER_SIZE = 256;
-	
-	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
-	static final int[] ICSP_PINS = new int[] { 36, 37, 38 };
-	static final int[] RGB_LED_MATRIX_PINS = new int[] { 7, 10, 11, 19, 20, 21, 22, 23, 24, 25, 27, 28};
+import ioio.lib.api.exception.ConnectionLostException;
+
+/**
+ * An interface to control a 16x32 RGB LED matrix of this model: <a
+ * href="http://www.adafruit.com/products/420"
+ * >http://www.adafruit.com/products/420</a>
+ * <p>
+ * Connection: In this diagram the female connector is depicted - it is a mirror
+ * of the male on that is on the matrix board. Place the connector such that the
+ * red wire is on the top left.
+ * <pre>
+ *          +-----+
+ *     23   | o o |   24
+ *          | o o |   22
+ *     20   | o o |   21
+ *          | o o |   19
+ *     10   | o o |   7
+ *          | o o |   11
+ *     27   | o o |   25
+ *     GND  | o o |   28
+ *          +-----+
+ * </pre>
+ * 
+ */
+public interface RgbLedMatrix extends Closeable {
+	/**
+	 * Write a frame. Buffer must be of size 512, where each element is a pixel
+	 * with the following ordering:
+	 * 
+	 * <pre>
+	 *   0    1    2       ...  31
+	 *   32   33   34      ...  63
+	 *   ...
+	 *   480  481  482     ...  512
+	 * </pre>
+	 * 
+	 * The encoding is RGB565.
+	 * 
+	 * @param rgb565
+	 *            The frame.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 */
+	void frame(short rgb565[]) throws ConnectionLostException;
 }

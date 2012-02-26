@@ -36,6 +36,7 @@
       <itemPath>sync.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
+      <itemPath>rgb_led_matrix.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -71,6 +72,7 @@
       <itemPath>spi.c</itemPath>
       <itemPath>timers.c</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>rgb_led_matrix.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

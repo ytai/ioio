@@ -46,6 +46,7 @@
 #include "sync.h"
 #include "icsp.h"
 #include "incap.h"
+#include "rgb_led_matrix.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
@@ -79,7 +80,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_CONFIG_ARGS),
   sizeof(SET_PIN_INCAP_ARGS),
-  sizeof(SOFT_CLOSE_ARGS)
+  sizeof(SOFT_CLOSE_ARGS),
+  sizeof(RGB_LED_MATRIX_ENABLE_ARGS),
+  sizeof(RGB_LED_MATRIX_FRAME_ARGS),
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -114,7 +117,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_STATUS_ARGS),
   sizeof(INCAP_REPORT_ARGS),
-  sizeof(SOFT_CLOSE_ARGS)
+  sizeof(SOFT_CLOSE_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS),
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
@@ -137,7 +142,7 @@ typedef enum {
   WAIT_VAR_ARGS
 } RX_MESSAGE_STATE;
 
-static INCOMING_MESSAGE rx_msg;
+static INCOMING_MESSAGE rx_msg __attribute__((far));
 static int rx_buffer_cursor;
 static int rx_message_remaining;
 static RX_MESSAGE_STATE rx_message_state;
@@ -146,7 +151,7 @@ static inline BYTE OutgoingMessageLength(const OUTGOING_MESSAGE* msg) {
   return 1 + outgoing_arg_size[msg->type];
 }
 
-static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
+static inline int IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
   switch (msg->type) {
     case UART_DATA:
       return msg->args.uart_data.size + 1;
@@ -162,6 +167,9 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 
     case I2C_WRITE_READ:
       return msg->args.i2c_write_read.write_size;
+
+    case RGB_LED_MATRIX_FRAME:
+      return RGB_LED_MATRIX_FRAME_SIZE;
 
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
@@ -487,6 +495,14 @@ static BOOL MessageDone() {
       log_printf("Soft close requested");
       Echo();
       state = STATE_CLOSING;
+      break;
+
+    case RGB_LED_MATRIX_ENABLE:
+      RgbLedMatrixEnable(rx_msg.args.rgb_led_matrix_enable.enable);
+      break;
+
+    case RGB_LED_MATRIX_FRAME:
+      RgbLedMatrixFrame(rx_msg.args.rgb_led_matrix_frame.data);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
