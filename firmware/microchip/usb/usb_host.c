@@ -1889,143 +1889,6 @@ void USBHostTasks( void )
                     }
                     break;
 
-                case SUBSTATE_ENABLE_ACCESSORY:
-                    #ifdef DISABLE_ACCESSORY
-                        _USB_SetNextSubState();
-                    #else
-                        switch (usbHostState & SUBSUBSTATE_MASK)
-                        {
-                            case SUBSUBSTATE_SEND_GET_PROTOCOL:
-                                if (_USB_IsAccessoryDevice()) {
-                                    #ifdef DEBUG_MODE
-                                        UART2PrintString( "HOST: Accessory mode enabled.\r\n" );
-                                    #endif
-                                    _USB_SetNextSubState();
-                                } else {
-                                    #ifdef DEBUG_MODE
-                                        UART2PrintString( "HOST: Trying to enable accessory mode.\r\n" );
-                                    #endif
-                                    // Set up and send GET DEVICE DESCRIPTOR
-                                    pEP0Data[0] = USB_SETUP_DEVICE_TO_HOST | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
-                                    pEP0Data[1] = 51;
-                                    pEP0Data[2] = 0;
-                                    pEP0Data[3] = 0;
-                                    pEP0Data[4] = 0;
-                                    pEP0Data[5] = 0;
-                                    pEP0Data[6] = 2;
-                                    pEP0Data[7] = 0;
-                                    _USB_InitControlRead( usbDeviceInfo.pEndpoint0, pEP0Data, 8, (BYTE*)&usbDeviceInfo.accessoryVersion, 2 );
-                                    _USB_SetNextSubSubState();
-                                }
-                                break;
-
-                            case SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL:
-                                if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
-                                {
-                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
-                                    {
-                                        #ifdef DEBUG_MODE
-                                            UART2PrintString( "HOST: Accessory mode version is: 0x" );
-                                            UART2PutHexWord(usbDeviceInfo.accessoryVersion);
-                                            UART2PrintString( "\r\n" );
-                                        #endif
-                                        if (usbDeviceInfo.accessoryVersion == 0) {
-                                            // failed
-                                            #ifdef DEBUG_MODE
-                                                UART2PrintString( "HOST: Accessory mode is not supported\r\n" );
-                                            #endif
-                                            _USB_SetNextSubState();
-                                        } else {
-                                          #ifdef DEBUG_MODE
-                                              UART2PrintString( "HOST: Accessory mode is supported\r\n" );
-                                          #endif
-                                          currentDesc = 0;
-                                          _USB_SetNextSubSubState();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        #ifdef DEBUG_MODE
-                                            UART2PrintString( "HOST: Accessory mode version failed.\r\n" );
-                                        #endif
-                                        _USB_SetNextSubState();
-                                    }
-                                }
-                                break;
-
-                            case SUBSUBSTATE_SEND_ACCESSORY_STRING:
-                                #ifdef DEBUG_MODE
-                                    UART2PrintString( "HOST: Sending string\r\n" );
-                                #endif
-                                pEP0Data[0] = USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
-                                pEP0Data[1] = 52;
-                                pEP0Data[2] = 0;
-                                pEP0Data[3] = 0;
-                                pEP0Data[4] = currentDesc;
-                                pEP0Data[5] = 0;
-                                pEP0Data[6] = strlen(accessoryDescs[currentDesc]) + 1;
-                                pEP0Data[7] = 0;
-                                _USB_InitControlWrite( usbDeviceInfo.pEndpoint0, pEP0Data, 8, (BYTE*) accessoryDescs[currentDesc], pEP0Data[6] );
-                                _USB_SetNextSubSubState();
-                                break;
-
-                          case SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING:
-                                if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
-                                {
-                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
-                                    {
-                                        #ifdef DEBUG_MODE
-                                            UART2PrintString( "HOST: Wrote string\r\n" );
-                                        #endif
-                                        if (++currentDesc == 6) {
-                                            // done
-                                            _USB_SetNextSubSubState();
-                                        } else {
-                                            _USB_SetPreviousSubSubState();
-                                        }
-                                    } else {
-                                        #ifdef DEBUG_MODE
-                                            UART2PrintString( "HOST: Failed to write string\r\n" );
-                                        #endif
-                                        _USB_SetNextSubState();
-                                    }
-                                }
-                                break;
-
-                          case SUBSUBSTATE_SEND_START_ACCESSORY:
-                              pEP0Data[0] = USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
-                              pEP0Data[1] = 53;
-                              pEP0Data[2] = 0;
-                              pEP0Data[3] = 0;
-                              pEP0Data[4] = 0;
-                              pEP0Data[5] = 0;
-                              pEP0Data[6] = 0;
-                              pEP0Data[7] = 0;
-                              _USB_InitControlWrite( usbDeviceInfo.pEndpoint0, pEP0Data, 8, NULL, 0 );
-                              _USB_SetNextSubSubState();
-                              break;
-
-                          case SUBSUBSTATE_WAIT_FOR_START_ACCESSORY:
-                                if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
-                                {
-                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
-                                    {
-                                      #ifdef DEBUG_MODE
-                                          UART2PrintString( "HOST: Started accessory mode. Waiting for reconnect\r\n" );
-                                      #endif
-                                      _USB_SetHoldState();
-                                    } else {
-                                      #ifdef DEBUG_MODE
-                                          UART2PrintString( "HOST: Failed to start accessory mode\r\n" );
-                                      #endif
-                                      _USB_SetNextSubState();
-                                    }
-                                }
-                              break;
-                        }
-                    #endif
-                    break;
-
                 case SUBSTATE_VALIDATE_VID_PID:
                     #ifdef DEBUG_MODE
                         UART2PrintString( "HOST: Validating VID and PID.\r\n" );
@@ -2325,9 +2188,7 @@ void USBHostTasks( void )
                                 // Did we fail to configure?
                                 if (pCurrentConfigurationNode == NULL)
                                 {
-                                    // Failed to find a supported configuration.
-                                    _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
-                                    _USB_SetHoldState();
+                                    _USB_SetNextSubState();
                                 }
                                 else
                                 {
@@ -2421,9 +2282,7 @@ void USBHostTasks( void )
                             // Did we fail to configure?
                             if (pCurrentConfigurationNode == NULL)
                             {
-                                // Failed to find a supported configuration.
-                                _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
-                                _USB_SetHoldState();
+                                _USB_SetNextSubState();
                             }
                             else
                             {
@@ -2436,6 +2295,159 @@ void USBHostTasks( void )
                         default:
                             break;
                     }
+                    break;
+
+                case SUBSTATE_ENABLE_ACCESSORY:
+                    #ifdef DISABLE_ACCESSORY
+                        if (pCurrentConfigurationNode == NULL) {
+                            // failed
+                            #ifdef DEBUG_MODE
+                                UART2PrintString( "HOST: Device is not supported\r\n" );
+                            #endif
+                            // Failed to find a supported configuration.
+                            _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                            _USB_SetHoldState();
+                        } else {
+                            _USB_SetNextSubState();
+                        }
+                    #else
+                        if (pCurrentConfigurationNode == NULL) {
+                            // we haven't found any matching configuration.
+                            // last resort: try to enable the device as an
+                            // android accessory
+                            switch (usbHostState & SUBSUBSTATE_MASK)
+                            {
+                                case SUBSUBSTATE_SEND_GET_PROTOCOL:
+                                    #ifdef DEBUG_MODE
+                                        UART2PrintString( "HOST: Trying to enable accessory mode.\r\n" );
+                                    #endif
+                                    // Set up and send GET DEVICE DESCRIPTOR
+                                    pEP0Data[0] = USB_SETUP_DEVICE_TO_HOST | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
+                                    pEP0Data[1] = 51;
+                                    pEP0Data[2] = 0;
+                                    pEP0Data[3] = 0;
+                                    pEP0Data[4] = 0;
+                                    pEP0Data[5] = 0;
+                                    pEP0Data[6] = 2;
+                                    pEP0Data[7] = 0;
+                                    _USB_InitControlRead( usbDeviceInfo.pEndpoint0, pEP0Data, 8, (BYTE*)&usbDeviceInfo.accessoryVersion, 2 );
+                                    _USB_SetNextSubSubState();
+                                    break;
+
+                                case SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL:
+                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
+                                    {
+                                        if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
+                                        {
+                                            #ifdef DEBUG_MODE
+                                                UART2PrintString( "HOST: Accessory mode version is: 0x" );
+                                                UART2PutHexWord(usbDeviceInfo.accessoryVersion);
+                                                UART2PrintString( "\r\n" );
+                                            #endif
+                                            if (usbDeviceInfo.accessoryVersion == 0) {
+                                                // failed
+                                                #ifdef DEBUG_MODE
+                                                    UART2PrintString( "HOST: Accessory mode is not supported\r\n" );
+                                                #endif
+                                                // Failed to find a supported configuration.
+                                                _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                                _USB_SetHoldState();
+                                            } else {
+                                              #ifdef DEBUG_MODE
+                                                  UART2PrintString( "HOST: Accessory mode is supported\r\n" );
+                                              #endif
+                                              currentDesc = 0;
+                                              _USB_SetNextSubSubState();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            #ifdef DEBUG_MODE
+                                                UART2PrintString( "HOST: Accessory mode version failed.\r\n" );
+                                            #endif
+                                            // Failed to find a supported configuration.
+                                            _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                            _USB_SetHoldState();
+                                        }
+                                    }
+                                    break;
+
+                                case SUBSUBSTATE_SEND_ACCESSORY_STRING:
+                                    #ifdef DEBUG_MODE
+                                        UART2PrintString( "HOST: Sending string\r\n" );
+                                    #endif
+                                    pEP0Data[0] = USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
+                                    pEP0Data[1] = 52;
+                                    pEP0Data[2] = 0;
+                                    pEP0Data[3] = 0;
+                                    pEP0Data[4] = currentDesc;
+                                    pEP0Data[5] = 0;
+                                    pEP0Data[6] = strlen(accessoryDescs[currentDesc]) + 1;
+                                    pEP0Data[7] = 0;
+                                    _USB_InitControlWrite( usbDeviceInfo.pEndpoint0, pEP0Data, 8, (BYTE*) accessoryDescs[currentDesc], pEP0Data[6] );
+                                    _USB_SetNextSubSubState();
+                                    break;
+
+                              case SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING:
+                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
+                                    {
+                                        if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
+                                        {
+                                            #ifdef DEBUG_MODE
+                                                UART2PrintString( "HOST: Wrote string\r\n" );
+                                            #endif
+                                            if (++currentDesc == 6) {
+                                                // done
+                                                _USB_SetNextSubSubState();
+                                            } else {
+                                                _USB_SetPreviousSubSubState();
+                                            }
+                                        } else {
+                                            #ifdef DEBUG_MODE
+                                                UART2PrintString( "HOST: Failed to write string\r\n" );
+                                            #endif
+                                            _USB_SetNextSubState();
+                                        }
+                                    }
+                                    break;
+
+                              case SUBSUBSTATE_SEND_START_ACCESSORY:
+                                  pEP0Data[0] = USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_VENDOR | USB_SETUP_RECIPIENT_DEVICE;
+                                  pEP0Data[1] = 53;
+                                  pEP0Data[2] = 0;
+                                  pEP0Data[3] = 0;
+                                  pEP0Data[4] = 0;
+                                  pEP0Data[5] = 0;
+                                  pEP0Data[6] = 0;
+                                  pEP0Data[7] = 0;
+                                  _USB_InitControlWrite( usbDeviceInfo.pEndpoint0, pEP0Data, 8, NULL, 0 );
+                                  _USB_SetNextSubSubState();
+                                  break;
+
+                              case SUBSUBSTATE_WAIT_FOR_START_ACCESSORY:
+                                    if (usbDeviceInfo.pEndpoint0->status.bfTransferComplete)
+                                    {
+                                        if (usbDeviceInfo.pEndpoint0->status.bfTransferSuccessful)
+                                        {
+                                          #ifdef DEBUG_MODE
+                                              UART2PrintString( "HOST: Started accessory mode. Waiting for reconnect\r\n" );
+                                          #endif
+                                        } else {
+                                          #ifdef DEBUG_MODE
+                                              UART2PrintString( "HOST: Failed to start accessory mode\r\n" );
+                                          #endif
+                                          // Failed to find a supported configuration.
+                                          _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                        }
+                                        _USB_SetHoldState();
+                                    }
+                                  break;
+                            }
+                        } else {
+                          // we're good, move on
+                          _USB_SetNextSubState();
+                        }
+                    #endif
                     break;
 
                 case SUBSTATE_SET_CONFIGURATION:
@@ -3230,12 +3242,6 @@ BOOL _USB_FindDeviceLevelClientDriver( void )
     #endif
 
     return FALSE;
-}
-
-BOOL _USB_IsAccessoryDevice( void )
-{
-    USB_DEVICE_DESCRIPTOR *pDesc = (USB_DEVICE_DESCRIPTOR *)pDeviceDescriptor;
-    return pDesc->idVendor == 0x18D1 && (pDesc->idProduct & ~1) == 0x2D00;
 }
 
 /****************************************************************************
