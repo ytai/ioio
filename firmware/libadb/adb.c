@@ -218,7 +218,6 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_CLOSE
           || adb_channels[h].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
         log_printf("Channel %d closed. Name: %s", h, adb_channels[h].name);
-        adb_channels[h].recv_func(h, NULL, 0);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if ((adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
                   || adb_channels[h].state == ADB_CHAN_STATE_IDLE)
