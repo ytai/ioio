@@ -980,12 +980,12 @@ static void rfcomm_channel_packet_handler_uih(rfcomm_multiplexer_t *multiplexer,
 
         // log_info( "RFCOMM data UIH_PF, size %u, channel %p\n", size-payload_offset-1, rfChannel->connection);
 
-    // decrease incoming credit counter
-    if (channel->credits_incoming > 0){
-        channel->credits_incoming--;
-    }
-    
-    // deliver payload
+        // decrease incoming credit counter
+        if (channel->credits_incoming > 0){
+            channel->credits_incoming--;
+        }
+        
+        // deliver payload
         (*app_packet_handler)(channel->connection, RFCOMM_DATA_PACKET, channel->rfcomm_cid,
                               &packet[payload_offset], size-payload_offset-1);
     }

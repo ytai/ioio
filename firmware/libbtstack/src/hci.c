@@ -83,7 +83,7 @@ hci_connection_t * connection_for_handle(hci_con_handle_t con_handle){
 
 static void hci_connection_timeout_handler(timer_source_t *timer){
 #if defined(HAVE_TIME) || defined(HAVE_TICK)
-    hci_connection_t * connection = linked_item_get_user(&timer->item);
+    hci_connection_t * connection = (hci_connection_t *) linked_item_get_user(&timer->item);
 #endif
 #ifdef HAVE_TIME
     struct timeval tv;
@@ -118,7 +118,7 @@ static void hci_connection_timestamp(hci_connection_t *connection){
  * @return connection OR NULL, if no memory left
  */
 static hci_connection_t * create_connection_for_addr(bd_addr_t addr){
-    hci_connection_t * conn = btstack_memory_hci_connection_get();
+    hci_connection_t * conn = (hci_connection_t *) btstack_memory_hci_connection_get();
     if (!conn) return NULL;
     BD_ADDR_COPY(conn->address, addr);
     conn->con_handle = 0xffff;
@@ -148,6 +148,15 @@ static hci_connection_t * connection_for_address(bd_addr_t address){
     return NULL;
 }
 
+inline static void connectionSetAuthenticationFlags(hci_connection_t * conn, hci_authentication_flags_t flags){
+    conn->authentication_flags = (hci_authentication_flags_t)(conn->authentication_flags | flags);
+}
+
+inline static void connectionClearAuthenticationFlags(hci_connection_t * conn, hci_authentication_flags_t flags){
+    conn->authentication_flags = (hci_authentication_flags_t)(conn->authentication_flags & ~flags);
+}
+
+
 /**
  * add authentication flags and reset timer
  */
@@ -156,7 +165,7 @@ static void hci_add_connection_flags_for_flipped_bd_addr(uint8_t *bd_addr, hci_a
     bt_flip_addr(addr, *(bd_addr_t *) bd_addr);
     hci_connection_t * conn = connection_for_address(addr);
     if (conn) {
-        conn->authentication_flags |= flags;
+        connectionSetAuthenticationFlags(conn, flags);
         hci_connection_timestamp(conn);
     }
 }
@@ -428,6 +437,13 @@ static void event_handler(uint8_t *packet, int size){
                              hci_stack.acl_data_packet_length, hci_stack.total_num_acl_packets, hci_stack.packet_types); 
                 }
             }
+            // Dump local address
+            if (COMMAND_COMPLETE_EVENT(packet, hci_read_bd_addr)) {
+                bd_addr_t addr;
+                bt_flip_addr(addr, &packet[OFFSET_OF_DATA_IN_COMMAND_COMPLETE + 1]);
+                log_info("Local Address, Status: 0x%02x: Addr: %s\n",
+                    packet[OFFSET_OF_DATA_IN_COMMAND_COMPLETE], bd_addr_to_str(addr));
+            }
             if (COMMAND_COMPLETE_EVENT(packet, hci_write_scan_enable)){
                 hci_emit_discoverable_enabled(hci_stack.discoverable);
             }
@@ -487,7 +503,7 @@ static void event_handler(uint8_t *packet, int size){
                 if (!packet[2]){
                     conn->state = OPEN;
                     conn->con_handle = READ_BT_16(packet, 3);
-
+                    
 #ifdef HAVE_TICK
                     // restart timer
                     run_loop_set_timer(&conn->timeout, HCI_CONNECTION_TIMEOUT_MS);
@@ -612,27 +628,27 @@ static void event_handler(uint8_t *packet, int size){
                         // no memory
                         break;
                     }
-
+                    
                     conn->state = OPEN;
                     conn->con_handle = READ_BT_16(packet, 4);
-
+                    
                     // TODO: store - role, peer address type, conn_interval, conn_latency, supervision timeout, master clock
 
                     // restart timer
                     // run_loop_set_timer(&conn->timeout, HCI_CONNECTION_TIMEOUT_MS);
                     // run_loop_add_timer(&conn->timeout);
-
+                    
                     log_info("New connection: handle %u, %s\n", conn->con_handle, bd_addr_to_str(conn->address));
-
+                    
                     hci_emit_nr_connections_changed();
                     break;
-
-        default:
+                    
+                default:
+                    break;
+            }
             break;
-    }
-            break;
-#endif
-
+#endif            
+            
         default:
             break;
     }
@@ -661,8 +677,8 @@ static void event_handler(uint8_t *packet, int size){
     
     hci_stack.packet_handler(HCI_EVENT_PACKET, packet, size);
 	
-    // execute main loop
-    hci_run();
+	// execute main loop
+	hci_run();
 }
 
 void packet_handler(uint8_t packet_type, uint8_t *packet, uint16_t size){
@@ -728,7 +744,7 @@ void hci_close(){
     }
     while (hci_stack.connections) {
         hci_shutdown_connection((hci_connection_t *) hci_stack.connections);
-    }
+}
     hci_power_control(HCI_POWER_OFF);
 }
 
@@ -987,11 +1003,11 @@ void hci_discoverable_control(uint8_t enable){
         hci_emit_discoverable_enabled(hci_stack.discoverable);
         return;
     }
-    
+
     hci_stack.discoverable = enable;
     hci_update_scan_enable();
 }
-    
+
 void hci_connectable_control(uint8_t enable){
     if (enable) enable = 1; // normalize argument
     
@@ -1049,7 +1065,7 @@ void hci_run(){
             } else {
                hci_send_cmd(&hci_link_key_request_negative_reply, connection->address);
             }
-            connection->authentication_flags &= ~HANDLE_LINK_KEY_REQUEST;
+            connectionClearAuthenticationFlags(connection, HANDLE_LINK_KEY_REQUEST);
         }
     }
 
@@ -1092,18 +1108,18 @@ void hci_run(){
                         log_info("hci_run: init script done\n\r");
                     }
                     // otherwise continue
-                    hci_send_cmd(&hci_read_bd_addr);
-                    break;
-                case 4:
-                    hci_send_cmd(&hci_read_buffer_size);
-                    break;
+					hci_send_cmd(&hci_read_bd_addr);
+					break;
+				case 4:
+					hci_send_cmd(&hci_read_buffer_size);
+					break;
                 case 5:
                     // ca. 15 sec
                     hci_send_cmd(&hci_write_page_timeout, 0x6000);
                     break;
-                case 6:
+				case 6:
 					hci_send_cmd(&hci_write_scan_enable, (hci_stack.connectable << 1) | hci_stack.discoverable); // page scan
-                    break;
+					break;
                 case 7:
 #ifndef EMBEDDED
                 {

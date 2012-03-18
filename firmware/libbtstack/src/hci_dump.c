@@ -41,10 +41,12 @@
  *  Created by Matthias Ringwald on 5/26/09.
  */
 
+#include "config.h"
+
 #include "hci_dump.h"
 #include "hci.h"
 #include "hci_transport.h"
-#include "config.h"
+#include <btstack/hci_cmds.h>
 
 #ifndef EMBEDDED
 #include <fcntl.h>        // open
@@ -54,9 +56,8 @@
 #include <time.h>
 #include <sys/time.h>     // for timestamps
 #include <sys/stat.h>     // for mode flags
+#include <stdarg.h>       // for va_list
 #endif
-
-// #define HCI_DUMP_FULL_LOG
 
 // BLUEZ hcidump
 typedef struct {
@@ -77,7 +78,7 @@ typedef struct {
 	uint32_t	len;
 	uint32_t	ts_sec;
 	uint32_t	ts_usec;
-	uint8_t		type;
+	uint8_t		type;   // 0xfc for note
 }
 #ifdef __GNUC__
 __attribute__ ((packed))
@@ -90,8 +91,9 @@ static int dump_format;
 static hcidump_hdr header_bluez;
 static pktlog_hdr  header_packetlogger;
 static char time_string[40];
-static int max_nr_packets = -1;
-static int nr_packets = 0;
+static int  max_nr_packets = -1;
+static int  nr_packets = 0;
+static char log_message_buffer[256];
 #endif
 
 void hci_dump_open(char *filename, hci_dump_format_t format){
@@ -116,7 +118,6 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
 
     if (dump_file < 0) return; // not activated yet
 
-#ifndef HCI_DUMP_FULL_LOG
     // don't grow bigger than max_nr_packets
     if (dump_format != HCI_DUMP_STDOUT && max_nr_packets > 0){
         if (nr_packets >= max_nr_packets){
@@ -126,7 +127,6 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
         }
         nr_packets++;
     }
-#endif
     
     // get time
     struct timeval curr_time;
@@ -134,7 +134,7 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
     gettimeofday(&curr_time, NULL);
     
     switch (dump_format){
-        case HCI_DUMP_STDOUT:
+        case HCI_DUMP_STDOUT: {
             /* Obtain the time of day, and convert it to a tm struct. */
             ptm = localtime (&curr_time.tv_sec);
             /* Format the date and time, down to a single second. */
@@ -158,9 +158,18 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
                         printf("ACL => ");
                     }
                     break;
+                case LOG_MESSAGE_PACKET:
+                    // assume buffer is big enough
+                    packet[len] = 0;
+                    printf("LOG -- %s\n", (char*) packet);
+                    return;
+                default:
+                    return;
             }
             hexdump(packet, len);
             break;
+        }
+            
         case HCI_DUMP_BLUEZ:
             bt_store_16( (uint8_t *) &header_bluez.len, 0, 1 + len);
             header_bluez.in  = in;
@@ -171,6 +180,7 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
             write (dump_file, &header_bluez, sizeof(hcidump_hdr) );
             write (dump_file, packet, len );
             break;
+            
         case HCI_DUMP_PACKETLOGGER:
             header_packetlogger.len = htonl( sizeof(pktlog_hdr) - 4 + len);
             header_packetlogger.ts_sec =  htonl(curr_time.tv_sec);
@@ -189,13 +199,30 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
                 case HCI_EVENT_PACKET:
                     header_packetlogger.type = 0x01;
                     break;
+                case LOG_MESSAGE_PACKET:
+                    header_packetlogger.type = 0xfc;
+                    break;
                 default:
                     return;
             }
             write (dump_file, &header_packetlogger, sizeof(pktlog_hdr) );
             write (dump_file, packet, len );
+            break;
+            
+        default:
+            break;
     }
 #endif
+}
+
+void hci_dump_log(const char * format, ...){
+#ifndef EMBEDDED
+    va_list argptr;
+    va_start(argptr, format);
+    int len = vsnprintf(log_message_buffer, sizeof(log_message_buffer), format, argptr);
+    hci_dump_packet(LOG_MESSAGE_PACKET, 0, (uint8_t*) log_message_buffer, len);
+    va_end(argptr);
+#endif    
 }
 
 void hci_dump_close(){

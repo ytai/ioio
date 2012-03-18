@@ -72,6 +72,9 @@ static linked_list_t l2cap_services = NULL;
 static void (*packet_handler) (void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) = null_packet_handler;
 static int new_credits_blocked = 0;
 
+static btstack_packet_handler_t attribute_protocol_packet_handler = NULL;
+static btstack_packet_handler_t security_protocol_packet_handler = NULL;
+
 // prototypes
 static void l2cap_finialize_channel_close(l2cap_channel_t *channel);
 static l2cap_service_t * l2cap_get_service(uint16_t psm);
@@ -84,7 +87,7 @@ static int l2cap_channel_ready_for_open(l2cap_channel_t *channel);
 void l2cap_init(){
     new_credits_blocked = 0;
     signaling_responses_pending = 0;
-
+    
     l2cap_channels = NULL;
     l2cap_services = NULL;
 
@@ -283,6 +286,33 @@ int l2cap_send_prepared(uint16_t local_cid, uint16_t len){
     return err;
 }
 
+int l2cap_send_prepared_connectionless(uint16_t handle, uint16_t cid, uint16_t len){
+    
+    if (!hci_can_send_packet_now(HCI_ACL_DATA_PACKET)){
+        log_info("l2cap_send_prepared_to_handle cid %u, cannot send\n", cid);
+        return BTSTACK_ACL_BUFFERS_FULL;
+    }
+    
+    log_debug("l2cap_send_prepared_to_handle cid %u, handle %u\n", cid, handle);
+    
+    uint8_t *acl_buffer = hci_get_outgoing_acl_packet_buffer();
+    
+    // 0 - Connection handle : PB=10 : BC=00 
+    bt_store_16(acl_buffer, 0, handle | (2 << 12) | (0 << 14));
+    // 2 - ACL length
+    bt_store_16(acl_buffer, 2,  len + 4);
+    // 4 - L2CAP packet length
+    bt_store_16(acl_buffer, 4,  len + 0);
+    // 6 - L2CAP channel DEST
+    bt_store_16(acl_buffer, 6, cid);    
+    // send
+    int err = hci_send_acl_packet(acl_buffer, len+8);
+    
+    l2cap_hand_out_credits();
+
+    return err;
+}
+
 int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len){
 
     if (!hci_can_send_packet_now(HCI_ACL_DATA_PACKET)){
@@ -296,6 +326,29 @@ int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len){
 
     return l2cap_send_prepared(local_cid, len);
 }
+
+int l2cap_send_connectionless(uint16_t handle, uint16_t cid, uint8_t *data, uint16_t len){
+    
+    if (!hci_can_send_packet_now(HCI_ACL_DATA_PACKET)){
+        log_info("l2cap_send_internal cid %u, cannot send\n", cid);
+        return BTSTACK_ACL_BUFFERS_FULL;
+    }
+    
+    uint8_t *acl_buffer = hci_get_outgoing_acl_packet_buffer();
+    
+    memcpy(&acl_buffer[8], data, len);
+    
+    return l2cap_send_prepared_connectionless(handle, cid, len);
+}
+
+static inline void channelStateVarSetFlag(l2cap_channel_t *channel, L2CAP_CHANNEL_STATE_VAR flag){
+    channel->state_var = (L2CAP_CHANNEL_STATE_VAR) (channel->state_var | flag);
+}
+
+static inline void channelStateVarClearFlag(l2cap_channel_t *channel, L2CAP_CHANNEL_STATE_VAR flag){
+    channel->state_var = (L2CAP_CHANNEL_STATE_VAR) (channel->state_var & ~flag);
+}
+
 
 
 // MARK: L2CAP_RUN
@@ -347,7 +400,7 @@ void l2cap_run(void){
     linked_item_t *next;
     for (it = (linked_item_t *) l2cap_channels; it ; it = next){
         next = it->next;    // cache next item as current item might get freed
-        
+
         if (!hci_can_send_packet_now(HCI_COMMAND_DATA_PACKET)) break;
         if (!hci_can_send_packet_now(HCI_ACL_DATA_PACKET)) break;
         
@@ -369,12 +422,12 @@ void l2cap_run(void){
                 l2cap_send_signaling_packet(channel->handle, CONNECTION_RESPONSE, channel->remote_sig_id, 0, 0, channel->reason, 0);
                 // discard channel - l2cap_finialize_channel_close without sending l2cap close event
                 linked_list_remove(&l2cap_channels, (linked_item_t *) channel); // -- remove from list
-                btstack_memory_l2cap_channel_free(channel);
+                btstack_memory_l2cap_channel_free(channel); 
                 break;
                 
             case L2CAP_STATE_WILL_SEND_CONNECTION_RESPONSE_ACCEPT:
                 channel->state = L2CAP_STATE_CONFIG;
-                channel->state_var |= L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ;
+                channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ);
                 l2cap_send_signaling_packet(channel->handle, CONNECTION_RESPONSE, channel->remote_sig_id, channel->local_cid, channel->remote_cid, 0, 0);
                 break;
                 
@@ -387,13 +440,13 @@ void l2cap_run(void){
             
             case L2CAP_STATE_CONFIG:
                 if (channel->state_var & L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP){
-                    channel->state_var &= ~L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP;
-                    channel->state_var |= L2CAP_CHANNEL_STATE_VAR_SENT_CONF_RSP;
+                    channelStateVarClearFlag(channel, L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP);
+                    channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_SENT_CONF_RSP);
                     l2cap_send_signaling_packet(channel->handle, CONFIGURE_RESPONSE, channel->remote_sig_id, channel->remote_cid, 0, 0, 0, NULL);
                 }
                 else if (channel->state_var & L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ){
-                    channel->state_var &= ~L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ;
-                    channel->state_var |= L2CAP_CHANNEL_STATE_VAR_SENT_CONF_REQ;
+                    channelStateVarClearFlag(channel, L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ);
+                    channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_SENT_CONF_REQ);
                     channel->local_sig_id = l2cap_next_sig_id();
                     config_options[0] = 1; // MTU
                     config_options[1] = 2; // len param
@@ -432,7 +485,7 @@ void l2cap_create_channel_internal(void * connection, btstack_packet_handler_t p
                                    bd_addr_t address, uint16_t psm, uint16_t mtu){
     
     // alloc structure
-    l2cap_channel_t * chan = btstack_memory_l2cap_channel_get();
+    l2cap_channel_t * chan = (l2cap_channel_t*) btstack_memory_l2cap_channel_get();
     if (!chan) {
         // emit error event
         l2cap_channel_t dummy_channel;
@@ -596,8 +649,14 @@ void l2cap_event_handler( uint8_t *packet, uint16_t size ){
                     (* (channel->packet_handler))(HCI_EVENT_PACKET, channel->local_cid, packet, size);
                 } 
             }
+            if (attribute_protocol_packet_handler) {
+                (*attribute_protocol_packet_handler)(HCI_EVENT_PACKET, 0, packet, size);
+            }
+            if (security_protocol_packet_handler) {
+                (*security_protocol_packet_handler)(SM_DATA_PACKET, 0, packet, size);
+            }
             break;
-             
+            
         default:
             break;
     }
@@ -641,7 +700,7 @@ static void l2cap_handle_connection_request(hci_con_handle_t handle, uint8_t sig
     }
     // alloc structure
     // log_info("l2cap_handle_connection_request register channel\n");
-    l2cap_channel_t * channel = btstack_memory_l2cap_channel_get();
+    l2cap_channel_t * channel = (l2cap_channel_t*) btstack_memory_l2cap_channel_get();
     if (!channel){
         // 0x0004 No resources available
         l2cap_register_signaling_response(handle, CONNECTION_REQUEST, sig_id, 0x0004);
@@ -765,7 +824,7 @@ void l2cap_signaling_handler_channel(l2cap_channel_t *channel, uint8_t *command)
                             // successful connection
                             channel->remote_cid = READ_BT_16(command, L2CAP_SIGNALING_COMMAND_DATA_OFFSET);
                             channel->state = L2CAP_STATE_CONFIG;
-                            channel->state_var |= L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ;
+                            channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ);
                             break;
                         case 1:
                             // connection pending. get some coffee
@@ -798,12 +857,12 @@ void l2cap_signaling_handler_channel(l2cap_channel_t *channel, uint8_t *command)
         case L2CAP_STATE_CONFIG:
             switch (code) {
                 case CONFIGURE_REQUEST:
-                    channel->state_var |= L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_REQ;
-                    channel->state_var |= L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP;
+                    channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_REQ);
+                    channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP);
                     l2cap_signaling_handle_configure_request(channel, command);
                     break;
                 case CONFIGURE_RESPONSE:
-                    channel->state_var |= L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_RSP;
+                    channelStateVarSetFlag(channel, L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_RSP);
                     break;
                 default:
                     break;
@@ -906,33 +965,47 @@ void l2cap_acl_handler( uint8_t *packet, uint16_t size ){
         
     // Get Channel ID
     uint16_t channel_id = READ_L2CAP_CHANNEL_ID(packet); 
+    hci_con_handle_t handle = READ_ACL_CONNECTION_HANDLE(packet);
     
-    // Signaling Packet?
-    if (channel_id == 1) {
-        
-        // Get Connection
-        hci_con_handle_t handle = READ_ACL_CONNECTION_HANDLE(packet);
-        
-        uint16_t command_offset = 8;
-        while (command_offset < size) {
+    switch (channel_id) {
             
-            // handle signaling commands
-            l2cap_signaling_handler_dispatch(handle, &packet[command_offset]);
-
-            // increment command_offset
-            command_offset += L2CAP_SIGNALING_COMMAND_DATA_OFFSET + READ_BT_16(packet, command_offset + L2CAP_SIGNALING_COMMAND_LENGTH_OFFSET);
+        case L2CAP_CID_SIGNALING: {
+            
+            uint16_t command_offset = 8;
+            while (command_offset < size) {                
+                
+                // handle signaling commands
+                l2cap_signaling_handler_dispatch(handle, &packet[command_offset]);
+                
+                // increment command_offset
+                command_offset += L2CAP_SIGNALING_COMMAND_DATA_OFFSET + READ_BT_16(packet, command_offset + L2CAP_SIGNALING_COMMAND_LENGTH_OFFSET);
+            }
+            break;
         }
-        
-        l2cap_run();
-        
-        return;
+            
+        case L2CAP_CID_ATTRIBUTE_PROTOCOL:
+            if (attribute_protocol_packet_handler) {
+                (*attribute_protocol_packet_handler)(ATT_DATA_PACKET, handle, &packet[COMPLETE_L2CAP_HEADER], size-COMPLETE_L2CAP_HEADER);
+            }
+            break;
+
+        case L2CAP_CID_SECURITY_MANAGER_PROTOCOL:
+            if (security_protocol_packet_handler) {
+                (*security_protocol_packet_handler)(SM_DATA_PACKET, handle, &packet[COMPLETE_L2CAP_HEADER], size-COMPLETE_L2CAP_HEADER);
+            }
+            break;
+            
+        default: {
+            // Find channel for this channel_id and connection handle
+            l2cap_channel_t * channel = l2cap_get_channel_for_local_cid(channel_id);
+            if (channel) {
+                l2cap_dispatch(channel, L2CAP_DATA_PACKET, &packet[COMPLETE_L2CAP_HEADER], size-COMPLETE_L2CAP_HEADER);
+            }
+            break;
+        }
     }
     
-    // Find channel for this channel_id and connection handle
-    l2cap_channel_t * channel = l2cap_get_channel_for_local_cid(channel_id);
-    if (channel) {
-        l2cap_dispatch(channel, L2CAP_DATA_PACKET, &packet[COMPLETE_L2CAP_HEADER], size-COMPLETE_L2CAP_HEADER);
-    }
+    l2cap_run();
 }
 
 static void l2cap_packet_handler(uint8_t packet_type, uint8_t *packet, uint16_t size){
@@ -982,7 +1055,7 @@ void l2cap_register_service_internal(void *connection, btstack_packet_handler_t 
     
     // alloc structure
     // TODO: emit error event
-    service = btstack_memory_l2cap_service_get();
+    service = (l2cap_service_t *) btstack_memory_l2cap_service_get();
     if (!service) {
         log_error("l2cap_register_service_internal: no memory for l2cap_service_t\n");
         l2cap_emit_service_registered(connection, BTSTACK_MEMORY_ALLOC_FAILED, psm);
@@ -1044,3 +1117,16 @@ void l2cap_close_connection(void *connection){
     // process
     l2cap_run();
 }
+
+// Bluetooth 4.0 - allows to register handler for Attribute Protocol and Security Manager Protocol
+void l2cap_register_fixed_channel(btstack_packet_handler_t packet_handler, uint16_t channel_id) {
+    switch(channel_id){
+        case L2CAP_CID_ATTRIBUTE_PROTOCOL:
+            attribute_protocol_packet_handler = packet_handler;
+            break;
+        case L2CAP_CID_SECURITY_MANAGER_PROTOCOL:
+            security_protocol_packet_handler = packet_handler;
+            break;
+    }
+}
+

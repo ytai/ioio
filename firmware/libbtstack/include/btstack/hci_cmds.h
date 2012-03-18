@@ -54,12 +54,23 @@ extern "C" {
 // extension for client/server communication
 #define DAEMON_EVENT_PACKET     0x05
 
+    
 // L2CAP data
 #define L2CAP_DATA_PACKET       0x06
 
 // RFCOMM data
-#define RFCOMM_DATA_PACKET       0x07
+#define RFCOMM_DATA_PACKET      0x07
 
+// Attribute protocol data
+#define ATT_DATA_PACKET         0x08
+
+// Security Manager protocol data
+#define SM_DATA_PACKET          0x09
+    
+// debug log messages
+#define LOG_MESSAGE_PACKET      0xfc
+
+    
 // Fixed PSM numbers
 #define PSM_SDP    0x01
 #define PSM_RFCOMM 0x03
@@ -105,7 +116,7 @@ extern "C" {
 #define HCI_SUBEVENT_LE_CONNECTION_UPDATE_COMPLETE         0x03
 #define HCI_SUBEVENT_LE_READ_REMOTE_USED_FEATURES_COMPLETE 0x04
 #define HCI_SUBEVENT_LE_LONG_TERM_KEY_REQUEST              0x05
-
+    
 // last used HCI_EVENT in 2.1 is 0x3d
 
 // events 0x50-0x5f are used internally
@@ -141,7 +152,7 @@ extern "C" {
 // data: event (8), len(8), channel (16)
 #define L2CAP_EVENT_CHANNEL_CLOSED                         0x71
 
-// data: event (8), len(8), status (8), address(48), handle (16), psm (16), local_cid(16), remote_cid (16) 
+// data: event (8), len(8), address(48), handle (16), psm (16), local_cid(16), remote_cid (16) 
 #define L2CAP_EVENT_INCOMING_CONNECTION					   0x72
 
 // data: event(8), len(8), handle(16)
@@ -209,7 +220,7 @@ extern "C" {
 #define L2CAP_CONFIG_RESPONSE_RESULT_REJECTED              0x68
 #define L2CAP_CONFIG_RESPONSE_RESULT_UNKNOWN_OPTIONS       0x69
 #define L2CAP_SERVICE_ALREADY_REGISTERED                   0x6a
-
+    
 #define RFCOMM_MULTIPLEXER_STOPPED                         0x70
 #define RFCOMM_CHANNEL_ALREADY_REGISTERED                  0x71
 #define RFCOMM_NO_OUTGOING_CREDITS                         0x72
@@ -281,6 +292,7 @@ extern const hci_cmd_t hci_read_le_host_supported;
 extern const hci_cmd_t hci_read_link_policy_settings;
 extern const hci_cmd_t hci_read_link_supervision_timeout;
 extern const hci_cmd_t hci_read_local_supported_features;
+extern const hci_cmd_t hci_read_num_broadcast_retransmissions;
 extern const hci_cmd_t hci_reject_connection_request;
 extern const hci_cmd_t hci_remote_name_request;
 extern const hci_cmd_t hci_remote_name_request_cancel;
@@ -298,6 +310,7 @@ extern const hci_cmd_t hci_write_le_host_supported;
 extern const hci_cmd_t hci_write_link_policy_settings;
 extern const hci_cmd_t hci_write_link_supervision_timeout;
 extern const hci_cmd_t hci_write_local_name;
+extern const hci_cmd_t hci_write_num_broadcast_retransmissions;
 extern const hci_cmd_t hci_write_page_timeout;
 extern const hci_cmd_t hci_write_scan_enable;
 extern const hci_cmd_t hci_write_simple_pairing_mode;
