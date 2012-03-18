@@ -243,7 +243,8 @@
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -577,7 +578,8 @@
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>
@@ -911,7 +913,8 @@
       </makeCustomizationType>
       <C30>
         <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="enable-procedural-abstraction" value="false"/>

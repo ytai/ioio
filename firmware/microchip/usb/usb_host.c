@@ -2299,17 +2299,7 @@ void USBHostTasks( void )
 
                 case SUBSTATE_ENABLE_ACCESSORY:
                     #ifdef DISABLE_ACCESSORY
-                        if (pCurrentConfigurationNode == NULL) {
-                            // failed
-                            #ifdef DEBUG_MODE
-                                UART2PrintString( "HOST: Device is not supported\r\n" );
-                            #endif
-                            // Failed to find a supported configuration.
-                            _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
-                            _USB_SetHoldState();
-                        } else {
-                            _USB_SetNextSubState();
-                        }
+                        _USB_SetNextSubState();
                     #else
                         if (pCurrentConfigurationNode == NULL) {
                             // we haven't found any matching configuration.
@@ -2349,9 +2339,7 @@ void USBHostTasks( void )
                                                 #ifdef DEBUG_MODE
                                                     UART2PrintString( "HOST: Accessory mode is not supported\r\n" );
                                                 #endif
-                                                // Failed to find a supported configuration.
-                                                _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
-                                                _USB_SetHoldState();
+                                                _USB_SetNextSubState();
                                             } else {
                                               #ifdef DEBUG_MODE
                                                   UART2PrintString( "HOST: Accessory mode is supported\r\n" );
@@ -2365,9 +2353,7 @@ void USBHostTasks( void )
                                             #ifdef DEBUG_MODE
                                                 UART2PrintString( "HOST: Accessory mode version failed.\r\n" );
                                             #endif
-                                            // Failed to find a supported configuration.
-                                            _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
-                                            _USB_SetHoldState();
+                                            _USB_SetNextSubState();
                                         }
                                     }
                                     break;
@@ -2432,14 +2418,13 @@ void USBHostTasks( void )
                                           #ifdef DEBUG_MODE
                                               UART2PrintString( "HOST: Started accessory mode. Waiting for reconnect\r\n" );
                                           #endif
+                                          _USB_SetHoldState();
                                         } else {
                                           #ifdef DEBUG_MODE
                                               UART2PrintString( "HOST: Failed to start accessory mode\r\n" );
                                           #endif
-                                          // Failed to find a supported configuration.
-                                          _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                          _USB_SetNextSubState();
                                         }
-                                        _USB_SetHoldState();
                                     }
                                   break;
                             }
@@ -2451,6 +2436,22 @@ void USBHostTasks( void )
                     break;
 
                 case SUBSTATE_SET_CONFIGURATION:
+                    if (pCurrentConfigurationNode == NULL) {
+                        #ifdef CONFIGURE_UNKNOWN_DEVICE
+                                // set usbDeviceInfo.currentConfiguration to a valid value (first)
+                                usbDeviceInfo.currentConfiguration = ((USB_CONFIGURATION_DESCRIPTOR *) usbDeviceInfo.pConfigurationDescriptorList->descriptor)->bConfigurationValue;
+                        #else
+                                // failed
+                                #ifdef DEBUG_MODE
+                                    UART2PrintString( "HOST: Device is not supported\r\n" );
+                                #endif
+                                // Failed to find a supported configuration.
+                                _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                _USB_SetHoldState();
+                                break;
+                        #endif
+                    }
+
                     // Set the configuration to the one specified for this device
                     switch (usbHostState & SUBSUBSTATE_MASK)
                     {
@@ -2490,9 +2491,15 @@ void USBHostTasks( void )
                             break;
 
                         case SUBSUBSTATE_SET_CONFIGURATION_COMPLETE:
-                            // Clean up and advance to the next state.
-                            _USB_InitErrorCounters();
-                            _USB_SetNextSubSubState();
+                            if (pCurrentConfigurationNode == NULL) {
+                                // Failed to find a supported configuration.
+                                _USB_SetErrorCode( USB_HOLDING_UNSUPPORTED_DEVICE );
+                                _USB_SetHoldState();
+                            } else {
+                                // Clean up and advance to the next state.
+                                _USB_InitErrorCounters();
+                                _USB_SetNextSubSubState();
+                            }
                             break;
 
                         case SUBSUBSTATE_INIT_CLIENT_DRIVERS:
