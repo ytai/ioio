@@ -50,11 +50,14 @@ public class BluetoothIOIOConnectionBootstrap implements
 	public BluetoothIOIOConnectionBootstrap() throws NoRuntimeSupportException {
 		try {
 			adapter_ = BluetoothAdapter.getDefaultAdapter();
-		} catch (NoClassDefFoundError e) {
+			if (adapter_ != null) {
+				return;
+			}
+		} catch (Throwable e) {
+		}
 			throw new NoRuntimeSupportException(
 					"Bluetooth is not supported on this device.");
 		}
-	}
 
 	@Override
 	public void getFactories(Collection<IOIOConnectionFactory> result) {

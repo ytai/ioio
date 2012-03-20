@@ -32,6 +32,7 @@ import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.NoRuntimeSupportException;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -65,8 +66,8 @@ public class IOIOConnectionRegistry {
 	 * Get all available connection specifications. This is a list of all
 	 * currently available communication channels in which a IOIO may be
 	 * available. The client typically passes elements of this collection to
-	 * {@link IOIOFactory#create(IOIOConnection)}, possibly after filtering based on the
-	 * specification's properties.
+	 * {@link IOIOFactory#create(IOIOConnection)}, possibly after filtering
+	 * based on the specification's properties.
 	 * 
 	 * @return A collection of specifications.
 	 */
@@ -118,13 +119,10 @@ public class IOIOConnectionRegistry {
 		} catch (ClassNotFoundException e) {
 			Log.d(TAG, "Bootstrap class not found: " + className
 					+ ". Not adding.");
-		} catch (RuntimeException e) {
+		} catch (NoRuntimeSupportException e) {
+			Log.d(TAG, "No runtime support for: " + className + ". Not adding.");
+		} catch (Throwable e) {
 			Log.e(TAG,
-					"Runtime exception caught while attempting to initialize accessory connection factory",
-					e);
-			throw e;
-		} catch (Exception e) {
-			Log.w(TAG,
 					"Exception caught while attempting to initialize accessory connection factory",
 					e);
 		}
