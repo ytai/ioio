@@ -253,8 +253,10 @@ static volatile WORD msec_count = 0;                                            
 
 USB_DEVICE_INFO* USBHostGetDeviceInfo() { return &usbDeviceInfo; }
 
+#ifndef DISABLE_ACCESSORY
 extern const char* accessoryDescs[6];
 static int currentDesc;
+#endif
 
 
 // *****************************************************************************
