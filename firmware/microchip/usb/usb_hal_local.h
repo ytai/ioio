@@ -427,13 +427,13 @@ typedef union
 
 #if defined(__18CXX)
     #if defined(__18F4550) || defined(__18F2455) || defined(__18F2550) || defined(__18F4455)
-        #error "Please define any necessary register translation macros.
+        #error "Please define any necessary register translation macros."
     #endif
 
     #define EnableUsbModule()
     #define SetPingPongMode(m)  U1CNFG1 |= (m)
 
-    #error "Please define any necessary register translation macros.
+    #error "Please define any necessary register translation macros."
 #elif defined(__C30__)
 
     #define EnableUsbModule()   U1PWRCbits.USBPWR = 1

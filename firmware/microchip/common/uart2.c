@@ -58,7 +58,7 @@ BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #if defined (__C30__)
     #if defined (__dsPIC33E__) || defined (__PIC24E__)
-    #define BAUDRATEREG2        (((GetSystemClock())/(BRG_DIV2 * BAUDRATE2)) - 1)
+    #define BAUDRATEREG2        (((GetPeripheralClock())/(BRG_DIV2 * BAUDRATE2)) - 1)
     #else
     #define BAUDRATEREG2        (((GetSystemClock()/2)+(BRG_DIV2/2*BAUDRATE2))/BRG_DIV2/BAUDRATE2-1)
     #endif
@@ -69,8 +69,8 @@ BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #endif    
 
 #if defined (__C30__)
-    #if defined (__dsPIC33EP512MU810__)|| defined (__PIC24EP512GU810__)
-    #define BAUD_ACTUAL         ((GetSystemClock())/(BRG_DIV2 * (BAUDRATEREG2+1)))
+    #if defined (__dsPIC33E__)|| defined (__PIC24E__)
+    #define BAUD_ACTUAL         ((GetPeripheralClock())/(BRG_DIV2 * (BAUDRATEREG2+1)))
     #else
     #define BAUD_ACTUAL         ((GetSystemClock()/2)/BRG_DIV2/(BAUDRATEREG2+1))
     #endif
@@ -79,7 +79,6 @@ BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #else
     #error Cannot calculate actual baud rate
 #endif    
-
 
 	#define BAUD_ERROR              ((BAUD_ACTUAL > BAUDRATE2) ? BAUD_ACTUAL-BAUDRATE2 : BAUDRATE2-BAUD_ACTUAL)
 	#define BAUD_ERROR_PERCENT      ((BAUD_ERROR*100+BAUDRATE2/2)/BAUDRATE2)
