@@ -29,8 +29,8 @@ Summary:
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the ‚ÄúCompany‚Äù) for its PICmicro¬Æ Microcontroller is intended and
-supplied to you, the Company‚Äôs customer, for use solely and
+(the ìCompanyî) for its PICmicroÆ Microcontroller is intended and
+supplied to you, the Companyís customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -39,7 +39,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN ‚ÄúAS IS‚Äù CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN ìAS ISî CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -745,6 +745,7 @@ BOOL    USBHostDeviceSpecificClientDriver( BYTE deviceAddress );
     USB_HOLDING_PROCESSING_CAPACITY     - Processing requirement excessive
     USB_HOLDING_POWER_REQUIREMENT       - Power requirement excessive
     USB_HOLDING_CLIENT_INIT_ERROR       - Client driver failed to initialize
+    USB_DEVICE_SUSPENDED                - Device is suspended
     Other                               - Device is holding in an error
                                             state. The return value
                                             indicates the error.

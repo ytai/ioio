@@ -31,8 +31,8 @@ USB_INTERRUPT_T1MSECIF equals 0x40.
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the ‚ÄúCompany‚Äù) for its PICmicro¬Æ Microcontroller is intended and
-supplied to you, the Company‚Äôs customer, for use solely and
+(the ìCompanyî) for its PICmicroÆ Microcontroller is intended and
+supplied to you, the Companyís customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -41,7 +41,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN ‚ÄúAS IS‚Äù CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN ìAS ISî CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -240,7 +240,6 @@ volatile WORD                 usbOverrideHostState;                       // Nex
 #ifdef ENABLE_STATE_TRACE   // Debug trace support
     static WORD prevHostState;
 #endif
-
 
 static USB_BUS_INFO                  usbBusInfo;                                 // Information about the USB bus.
 static USB_DEVICE_INFO               usbDeviceInfo;                              // A collection of information about the attached device.
@@ -660,11 +659,9 @@ void USBHostIsochronousBuffersReset( ISOCHRONOUS_DATA * isocData, BYTE numberOfB
     This function does no special processing in regards to the request except
     for three requests.  If SET INTERFACE is sent, then DTS is reset for all
     endpoints.  If CLEAR FEATURE (ENDPOINT HALT) is sent, then DTS is reset
-    for that endpoint.
-
-    If the application wishes to change the device configuration, it should
-    use the function USBHostSetDeviceConfiguration() rather than this function
-    with the SET CONFIGURATION request, since endpoint definitions may
+    for that endpoint.  If SET CONFIGURATION is sent, the request is aborted
+    with a failure.  The function USBHostSetDeviceConfiguration() must be
+    called to change the device configuration, since endpoint definitions may
     change.
 
   Precondition:
