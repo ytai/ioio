@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2012 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,41 +27,13 @@
  * or implied.
  */
 
-#ifndef _HARDWAREPROFILE_H_
-#define _HARDWAREPROFILE_H_
+#ifndef __USBDEVICECDC_H__
+#define __USBDEVICECDC_H__
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
-  #include <p24Fxxxx.h>
-  // Various clock values
-  #define GetSystemClock()            32000000UL
-  #define GetPeripheralClock()        (GetSystemClock())
-  #define GetInstructionClock()       (GetSystemClock() / 2)
 
-  // Define the baud rate constants
-  #define BAUDRATE2       115200
-  #define BRG_DIV2        4
-  #define BRGH2           1
+void USBDeviceCDCInit();
+void USBDeviceCDCTasks();
 
-  // LEDS
-  #define mInitAllLEDs()  {TRISFbits.TRISF3 = 0; LATFbits.LATF3 = 1;}
-  #define mInitAllSwitches()
-  #define mLED_0              LATFbits.LATF3
 
-  #ifdef ENABLE_OTG
-      #define VBUS_Off LATBbits.LATB5 = 0  // U1OTGCONbits.VBUSON = 0 // TODO: map to the right pin
-      #define VBUS_On LATBbits.LATB5 = 1  // U1OTGCONbits.VBUSON = 1 // TODO: map to the right pin
-      #define VBUS_Status LATBbits.LATB5  // U1OTGCONbits.VBUSON // TODO: map to the right pin
-      #define PGOOD U1OTGSTATbits.SESVD
-      #define USB_BUS_SENSE VBUS_Status
-  #endif
-#else
-  #error Unsupported target
-#endif
-
-#define mLED_0_On()         mLED_0  = 0;
-#define mLED_0_Off()        mLED_0  = 1;
-#define mLED_0_Toggle()     mLED_0  = !mLED_0;
-    
-
-#endif  
+#endif  // __USBDEVICECDC_H__
 

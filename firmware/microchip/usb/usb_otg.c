@@ -46,10 +46,16 @@ MR                      First Release
 //#include "USB/usb_device.h"  
 //#include "USB/usb_host.h"
 #include "USB/usb_otg.h"
-#include "USB/usb_host_generic.h"
-#include "uart2.h"
+//#include "USB/usb_host_generic.h"
 
 //#define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+#include "uart2.h"
+#else
+#define UART2PrintString(...)
+#endif
+
 
 
 // *****************************************************************************
@@ -176,12 +182,14 @@ void USBOTGInitializeDeviceStack()
     HNPTimeOutFlag = 0;
     SRPTimeOutFlag = 0;
     SRPReady = 0;
-    
+
+#ifdef USB_SUPPORT_DEVICE
     //Initialize Device Stack
     USBDeviceInit();
 
     //Call Device Tasks
     USBDeviceTasks();
+#endif
 
     //Deactivate HNP
     USBOTGDeactivateHnp();
@@ -301,14 +309,7 @@ void USBOTGInitialize()
         SRPTimeOutFlag = 0;
         SRPReady = 0;
 
-        #if defined(__C30__)
-            //Configure VBUS I/O
-            PORTGbits.RG12 = 0;
-            LATGbits.LATG12 = 0;
-            TRISGbits.TRISG12 = 0;
-        #elif defined(__PIC32MX__)
-            VBUS_Off;
-        #endif
+        VBUS_Off;
 
         //Initialize VB_SESS_END Interrupt
         U1OTGIR = 0x04;

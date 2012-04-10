@@ -37,7 +37,7 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
-#include "usb.h"
+#include "USB/usb.h"
 #include "usb_host_android.h"
 #include "usb_host_bluetooth.h"
 

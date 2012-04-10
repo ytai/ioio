@@ -108,18 +108,6 @@
 
 #ifdef USB_USE_CDC
 
-/** V A R I A B L E S ********************************************************/
-#if defined(__18F14K50) || defined(__18F13K50) || defined(__18LF14K50) || defined(__18LF13K50) 
-    #pragma udata usbram2
-#elif defined(__18F2455) || defined(__18F2550) || defined(__18F4455) || defined(__18F4550)\
-    || defined(__18F2458) || defined(__18F2553) || defined(__18F4458) || defined(__18F4553)
-    #pragma udata USB_VARIABLES=0x500
-#elif defined(__18F4450) || defined(__18F2450)
-	#pragma udata USB_VARIABLES=0x480
-#else
-    #pragma udata
-#endif
-
 volatile FAR CDC_NOTICE cdc_notice;
 volatile FAR unsigned char cdc_data_rx[CDC_DATA_OUT_EP_SIZE];
 volatile FAR unsigned char cdc_data_tx[CDC_DATA_IN_EP_SIZE];

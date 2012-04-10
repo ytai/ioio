@@ -520,28 +520,7 @@ typedef BOOL (*USB_EVENT_HANDLER) ( USB_EVENT event, void *data, unsigned int si
         
   ***************************************************************************/
 
-#ifndef USBInitialize   
-    #if defined( USB_SUPPORT_DEVICE )
-        #if defined( USB_SUPPORT_HOST )
-            #if defined( USB_SUPPORT_OTG )
-                #error "USB OTG is not yet supported."
-            #else
-                #define USBInitialize(f) \
-                        (USBDEVInitialize(f) && USBHostInit(f)) ? \
-                        TRUE : FALSE
-            #endif
-        #else
-            #define USBInitialize(f) USBDeviceInit()
-        #endif
-    #else
-        #if defined( USB_SUPPORT_HOST )
-            #define USBInitialize(f) USBHostInit(f)
-        #else
-            #error "Application must define support mode in usb_config.h"
-        #endif
-    #endif
-#endif
-
+void USBInitialize ();
 
 /****************************************************************************
     Function:
@@ -569,25 +548,7 @@ typedef BOOL (*USB_EVENT_HANDLER) ( USB_EVENT event, void *data, unsigned int si
         
   ***************************************************************************/
 
-#ifndef USBTasks    // Implemented as a macro that can be overridden.
-    #if defined( USB_SUPPORT_DEVICE )
-        #if defined( USB_SUPPORT_HOST )
-            #if defined( USB_SUPPORT_OTG )
-                #error "USB OTG is not yet supported."
-            #else
-                #define USBTasks() {USBHostTasks(); USBHALHandleBusEvent();}
-            #endif
-        #else
-            #define USBTasks() USBDeviceTasks()
-        #endif
-    #else
-        #if defined( USB_SUPPORT_HOST )
-            #define USBTasks() USBHostTasks()
-        #else
-            #error "Application must define support mode in usb_config.h"
-        #endif
-    #endif
-#endif
+void USBTasks();
 
 #define USB_PING_PONG__NO_PING_PONG         0x00    //0b00
 #define USB_PING_PONG__EP0_OUT_ONLY         0x01    //0b01
