@@ -43,6 +43,39 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #define _USB_CONFIG_VERSION_BUILD 0
 
 #define USB_SUPPORT_HOST
+#ifdef ENABLE_OTG
+#define USB_MICRO_AB_OTG_CABLE
+#define USB_SUPPORT_OTG
+#else
+#define DEFAULT_ROLE ROLE_HOST
+#endif
+
+#ifdef USB_SUPPORT_DEVICE
+#define USB_MAX_EP_NUMBER           2  // TODO: check
+#define USB_MAX_NUM_INT             2  // TODO: check
+#define USB_EP0_BUFF_SIZE           8
+#define USB_POLLING
+#define USB_PULLUP_OPTION           USB_PULLUP_ENABLE
+#define USB_TRANSCEIVER_OPTION      USB_INTERNAL_TRANSCEIVER
+#define USB_SPEED_OPTION            USB_FULL_SPEED
+#define USB_NUM_STRING_DESCRIPTORS  3
+#define self_power                  1
+
+#define USB_USE_CDC
+#define CDC_COMM_INTF_ID        0x00
+#define CDC_COMM_EP             1
+#define CDC_COMM_IN_EP_SIZE     10
+
+#define CDC_DATA_INTF_ID        0x01
+#define CDC_DATA_EP             2
+#define CDC_DATA_OUT_EP_SIZE    64  // TODO: check
+#define CDC_DATA_IN_EP_SIZE     64  // TODO: check
+
+// TODO: check
+//#define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D2 //Send_Break command
+#define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D1 //Set_Line_Coding, Set_Control_Line_State, Get_Line_Coding, and Serial_State commands
+
+#endif
 
 #define USB_PING_PONG_MODE  USB_PING_PONG__FULL_PING_PONG
 

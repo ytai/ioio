@@ -246,6 +246,9 @@ firmware design flexibility.
 
 #include "../USB/usb_device_local.h"
 
+#ifdef DEBUG_MODE
+#include "../uart2.h"
+#endif
 
 #if defined(USB_USE_MSD)
     #include "./USB/usb_function_msd.h"
@@ -253,7 +256,7 @@ firmware design flexibility.
 
 #if !defined(USE_USB_BUS_SENSE_IO)
     #undef USB_BUS_SENSE
-    #define USB_BUS_SENSE 1
+    #define USB_BUS_SENSE U1OTGSTATbits.SESVD
 #endif
 
 /** DEFINITIONS ****************************************************/
@@ -744,8 +747,10 @@ void USBDeviceTasks(void)
             //Clear SRP Timeout Flag
             USBOTGClearSRPTimeOutFlag();
 
+#ifdef DEBUG_MODE
             //Indicate Session Started
             UART2PrintString( "\r\n***** USB OTG B Event - Session Started  *****\r\n" );
+#endif
         }
     }
 	#endif	//#ifdef USB_SUPPORT_OTG
@@ -1474,8 +1479,10 @@ void USBDeviceDetach(void)
             //Clear SRP Timeout Flag
             USBOTGClearSRPTimeOutFlag();
 
+#ifdef DEBUG_MODE
             //Indicate Session Started
             UART2PrintString( "\r\n***** USB OTG B Event - Session Started  *****\r\n" );
+#endif
         }
     }
 #endif

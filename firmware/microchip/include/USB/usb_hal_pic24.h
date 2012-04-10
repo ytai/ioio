@@ -560,7 +560,7 @@ BOOL USBSleepOnSuspend(void);
 /****** Extern variable definitions ******************************************/
 /*****************************************************************************/
 
-#if defined(USB_SUPPORT_DEVICE) | defined(USB_SUPPORT_OTG)
+#if defined(USB_SUPPORT_DEVICE)
     #if !defined(USBDEVICE_C)
         //extern USB_VOLATILE USB_DEVICE_STATE USBDeviceState;
         extern USB_VOLATILE BYTE USBActiveConfiguration;
