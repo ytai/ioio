@@ -540,7 +540,8 @@ void USBInitialize ();
         None
 
     Returns:
-        None
+        0 - device
+        1 - host
 
     Remarks:
         This interface is implemented as a macro that can be defined by the
@@ -548,7 +549,7 @@ void USBInitialize ();
         
   ***************************************************************************/
 
-void USBTasks();
+int USBTasks();
 
 #define USB_PING_PONG__NO_PING_PONG         0x00    //0b00
 #define USB_PING_PONG__EP0_OUT_ONLY         0x01    //0b01

@@ -49,7 +49,7 @@ void USBInitialize() {
 #endif
 }
 
-void USBTasks() {
+int USBTasks() {
 #ifdef USB_SUPPORT_OTG
   //If Role Switch Occurred Then
   if (USBOTGRoleSwitch()) {
@@ -90,6 +90,7 @@ void USBTasks() {
 #endif
     }
   }
+  return USBOTGCurrentRoleIs();
 #else
 #ifdef USB_SUPPORT_DEVICE
 #ifdef USB_POLLING
@@ -98,6 +99,7 @@ void USBTasks() {
 #ifdef USB_USE_CDC
   USBDeviceCDCTasks();
 #endif
+  return 0;
 #endif
 #ifdef USB_SUPPORT_HOST
   USBHostTasks();
@@ -107,6 +109,7 @@ void USBTasks() {
   USBHostBluetoothTasks();
 #endif
 #endif
+  return 1;
 #endif
 #endif
 }
