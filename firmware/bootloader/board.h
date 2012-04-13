@@ -40,6 +40,7 @@
 #define BOARD_SPRK0014 BOARD_SPRK_BASE + 14
 #define BOARD_SPRK0015 BOARD_SPRK_BASE + 15
 #define BOARD_SPRK0016 BOARD_SPRK_BASE + 16
+#define BOARD_SPRK0020 BOARD_SPRK_BASE + 20
 
 #define BOARD_MINT_BASE 2000  // base number for IOIOMint boards
 #define BOARD_MINT0010 BOARD_MINT_BASE + 10
@@ -59,7 +60,7 @@
   #ifndef __PIC24FJ128DA206__
     #error Board and MCU mismatch - expecting PIC24FJ128DA206
   #endif
-#elif BOARD_VER == BOARD_SPRK0016
+#elif BOARD_VER == BOARD_SPRK0016 || BOARD_VER == BOARD_SPRK0020
   #ifndef __PIC24FJ256DA206__
     #error Board and MCU mismatch - expecting PIC24FJ256DA206
   #endif
@@ -88,6 +89,8 @@
   #define HW_IMPL_VER "SPRK0015"
 #elif BOARD_VER == BOARD_SPRK0016
   #define HW_IMPL_VER "SPRK0016"
+#elif BOARD_VER == BOARD_SPRK0020
+  #define HW_IMPL_VER "SPRK0020"
 #elif BOARD_VER == BOARD_MINT0010
   #define HW_IMPL_VER "MINT0010"
 #else

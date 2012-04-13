@@ -33,7 +33,7 @@
 #include <assert.h>
 
 #include "logging.h"
-#include "libusb/usb_config.h"
+#include "USB/usb_common.h"
 #include "libusb/usb_host_android.h"
 #include "adb_private.h"
 #include "adb_file_private.h"
@@ -86,17 +86,18 @@ static void ConnADBTasks() {
 }
 
 void BootloaderConnInit() {
-  BOOL res = USBHostInit(0);
-  assert(res);
+  USBInitialize();
   adb_state = STATE_ADB_DISCONNECTED;
   unknown_device_attached = FALSE;
 }
 
 BOOL BootloaderConnTasks() {
-  USBHostTasks();
+  int role = USBTasks();
   ConnADBTasks();
 
-  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB) || unknown_device_attached;
+  return !role  // device mode
+      || USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB)
+      || unknown_device_attached;
 }
 
 void BootloaderConnResetUSB() {
