@@ -109,10 +109,6 @@
 
 int pass_usb_to_app __attribute__ ((near, section("bootflag.sec"))) = 0;
 
-void InitializeSystem() {
-  mInitAllLEDs();
-}
-
 typedef enum {
   MAIN_STATE_WAIT_CONNECT,
   MAIN_STATE_WAIT_ADB_READY,
@@ -267,9 +263,9 @@ static void Delay(unsigned long time) {
 }
 
 static void SignalBit(int bit) {
-  _LATF3 = 0;
+  led_on();
   Delay(bit ? 900000UL : 100000UL);
-  _LATF3 = 1;
+  led_off();
   Delay(bit ? 100000UL : 900000UL);
 }
 
@@ -282,8 +278,7 @@ static void SignalWord(unsigned int word) {
 }
 
 static void SignalRcon() {
-  _LATF3 = 1;
-  _TRISF3 = 0;
+  log_printf("RCON = 0x%x", RCON);
   while (1) {
    SignalWord(RCON);
    Delay(8000000UL);
@@ -294,19 +289,19 @@ static void SignalRcon() {
 int main() {
   ADB_FILE_HANDLE f;
   ADB_CHANNEL_HANDLE h;
+  led_init();
+  log_init();
 #ifdef SIGNAL_AFTER_BAD_RESET
   if (RCON & 0b1100001001000000) {
     SignalRcon();
   }
 #endif
-  log_init();
   log_printf("Hello from Bootloader!!!");
-  InitializeSystem();
   BootloaderConnInit();
 
   while (1) {
     BOOL connected = BootloaderConnTasks();
-    mLED_0 = (state == MAIN_STATE_ERROR) ? (led_counter++ >> 13) : !connected;
+    led = (state == MAIN_STATE_ERROR) ? (led_counter++ >> 13) : !connected;
     if (!connected) {
       state = MAIN_STATE_WAIT_CONNECT;
     }

@@ -42,26 +42,19 @@
   #define BRG_DIV2        4
   #define BRGH2           1
 
-  // LEDS
-  #define mInitAllLEDs()  {TRISFbits.TRISF3 = 0; LATFbits.LATF3 = 1;}
-  #define mInitAllSwitches()
-  #define mLED_0              LATFbits.LATF3
 
   #ifdef ENABLE_OTG
-      #define VBUS_Off LATBbits.LATB5 = 0  // U1OTGCONbits.VBUSON = 0 // TODO: map to the right pin
-      #define VBUS_On LATBbits.LATB5 = 1  // U1OTGCONbits.VBUSON = 1 // TODO: map to the right pin
-      #define VBUS_Status LATBbits.LATB5  // U1OTGCONbits.VBUSON // TODO: map to the right pin
-      #define PGOOD U1OTGSTATbits.SESVD
+      #define VBUS_Init     TRISBbits.TRISB5 = 0
+      #define VBUS_Off      LATBbits.LATB5 = 0  // U1OTGCONbits.VBUSON = 0 // TODO: map to the right pin
+      #define VBUS_On       LATBbits.LATB5 = 1  // U1OTGCONbits.VBUSON = 1 // TODO: map to the right pin
+      #define VBUS_Status   LATBbits.LATB5  // U1OTGCONbits.VBUSON // TODO: map to the right pin
+      #define PGOOD         U1OTGSTATbits.SESVD
       #define USB_BUS_SENSE VBUS_Status
   #endif
 #else
   #error Unsupported target
 #endif
 
-#define mLED_0_On()         mLED_0  = 0;
-#define mLED_0_Off()        mLED_0  = 1;
-#define mLED_0_Toggle()     mLED_0  = !mLED_0;
-    
 
 #endif  
 
