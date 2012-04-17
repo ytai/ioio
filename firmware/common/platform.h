@@ -52,6 +52,8 @@
 #define PLATFORM_IOIO0021 PLATFORM_IOIO_BASE + 21
 #define PLATFORM_IOIO0022 PLATFORM_IOIO_BASE + 22
 #define PLATFORM_IOIO0023 PLATFORM_IOIO_BASE + 23
+// BLAPI 4
+#define PLATFORM_IOIO0030 PLATFORM_IOIO_BASE + 30
 // add more platforms here!
 
 #define HARDWARE_IOIO_BASE 1000  // base hardware interface version number for 'official' IOIO platforms
@@ -73,6 +75,8 @@
 #define HARDWARE HARDWARE_IOIO0002
 #elif PLATFORM == PLATFORM_IOIO0003 || PLATFORM == PLATFORM_IOIO0023
 #define HARDWARE HARDWARE_IOIO0003
+#elif PLATFORM == PLATFORM_IOIO0030
+#define HARDWARE HARDWARE_IOIO0004
 #else
 #error Unknown hardware for PLATFORM
 #endif
@@ -95,15 +99,34 @@
   #ifndef __PIC24FJ256DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
+#elif HARDWARE == HARDWARE_IOIO0004
+  #ifndef __PIC24FJ256DA206__
+    #error Platform and MCU mismatch - expecting PIC24FJ256DA206
+  #endif
 #else
   #error Unknown platform
 #endif
 
-// number of pins of each platform
+// number of pins of each platform (including the on-board LED)
 #if HARDWARE == HARDWARE_IOIO0000
   #define NUM_PINS 50
 #elif HARDWARE >= HARDWARE_IOIO0001 && HARDWARE <= HARDWARE_IOIO0003
   #define NUM_PINS 49
+#elif HARDWARE == HARDWARE_IOIO0004
+  #define NUM_PINS 47
+#else
+  #error Unknown hardware
+#endif
+
+// on-board LED of each platform
+#if HARDWARE >= HARDWARE_IOIO0000 && HARDWARE <= HARDWARE_IOIO0003
+#define led_init() do { TRISFbits.TRISF3 = 1; LATFbits.LATF3 = 0; } while (0)
+#define led_on()   do { TRISFbits.TRISF3 = 0; } while (0)
+#define led_off()  do { TRISFbits.TRISF3 = 1; } while (0)
+#elif HARDWARE == HARDWARE_IOIO0004
+#define led_init() do { TRISCbits.TRISC12 = 1; LATCbits.LATC12 = 0; } while (0)
+#define led_on()   do { TRISCbits.TRISC12 = 0; } while (0)
+#define led_off()  do { TRISCbits.TRISC12 = 1; } while (0)
 #else
   #error Unknown hardware
 #endif
