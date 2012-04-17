@@ -298,7 +298,8 @@ void USBOTGInitializeHostStack()
   ***************************************************************************/
 //DOM-IGNORE-END
 void USBOTGInitialize()
-{  
+{
+    VBUS_Init;
     #ifdef USB_MICRO_AB_OTG_CABLE
         //Power Up Module
         U1PWRCbits.USBPWR = 1;
@@ -388,14 +389,7 @@ void USBOTGInitialize()
         SRPTimeOutFlag = 0;
         SRPReady = 0;
 
-        #if defined(__C30__)
-            //Configure VBUS I/O
-            PORTGbits.RG12 = 0;
-            LATGbits.LATG12 = 0;
-            TRISGbits.TRISG12 = 0;
-        #elif defined(__PIC32MX__)
-            VBUS_Off;
-        #endif
+        VBUS_Off;
         
          //Disable HNP
         USBOTGDisableHnp();

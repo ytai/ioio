@@ -521,6 +521,7 @@ typedef BOOL (*USB_EVENT_HANDLER) ( USB_EVENT event, void *data, unsigned int si
   ***************************************************************************/
 
 void USBInitialize ();
+void USBShutdown();
 
 /****************************************************************************
     Function:
