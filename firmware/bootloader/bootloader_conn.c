@@ -101,7 +101,7 @@ BOOL BootloaderConnTasks() {
 }
 
 void BootloaderConnResetUSB() {
-  USBHostShutdown();
+  USBShutdown();
 }
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {

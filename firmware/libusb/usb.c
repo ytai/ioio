@@ -32,6 +32,7 @@
 #include "usb_host_bluetooth.h"
 #endif
 #include "usb_host_android.h"
+#include "usb_device.h"
 #ifdef USB_USE_CDC
 #include "usb_device_cdc.h"
 #endif
@@ -47,6 +48,22 @@ void USBInitialize() {
   USBDeviceInit();
 #endif
 #endif
+}
+
+void USBShutdown() {
+#ifdef USB_SUPPORT_OTG
+  USBOTGSession(END_SESSION);
+#else
+#ifdef USB_SUPPORT_HOST
+  USBHostShutdown();
+  USBHostTasks();
+#endif
+#ifdef USB_SUPPORT_DEVICE
+  USBSoftDetach();
+#endif
+#endif
+  // hard power off of the USB module to ensure no interrupts to follow.
+  U1PWRCbits.USBPWR = 0;
 }
 
 int USBTasks() {
