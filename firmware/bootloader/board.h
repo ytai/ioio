@@ -96,4 +96,21 @@
   #error Unknown MCU
 #endif
 
+// LED
+#if BOARD_VER >= BOARD_SPRK0010 && BOARD_VER < SPRK0020
+#define led_init()       {LATFbits.LATF3 = 1; TRISFbits.TRISF3 = 0;}
+#define led              LATFbits.LATF3
+#define led_on()         led  = 0;
+#define led_off()        led  = 1;
+#define led_toggle()     led  = !led;
+#elif BOARD_VER >= BOARD_SPRK0020
+#define led_init()       {LATCbits.LATC12 = 1; TRISCbits.TRISC12 = 0; }
+#define led              LATCbits.LATC12
+#define led_on()         led  = 0;
+#define led_off()        led  = 1;
+#define led_toggle()     led  = !led;
+#else
+  #error Unknown board
+#endif
+
 #endif  // __BOARD_H__
