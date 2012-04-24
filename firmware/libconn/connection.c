@@ -33,6 +33,105 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include "connection_private.h"
+#include "USB/usb_common.h"
+#include "logging.h"
+#include "bt_connection.h"
+#include "adb_connection.h"
+#include "accessory_connection.h"
+
+#define BUF_SIZE 1024
+static uint8_t buf[BUF_SIZE];  // shared between Bluetooth and Accessory, as
+                               // they are mutually exclusive. ADB currently
+                               // conveniently ignores this.
+
+static const CONNECTION_FACTORY *factories[CHANNEL_TYPE_MAX] = {
+  &adb_connection_factory,
+  &accessory_connection_factory,
+  &bt_connection_factory
+};
+
+void ConnectionInit() {
+  int i;
+  USBInitialize();
+  for (i = 0; i < CHANNEL_TYPE_MAX; ++i) {
+    factories[i]->init(buf, BUF_SIZE);
+  }
+}
+
+void ConnectionTasks() {
+  int i;
+  USBTasks();
+  for (i = 0; i < CHANNEL_TYPE_MAX; ++i) {
+    factories[i]->tasks();
+  }
+}
+
+void ConnectionShutdownAll() {
+  USBShutdown();
+}
+
+BOOL ConnectionTypeSupported(CHANNEL_TYPE con) {
+  return factories[con]->isAvailable();
+}
+
+BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con) {
+  return factories[con]->isReadyToOpen();
+}
+
+static CHANNEL_HANDLE ConnectionOpenChannel(CHANNEL_TYPE t,
+                                            ChannelCallback cb,
+                                            int_or_ptr_t open_arg,
+                                            int_or_ptr_t cb_arg) {
+  int h = factories[t]->connectionOpen(cb, open_arg, cb_arg);
+  assert(!(h & 0xF000));
+  return (t << 12) | h;
+}
+
+CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb,
+                                        int_or_ptr_t cb_arg) {
+  int_or_ptr_t open_arg = { .p = (void *) name };
+  return ConnectionOpenChannel(CHANNEL_TYPE_ADB, cb, open_arg, cb_arg);
+}
+
+CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb,
+                                             int_or_ptr_t cb_arg) {
+  int_or_ptr_t open_arg = { .i = 0 };
+  return ConnectionOpenChannel(CHANNEL_TYPE_BT, cb, open_arg, cb_arg);
+}
+
+CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb,
+                                              int_or_ptr_t cb_arg) {
+  int_or_ptr_t open_arg = { .i = 0 };
+  return ConnectionOpenChannel(CHANNEL_TYPE_ACC, cb, open_arg, cb_arg);
+}
+
+void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
+  int t = ch >> 12;
+  int h = ch & 0x0FFF;
+  factories[t]->connectionSend(h, data, size);
+}
+
+BOOL ConnectionCanSend(CHANNEL_HANDLE ch) {
+  int t = ch >> 12;
+  int h = ch & 0x0FFF;
+  return factories[t]->connectionCanSend(h);
+}
+
+void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
+  int t = ch >> 12;
+  int h = ch & 0x0FFF;
+  factories[t]->connectionClose(h);
+}
+
+int ConnectionGetMaxPacket(CHANNEL_HANDLE ch) {
+  int t = ch >> 12;
+  int h = ch & 0x0FFF;
+  return factories[t]->connectionMaxPacketSize(h);
+}
+
+
+#if 0
 #include "logging.h"
 #include "usb_config.h"
 #include "usb_host_android.h"
@@ -287,6 +386,7 @@ void ConnectionCloseChannel(CHANNEL_HANDLE ch) {
       break;
   }
 }
+#endif
 
 BOOL USB_ApplicationEventHandler(BYTE address, USB_EVENT event, void *data, DWORD size) {
   // Handle specific events.

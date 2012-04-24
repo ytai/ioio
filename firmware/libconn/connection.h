@@ -45,34 +45,37 @@ typedef int CHANNEL_HANDLE;
 typedef enum {
   CHANNEL_TYPE_ADB,
   CHANNEL_TYPE_ACC,
-  CHANNEL_TYPE_BT
+  CHANNEL_TYPE_BT,
+//  CHANNEL_TYPE_SERIAL_DEVICE,
+  CHANNEL_TYPE_MAX
 } CHANNEL_TYPE;
 
 // data != NULL -> incoming data
 // data = NULL, size = 0 -> Closed normally
 // data = NULL, size = 1 -> Closed as result of error
 //
-// client should ignore ch. it is not guaranteed to be related to the actual
-// channel handle
-typedef void (*ChannelCallback) (CHANNEL_HANDLE ch, const void* data,
-                                 UINT32 size);
+// arg is whichever value the client provided when opening the channel.
+typedef void (*ChannelCallback) (const void* data, UINT32 size,
+                                 int_or_ptr_t arg);
 
 // Reset the state of all connection modules.
 void ConnectionInit();
 
 // Needs to be called by the application periodically in order to provide
 // context for the service provided by the connection library.
-// Returns TRUE iff a USB device is connected.
-BOOL ConnectionTasks();
+void ConnectionTasks();
 
-// Resets USB connection. Connection will be dropped and then re-established.
-void ConnectionResetUSB();
+// Close USB connection. All existing connections will be gracefully closed.
+void ConnectionShutdownAll();
 
 BOOL ConnectionTypeSupported(CHANNEL_TYPE con);
 BOOL ConnectionCanOpenChannel(CHANNEL_TYPE con);
-CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb);
-CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb);
-CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb);
+CHANNEL_HANDLE ConnectionOpenChannelAdb(const char *name, ChannelCallback cb,
+                                        int_or_ptr_t cb_arg);
+CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb,
+                                             int_or_ptr_t cb_arg);
+CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb,
+                                              int_or_ptr_t cb_arg);
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size);
 BOOL ConnectionCanSend(CHANNEL_HANDLE ch);
 void ConnectionCloseChannel(CHANNEL_HANDLE ch);

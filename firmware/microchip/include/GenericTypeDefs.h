@@ -94,6 +94,12 @@ typedef unsigned long int   UINT32;     /* other name for 32-bit integer */
 __EXTENSION typedef unsigned long long  UINT64;
 #endif
 
+// A type that stores either an int or a pointer.
+typedef union {
+  int i;
+  void *p;
+} int_or_ptr_t;
+
 typedef union
 {
     UINT8 Val;
