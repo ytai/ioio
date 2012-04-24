@@ -29,13 +29,14 @@
 
 // Application-layer Bluetooth logic.
 
-#include "bt_app.h"
+#include "bt_connection.h"
 
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
 
 #include "logging.h"
+#include "usb_host_bluetooth.h"
 #include "hci.h"
 #include "l2cap.h"
 #include "rfcomm.h"
@@ -44,14 +45,15 @@
 #include "hci_transport.h"
 #include "btstack/sdp_util.h"
 
-static void DummyCallback(int h, const void *data, UINT32 size) {
+static void DummyCallback(const void *data, UINT32 size, int_or_ptr_t arg) {
 }
 
 static uint8_t    rfcomm_channel_nr = 1;
 static uint16_t   rfcomm_channel_id;
 static uint8_t    spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
 static uint8_t    rfcomm_send_credit = 0;
-static BTCallback client_callback;
+static ChannelCallback client_callback;
+static int_or_ptr_t client_callback_arg;
 static char       local_name[] = "IOIO (00:00)";  // the digits will be replaced by the MSB of the BD-ADDR
 
 static void PacketHandler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
@@ -119,7 +121,8 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
 
         case RFCOMM_EVENT_CHANNEL_CLOSED:
           log_printf("RFCOMM channel closed.");
-          client_callback(rfcomm_channel_id, NULL, 0);
+          client_callback(NULL, 0, client_callback_arg);
+          client_callback = DummyCallback;
           rfcomm_channel_id = 0;
           break;
 
@@ -129,7 +132,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
       break;
 
     case RFCOMM_DATA_PACKET:
-      client_callback(rfcomm_channel_id, packet, size);
+      client_callback(packet, size, client_callback_arg);
       rfcomm_send_credit = 1;
 
     default:
@@ -137,7 +140,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
   }
 }
 
-void BTInit(void *buf, int size) {
+static void BTInit(void *buf, int size) {
   btstack_memory_init();
 
   // init HCI
@@ -169,11 +172,7 @@ void BTInit(void *buf, int size) {
   client_callback = DummyCallback;
 }
 
-void BTShutdown() {
-  hci_close();
-}
-
-void BTTasks() {
+static void BTTasks() {
   hci_transport_mchpusb_tasks();
 
   if (rfcomm_channel_id && rfcomm_send_credit) {
@@ -182,23 +181,48 @@ void BTTasks() {
   }
 }
 
-int BTAccepting() {
-  return rfcomm_channel_id != 0;
+static int BTIsReadyToOpen() {
+  return rfcomm_channel_id != 0 && client_callback == DummyCallback;
 }
 
-void BTSetCallback(BTCallback cb) {
+static int BTOpen(ChannelCallback cb, int_or_ptr_t open_arg, int_or_ptr_t cb_args) {
   client_callback = cb;
+  client_callback_arg = cb_args;
+  return 0;
 }
 
-void BTWrite(const void *data, int size) {
+static void BTSend(int h, const void *data, int size) {
   assert(!(size >> 16));
+  assert(h == 0);
   rfcomm_send_internal(rfcomm_channel_id, (uint8_t *) data, size & 0xFFFF);
 }
 
-int BTCanWrite() {
+static int BTCanSend(int h) {
+  assert(h == 0);
   return rfcomm_can_send(rfcomm_channel_id);
 }
 
-void BTClose() {
+static void BTClose(int h) {
+  assert(h == 0);
   rfcomm_disconnect_internal(rfcomm_channel_id);
 }
+
+static int BTIsAvailable() {
+  return USBHostBluetoothIsDeviceAttached();
+}
+
+static int BTMaxPacketSize(int h) {
+  return 242;  // TODO: 244?
+}
+
+const CONNECTION_FACTORY bt_connection_factory = {
+  BTInit,
+  BTTasks,
+  BTIsAvailable,
+  BTIsReadyToOpen,
+  BTOpen,
+  BTClose,
+  BTSend,
+  BTCanSend,
+  BTMaxPacketSize
+};

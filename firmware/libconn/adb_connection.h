@@ -27,19 +27,12 @@
  * or implied.
  */
 
-#ifndef __ACCESSORY_H__
-#define __ACCESSORY_H__
+#ifndef __ADBCONNECTION_H__
+#define __ADBCONNECTION_H__
 
-#include "GenericTypeDefs.h"
-#include "connection.h"
+#include "connection_private.h"
 
-void AccessoryInit(void *buf, int size);
-void AccessoryShutdown();
-// returns 1 if a channel can be opened, 0 if not, -1 on error
-int AccessoryTasks();
-CHANNEL_HANDLE AccessoryOpenChannel(ChannelCallback cb);
-void AccessoryCloseChannel(CHANNEL_HANDLE h);
-void AccessoryWrite(CHANNEL_HANDLE h, const void *data, int size);
-int  AccessoryCanWrite(CHANNEL_HANDLE h);
+extern const CONNECTION_FACTORY adb_connection_factory;
 
-#endif  // __ACCESSORY_H__
+
+#endif  // __ADBCONNECTION_H__

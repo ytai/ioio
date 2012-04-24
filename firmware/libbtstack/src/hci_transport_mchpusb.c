@@ -135,8 +135,9 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
       packet_handler(HCI_EVENT_PACKET, &e, 1);
       return TRUE;
 
-    case BLUETOOTH_EVENT_ATTACHED:
     case BLUETOOTH_EVENT_DETACHED:
+      hci_close();
+    case BLUETOOTH_EVENT_ATTACHED:
       return TRUE;
 
     case BLUETOOTH_EVENT_READ_BULK_DONE:

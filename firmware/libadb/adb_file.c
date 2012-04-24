@@ -97,6 +97,7 @@ typedef enum {
 typedef struct {
   ADB_FILE_STATE state;
   ADBFileRecvFunc func;
+  int_or_ptr_t callback_arg;
   ADB_CHANNEL_HANDLE handle;
   UINT32 read_remain;
   adb_syncmsg msg;
@@ -107,12 +108,10 @@ typedef struct {
 static ADB_FILE adb_files[ADB_FILE_MAX_FILES];
 static int adb_file_buffer_refcount;
 
-static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
-  int i;
+static void ADBFileCallback(const void* data, UINT32 data_len, int_or_ptr_t i) {
   ADB_FILE* f;
-  for (i = 0; i < ADB_FILE_MAX_FILES && adb_files[i].handle != h; ++i);
   assert(i < ADB_FILE_MAX_FILES);
-  f = &adb_files[i];
+  f = &adb_files[i.i];
 
   // handle unexpected channel closure
   if (!data) goto error;
@@ -147,12 +146,12 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
      case ADB_FILE_STATE_WAIT_DATA:
       if (data_len >= f->read_remain) {
         if (data_len > 0) {
-          f->func(i, data, f->read_remain);
+          f->func(data, f->read_remain, f->callback_arg);
         }
         if (f->msg.id == ID_DONE) {
           if (data_len != f->read_remain) goto close_and_error;
           // success - EOF
-          f->func(i, NULL, 0);
+          f->func(NULL, 0, f->callback_arg);
           ADBClose(f->handle);
           memset(f, 0, sizeof(ADB_FILE));
           return;
@@ -164,7 +163,7 @@ static void ADBFileCallback(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_
         }
       } else {
         if (data_len > 0) {
-          f->func(i, data, data_len);
+          f->func(data, data_len, f->callback_arg);
         }
         f->read_remain -= data_len;
         return;
@@ -187,12 +186,14 @@ close_and_error:
   ADBClose(f->handle);
 error:
   log_printf("Failed to open or read file %s", f->path);
-  f->func(i, NULL, 1);
+  f->func(NULL, 1, f->callback_arg);
   memset(f, 0, sizeof(ADB_FILE));
 }
 
-ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
+ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func,
+                            int_or_ptr_t arg) {
   int i;
+  int_or_ptr_t a;
   assert(path != NULL);
   assert(strlen(path) < ADB_FILE_MAX_PATH_LENGTH);
   for (i = 0; i < ADB_FILE_MAX_FILES && adb_files[i].state != ADB_FILE_STATE_FREE; ++i);
@@ -200,11 +201,13 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
     log_printf("Exceeded maximum number of open files: %d", ADB_FILE_MAX_FILES);
     return ADB_FILE_INVALID_HANDLE;
   }
-  if ((adb_files[i].handle = ADBOpen("sync:", &ADBFileCallback)) == ADB_INVALID_CHANNEL_HANDLE) {
+  a.i = i;
+  if ((adb_files[i].handle = ADBOpen("sync:", &ADBFileCallback, a)) == ADB_INVALID_CHANNEL_HANDLE) {
     log_printf("Failed to open ADB channel to sync:");
     return ADB_FILE_INVALID_HANDLE;
   }
   adb_files[i].func = recv_func;
+  adb_files[i].callback_arg = arg;
   strncpy(adb_files[i].path, path, ADB_FILE_MAX_PATH_LENGTH);
   CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
   log_printf("Success opening file %s. Handle is %d", path, i);

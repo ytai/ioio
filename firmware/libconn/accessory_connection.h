@@ -27,20 +27,12 @@
  * or implied.
  */
 
-#ifndef __BTAPP_H__
-#define __BTAPP_H__
+#ifndef __ACCESSORYCONNECTION_H__
+#define __ACCESSORYCONNECTION_H__
 
-#include "GenericTypeDefs.h"
+#include "connection_private.h"
 
-typedef void (*BTCallback) (int h, const void *data, UINT32 size);
+extern const CONNECTION_FACTORY accessory_connection_factory;
 
-void BTInit(void *buf, int size);
-void BTTasks();
-void BTShutdown();
-int  BTAccepting();
-void BTSetCallback(BTCallback cb);
-void BTWrite(const void *data, int size);
-int  BTCanWrite();
-void BTClose();
 
-#endif  // __BTAPP_H__
+#endif  // __ACCESSORYCONNECTION_H__
