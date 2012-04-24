@@ -1,4 +1,5 @@
 * text=auto
 proguard.cfg eol=native
 *.xml eol=native
+tools/* eol=lf
 
