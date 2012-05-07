@@ -39,6 +39,7 @@
 #include "bt_connection.h"
 #include "adb_connection.h"
 #include "accessory_connection.h"
+#include "cdc_connection.h"
 
 #define BUF_SIZE 1024
 static uint8_t buf[BUF_SIZE];  // shared between Bluetooth and Accessory, as
@@ -48,7 +49,8 @@ static uint8_t buf[BUF_SIZE];  // shared between Bluetooth and Accessory, as
 static const CONNECTION_FACTORY *factories[CHANNEL_TYPE_MAX] = {
   &adb_connection_factory,
   &accessory_connection_factory,
-  &bt_connection_factory
+  &bt_connection_factory,
+  &cdc_connection_factory
 };
 
 void ConnectionInit() {
