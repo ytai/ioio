@@ -121,7 +121,7 @@ static void ADBReset() {
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (adb_channels[h].state != ADB_CHAN_STATE_FREE) {
-      adb_channels[h].recv_func(NULL, 0, adb_channels[h].callback_arg);
+      adb_channels[h].recv_func(NULL, 1, adb_channels[h].callback_arg);
     }
   }
   memset(adb_channels, 0, sizeof adb_channels);
@@ -219,6 +219,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
       } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_CLOSE
           || adb_channels[h].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
         log_printf("Channel %d closed. Name: %s", h, adb_channels[h].name);
+        adb_channels[h].recv_func(NULL, 0, adb_channels[h].callback_arg);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if ((adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
                   || adb_channels[h].state == ADB_CHAN_STATE_IDLE)
