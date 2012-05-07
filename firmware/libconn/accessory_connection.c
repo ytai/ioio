@@ -8,6 +8,7 @@
 #include "USB/usb_common.h"
 
 typedef enum {
+  CHANNEL_DETACHED,
   CHANNEL_INIT,
   CHANNEL_WAIT_OPEN,
   CHANNEL_OPEN,
@@ -28,14 +29,30 @@ static void AccessoryInit(void *buf, int size) {
   rx_buf = buf;
   rx_buf_size = size;
   is_channel_open = 0;
-  channel_state = CHANNEL_INIT;
+  channel_state = CHANNEL_DETACHED;
 }
 
 static void AccessoryTasks() {
   DWORD size;
   BYTE err;
 
+  // handle detach
+  if (channel_state > CHANNEL_DETACHED
+      && !USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ACC)) {
+    if (is_channel_open) {
+      callback(NULL, 1, callback_arg);
+      is_channel_open = 0;
+    }
+    channel_state = CHANNEL_DETACHED;
+  }
+
   switch (channel_state) {
+    case CHANNEL_DETACHED:
+      if (USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ACC)) {
+        channel_state = CHANNEL_INIT;
+      }
+      break;
+
     case CHANNEL_INIT:
       USBHostAndroidRead(rx_buf, 1, ANDROID_INTERFACE_ACC);
       channel_state = CHANNEL_WAIT_OPEN;
@@ -130,7 +147,7 @@ int AccessoryIsReadyToOpen() {
   return channel_state == CHANNEL_INIT;
 }
 
-int AccesssoryMaxPacketSize(int h) {
+int AccessoryMaxPacketSize(int h) {
   assert(h == 0);
   return INT_MAX;  // unlimited
 }
@@ -144,5 +161,5 @@ const CONNECTION_FACTORY accessory_connection_factory = {
   AccessoryCloseChannel,
   AccessorySend,
   AccessoryCanSend,
-  AccesssoryMaxPacketSize
+  AccessoryMaxPacketSize
 };
