@@ -44,10 +44,10 @@
 
 
   #ifdef ENABLE_OTG
-      #define VBUS_Init     TRISBbits.TRISB5 = 0
-      #define VBUS_Off      LATBbits.LATB5 = 0  // U1OTGCONbits.VBUSON = 0 // TODO: map to the right pin
-      #define VBUS_On       LATBbits.LATB5 = 1  // U1OTGCONbits.VBUSON = 1 // TODO: map to the right pin
-      #define VBUS_Status   LATBbits.LATB5  // U1OTGCONbits.VBUSON // TODO: map to the right pin
+      #define VBUS_Init     TRISCbits.TRISC15 = 0
+      #define VBUS_Off      LATCbits.LATC15 = 0
+      #define VBUS_On       LATCbits.LATC15 = 1
+      #define VBUS_Status   LATCbits.LATC15
       #define PGOOD         U1OTGSTATbits.SESVD
       #define USB_BUS_SENSE VBUS_Status
   #endif

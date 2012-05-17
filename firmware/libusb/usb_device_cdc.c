@@ -37,41 +37,11 @@
 #include "USB/usb_device.h"
 #include "USB/usb.h"
 
-char USB_In_Buffer[64];
-char USB_Out_Buffer[64];
-
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
-void ProcessIO(void);
-void USBDeviceTasks(void);
-void USBCBSendResume(void);
-
 void USBDeviceCDCTasks() {
-  BYTE numBytesRead;
-
   // User Application USB tasks
   if ((USBDeviceState < CONFIGURED_STATE) || (USBSuspendControl == 1)) return;
 
-  if (USBUSARTIsTxTrfReady()) {
-    numBytesRead = getsUSBUSART(USB_Out_Buffer, 64);
-    if (numBytesRead != 0) {
-      BYTE i;
-
-      for (i = 0; i < numBytesRead; i++) {
-        switch (USB_Out_Buffer[i]) {
-          case 0x0A:
-          case 0x0D:
-            USB_In_Buffer[i] = USB_Out_Buffer[i];
-            break;
-          default:
-            USB_In_Buffer[i] = USB_Out_Buffer[i] + 1;
-            break;
-        }
-
-      }
-
-      putUSBUSART(USB_In_Buffer, numBytesRead);
-    }
-  }
   CDCTxService();
 }
 

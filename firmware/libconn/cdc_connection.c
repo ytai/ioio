@@ -3,8 +3,9 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "usb_function_cdc.h"
-#include "usb_device.h"
+#define USB_SUPPORT_DEVICE
+#include "USB/usb_function_cdc.h"
+#include "USB/usb_device.h"
 #include "logging.h"
 #include "USB/usb_common.h"
 
@@ -27,14 +28,13 @@ static uint8_t is_channel_open;
 
 static void CDCInit(void *buf, int size) {
   rx_buf = buf;
-  rx_buf_size = size;
+  rx_buf_size = min(size, 0xFF);
   is_channel_open = 0;
   channel_state = CHANNEL_DETACHED;
 }
 
 static void CDCTasks() {
   DWORD size;
-  BYTE err;
 
   // handle detach
   if (channel_state > CHANNEL_DETACHED
@@ -56,7 +56,7 @@ static void CDCTasks() {
     case CHANNEL_WAIT_OPEN:
       if (1 == getsUSBUSART(rx_buf, 1)) {
         log_printf("Remote end requested open channel.");
-        putUSBUSART(&is_channel_open, 1);
+        putUSBUSART((char *)&is_channel_open, 1);
         if (is_channel_open) {
           channel_state = CHANNEL_OPEN;
         } else {
@@ -75,7 +75,7 @@ static void CDCTasks() {
     case CHANNEL_WAIT_CLOSED:
       if (1 == getsUSBUSART(rx_buf, 1)) {
         callback(NULL, 0, callback_arg);
-        channel_state = CHANNEL_INIT;
+        channel_state = CHANNEL_WAIT_OPEN;
       }
       break;
   }
@@ -101,7 +101,7 @@ static void CDCCloseChannel(int h) {
 static void CDCSend(int h, const void *data, int size) {
   assert(h == 0);
   assert(channel_state == CHANNEL_OPEN);
-  putUSBUSART(data, size);
+  putUSBUSART((char *) data, size);
 }
 
 static int CDCCanSend(int h) {
