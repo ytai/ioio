@@ -74,7 +74,8 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 // TODO: check
 //#define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D2 //Send_Break command
 #define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D1 //Set_Line_Coding, Set_Control_Line_State, Get_Line_Coding, and Serial_State commands
-
+#else
+#define CDC_COMM_IN_EP_SIZE     0  // required for dummy to compile.
 #endif
 
 #define USB_PING_PONG_MODE  USB_PING_PONG__FULL_PING_PONG
