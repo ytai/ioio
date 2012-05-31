@@ -54,6 +54,7 @@
       <itemPath>usb_descriptors.c</itemPath>
       <itemPath>../microchip/usb/usb_hal_pic24f.c</itemPath>
       <itemPath>usb.c</itemPath>
+      <itemPath>usb_device_dummy.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -1904,6 +1905,16 @@
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
+      <item path="usb_device_dummy.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
     </conf>
     <conf name="PIC24FJ256DA206_OTG_ADB" type="3">
       <toolsSet>
@@ -2142,6 +2153,16 @@
         </C30Global>
       </item>
       <item path="usb_device_cdc.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_dummy.c" ex="true" overriding="false">
         <C30>
         </C30>
         <C30-AS>
