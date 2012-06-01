@@ -911,6 +911,7 @@ void putrsUSBUSART(const ROM char *data);
   ************************************************************************/
 void CDCTxService(void);
 
+#define CDCIsDtePresent() (dte_present)
 
 /** S T R U C T U R E S ******************************************************/
 
@@ -1034,6 +1035,8 @@ extern LINE_CODING line_coding;
 
 extern volatile CTRL_TRF_SETUP SetupPkt;
 extern ROM BYTE configDescriptor1[];
+
+extern BOOL dte_present;
 
 /** Public Prototypes *************************************************/
 //------------------------------------------------------------------------------

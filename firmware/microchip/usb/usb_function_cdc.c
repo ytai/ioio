@@ -112,6 +112,7 @@ volatile FAR CDC_NOTICE cdc_notice;
 volatile FAR unsigned char cdc_data_rx[CDC_DATA_OUT_EP_SIZE];
 volatile FAR unsigned char cdc_data_tx[CDC_DATA_IN_EP_SIZE];
 LINE_CODING line_coding;    // Buffer to store line coding information
+BOOL dte_present;
 
 #if defined(USB_CDC_SUPPORT_DSR_REPORTING)
     SERIAL_STATE_NOTIFICATION SerialStatePacket;
@@ -203,7 +204,7 @@ void USBCheckCDCRequest(void)
      */
     if((SetupPkt.bIntfID != CDC_COMM_INTF_ID)&&
        (SetupPkt.bIntfID != CDC_DATA_INTF_ID)) return;
-    
+
     switch(SetupPkt.bRequest)
     {
         //****** These commands are required ******//
@@ -258,7 +259,7 @@ void USBCheckCDCRequest(void)
             //---------            
             //CONFIGURE_RTS(control_signal_bitmap.CARRIER_CONTROL);  
             //------------------------------------------------------------------            
-            
+            dte_present = control_signal_bitmap.DTE_PRESENT;
             #if defined(USB_CDC_SUPPORT_DTR_SIGNALING)
                 if(control_signal_bitmap.DTE_PRESENT == 1)
                 {
@@ -385,6 +386,7 @@ void CDCInitEP(void)
   	#endif
     
     cdc_trf_state = CDC_TX_READY;
+    dte_present = FALSE;
 }//end CDCInitEP
 
 
