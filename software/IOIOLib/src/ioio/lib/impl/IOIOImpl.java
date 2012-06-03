@@ -33,6 +33,7 @@ import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.DigitalPeriodicInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IcspMaster;
@@ -50,6 +51,8 @@ import ioio.lib.impl.IOIOProtocol.PwmScale;
 import ioio.lib.impl.IncomingState.DisconnectListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.util.Log;
 
@@ -346,6 +349,44 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 		return result;
+	}
+	
+	@Override 
+	synchronized public DigitalPeriodicInput openDigitalPeriodicInput(DigitalInput.Spec[] pins, int freqScale)
+			throws ConnectionLostException {
+		checkState();
+		List<Integer> pinNumbers = new ArrayList<Integer>();
+		for (int i = 0; i < pins.length ; ++i) {
+			PinFunctionMap.checkValidPin(pins[i].pin);
+			checkPinFree(pins[i].pin);
+			pinNumbers.add(pins[i].pin);
+		}
+			
+		DigitalPeriodicInputImpl result = new DigitalPeriodicInputImpl(this, pinNumbers, freqScale);
+		addDisconnectListener(result);
+		
+		// TODO We can only do this once.
+		incomingState_.addDigitalPeriodicInputListener(DigitalPeriodicInputImpl.master_);
+		
+		for (int i = 0; i < pins.length ; ++i) {
+			openPins_[pins[i].pin] = true;
+			try {
+				Log.e(TAG, "Calling RPDI");
+				protocol_.setPinDigitalIn(pins[i].pin, pins[i].mode);
+				protocol_.registerPeriodicDigitalSampling(pins[i].pin, freqScale);
+			} catch (IOException e) {
+				result.close();
+				throw new ConnectionLostException(e);
+			}
+		}
+		return result;
+	}
+
+	@Override 
+	synchronized public DigitalPeriodicInput openDigitalPeriodicInput(int[] pins, int freqScale)
+			throws ConnectionLostException {
+		DigitalInput.Spec[] specs = new DigitalInput.Spec[pins.length];
+		return openDigitalPeriodicInput(specs,  freqScale);
 	}
 
 	@Override

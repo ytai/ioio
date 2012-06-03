@@ -126,6 +126,7 @@ class IncomingState implements IncomingHandler {
 			* Constants.INCAP_MODULES_DOUBLE.length
 			+ Constants.INCAP_MODULES_SINGLE.length];
 	private final DataModuleState icspState_ = new DataModuleState();
+	private final DataModuleState digitalPeriodicInputState_ = new DataModuleState();
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -201,6 +202,10 @@ class IncomingState implements IncomingHandler {
 		icspState_.pushListener(listener);
 	}
 
+	public void addDigitalPeriodicInputListener(DataModuleListener listener) {
+		digitalPeriodicInputState_.pushListener(listener);
+	}
+
 	public void addSpiListener(int spiNum, DataModuleListener listener) {
 		spiStates_[spiNum].pushListener(listener);
 	}
@@ -252,6 +257,7 @@ class IncomingState implements IncomingHandler {
 			incapState.closeCurrentListener();
 		}
 		icspState_.closeCurrentListener();
+		digitalPeriodicInputState_.closeCurrentListener();
 	}
 
 	@Override
@@ -275,9 +281,19 @@ class IncomingState implements IncomingHandler {
 	@Override
 	public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale) {
 		// logMethod("handleRegisterPeriodicDigitalSampling", pin, freqScale);
+		if (freqScale != 0) {
+			intputPinStates_[pin].openNextListener();
+		} else {
+			intputPinStates_[pin].closeCurrentListener();
+		}
 		assert (false);
 	}
 
+	@Override
+	public void handleReportPeriodicDigitalInStatus(int size, byte[] data) {
+		digitalPeriodicInputState_.dataReceived(data, size);
+	}
+	
 	@Override
 	public void handleAnalogPinStatus(int pin, boolean open) {
 		// logMethod("handleAnalogPinStatus", pin, open);
@@ -386,12 +402,6 @@ class IncomingState implements IncomingHandler {
 	public void handleReportDigitalInStatus(int pin, boolean level) {
 		// logMethod("handleReportDigitalInStatus", pin, level);
 		intputPinStates_[pin].setValue(level ? 1 : 0);
-	}
-
-	@Override
-	public void handleReportPeriodicDigitalInStatus(int frameNum,
-			boolean[] values) {
-		// logMethod("handleReportPeriodicDigitalInStatus", frameNum, values);
 	}
 
 	@Override
