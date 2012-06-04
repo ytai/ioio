@@ -1,0 +1,57 @@
+Trent Here.  I do those ugly brown pages at rxtx.org.  Documentation is not
+what I do well :)  So please help me when you see problems or something is
+confusing.
+
+For more information provided by end users please visit the rxtx wiki at
+http://rxtx.qbang.org/wiki.  This is also where you can help.
+
+Short Install Instructions
+
+Windows
+
+RXTXcomm.jar goes in \jre\lib\ext (under java)
+rxtxSerial.dll goes in \jre\bin
+
+Mac OS X (x86 and ppc) (there is an Installer with the source)
+
+RXTXcomm.jar goes in  /Library/Java/Extensions
+librxtxSerial.jnilib goes in /Library/Java/Extensions
+Run fixperm.sh thats in the directory.  Fix perms is in the Mac_OS_X
+subdirectory.
+
+Linux (only x86, x86_64, ia64 here but more in the ToyBox)
+
+RXTXcomm.jar goes in /jre/lib/ext (under java)
+librxtxSerial.so goes in /jre/lib/[machine type] (i386 for instance)
+Make sure the user is in group lock or uucp so lockfiles work.
+
+Solaris (sparc only so far)
+
+RXTXcomm.jar goes in /jre/lib/ext (under java)
+librxtxSerial.so goes in /jre/lib/[machine type]
+Make sure the user is in group uucp so lockfiles work.
+
+
+
+
+A person is added to group lock or uucp by editing /etc/groups.  Distributions
+have various tools but this works:
+
+lock:x:54:   becomes:
+lock:x:53:jarvi,taj 
+
+Now jarvi and taj are in group lock.
+
+Also make sure jarvi and taj have read and write permissions on the port.
+
+
+
+
+If there are problems please help each other on the wiki and ask questions
+on the mail-list.  User contributed changes will be used here in the next
+release.  If you don't like the documentation, you can improve it.
+
+
+--
+Trent Jarvi
+tjarvi@qbang.org
