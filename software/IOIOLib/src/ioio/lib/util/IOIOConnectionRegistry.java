@@ -32,12 +32,11 @@ import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 import ioio.lib.spi.NoRuntimeSupportException;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import android.util.Log;
 
 /**
  * A utility class for managing available connection types to IOIO.

@@ -35,6 +35,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 import ioio.lib.util.android.ContextWrapperDependent;
 
 import java.util.Collection;
@@ -43,7 +44,6 @@ import java.util.LinkedList;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * A convenience class for easy creation of IOIO-based applications.

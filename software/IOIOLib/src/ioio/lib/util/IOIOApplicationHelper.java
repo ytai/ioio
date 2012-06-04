@@ -6,11 +6,10 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import android.util.Log;
 
 /**
  * A helper class for creating different kinds of IOIO based applications.
@@ -109,7 +108,7 @@ public class IOIOApplicationHelper {
 		}
 	}
 
-	protected static final String TAG = "IOIOAndroidApplicationHelper";
+	protected static final String TAG = "IOIOApplicationHelper";
 	protected final IOIOLooperProvider looperProvider_;
 	private Collection<IOIOThread> threads_ = new LinkedList<IOIOThread>();
 	protected Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
