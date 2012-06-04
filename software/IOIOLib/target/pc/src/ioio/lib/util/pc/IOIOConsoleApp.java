@@ -32,16 +32,16 @@ package ioio.lib.util.pc;
 import ioio.lib.util.IOIOApplicationHelper;
 import ioio.lib.util.IOIOLooperProvider;
 
-public abstract class IOIOMain implements IOIOLooperProvider {
+public abstract class IOIOConsoleApp implements IOIOLooperProvider {
 	protected final void go(String[] args) throws Exception {
-		IOIOApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
-		helper_.start();
+		IOIOApplicationHelper helper = new IOIOPcApplicationHelper(this);
+		helper.start();
 		try {
 			run(args);
 		} catch (Exception e) {
 			throw e;
 		} finally {
-			helper_.stop();
+			helper.stop();
 		}
 	}
 
