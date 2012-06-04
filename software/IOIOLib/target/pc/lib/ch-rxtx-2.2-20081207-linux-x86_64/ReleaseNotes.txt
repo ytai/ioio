@@ -1,0 +1,23 @@
+Release Notes
+--------------------------------------------------
+
+Cloudhopper distibution of RXTX serial package for Java.
+
+http://rxtx.cloudhopper.net/
+http://www.cloudhopper.net/opensource/rxtx/
+
+
+2.2-20081207
+
+  * Initial distribution
+  * linux-i386 and linux-x86_64 using CentOS 5.2 and GCC 4.1.2
+  * win-x86, win-x64, and win-ia64 builds using MSCV 2008
+  * CVS snapshot of RXTX-2.2 from 12/07/2008
+  * Please see BuildInfo.txt for more information about the
+    particular build you downloaded
+  * All windows builds crash the JVM if a COM port becomes
+    unavailable.  For example, if using a USB-to-serial port
+    cable and you pull it out while your app is connected to the
+    port.  The linux version throws an exception in this scenario.
+    Please note that even when compiled using mingw vs. MSVC, the
+    build will have the same behavior.
