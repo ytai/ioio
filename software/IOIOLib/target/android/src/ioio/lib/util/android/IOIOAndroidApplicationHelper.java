@@ -48,6 +48,7 @@ public class IOIOAndroidApplicationHelper extends IOIOApplicationHelper {
 	static {
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] {
+						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
 						"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
 						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" });
 	}
