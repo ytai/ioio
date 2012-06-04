@@ -28,12 +28,12 @@
  */
 package ioio.lib.impl;
 
+import ioio.lib.spi.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import android.util.Log;
 
 class QueueInputStream extends InputStream {
 	private enum State {

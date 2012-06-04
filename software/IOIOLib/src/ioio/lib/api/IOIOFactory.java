@@ -30,12 +30,11 @@ package ioio.lib.api;
 
 import ioio.lib.impl.IOIOImpl;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 import ioio.lib.util.IOIOConnectionRegistry;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
-
-import android.util.Log;
 
 /**
  * Factory class for creating instances of the IOIO interface.

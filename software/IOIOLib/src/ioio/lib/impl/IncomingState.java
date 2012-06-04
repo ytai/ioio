@@ -30,13 +30,12 @@ package ioio.lib.impl;
 
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
+import ioio.lib.spi.Log;
 
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import android.util.Log;
 
 class IncomingState implements IncomingHandler {
 	enum ConnectionState {
