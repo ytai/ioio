@@ -291,6 +291,7 @@ class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleReportPeriodicDigitalInStatus(int size, byte[] data) {
+		// logMethod("handleReportPeriodicDigitalInStatus", size, data);
 		digitalPeriodicInputState_.dataReceived(data, size);
 	}
 	

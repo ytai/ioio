@@ -156,7 +156,6 @@ class DigitalPeriodicInputMasterImpl extends AbstractResource implements DataMod
 			}
 		}
 
-		Log.v("DPIMaster", "NextByte: " + Integer.toString((int)data[1]));
 		int currentByte = 1;
 		byte mask = 1;
 		for (Integer pin : pinCorrespondences.keySet()) {
@@ -166,13 +165,6 @@ class DigitalPeriodicInputMasterImpl extends AbstractResource implements DataMod
 				currentByte++;
 			}
 			// Set the next bit (size) to the bit in question.
-			Log.v("DPIMaster", "pin: " + 
-			      Integer.toString(pin) + 
-			      " location: " + 
-			      Integer.toString(pinCorrespondences.get(pin).second) + 
-			      " value: " +
-			      Boolean.toString(0 != (data[currentByte] & mask)));
-			      
 			bitSet.set(pinCorrespondences.get(pin).second, 0 != (data[currentByte] & mask));
 			mask <<= 1;
 		}
