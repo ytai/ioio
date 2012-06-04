@@ -1,4 +1,4 @@
-package ioio.examples.hello_main;
+package ioio.examples.hello_console;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
@@ -6,18 +6,18 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
-import ioio.lib.util.pc.IOIOMain;
+import ioio.lib.util.pc.IOIOConsoleApp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class HelloIOIOMain extends IOIOMain implements IOIOLooperProvider {
+public class HelloIOIOConsole extends IOIOConsoleApp implements IOIOLooperProvider {
 	private boolean ledOn_ = false;
 
 	// Boilerplate main(). Copy-paste this code into any IOIOapplication.
 	public static void main(String[] args) throws Exception {
-		new HelloIOIOMain().go(args);
+		new HelloIOIOConsole().go(args);
 	}
 
 	@Override
@@ -66,5 +66,4 @@ public class HelloIOIOMain extends IOIOMain implements IOIOLooperProvider {
 			}
 		};
 	}
-
 }
