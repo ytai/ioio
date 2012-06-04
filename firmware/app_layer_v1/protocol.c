@@ -43,6 +43,7 @@
 #include "uart.h"
 #include "spi.h"
 #include "i2c.h"
+#include "ir.h"
 #include "sync.h"
 #include "icsp.h"
 #include "incap.h"
@@ -79,7 +80,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_CONFIG_ARGS),
   sizeof(SET_PIN_INCAP_ARGS),
-  sizeof(SOFT_CLOSE_ARGS)
+  sizeof(SOFT_CLOSE_ARGS),
+  sizeof(IR_DATA),
+  sizeof(IR_SEND_DATA_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -487,6 +490,15 @@ static BOOL MessageDone() {
       log_printf("Soft close requested");
       Echo();
       state = STATE_CLOSING;
+      break;
+
+    case IR_BUFFER_DATA:
+      bufferIrData(rx_msg.args.ir_data.data);
+      break;
+
+    case IR_SEND_DATA:
+      CHECK(rx_msg.args.ir_send_data.pin < NUM_PINS);
+      sendBufferedIrData(rx_msg.args.ir_send_data.pin);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
