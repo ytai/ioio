@@ -91,6 +91,8 @@ class IOIOProtocol {
 	static final int SET_PIN_INCAP                       = 0x1C;
 	static final int INCAP_REPORT                        = 0x1C;
 	static final int SOFT_CLOSE                          = 0x1D;
+	static final int IR_BUFFER_DATA                      = 0x1E;
+	static final int IR_SEND_DATA                        = 0x1F;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -218,6 +220,20 @@ class IOIOProtocol {
 		beginBatch();
 		writeByte(SET_DIGITAL_OUT_LEVEL);
 		writeByte(pin << 2 | (level ? 1 : 0));
+		endBatch();
+	}
+
+	synchronized public void irData(int data) throws IOException {
+		beginBatch();
+		writeByte(IR_BUFFER_DATA);
+		writeTwoBytes(data);
+		endBatch();
+	}
+
+	synchronized public void irStartTransmission(int pin) throws IOException {
+		beginBatch();
+		writeByte(IR_SEND_DATA);
+		writeByte(pin & 0x3F);
 		endBatch();
 	}
 

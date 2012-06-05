@@ -693,4 +693,15 @@ public interface IOIO {
 	 *             method.
 	 */
 	public void endBatch() throws ConnectionLostException;
+
+	/**
+	 * 
+	 * @param pin
+	 *            Pin number, as labeled on the board.
+	 * @return Interface of the assigned pin.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 */
+	public IrTransmitter openIrOutput(int pin) throws ConnectionLostException;
 }

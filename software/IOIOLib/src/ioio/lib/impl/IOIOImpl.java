@@ -35,6 +35,7 @@ import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOConnection;
+import ioio.lib.api.IrTransmitter;
 import ioio.lib.api.IcspMaster;
 import ioio.lib.api.PulseInput;
 import ioio.lib.api.PulseInput.ClockRate;
@@ -697,4 +698,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 	}
+
+	@Override
+	public IrTransmitter openIrOutput(int pin) throws ConnectionLostException {
+		DigitalOutput out = openDigitalOutput(pin, false);
+		IrTransmitterImpl irOut = new IrTransmitterImpl(this, out, pin);
+		return irOut;
+	}
+
 }
