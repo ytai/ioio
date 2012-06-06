@@ -86,9 +86,7 @@ static int CDCOpenChannel(ChannelCallback cb, int_or_ptr_t open_arg,
 }
 
 static void CDCCloseChannel(int h) {
-  assert(h == 0);
-  assert(channel_state == CHANNEL_OPEN);
-  channel_state = CHANNEL_WAIT_OPEN;
+  // Do nothing. Host will close the channel.
 }
 
 static void CDCSend(int h, const void *data, int size) {
