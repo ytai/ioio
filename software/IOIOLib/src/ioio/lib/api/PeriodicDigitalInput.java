@@ -35,7 +35,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 /**
  * TODO Documentation...
  */
-public interface DigitalPeriodicInput extends Closeable {
+public interface PeriodicDigitalInput extends Closeable {
 
 	/**
 	 * Read the value sensed on the pin. May block for a few milliseconds if

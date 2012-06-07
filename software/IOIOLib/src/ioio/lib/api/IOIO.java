@@ -266,10 +266,10 @@ public interface IOIO {
 	/**
 	 * TODO Write some documentation...
 	 */
-	public DigitalPeriodicInput openDigitalPeriodicInput(DigitalInput.Spec[] pins, int freqScale)
+	public PeriodicDigitalInput openPeriodicDigitalInput(DigitalInput.Spec[] pins, int freqScale)
 			throws ConnectionLostException;
 	
-	public DigitalPeriodicInput openDigitalPeriodicInput(int[] pins, int freqScale)
+	public PeriodicDigitalInput openPeriodicDigitalInput(int[] pins, int freqScale)
 			throws ConnectionLostException;
 	
 	/**
