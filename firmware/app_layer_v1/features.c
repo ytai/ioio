@@ -36,6 +36,7 @@
 #include "logging.h"
 #include "protocol.h"
 #include "adc.h"
+#include "digital.h"
 #include "pwm.h"
 #include "uart.h"
 #include "spi.h"
@@ -223,6 +224,7 @@ void SoftReset() {
   PinsInit();
   PWMInit();
   ADCInit();
+  DigitalInit();
   UARTInit();
   SPIInit();
   I2CInit();

@@ -324,7 +324,12 @@ class IOIOProtocol {
 
 	synchronized public void registerPeriodicDigitalSampling(int pin,
 			int freqScale) throws IOException {
-		// TODO: implement
+		// TODO catch invalid values for pin and freqScale either in the lib, or here.
+		beginBatch();
+		writeByte(REGISTER_PERIODIC_DIGITAL_SAMPLING);
+		writeByte(pin);
+		writeByte(freqScale);
+		endBatch();
 	}
 
 	synchronized public void setPinAnalogIn(int pin) throws IOException {
@@ -509,8 +514,7 @@ class IOIOProtocol {
 
 		public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
 
-		public void handleReportPeriodicDigitalInStatus(int frameNum,
-				boolean values[]);
+		public void handleReportPeriodicDigitalInStatus(int size, byte[] data);
 
 		public void handleAnalogPinStatus(int pin, boolean open);
 
@@ -661,11 +665,18 @@ class IOIOProtocol {
 						break;
 
 					case REGISTER_PERIODIC_DIGITAL_SAMPLING:
-						// TODO: implement
+						arg1 = readByte(); // pin
+						arg2 = readByte(); // freqScale
+						handler_.handleRegisterPeriodicDigitalSampling(arg1, arg2);
 						break;
 
 					case REPORT_PERIODIC_DIGITAL_IN_STATUS:
-						// TODO: implement
+						int msg_size = readByte();
+						for (int i = 0;
+							 i < msg_size ; i++) {
+							data[i] = (byte) readByte();
+						}
+						handler_.handleReportPeriodicDigitalInStatus(msg_size, data);
 						break;
 
 					case REPORT_ANALOG_IN_FORMAT:

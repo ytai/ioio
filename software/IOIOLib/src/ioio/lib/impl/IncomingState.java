@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.util.Log;
+import android.widget.SlidingDrawer;
 
 class IncomingState implements IncomingHandler {
 	enum ConnectionState {
@@ -55,6 +56,10 @@ class IncomingState implements IncomingHandler {
 		void dataReceived(byte[] data, int size);
 
 		void reportAdditionalBuffer(int bytesToAdd);
+	}
+
+	interface MultiPinDataModuleListener extends DataModuleListener {
+		int[] getPins();
 	}
 
 	class InputPinState {
@@ -86,8 +91,8 @@ class IncomingState implements IncomingHandler {
 	}
 
 	class DataModuleState {
-		private Queue<DataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.DataModuleListener>();
-		private boolean currentOpen_ = false;
+		protected Queue<DataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.DataModuleListener>();
+		protected boolean currentOpen_ = false;
 
 		void pushListener(DataModuleListener listener) {
 			listeners_.add(listener);
@@ -116,6 +121,19 @@ class IncomingState implements IncomingHandler {
 			assert (currentOpen_);
 			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
 		}
+
+		boolean getCurrentOpen() {
+			return currentOpen_;
+		}
+	}
+	
+	class MultiPinDataModuleState extends DataModuleState {
+		protected Queue<MultiPinDataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.MultiPinDataModuleListener>();
+
+		int[] getCurrentListenerPins() {
+			assert (currentOpen_);
+			return listeners_.peek().getPins();
+		}
 	}
 
 	private final InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
@@ -126,6 +144,8 @@ class IncomingState implements IncomingHandler {
 			* Constants.INCAP_MODULES_DOUBLE.length
 			+ Constants.INCAP_MODULES_SINGLE.length];
 	private final DataModuleState icspState_ = new DataModuleState();
+	private final MultiPinDataModuleState[] periodicDigitalInputStates_ = new MultiPinDataModuleState[Constants.NUM_PINS];
+	private final int[] periodicDigitalInputFreqScale_ = new int[Constants.NUM_PINS];
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -147,6 +167,12 @@ class IncomingState implements IncomingHandler {
 		}
 		for (int i = 0; i < incapStates_.length; ++i) {
 			incapStates_[i] = new DataModuleState();
+		}
+		for (int i = 0; i < periodicDigitalInputStates_.length; ++i) {
+			periodicDigitalInputStates_[i] = new MultiPinDataModuleState();
+		}
+		for (int i = 0; i < periodicDigitalInputFreqScale_.length; ++i) {
+			periodicDigitalInputFreqScale_[i] = 0;
 		}
 	}
 
@@ -201,6 +227,10 @@ class IncomingState implements IncomingHandler {
 		icspState_.pushListener(listener);
 	}
 
+	public void addPeriodicDigitalInputListener(int pin, DataModuleListener listener) {
+		periodicDigitalInputStates_[pin].pushListener(listener);
+	}
+
 	public void addSpiListener(int spiNum, DataModuleListener listener) {
 		spiStates_[spiNum].pushListener(listener);
 	}
@@ -252,6 +282,9 @@ class IncomingState implements IncomingHandler {
 			incapState.closeCurrentListener();
 		}
 		icspState_.closeCurrentListener();
+		for (DataModuleState pdiState : periodicDigitalInputStates_) {
+			pdiState.closeCurrentListener();
+		}
 	}
 
 	@Override
@@ -274,10 +307,49 @@ class IncomingState implements IncomingHandler {
 
 	@Override
 	public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale) {
-		// logMethod("handleRegisterPeriodicDigitalSampling", pin, freqScale);
-		assert (false);
+		Log.v("handleRegisterPeriodicDigitalSampling", "pin: " + Integer.toString(pin) + " freq: " + Integer.toString(freqScale));
+		if (freqScale != 0) {
+			periodicDigitalInputStates_[pin].openNextListener();
+		} else {
+			periodicDigitalInputStates_[pin].closeCurrentListener();
+		}
+		periodicDigitalInputFreqScale_[pin] = freqScale;
 	}
 
+	@Override
+	public void handleReportPeriodicDigitalInStatus(int size, byte[] data) {
+		// logMethod("handleReportPeriodicDigitalInStatus", size, data);
+		if (size <= 0) { return; }
+		byte frame_num = data[0];
+		
+		int currentByte = 1;
+		byte mask = 1;
+		for (int pin = 0 ; 
+				pin < Constants.NUM_PINS && 
+				pin < periodicDigitalInputStates_.length && 
+				pin < periodicDigitalInputFreqScale_.length ; 
+				pin++) {
+			
+			final int freqScale = periodicDigitalInputFreqScale_[pin];
+			if (freqScale == 0 || freqScale > 240) { continue; }
+
+			if ( frame_num % freqScale == 0 ) {
+				// this bit is active.
+				if (0 == mask) {
+					mask = 1;
+					currentByte++;
+				}
+				// Set the next bit (size) to the bit in question.
+				byte[] bitData = new byte[2];
+				bitData[0] = (byte) pin;
+				bitData[1] = (byte) ((0 != (data[currentByte] & mask)) ? 1 : 0);
+				periodicDigitalInputStates_[pin].dataReceived(bitData, bitData.length);
+				mask <<= 1;
+				
+			}
+		}
+	}
+	
 	@Override
 	public void handleAnalogPinStatus(int pin, boolean open) {
 		// logMethod("handleAnalogPinStatus", pin, open);
@@ -386,12 +458,6 @@ class IncomingState implements IncomingHandler {
 	public void handleReportDigitalInStatus(int pin, boolean level) {
 		// logMethod("handleReportDigitalInStatus", pin, level);
 		intputPinStates_[pin].setValue(level ? 1 : 0);
-	}
-
-	@Override
-	public void handleReportPeriodicDigitalInStatus(int frameNum,
-			boolean[] values) {
-		// logMethod("handleReportPeriodicDigitalInStatus", frameNum, values);
 	}
 
 	@Override

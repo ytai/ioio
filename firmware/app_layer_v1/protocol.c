@@ -90,7 +90,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(CHECK_INTERFACE_RESPONSE_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(REPORT_DIGITAL_IN_STATUS_ARGS),
-  sizeof(RESERVED_ARGS),
+  sizeof(REPORT_PERIODIC_DIGITAL_IN_STATUS_ARGS),
   sizeof(SET_CHANGE_NOTIFY_ARGS),
   sizeof(REGISTER_PERIODIC_DIGITAL_SAMPLING_ARGS),
   sizeof(RESERVED_ARGS),
@@ -292,6 +292,13 @@ static BOOL MessageDone() {
       if (!rx_msg.args.set_change_notify.cn) {
         Echo();
       }
+      break;
+
+    case REGISTER_PERIODIC_DIGITAL_SAMPLING:
+      CHECK(rx_msg.args.register_periodic_digital_sampling.pin < NUM_PINS);
+      Echo();
+      SetDigitalPeriodicInput(rx_msg.args.register_periodic_digital_sampling.pin,
+                              rx_msg.args.register_periodic_digital_sampling.freq_scale);
       break;
 
     case SET_PIN_PWM:

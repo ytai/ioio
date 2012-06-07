@@ -33,6 +33,7 @@ import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.DigitalInput.Spec.Mode;
 import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.PeriodicDigitalInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IcspMaster;
@@ -346,6 +347,42 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException(e);
 		}
 		return result;
+	}
+	
+	@Override 
+	synchronized public PeriodicDigitalInput openPeriodicDigitalInput(DigitalInput.Spec[] pins, int freqScale)
+			throws ConnectionLostException {
+		checkState();
+		int[] pinNumbers = new int[pins.length];
+		for (int i = 0; i < pins.length ; ++i) {
+			PinFunctionMap.checkValidPin(pins[i].pin);
+			checkPinFree(pins[i].pin);
+			pinNumbers[i] = pins[i].pin;
+		}
+			
+		PeriodicDigitalInputImpl result = new PeriodicDigitalInputImpl(this, pinNumbers);
+		addDisconnectListener(result);
+		
+		for (int i = 0; i < pins.length ; ++i) {
+			openPins_[pins[i].pin] = true;
+			try {
+				Log.e(TAG, "Calling RPDI");
+				incomingState_.addPeriodicDigitalInputListener(pins[i].pin, result);
+				protocol_.setPinDigitalIn(pins[i].pin, pins[i].mode);
+				protocol_.registerPeriodicDigitalSampling(pins[i].pin, freqScale);
+			} catch (IOException e) {
+				result.close();
+				throw new ConnectionLostException(e);
+			}
+		}
+		return result;
+	}
+
+	@Override 
+	synchronized public PeriodicDigitalInput openPeriodicDigitalInput(int[] pins, int freqScale)
+			throws ConnectionLostException {
+		DigitalInput.Spec[] specs = new DigitalInput.Spec[pins.length];
+		return openPeriodicDigitalInput(specs,  freqScale);
 	}
 
 	@Override

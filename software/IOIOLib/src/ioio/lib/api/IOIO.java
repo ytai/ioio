@@ -264,6 +264,15 @@ public interface IOIO {
 			throws ConnectionLostException;
 
 	/**
+	 * TODO Write some documentation...
+	 */
+	public PeriodicDigitalInput openPeriodicDigitalInput(DigitalInput.Spec[] pins, int freqScale)
+			throws ConnectionLostException;
+	
+	public PeriodicDigitalInput openPeriodicDigitalInput(int[] pins, int freqScale)
+			throws ConnectionLostException;
+	
+	/**
 	 * Open a pin for digital output.
 	 * <p>
 	 * A digital output pin can be used to generate logic-level signals. The pin
