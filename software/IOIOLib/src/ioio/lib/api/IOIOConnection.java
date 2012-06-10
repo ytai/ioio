@@ -41,4 +41,12 @@ public interface IOIOConnection {
 	InputStream getInputStream() throws ConnectionLostException;
 
 	OutputStream getOutputStream() throws ConnectionLostException;
+
+	/**
+	 * Can this connection be closed. Normally the answer would be "true", but
+	 * some weird connections cannot be closed and need the higher layer to do
+	 * a "soft close" instead.
+	 * @return true This connection can be closed.
+	 */
+	boolean canClose();
 }

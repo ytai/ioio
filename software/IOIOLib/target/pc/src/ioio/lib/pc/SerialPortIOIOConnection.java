@@ -34,32 +34,70 @@ import gnu.io.SerialPort;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class SerialPortIOIOConnection implements IOIOConnection {
 	// private static final String TAG = "SerialPortIOIOConnection";
-	private final String port_;
+	private final CommPortIdentifier identifier_;
 	private SerialPort serialPort_;
 	private InputStream inputStream_;
 	private OutputStream outputStream_;
+	boolean disconnect_ = false;
 
-	public SerialPortIOIOConnection(String port) {
-		port_ = port;
+	public SerialPortIOIOConnection(CommPortIdentifier identifier) {
+		identifier_ = identifier;
+	}
+
+	// RXTX has an annoying bug:
+	// Calling close() on a port while another thread is blocking on read()
+	// won't unblock the other thread and will block the thread calling close(),
+	// thus causing a deadlock.
+	// The (ugly) workaround is to set a short timeout on read operations and
+	// whenever it expires check whether or not we should keep trying to read.
+	// Apparently, there is not way to differentiate a timeout from a real EOF
+	// when using read(), but in our case, we're only using
+	// read(byte[], int, int)
+	class InputStreamWrapper extends InputStream {
+		private final InputStream in_;
+
+		InputStreamWrapper(InputStream in) {
+			in_ = in;
+		}
+
+		@Override
+		public int read() throws IOException {
+			while (true) {
+				int i;
+				if ((i = in_.read()) != -1 || disconnect_) {
+					return i;
+				}
+			}
+		}
+
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			while (true) {
+				int i;
+				if ((i = in_.read(b, off, len)) != 0 || disconnect_) {
+					return i;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void waitForConnect() throws ConnectionLostException {
 		try {
 			synchronized (this) {
-				CommPortIdentifier portIdentifier = CommPortIdentifier
-						.getPortIdentifier(port_);
-				CommPort commPort = portIdentifier.open(this.getClass().getName(),
+				CommPort commPort = identifier_.open(this.getClass().getName(),
 						10000);
 				serialPort_ = (SerialPort) commPort;
-				serialPort_.disableReceiveTimeout();
+				serialPort_.enableReceiveTimeout(1000);
 				serialPort_.enableReceiveThreshold(1);
-				inputStream_ = serialPort_.getInputStream();
+				inputStream_ = new InputStreamWrapper(
+						serialPort_.getInputStream());
 				outputStream_ = serialPort_.getOutputStream();
 			}
 		} catch (Exception e) {
@@ -72,6 +110,7 @@ public class SerialPortIOIOConnection implements IOIOConnection {
 
 	@Override
 	synchronized public void disconnect() {
+		disconnect_ = true;
 		if (serialPort_ != null) {
 			serialPort_.close();
 		}
@@ -85,5 +124,10 @@ public class SerialPortIOIOConnection implements IOIOConnection {
 	@Override
 	public OutputStream getOutputStream() throws ConnectionLostException {
 		return outputStream_;
+	}
+
+	@Override
+	public boolean canClose() {
+		return true;
 	}
 }

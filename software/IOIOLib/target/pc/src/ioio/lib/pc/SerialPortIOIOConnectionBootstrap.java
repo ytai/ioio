@@ -29,33 +29,74 @@
 
 package ioio.lib.pc;
 
+import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 
 import java.util.Collection;
+import java.util.Enumeration;
 
 public class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
-	/** The TCP port used for communicating with the IOIO board. */
-	public static final String IOIO_PORT = "COM7";
+	private static final String TAG = "SerialPortIOIOConnectionBootstrap";
 
 	@Override
 	public void getFactories(Collection<IOIOConnectionFactory> result) {
-		result.add(new IOIOConnectionFactory() {
-			@Override
-			public String getType() {
-				return SerialPortIOIOConnection.class.getCanonicalName();
+		if (System.getProperty("gnu.io.SerialPorts") == null) {
+			Log.w(TAG, "gnu.io.SerialPorts not defined."
+					  + System.lineSeparator()
+		              + "Will attempt to enumerate all possible ports (slow) "
+					  + "and connect to a IOIO over each one."
+		              + System.lineSeparator()
+		              + "To fix, add the -Dgnu.io.SerialPorts=xyz argument to "
+		              + "the java command line, where xyz is a colon-separated "
+		              + "list of port identifiers, e.g. COM1:COM2.");
+		}
+		System.setProperty("path.separator", ":");  // Make consistent across platforms.
+		@SuppressWarnings("unchecked")
+		Enumeration<CommPortIdentifier> identifiers = CommPortIdentifier.getPortIdentifiers();
+		while (identifiers.hasMoreElements()) {
+			final CommPortIdentifier identifier = identifiers.nextElement();
+			if (identifier.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+				if (checkIdentifier(identifier)) {
+					Log.d(TAG, "Adding serial port " + identifier.getName());
+					result.add(new IOIOConnectionFactory() {
+						@Override
+						public String getType() {
+							return SerialPortIOIOConnection.class.getCanonicalName();
+						}
+
+						@Override
+						public Object getExtra() {
+							return identifier.getName();
+						}
+
+						@Override
+						public IOIOConnection createConnection() {
+							return new SerialPortIOIOConnection(identifier);
+						}
+					});
+				} else {
+					Log.w(TAG, "Serial port " + identifier.getName() + " cannot be opened. Not adding.");
+				}
 			}
-			
-			@Override
-			public Object getExtra() {
-				return IOIO_PORT;
-			}
-			
-			@Override
-			public IOIOConnection createConnection() {
-				return new SerialPortIOIOConnection(IOIO_PORT);
-			}
-		});
+		}
+	}
+
+	static boolean checkIdentifier(CommPortIdentifier id) {
+		if (id.isCurrentlyOwned()) {
+			return false;
+		}
+		// The only way to find out is apparently to try to open the port...
+		try {
+			CommPort port = id.open(SerialPortIOIOConnectionBootstrap.class.getName(), 1000);
+			port.close();
+		} catch (PortInUseException e) {
+			return false;
+		}
+		return true;
 	}
 }

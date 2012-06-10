@@ -42,6 +42,13 @@ public class Log {
 		android.util.Log.e(tag, message, tr);
 	}
 
+	public static void w(String tag, String message) {
+		android.util.Log.w(tag, message);
+	}
+
+	public static void w(String tag, String message, Throwable tr) {
+		android.util.Log.w(tag, message);
+	}
 	public static void i(String tag, String message) {
 		android.util.Log.i(tag, message);
 	}
