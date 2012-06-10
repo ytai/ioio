@@ -53,6 +53,15 @@ public class Log {
 		tr.printStackTrace();
 	}
 
+	public static void w(String tag, String message) {
+		println(WARN, tag, message);
+	}
+
+	public static void w(String tag, String message, Throwable tr) {
+		println(WARN, tag, message);
+		tr.printStackTrace();
+	}
+
 	public static void i(String tag, String message) {
 		println(INFO, tag, message);
 	}

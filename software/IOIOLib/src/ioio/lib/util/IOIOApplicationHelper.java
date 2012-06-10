@@ -34,7 +34,7 @@ public class IOIOApplicationHelper {
 	static private class IOIOThread extends Thread {
 		protected IOIO ioio_;
 		private boolean abort_ = false;
-		private boolean connected_ = true;
+		private boolean connected_ = false;
 		private final IOIOLooper looper_;
 		private final IOIOConnectionFactory connectionFactory_;
 

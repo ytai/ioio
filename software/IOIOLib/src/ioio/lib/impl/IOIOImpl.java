@@ -133,7 +133,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 		disconnect_ = true;
 		try {
-			if (protocol_ != null) {
+			if (protocol_ != null && !connection_.canClose()) {
 				protocol_.softClose();
 			}
 		} catch (IOException e) {
