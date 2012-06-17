@@ -45,6 +45,11 @@
 #include "hci_transport.h"
 #include "btstack/sdp_util.h"
 
+typedef enum {
+  STATE_DETACHED,
+  STATE_ATTACHED
+} STATE;
+
 static void DummyCallback(const void *data, UINT32 size, int_or_ptr_t arg) {
 }
 
@@ -55,6 +60,9 @@ static uint8_t    rfcomm_send_credit = 0;
 static ChannelCallback client_callback;
 static int_or_ptr_t client_callback_arg;
 static char       local_name[] = "IOIO (00:00)";  // the digits will be replaced by the MSB of the BD-ADDR
+static STATE state;
+static void *bt_buf;
+static int bt_buf_size;
 
 static void PacketHandler(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
   bd_addr_t event_addr;
@@ -141,10 +149,16 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
 }
 
 static void BTInit(void *buf, int size) {
+  state = STATE_DETACHED;
+  bt_buf = buf;
+  bt_buf_size = size;
+}
+
+static void BTAttached() {
   btstack_memory_init();
 
   // init HCI
-  hci_transport_t * transport = hci_transport_mchpusb_instance(buf, size);
+  hci_transport_t * transport = hci_transport_mchpusb_instance(bt_buf, bt_buf_size);
   bt_control_t * control = NULL;
   hci_uart_config_t * config = NULL;
   const remote_device_db_t * remote_db = &remote_device_db_memory;
@@ -173,11 +187,32 @@ static void BTInit(void *buf, int size) {
 }
 
 static void BTTasks() {
-  hci_transport_mchpusb_tasks();
+  switch (state) {
+    case STATE_DETACHED:
+      if (USBHostBluetoothIsDeviceAttached()) {
+        BTAttached();
+        state = STATE_ATTACHED;
+      }
+      break;
 
-  if (rfcomm_channel_id && rfcomm_send_credit) {
-    rfcomm_grant_credits(rfcomm_channel_id, 1);
-    rfcomm_send_credit = 0;
+    case STATE_ATTACHED:
+      if (USBHostBluetoothIsDeviceAttached()) {
+        hci_transport_mchpusb_tasks();
+
+        if (rfcomm_channel_id && rfcomm_send_credit) {
+          rfcomm_grant_credits(rfcomm_channel_id, 1);
+          rfcomm_send_credit = 0;
+        }
+      } else {
+        // Detached. We don't care about the state of btstack, since we're not
+        // going to give it any context, and we'll reset it the next time a
+        // dongle is attached. Just close the channel if it is open.
+        log_printf("Bluetooth detached.");
+        client_callback(NULL, 1, client_callback_arg);
+        client_callback = DummyCallback;
+        rfcomm_channel_id = 0;
+        state = STATE_DETACHED;
+       }
   }
 }
 
@@ -186,6 +221,7 @@ static int BTIsReadyToOpen() {
 }
 
 static int BTOpen(ChannelCallback cb, int_or_ptr_t open_arg, int_or_ptr_t cb_args) {
+  log_printf("BTOpen()");
   client_callback = cb;
   client_callback_arg = cb_args;
   return 0;
