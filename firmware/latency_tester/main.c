@@ -32,7 +32,7 @@
 #include "Compiler.h"
 #include "libconn/connection.h"
 #include "common/logging.h"
-#include "app_layer_v1/byte_queue.h"
+#include "latency.h"
 
 // define in non-const arrays to ensure data space
 static char descManufacturer[] = "IOIO Open Source Project";
@@ -53,7 +53,7 @@ const char* accessoryDescs[6] = {
 
 typedef enum {
   STATE_INIT,
-  STATE_WAIT_CONNECTION,
+  STATE_OPEN_CHANNEL,
   STATE_WAIT_CHANNEL_OPEN,
   STATE_CONNECTED,
   STATE_ERROR
@@ -61,90 +61,66 @@ typedef enum {
 
 static STATE state = STATE_INIT;
 static CHANNEL_HANDLE handle;
-static int out_size = 0;
-static const BYTE *out_data;
-static int max_packet;
-DEFINE_STATIC_BYTE_QUEUE(out_queue, 4096);
 
-void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len);
+static void AppCallback(const void* data, UINT32 data_len, int_or_ptr_t arg);
 
 static inline CHANNEL_HANDLE OpenAvailableChannel() {
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
-    return ConnectionOpenChannelAdb("tcp:4545", &AppCallback);
-  }
-  if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
-    return ConnectionOpenChannelBtServer(&AppCallback);
+  int_or_ptr_t arg = { .i = 0 };
+  if (ConnectionTypeSupported(CHANNEL_TYPE_ADB)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)) {
+      return ConnectionOpenChannelAdb("tcp:4545", &AppCallback, arg);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_ACC)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_ACC)) {
+      return ConnectionOpenChannelAccessory(&AppCallback, arg);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_BT)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_BT)) {
+      return ConnectionOpenChannelBtServer(&AppCallback, arg);
+    }
+  } else if (ConnectionTypeSupported(CHANNEL_TYPE_CDC_DEVICE)) {
+    if (ConnectionCanOpenChannel(CHANNEL_TYPE_CDC_DEVICE)) {
+      return ConnectionOpenChannelCdc(&AppCallback, arg);
+    }
   }
   return INVALID_CHANNEL_HANDLE;
 }
 
-void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
+void AppCallback(const void* data, UINT32 data_len, int_or_ptr_t arg) {
   if (data) {
-    const uint8_t *p = (const uint8_t *) data;
-    while (data_len--) {
-      ByteQueuePushByte(&out_queue, -*(p++));
+    if (!LatencyHandleIncoming(data, data_len)) {
+      // got corrupt input. need to close the connection and soft reset.
+      log_printf("Protocol error");
+      state = STATE_ERROR;
     }
   } else {
     // connection closed, soft reset and re-establish
     if (state == STATE_CONNECTED) {
       log_printf("Channel closed");
-      ByteQueueClear(&out_queue);
-      out_size = 0;
     } else {
       log_printf("Channel failed to open");
     }
-    handle = OpenAvailableChannel();
-    max_packet = ConnectionGetMaxPacket(handle);
-    state = STATE_WAIT_CHANNEL_OPEN;
-  }
-}
-
-void AppTasks() {
-  if (ConnectionCanSend(handle)) {
-    if (out_size) {
-      ByteQueuePull(&out_queue, out_size);
-      out_size = 0;
-    }
-    if (ByteQueueSize(&out_queue)) {
-      ByteQueuePeek(&out_queue, &out_data, &out_size);
-      if (out_size > max_packet) {
-        out_size = max_packet;
-      }
-      ConnectionSend(handle, out_data, out_size);
-    }
+    state = STATE_OPEN_CHANNEL;
   }
 }
 
 int main() {
   log_init();
-  log_printf("***** Hello from app-layer! *******\r\n");
+  log_printf("***** Hello from latency tester! *******");
   TRISFbits.TRISF3 = 1;
-  
+
   ConnectionInit();
-  ByteQueueInit(&out_queue, out_queue_buf, sizeof out_queue_buf);
   while (1) {
     ConnectionTasks();
-    BOOL can_open_channel = ConnectionCanOpenChannel(CHANNEL_TYPE_ADB)
-                            || ConnectionCanOpenChannel(CHANNEL_TYPE_BT);
-    if (!can_open_channel
-        && state > STATE_WAIT_CONNECTION) {
-      // just got disconnected
-      log_printf("Disconnected");
-      ByteQueueClear(&out_queue);
-      out_size = 0;
-      state = STATE_INIT;
-    }
     switch (state) {
       case STATE_INIT:
         handle = INVALID_CHANNEL_HANDLE;
-        state = STATE_WAIT_CONNECTION;
+        state = STATE_OPEN_CHANNEL;
         break;
 
-      case STATE_WAIT_CONNECTION:
-        if (can_open_channel) {
+      case STATE_OPEN_CHANNEL:
+        if ((handle = OpenAvailableChannel()) != INVALID_CHANNEL_HANDLE) {
           log_printf("Connected");
-          handle = OpenAvailableChannel();
-          max_packet = ConnectionGetMaxPacket(handle);
           state = STATE_WAIT_CHANNEL_OPEN;
         }
         break;
@@ -152,12 +128,13 @@ int main() {
       case STATE_WAIT_CHANNEL_OPEN:
        if (ConnectionCanSend(handle)) {
           log_printf("Channel open");
+          LatencyInit(handle);
           state = STATE_CONNECTED;
         }
         break;
 
       case STATE_CONNECTED:
-        AppTasks();
+        LatencyTasks(handle);
         break;
 
       case STATE_ERROR:
