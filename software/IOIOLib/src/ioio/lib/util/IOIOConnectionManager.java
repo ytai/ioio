@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2012 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,47 +27,71 @@
  * or implied.
  */
 
-package ioio.lib.util.android;
+package ioio.lib.util;
 
-import ioio.lib.util.IOIOBaseApplicationHelper;
-import ioio.lib.util.IOIOConnectionRegistry;
-import ioio.lib.util.IOIOLooperProvider;
-import android.content.ContextWrapper;
+import ioio.lib.spi.IOIOConnectionFactory;
 
-public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
-	private final AndroidIOIOConnectionManager manager_;
+import java.util.Collection;
+import java.util.LinkedList;
 
-	public IOIOAndroidApplicationHelper(ContextWrapper wrapper,
-			IOIOLooperProvider provider) {
-		super(provider);
-		manager_ = new AndroidIOIOConnectionManager(wrapper, this);
+public class IOIOConnectionManager {
+	private final IOIOConnectionThreadProvider provider_;
+
+	public IOIOConnectionManager(IOIOConnectionThreadProvider provider) {
+		provider_ = provider;
 	}
-
-	static {
-		IOIOConnectionRegistry
-				.addBootstraps(new String[] {
-						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
-						"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
-						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" });
+	
+	public abstract static class Thread extends java.lang.Thread {
+		public abstract void abort();
 	}
-
-	public void create() {
-		manager_.create();
-	}
-
-	public void destroy() {
-		manager_.destroy();
-	}
-
+	
 	public void start() {
-		manager_.start();
+		createAllThreads();
+		startAllThreads();
 	}
 
 	public void stop() {
-		manager_.stop();
+		abortAllThreads();
+		try {
+			joinAllThreads();
+		} catch (InterruptedException e) {
+		}
 	}
 
-	public void restart() {
-		manager_.restart();
+	public interface IOIOConnectionThreadProvider {
+		public Thread createThreadFromFactory(IOIOConnectionFactory factory);
 	}
+	
+	private Collection<Thread> threads_ = new LinkedList<Thread>();
+
+	private void abortAllThreads() {
+		for (Thread thread : threads_) {
+			thread.abort();
+		}
+	}
+
+	private void joinAllThreads() throws InterruptedException {
+		for (Thread thread : threads_) {
+			thread.join();
+		}
+	}
+
+	private void createAllThreads() {
+		threads_.clear();
+		Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+				.getConnectionFactories();
+		for (IOIOConnectionFactory factory : factories) {
+			Thread thread = provider_.createThreadFromFactory(factory);
+			if (thread != null) {
+				threads_.add(thread);
+			}
+		}
+	}
+
+	private void startAllThreads() {
+		for (Thread thread : threads_) {
+			thread.start();
+		}
+	}
+
 }

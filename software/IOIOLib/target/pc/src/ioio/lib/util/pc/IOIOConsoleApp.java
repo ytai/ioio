@@ -29,12 +29,11 @@
 
 package ioio.lib.util.pc;
 
-import ioio.lib.util.IOIOApplicationHelper;
 import ioio.lib.util.IOIOLooperProvider;
 
 public abstract class IOIOConsoleApp implements IOIOLooperProvider {
 	protected final void go(String[] args) throws Exception {
-		IOIOApplicationHelper helper = new IOIOPcApplicationHelper(this);
+		IOIOPcApplicationHelper helper = new IOIOPcApplicationHelper(this);
 		helper.start();
 		try {
 			run(args);
