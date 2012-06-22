@@ -2,4 +2,9 @@
 <resources>
     <string name="hello">Hello World, IOIOConnectionTesterActivity!</string>
     <string name="app_name">IOIOConnectionTester</string>
+    <string name="throughput_up">"Upload Throughput [KB/s]: "</string>
+    <string name="throughput_down">"Download Throughput [KB/s]: "</string>
+    <string name="throughput_bidi">"BiDi Throughput [KB/s]: "</string>
+    <string name="latency_light">"Light Load Latency"</string>
+    <string name="latency_heavy">"Heavy Load Latency"</string>
 </resources>

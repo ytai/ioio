@@ -40,43 +40,48 @@ public class TestThread extends Thread {
 	 */
 	@Override
 	public final void run() {
-		super.run();
-		runner_.start();
-		while (!abort_) {
-			try {
-				synchronized (this) {
-					if (abort_) {
-						break;
+		try {
+			runner_.start();
+			while (!abort_) {
+				try {
+					synchronized (this) {
+						if (abort_) {
+							break;
+						}
+						connection_ = connectionFactory_.createConnection();
 					}
-					connection_ = connectionFactory_.createConnection();
+				} catch (Exception e) {
+					Log.e(TAG,
+							"Failed to create IOIOConnection, aborting TestThread!");
+					return;
 				}
-			} catch (Exception e) {
-				Log.e(TAG,
-						"Failed to create IOIOConnection, aborting TestThread!");
-				return;
+				try {
+					connection_.waitForConnect();
+					connected_ = true;
+					while (true) {
+						test();
+					}
+					// connection_.disconnect();
+				} catch (ConnectionLostException e) {
+				} catch (InterruptedException e) {
+					connection_.disconnect();
+				} catch (Exception e) {
+					Log.e(TAG, "Unexpected exception caught", e);
+					connection_.disconnect();
+					break;
+				} finally {
+					synchronized (this) {
+						connection_ = null;
+					}
+				}
 			}
-			try {
-				connection_.waitForConnect();
-				connected_ = true;
-				while (true) {
-					test();
-				}
-				// connection_.disconnect();
-			} catch (ConnectionLostException e) {
-			} catch (InterruptedException e) {
-				connection_.disconnect();
-			} catch (Exception e) {
-				Log.e(TAG, "Unexpected exception caught", e);
-				connection_.disconnect();
-				break;
-			} finally {
-				synchronized (this) {
-					connection_ = null;
-				}
+		} finally {
+			runner_.interrupt();
+			synchronized (results_) {
+				results_.dead = true;
 			}
+			Log.d(TAG, "TestThread is exiting");
 		}
-		runner_.interrupt();
-		Log.d(TAG, "TestThread is exiting");
 	}
 
 	private void test() throws InterruptedException, ConnectionLostException {
@@ -110,10 +115,10 @@ public class TestThread extends Thread {
 		runner_.add(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (results_.uplink) {
+				synchronized (results_) {
 					results_.uplink.bytes += PACKET_SIZE * NUM_PACKETS;
 					results_.uplink.time += (double) time * 1e-9;
-					results_.uplink.notifyAll();
+					results_.notifyAll();
 				}
 			}
 		});
@@ -135,10 +140,10 @@ public class TestThread extends Thread {
 		runner_.add(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (results_.downlink) {
+				synchronized (results_) {
 					results_.downlink.bytes += PACKET_SIZE * NUM_PACKETS;
 					results_.downlink.time += (double) time * 1e-9;
-					results_.downlink.notifyAll();
+					results_.notifyAll();
 				}
 			}
 		});
@@ -152,13 +157,21 @@ public class TestThread extends Thread {
 		buf.put((byte) 0x03);
 		buf.putInt(size);
 		out.write(buf.array());
+		
+		final int[] writeBudget = new int[1];
+		writeBudget[0] = 2048;
 		java.lang.Thread reader = new java.lang.Thread() {
 			@Override
 			public void run() {
 				int size = PACKET_SIZE * NUM_PACKETS;
 				try {
 					while (size > 0) {
-						size -= in.read(packet, 0, Math.min(size, PACKET_SIZE));
+						int num_read = in.read(packet, 0, Math.min(size, PACKET_SIZE));
+						size -= num_read;
+						synchronized (writeBudget) {
+							writeBudget[0] += num_read;
+							writeBudget.notifyAll();
+						}
 					}
 				} catch (IOException e) {
 				}
@@ -167,6 +180,12 @@ public class TestThread extends Thread {
 		reader.start();
 		final long start = System.nanoTime();
 		for (int i = 0; i < NUM_PACKETS; ++i) {
+			synchronized (writeBudget) {
+				while (writeBudget[0] < packet.length) {
+					writeBudget.wait();
+				}
+				writeBudget[0] -= packet.length;
+			}
 			out.write(packet);
 		}
 		reader.join();
@@ -174,10 +193,10 @@ public class TestThread extends Thread {
 		runner_.add(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (results_.bidi) {
+				synchronized (results_) {
 					results_.bidi.bytes += PACKET_SIZE * NUM_PACKETS * 2;
 					results_.bidi.time += (double) time * 1e-9;
-					results_.bidi.notifyAll();
+					results_.notifyAll();
 				}
 			}
 		});
@@ -204,9 +223,9 @@ public class TestThread extends Thread {
 						runner_.add(new Runnable() {
 							@Override
 							public void run() {
-								synchronized (result) {
+								synchronized (results_) {
 									result.latencies.add((double) latency * 1e-9);
-									result.notifyAll();
+									results_.notifyAll();
 								}
 							}
 						});

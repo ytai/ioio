@@ -80,6 +80,7 @@ void LatencyInit(CHANNEL_HANDLE h) {
   ByteQueueClear(&out_queue);
   state = STATE_INIT;
   remaining = 5;
+  out_size = 0;
 }
 
 void LatencyTasks() {

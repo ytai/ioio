@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:id="@+id/connection_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Type" android:textAppearance="?android:attr/textAppearanceLarge"/>
+    <TextView android:id="@+id/connection_extra" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Extra" android:textAppearance="?android:attr/textAppearanceMedium"/>
+    <TableLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/throughput_up"/>
+            <TextView android:id="@+id/up_throughput" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-"/>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/throughput_down"/>
+            <TextView android:id="@+id/down_throughput" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-"/>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/throughput_bidi"/>
+            <TextView android:id="@+id/bidi_throughput" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-"/>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow4" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/latency_light"/>
+            <TextView android:id="@+id/light_latency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-"/>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow5" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/latency_heavy"/>
+            <TextView android:id="@+id/heavy_latency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-"/>
+        </TableRow>
+    </TableLayout>
+    
+</LinearLayout>
