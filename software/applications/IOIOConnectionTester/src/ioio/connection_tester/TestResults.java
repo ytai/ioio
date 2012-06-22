@@ -17,4 +17,5 @@ public class TestResults {
 	public Throughput bidi = new Throughput();
 	public Latency light = new Latency();
 	public Latency heavy = new Latency();
+	public boolean dead = false;
 }
