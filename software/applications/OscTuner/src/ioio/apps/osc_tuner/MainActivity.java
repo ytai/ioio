@@ -27,10 +27,12 @@ public class MainActivity extends IOIOActivity {
 		int pulses_;
 
 		@Override
-		protected void setup() throws ConnectionLostException {
+		protected void setup() throws ConnectionLostException, InterruptedException {
 			led_ = ioio_.openDigitalOutput(0, true);
 			input_ = ioio_.openDigitalInput(38,
 					DigitalInput.Spec.Mode.PULL_DOWN);
+			input_.waitForValue(true);
+			input_.waitForValue(false);
 			value_ = true;
 			startTime_ = 0;
 			pulses_ = 0;
