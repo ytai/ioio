@@ -1,15 +1,15 @@
 package ioio.connection_tester;
 
-import java.util.Formatter;
-
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.IOIOConnectionManager.IOIOConnectionThreadProvider;
 import ioio.lib.util.IOIOConnectionManager.Thread;
+import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.android.AndroidIOIOConnectionManager;
+
+import java.util.Iterator;
+import java.util.SortedSet;
+
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,25 +79,46 @@ public class IOIOConnectionTesterActivity extends Activity implements
 		new java.lang.Thread() {
 			@Override
 			public void run() {
-				final TextView upThroughputTextView = (TextView) view.findViewById(R.id.up_throughput);
-				final TextView downThroughputTextView = (TextView) view.findViewById(R.id.down_throughput);
-				final TextView bidiThroughputTextView = (TextView) view.findViewById(R.id.bidi_throughput);
-				
+				final TextView upThroughputTextView = (TextView) view
+						.findViewById(R.id.up_throughput);
+				final TextView downThroughputTextView = (TextView) view
+						.findViewById(R.id.down_throughput);
+				final TextView bidiThroughputTextView = (TextView) view
+						.findViewById(R.id.bidi_throughput);
+				final TextView lightLatencyTextView = (TextView) view
+						.findViewById(R.id.light_latency);
+				final TextView heavyLatencyTextView = (TextView) view
+						.findViewById(R.id.heavy_latency);
+
 				try {
 					synchronized (results) {
 						while (!results.dead) {
 							results.wait();
 							// process results
-							final double upThroughput = results.uplink.bytes / results.uplink.time / 1024.;
-							final double downThroughput = results.downlink.bytes / results.downlink.time / 1024.; 
-							final double bidiThroughput = results.bidi.bytes / results.bidi.time / 1024.; 
+							final double upThroughput = results.uplink.bytes
+									/ results.uplink.time / 1024.;
+							final double downThroughput = results.downlink.bytes
+									/ results.downlink.time / 1024.;
+							final double bidiThroughput = results.bidi.bytes
+									/ results.bidi.time / 1024.;
+							final double lightMedian = getMedian(results.light.latencies);
+							final double heavyMedian = getMedian(results.heavy.latencies);
 							// update UI
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									upThroughputTextView.setText(String.format("%.2f[KB/s]", upThroughput));
-									downThroughputTextView.setText(String.format("%.2f[KB/s]", downThroughput));
-									bidiThroughputTextView.setText(String.format("%.2f[KB/s]", bidiThroughput));
+									upThroughputTextView.setText(String.format(
+											"%.2f[KB/s]", upThroughput));
+									downThroughputTextView.setText(String
+											.format("%.2f[KB/s]",
+													downThroughput));
+									bidiThroughputTextView.setText(String
+											.format("%.2f[KB/s]",
+													bidiThroughput));
+									lightLatencyTextView.setText(String.format(
+											"%.2f[ms]", lightMedian * 1000));
+									heavyLatencyTextView.setText(String.format(
+											"%.2f[ms]", heavyMedian * 1000));
 								}
 							});
 						}
@@ -106,6 +127,18 @@ public class IOIOConnectionTesterActivity extends Activity implements
 				}
 			}
 		}.start();
+	}
+
+	protected static double getMedian(SortedSet<Double> set) {
+		if (set.size() == 0)
+			return Double.NaN;
+		int pos = set.size() / 2;
+		double result;
+		Iterator<Double> iter = set.iterator();
+		do {
+			result = iter.next();
+		} while (pos-- > 0);
+		return result;
 	}
 
 	@Override

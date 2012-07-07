@@ -30,4 +30,11 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src_common</name>
+			<type>2</type>
+			<location>C:/Users/Ytai/ioio/software/applications/IOIOConnectionTester/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>
