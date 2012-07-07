@@ -84,15 +84,14 @@ static inline void Timer3Stop() {
 
 void ADCInit() {
   _AD1IE = 0;        // disable interrupt
-  _AD1IF = 0;        // clear interrupt
-  AD1CON1 = 0x0000;  // ADC off
-  AD1CON2 = 0x0400;  // Avdd Avss ref, scan inputs, single buffer, interrupt on every sample 
+  AD1CON1 = 0x00E0;  // ADC off, auto-convert
+  AD1CON2 = 0x0400;  // Avdd Avss ref, scan inputs, single buffer, interrupt on every sample
   AD1CON3 = 0x1F01;  // system clock, 31 Tad acquisition time, ADC clock @8MHz
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
   AD1CSSL = 0x0000;  // reset scan mask.
 
-  _AD1IF = 0;
-  _AD1IP = 6;        // high priority to stop automatic sampling
+  _AD1IF = 0;        // clear interrupt
+  _AD1IP = 7;        // high priority to stop automatic sampling
   _AD1IE = 1;        // enable interrupt
 
   ScanDoneInterruptInit();  // when triggered, generates an immediate interrupt to read ADC buffer
@@ -155,11 +154,13 @@ static inline void ReportAnalogInFormat() {
 }
 
 static inline void ADCStart() {
+  _ADON = 1;  // ADC on
   Timer3Start();
 }
 
 static inline void ADCStop() {
   Timer3Stop();
+  _ADON = 0;  // ADC off
 }
 
 static inline void ADCTrigger() {
@@ -169,7 +170,7 @@ static inline void ADCTrigger() {
     _SMPI = analog_scan_num_channels - 1;
   }
   if (analog_scan_num_channels) {
-    AD1CON1 = 0x80E6;  // start ADC
+    _ASAM = 1;  // start sampling
   } else {
     ADCStop();
   }
@@ -216,7 +217,7 @@ void __attribute__((__interrupt__, auto_psv)) _GFX1Interrupt() {
 }
 
 void __attribute__((__interrupt__, auto_psv)) _ADC1Interrupt() {
-  AD1CON1 = 0x0000;  // ADC off
+  _ASAM = 0;  // Stop sampling
   ScanDoneInterruptTrigger();
   _AD1IF = 0;  // clear
 }
