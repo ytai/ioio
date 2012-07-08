@@ -88,6 +88,7 @@ void LatencyTasks() {
     int q_remaining = ByteQueueRemaining(&out_queue);
     if (remaining <= q_remaining) {
       Output(remaining);
+      log_printf("DONE!");
       state = STATE_INIT;
       remaining = 5;
     } else {
@@ -122,6 +123,7 @@ BOOL LatencyHandleIncoming(const void* data, size_t size) {
           size -= remaining;
           p += remaining;
           ByteQueuePushByte(&out_queue, 1);
+          log_printf("DONE!");
           state = STATE_INIT;
           remaining = 5;
         } else {
@@ -139,6 +141,7 @@ BOOL LatencyHandleIncoming(const void* data, size_t size) {
           ByteQueuePushBuffer(&out_queue, p, remaining);
           size -= remaining;
           p += remaining;
+          log_printf("DONE!");
           state = STATE_INIT;
           remaining = 5;
         } else {
