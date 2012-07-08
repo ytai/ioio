@@ -7,7 +7,6 @@ import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.android.AndroidIOIOConnectionManager;
 
 import java.util.Iterator;
-import java.util.SortedSet;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.google.common.collect.SortedMultiset;
 
 public class IOIOConnectionTesterActivity extends Activity implements
 		IOIOConnectionThreadProvider {
@@ -129,7 +130,7 @@ public class IOIOConnectionTesterActivity extends Activity implements
 		}.start();
 	}
 
-	protected static double getMedian(SortedSet<Double> set) {
+	protected static double getMedian(SortedMultiset<Double> set) {
 		if (set.size() == 0)
 			return Double.NaN;
 		int pos = set.size() / 2;

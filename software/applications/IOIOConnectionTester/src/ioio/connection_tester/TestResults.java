@@ -1,7 +1,7 @@
 package ioio.connection_tester;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import com.google.common.collect.SortedMultiset;
+import com.google.common.collect.TreeMultiset;
 
 public class TestResults {
 	public class Throughput {
@@ -9,7 +9,7 @@ public class TestResults {
 		public double time;
 	}
 	public class Latency {
-		SortedSet<Double> latencies = new TreeSet<Double>();
+		SortedMultiset<Double> latencies = TreeMultiset.create();
 	}
 	
 	public Throughput uplink = new Throughput();

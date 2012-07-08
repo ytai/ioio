@@ -12,8 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TestThread extends Thread {
 	private static final String TAG = "TestThread";
@@ -211,7 +211,7 @@ public class TestThread extends Thread {
 		buf.putInt(NUM_PACKETS);
 		out.write(buf.array());
 
-		final Queue<Long> q = new LinkedList<Long>();
+		final Queue<Long> q = new ConcurrentLinkedQueue<Long>();
 
 		java.lang.Thread reader = new java.lang.Thread() {
 			@Override
@@ -225,7 +225,6 @@ public class TestThread extends Thread {
 							public void run() {
 								synchronized (results_) {
 									result.latencies.add((double) latency * 1e-9);
-									results_.notifyAll();
 								}
 							}
 						});
@@ -239,13 +238,16 @@ public class TestThread extends Thread {
 		
 		for (int i = 0; i < NUM_PACKETS; ++i) {
 			q.add(System.nanoTime());
-			out.write(0);
+			out.write(i);
 			if (!heavy) {
 				sleep(20);
 			}
 		}
 		
 		reader.join();
+		synchronized(results_) {
+			results_.notifyAll();
+		}
 	}
 
 	/*
