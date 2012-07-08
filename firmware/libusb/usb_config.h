@@ -51,8 +51,8 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 #endif
 
 #ifdef USB_SUPPORT_DEVICE
-#define USB_MAX_EP_NUMBER           2  // TODO: check
-#define USB_MAX_NUM_INT             2  // TODO: check
+#define USB_MAX_EP_NUMBER           2
+#define USB_MAX_NUM_INT             0
 #define USB_EP0_BUFF_SIZE           8
 #define USB_POLLING
 #define USB_PULLUP_OPTION           USB_PULLUP_ENABLE
@@ -68,8 +68,8 @@ DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
 #define CDC_DATA_INTF_ID        0x01
 #define CDC_DATA_EP             2
-#define CDC_DATA_OUT_EP_SIZE    64  // TODO: check
-#define CDC_DATA_IN_EP_SIZE     64  // TODO: check
+#define CDC_DATA_OUT_EP_SIZE    64
+#define CDC_DATA_IN_EP_SIZE     64
 
 // TODO: check
 //#define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D2 //Send_Break command
