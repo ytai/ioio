@@ -1,9 +1,0 @@
-Build Date: Sun 12/07/2008 10:45 
-Compiled on Processor Architecture: AMD64 
-Compiled on Processor Identifier: Intel64 Family 15 Model 6 Stepping 4, GenuineIntel 
-Compiled on Processor Level: 15 
-Compiled on Processor Revision: 0604 
-Java Virtual Machine: 
-java version "1.6.0_10"
-Java(TM) SE Runtime Environment (build 1.6.0_10-b33)
-Java HotSpot(TM) 64-Bit Server VM (build 11.0-b15, mixed mode)

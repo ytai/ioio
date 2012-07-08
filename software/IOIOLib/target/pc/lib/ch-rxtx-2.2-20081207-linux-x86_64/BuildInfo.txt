@@ -1,7 +1,0 @@
-Hardware Arch: x86_64
-Kernel: Linux 2.6.18-92.1.18.el5
-Build Date: Sun Dec  7 22:48:59 PST 2008
-Java Virtual Machine:
-java version "1.6.0_07"
-Java(TM) SE Runtime Environment (build 1.6.0_07-b06)
-Java HotSpot(TM) 64-Bit Server VM (build 10.0-b23, mixed mode)
