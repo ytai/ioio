@@ -111,7 +111,8 @@ int CDCIsReadyToOpen() {
 
 int CDCMaxPacketSize(int h) {
   assert(h == 0);
-  return INT_MAX; // unlimited
+//  return INT_MAX; // unlimited
+  return 255;
 }
 
 const CONNECTION_FACTORY cdc_connection_factory = {
