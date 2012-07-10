@@ -4,15 +4,11 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOConnectionManager.Thread;
 import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.IOIOLooperProvider;
 import ioio.lib.util.pc.IOIOConsoleApp;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-public class HelloIOIOConsole extends IOIOConsoleApp implements IOIOLooperProvider {
+public class HelloIOIOConsole extends IOIOConsoleApp {
 	private boolean ledOn_ = false;
 
 	// Boilerplate main(). Copy-paste this code into any IOIOapplication.

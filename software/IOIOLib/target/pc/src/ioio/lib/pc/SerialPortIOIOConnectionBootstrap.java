@@ -41,22 +41,22 @@ import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 
-public class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
+class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
 	private static final String TAG = "SerialPortIOIOConnectionBootstrap";
 
 	@Override
 	public void getFactories(Collection<IOIOConnectionFactory> result) {
-		if (System.getProperty("gnu.io.SerialPorts") == null) {
-			Log.w(TAG, "gnu.io.SerialPorts not defined."
-					  + System.lineSeparator()
-		              + "Will attempt to enumerate all possible ports (slow) "
-					  + "and connect to a IOIO over each one."
-		              + System.lineSeparator()
-		              + "To fix, add the -Dgnu.io.SerialPorts=xyz argument to "
-		              + "the java command line, where xyz is a colon-separated "
-		              + "list of port identifiers, e.g. COM1:COM2.");
-		}
-		System.setProperty("path.separator", ":");  // Make consistent across platforms.
+//		if (System.getProperty("gnu.io.SerialPorts") == null) {
+//			Log.w(TAG, "gnu.io.SerialPorts not defined."
+//					  + System.lineSeparator()
+//		              + "Will attempt to enumerate all possible ports (slow) "
+//					  + "and connect to a IOIO over each one."
+//		              + System.lineSeparator()
+//		              + "To fix, add the -Dgnu.io.SerialPorts=xyz argument to "
+//		              + "the java command line, where xyz is a colon-separated "
+//		              + "list of port identifiers, e.g. COM1:COM2.");
+//		}
+//		System.setProperty("path.separator", ":");  // Make consistent across platforms.
 		@SuppressWarnings("unchecked")
 		Enumeration<CommPortIdentifier> identifiers = CommPortIdentifier.getPortIdentifiers();
 		while (identifiers.hasMoreElements()) {

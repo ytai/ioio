@@ -34,17 +34,32 @@ import ioio.lib.spi.IOIOConnectionFactory;
 import java.util.Collection;
 import java.util.LinkedList;
 
+/**
+ * Manages IOIO threads per connection.
+ * <p>
+ * This class will take care of creating a thread for each possible IOIO
+ * connection, and cleaning up these threads. Client is responsible for providing the
+ * actual threads, by implementing the IOIOConnectionThreadProvider interface.
+ * <p>
+ * Basic usage is:
+ * <ul>
+ * <li>Create a IOIOConnectionManager instance, pass a IOIOConnectionThreadProvider.</li>
+ * <li>Call {@link #start()}. This will invoke {@link IOIOConnectionThreadProvider#createThreadFromFactory(IOIOConnectionFactory)}
+ * for every possible connection (more precisely, for every IOIOConnectionFactory). Return null if you do not wish to create a thread for a certain connection type.</li>
+ * <li>When done, call {@link #stop()}. This will call {@link Thread#abort()} for each running thread and then join them.</li>
+ * </ul>
+ */
 public class IOIOConnectionManager {
 	private final IOIOConnectionThreadProvider provider_;
 
 	public IOIOConnectionManager(IOIOConnectionThreadProvider provider) {
 		provider_ = provider;
 	}
-	
+
 	public abstract static class Thread extends java.lang.Thread {
 		public abstract void abort();
 	}
-	
+
 	public void start() {
 		createAllThreads();
 		startAllThreads();
@@ -61,7 +76,7 @@ public class IOIOConnectionManager {
 	public interface IOIOConnectionThreadProvider {
 		public Thread createThreadFromFactory(IOIOConnectionFactory factory);
 	}
-	
+
 	private Collection<Thread> threads_ = new LinkedList<Thread>();
 
 	private void abortAllThreads() {

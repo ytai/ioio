@@ -38,7 +38,7 @@ import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.SerialPort;
 
-public class SerialPortIOIOConnection implements IOIOConnection {
+class SerialPortIOIOConnection implements IOIOConnection {
 	// private static final String TAG = "SerialPortIOIOConnection";
 	private final CommPortIdentifier identifier_;
 	private SerialPort serialPort_;

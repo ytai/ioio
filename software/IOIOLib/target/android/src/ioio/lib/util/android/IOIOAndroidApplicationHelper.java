@@ -31,9 +31,33 @@ package ioio.lib.util.android;
 
 import ioio.lib.util.IOIOBaseApplicationHelper;
 import ioio.lib.util.IOIOConnectionRegistry;
+import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
 import android.content.ContextWrapper;
 
+/**
+ * A helper class for creating different kinds of IOIO based applications on
+ * Android.
+ * <p>
+ * <i><b>Note</b>: Consider using {@link IOIOActivity} or {@link IOIOService}
+ * for easy creation of IOIO activities and services. This class is intended for
+ * more advanced use-cases not covered by them.</i>
+ * <p>
+ * This class implements a common life-cycle for Android applications
+ * interacting with IOIO devices. Usage is as follows:
+ * <ul>
+ * <li>Create an instance of {@link IOIOAndroidApplicationHelper}, passing a
+ * {@link IOIOLooperProvider} and a {@link ContextWrapper} to the constructor.</li>
+ * <li>Call {@link #create()}, {@link #destroy()}, {@link #start()},
+ * {@link #stop()} and {@link #restart()} from the respective Android life-cycle
+ * event methods.</li>
+ * <li>{@link #start()} will trigger callback of
+ * {@link IOIOLooperProvider#createIOIOLooper(String, Object)} for every
+ * possible IOIO connection and create a new thread for interacting with this
+ * IOIO, through the created {@link IOIOLooper}.</li>
+ * <li>{@link #stop()} will make sure proper cleanup and disconnection is done.</li>
+ * </ul>
+ */
 public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
 	private final AndroidIOIOConnectionManager manager_;
 

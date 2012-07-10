@@ -31,6 +31,65 @@ package ioio.lib.util.pc;
 
 import ioio.lib.util.IOIOLooperProvider;
 
+/**
+ * A base class for creating console-based IOIO applications.
+ * <p>
+ * Use as follows:
+ * <ul>
+ * <li>Create your main class, extending {@link IOIOConsoleApp}.</li>
+ * <li>Implement {@code static void main(String[] args)} in your class by
+ * creating an instance of this class, and calling its
+ * {@code void go(String[] args)} method.</li>
+ * <li>Implement {@code void run(String[] args)} with your main thread logic.</li>
+ * <li>Implement
+ * {@code IOIOLooper createIOIOLooper(String connectionType, Object extra)} with
+ * code that should run on IOIO-dedicated threads.</li>
+ * </ul>
+ * <p>
+ * Example:
+ * 
+ * <pre>
+ * public class MyIOIOConsoleApp extends IOIOConsoleApp {
+ * 	// Boilerplate main().
+ * 	public static void main(String[] args) throws Exception {
+ * 		new MyIOIOConsoleApp().go(args);
+ * 	}
+ * 
+ * 	&#064;Override
+ * 	protected void run(String[] args) throws IOException {
+ * 		// ... main thread logic here ...
+ * 	}
+ * 
+ * 	&#064;Override
+ * 	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
+ * 		return new BaseIOIOLooper() {
+ * 			&#064;Override
+ * 			protected void setup() throws ConnectionLostException,
+ * 					InterruptedException {
+ * 				// ... code to run when IOIO connects ...
+ * 			}
+ * 
+ * 			&#064;Override
+ * 			public void loop() throws ConnectionLostException,
+ * 					InterruptedException {
+ * 				// ... code to run repeatedly as long as IOIO is connected ...
+ * 			}
+ * 
+ * 			&#064;Override
+ * 			public void disconnected() {
+ * 				// ... code to run when IOIO is disconnected ...
+ * 			}
+ * 
+ * 			&#064;Override
+ * 			public void incompatible() {
+ * 				// ... code to run when a IOIO with an incompatible firmware
+ * 				// version is connected ...
+ * 			}
+ * 		};
+ * 	}
+ * }
+ * </pre>
+ */
 public abstract class IOIOConsoleApp implements IOIOLooperProvider {
 	protected final void go(String[] args) throws Exception {
 		IOIOPcApplicationHelper helper = new IOIOPcApplicationHelper(this);
