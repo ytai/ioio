@@ -9,17 +9,16 @@ import ioio.lib.spi.Log;
 import ioio.lib.util.IOIOConnectionManager.IOIOConnectionThreadProvider;
 import ioio.lib.util.IOIOConnectionManager.Thread;
 
-public class IOIOBaseApplicationHelper implements IOIOConnectionThreadProvider {
+public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadProvider {
 	private static final String TAG = "IOIOBaseApplicationHelper";
 	protected final IOIOLooperProvider looperProvider_;
-	
+
 	public IOIOBaseApplicationHelper(IOIOLooperProvider provider) {
 		looperProvider_ = provider;
 	}
-	
+
 	/**
-	 * An abstract class, which facilitates a thread dedicated for communication
-	 * with a single physical IOIO device.
+	 * A thread, dedicated for communication with a single physical IOIO device.
 	 */
 	protected static class IOIOThread extends IOIOConnectionManager.Thread {
 		protected IOIO ioio_;

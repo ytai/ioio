@@ -31,7 +31,11 @@ package ioio.lib.util.android;
 
 import android.content.ContextWrapper;
 
-
+/**
+ * An interface for an entity that depends on Android context and requires notifications
+ * on Android life-cycle-related events.<br>
+ * <i>Not intended for direct usage by end-users.</i>
+ */
 public interface ContextWrapperDependent {
 	public void onCreate(ContextWrapper wrapper);
 	public void onDestroy();
