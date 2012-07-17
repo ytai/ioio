@@ -135,7 +135,7 @@ void ADBBufferRef() {
 void ADBBufferUnref() {
   assert(adb_buffer_refcount);
   --adb_buffer_refcount;
-  if (adb_conn_state != ADB_CONN_STATE_CONNECTED) return;
+  if (adb_conn_state < ADB_CONN_STATE_WAIT_CONNECT) return;
   if (adb_buffer_refcount == 0) {
     adb_buffer_refcount = 1;
     ADBPacketRecv();

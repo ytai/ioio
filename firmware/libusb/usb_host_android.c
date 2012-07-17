@@ -74,6 +74,8 @@ BOOL USBHostAndroidInitInterface(BYTE address,
       pInterface->inEndpoint = pSecondEpInfo->bEndpointAddress;
       pInterface->outEndpoint = pFirstEpInfo->bEndpointAddress;
   }
+  USBHostSetNAKTimeout(address, pInterface->outEndpoint, 1, 100);
+  USBHostSetNAKTimeout(address, pInterface->inEndpoint, 1, 100);
   pInterface->flags.initialized = 1;
   log_printf("Successfully initialized Android inteface %ld. IN_EP=0x%x OUT_EP=0x%x",
              iid, pInterface->inEndpoint, pInterface->outEndpoint);
