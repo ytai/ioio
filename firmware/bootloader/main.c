@@ -227,22 +227,24 @@ void FileRecvPackages(const void* data, UINT32 data_len, int_or_ptr_t arg) {
 }
 
 void RecvDumpsys(const void* data, UINT32 data_len, int_or_ptr_t arg) {
+  if (state != MAIN_STATE_FIND_PATH) return;
+
   if (data) {
+    manager_path = DumpsysProcess(data, data_len);
     if (manager_path == DUMPSYS_BUSY) {
-      manager_path = DumpsysProcess(data, data_len);
-      if (manager_path == DUMPSYS_BUSY) {
-        return;
-      } else {
-        ADBClose(*((ADB_CHANNEL_HANDLE *) arg.p));
-        if (manager_path != DUMPSYS_ERROR) {
-          log_printf("IOIO manager found with path %s", manager_path);
-          state = MAIN_STATE_FIND_PATH_DONE;
-        } else {
-          log_printf("IOIO manager not found, skipping download");
-          state = MAIN_STATE_RUN_APP;
-        }
+     // Not done yet.
+      return;
+    } else {
+      // Done.
+      ADBClose(*((ADB_CHANNEL_HANDLE *) arg.p));
+      if (manager_path != DUMPSYS_ERROR) {
+        log_printf("IOIO manager found with path %s", manager_path);
+        state = MAIN_STATE_FIND_PATH_DONE;
       }
     }
+  } else {
+    log_printf("IOIO manager not found, skipping download");
+    state = MAIN_STATE_RUN_APP;
   }
 }
 

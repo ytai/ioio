@@ -136,7 +136,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
 		synchronized (result) {
 			result.ready_ = true;
 			result.success_ = (size != 0xFF);
-			if (result.success_) {
+			if (result.success_ && size > 0) {
 				System.arraycopy(data, 0, result.data_, 0, size);
 			}
 			result.notify();

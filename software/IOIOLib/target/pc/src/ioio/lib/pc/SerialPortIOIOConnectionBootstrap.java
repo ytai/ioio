@@ -41,7 +41,7 @@ import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 
-class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
+public class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
 	private static final String TAG = "SerialPortIOIOConnectionBootstrap";
 
 	@Override

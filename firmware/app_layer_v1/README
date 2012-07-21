@@ -52,5 +52,6 @@ Resource priority assignment:
 4 - writing to UART, SPI buffers, setting a digital output pin level
 
 Aside from that, interrupt priorities are used as follows:
-5 - input capture pulse for changing polarity between leading and trailing edge.
-6 - ADC for reading converted value from buffer before another one comes in.
+5 - USB
+6 - input capture pulse for changing polarity between leading and trailing edge.
+7 - ADC for reading converted value from buffer before another one comes in.

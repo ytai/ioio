@@ -1517,7 +1517,7 @@ void USBHostTasks( void )
                         #if defined( __C30__ )
                             IFS5            &= 0xFFBF;
                             IPC21           &= 0xF0FF;
-                            IPC21           |= 0x0600;
+                            IPC21           |= 0x0500;
                             IEC5            |= 0x0040;
                         #elif defined( __PIC32MX__ )
                             // Enable the USB interrupt.
