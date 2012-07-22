@@ -86,10 +86,10 @@ ServiceBinary=%12%\%DRIVERFILENAME%.sys
 [SourceDisksFiles]
 [SourceDisksNames]
 [DeviceList]
-%DESCRIPTION%=DriverInstall, USB\VID_04D8&PID_000A 
+%DESCRIPTION%=DriverInstall, USB\VID_1B4F&PID_0008 
 
 [DeviceList.NTamd64] 
-%DESCRIPTION%=DriverInstall, USB\VID_04D8&PID_000A 
+%DESCRIPTION%=DriverInstall, USB\VID_1B4F&PID_0008 
 
 
 ;------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ MFGFILENAME="ioio"
 DRIVERFILENAME ="usbser"
 MFGNAME="IOIO Open-Source Project"
 INSTDISK="IOIO Installation Disc"
-DESCRIPTION="IOIO"
+DESCRIPTION="IOIO-OTG"
 SERVICE="I/O Interface"
 
 
