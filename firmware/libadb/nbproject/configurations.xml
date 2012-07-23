@@ -60,62 +60,64 @@
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value=""/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;../common;../libusb;../microchip/include"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="large-data"/>
         <property key="isolate-each-function" value="true"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value=""/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
@@ -144,62 +146,64 @@
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value=""/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;../common;../libusb;../microchip/include"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="large-data"/>
         <property key="isolate-each-function" value="true"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value=""/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
@@ -228,62 +232,64 @@
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="s"/>
-        <property key="preprocessor-macros" value=""/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="large-data"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;../common;../libusb;../microchip/include"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="large-data"/>
         <property key="isolate-each-function" value="true"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value=""/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>

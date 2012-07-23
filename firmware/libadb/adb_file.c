@@ -207,10 +207,12 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func) {
   adb_files[i].func = recv_func;
   strncpy(adb_files[i].path, path, ADB_FILE_MAX_PATH_LENGTH);
   CHANGE_STATE(adb_files[i].state, ADB_FILE_STATE_WAIT_OPEN);
+  log_printf("Success opening file %s. Handle is %d", path, i);
   return i;
 }
 
 void ADBFileClose(ADB_FILE_HANDLE h) {
+  log_printf("Closing file %d", h);
   assert(h >= 0 && h < ADB_FILE_MAX_FILES);
   ADB_FILE* f = &adb_files[h];
   if (f->state != ADB_FILE_STATE_FREE) {

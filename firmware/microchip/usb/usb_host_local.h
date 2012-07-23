@@ -116,15 +116,7 @@ descriptor.  Then we check the VID and PID and make sure they appear in the TPL.
 #define SUBSUBSTATE_WAIT_FOR_GET_DEVICE_DESCRIPTOR      0x0001  //
 #define SUBSUBSTATE_GET_DEVICE_DESCRIPTOR_COMPLETE      0x0002  //
 
-#define SUBSTATE_ENABLE_ACCESSORY                       0x0040  //
-#define SUBSUBSTATE_SEND_GET_PROTOCOL                   0x0000  //
-#define SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL               0x0001  //
-#define SUBSUBSTATE_SEND_ACCESSORY_STRING               0x0002  //
-#define SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING           0x0003  //
-#define SUBSUBSTATE_SEND_START_ACCESSORY                0x0004  //
-#define SUBSUBSTATE_WAIT_FOR_START_ACCESSORY            0x0005  //
-
-#define SUBSTATE_VALIDATE_VID_PID                       0x0050  //
+#define SUBSTATE_VALIDATE_VID_PID                       0x0040  //
 
 /*
 *******************************************************************************
@@ -167,7 +159,15 @@ internal variables to support the device.
 #define SUBSUBSTATE_WAIT_FOR_SET_OTG_DONE               0x0002  //
 #define SUBSUBSTATE_SET_OTG_COMPLETE                    0x0003  //
 
-#define SUBSTATE_SET_CONFIGURATION                      0x0040  //
+#define SUBSTATE_ENABLE_ACCESSORY                       0x0040  //
+#define SUBSUBSTATE_SEND_GET_PROTOCOL                   0x0000  //
+#define SUBSUBSTATE_WAIT_FOR_GET_PROTOCOL               0x0001  //
+#define SUBSUBSTATE_SEND_ACCESSORY_STRING               0x0002  //
+#define SUBSUBSTATE_WAIT_FOR_ACCESSORY_STRING           0x0003  //
+#define SUBSUBSTATE_SEND_START_ACCESSORY                0x0004  //
+#define SUBSUBSTATE_WAIT_FOR_START_ACCESSORY            0x0005  //
+
+#define SUBSTATE_SET_CONFIGURATION                      0x0050  //
 #define SUBSUBSTATE_SEND_SET_CONFIGURATION              0x0000  //
 #define SUBSUBSTATE_WAIT_FOR_SET_CONFIGURATION          0x0001  //
 #define SUBSUBSTATE_SET_CONFIGURATION_COMPLETE          0x0002  //

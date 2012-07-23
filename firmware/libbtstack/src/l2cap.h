@@ -64,22 +64,31 @@ extern "C" {
 #error "HCI_ACL_PAYLOAD_SIZE too small for minimal L2CAP MTU of 48 bytes"
 #endif    
     
+// L2CAP Fixed Channel IDs    
+#define L2CAP_CID_SIGNALING                 0x0001
+#define L2CAP_CID_CONNECTIONLESS_CHANNEL    0x0002
+#define L2CAP_CID_ATTRIBUTE_PROTOCOL        0x0004
+#define L2CAP_CID_SIGNALING_LE              0x0005
+#define L2CAP_CID_SECURITY_MANAGER_PROTOCOL 0x0006
+    
 void l2cap_init(void);
 void l2cap_register_packet_handler(void (*handler)(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size));
 void l2cap_create_channel_internal(void * connection, btstack_packet_handler_t packet_handler, bd_addr_t address, uint16_t psm, uint16_t mtu);
 void l2cap_disconnect_internal(uint16_t local_cid, uint8_t reason);
-int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len);
 uint16_t l2cap_get_remote_mtu_for_local_cid(uint16_t local_cid);
 uint16_t l2cap_max_mtu(void);
 
 void l2cap_block_new_credits(uint8_t blocked);
 int  l2cap_can_send_packet_now(uint16_t local_cid);    // non-blocking UART write
 
-
 // get outgoing buffer and prepare data
 uint8_t *l2cap_get_outgoing_buffer(void);
-int l2cap_send_prepared(uint16_t local_cid, uint16_t len);
 
+int  l2cap_send_prepared(uint16_t local_cid, uint16_t len);
+int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len);
+
+int  l2cap_send_prepared_connectionless(uint16_t handle, uint16_t cid, uint16_t len);
+int  l2cap_send_connectionless(uint16_t handle, uint16_t cid, uint8_t *data, uint16_t len);
     
 void l2cap_close_connection(void *connection);
 
@@ -88,6 +97,9 @@ void l2cap_unregister_service_internal(void *connection, uint16_t psm);
 
 void l2cap_accept_connection_internal(uint16_t local_cid);
 void l2cap_decline_connection_internal(uint16_t local_cid, uint8_t reason);
+
+// Bluetooth 4.0 - allows to register handler for Attribute Protocol and Security Manager Protocol
+void l2cap_register_fixed_channel(btstack_packet_handler_t packet_handler, uint16_t channel_id);
 
 
 // private structs

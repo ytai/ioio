@@ -28,7 +28,6 @@
  */
 package ioio.lib.api;
 
-import ioio.lib.api.DigitalInput.Spec;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.InputStream;

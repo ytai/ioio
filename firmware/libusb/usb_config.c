@@ -86,13 +86,13 @@ typedef enum {
 
 USB_TPL usbTPL[] =
 {
+    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, AND_INT, {TPL_CLASS_DRV | TPL_INTFC_DRV} },  // ADB
+#ifndef DISABLE_BLUETOOTH
+    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, BT_DEV,  {TPL_CLASS_DRV | TPL_DEVICE_DRV} }, // Bluetooth
+#endif
 #ifndef DISABLE_ACCESSORY
     { INIT_VID_PID( 0x18D1ul, 0x2D00ul )    , 0, AND_DEV, {TPL_DEVICE_DRV} },                 // Accessory without ADB
     { INIT_VID_PID( 0x18D1ul, 0x2D01ul )    , 0, AND_DEV, {TPL_DEVICE_DRV} },                 // Accessory with ADB
-#endif
-    { INIT_CL_SC_P( 0xFFul, 0x42ul, 0x01ul ), 0, AND_INT, {TPL_CLASS_DRV | TPL_INTFC_DRV} },  // ADB
-#ifndef DISABLE_BLUETOOTH
-    { INIT_CL_SC_P( 0xE0ul, 0x01ul, 0x01ul ), 0, BT_DEV,  {TPL_CLASS_DRV | TPL_DEVICE_DRV} }  // Bluetooth
 #endif
 };
 

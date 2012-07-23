@@ -103,155 +103,161 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1021;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="true"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="default"/>
         <property key="isolate-each-function" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="3"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="PLATFORM=1021;NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="extra-include-directories-for-assembler" value="..;"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="list-file" value=""/>
-        <property key="list-source" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="warning-level" value="emit-warnings"/>
-        <property key="list-section-info" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="false-conditionals" value="false"/>
-        <property key="expand-macros" value="false"/>
         <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="1536"/>
-        <property key="remove-unused-sections" value="true"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value="conn;adb;usb;btstack"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories"
-                  value="../libconn/dist/PIC24FJ128DA106;../libadb/dist/PIC24FJ128DA106;../libbtstack/dist/PIC24FJ128DA106;../libusb/dist/PIC24FJ128DA106"/>
+                  value="../libconn/dist/PIC24FJ128DA106/production;../libadb/dist/PIC24FJ128DA106/production;../libbtstack/dist/PIC24FJ128DA106/production;../libusb/dist/PIC24FJ128DA106/production"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="1536"/>
+        <property key="input-libraries" value="conn;adb;usb;btstack"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
         <appendMe value="-T../blapi/app_IOIO0021.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
-        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
+        <property key="output-file-format" value="coff"/>
       </C30Global>
       <PICkit3PlatformTool>
-        <property key="UART 4" value="true"/>
-        <property key="UART 3" value="true"/>
-        <property key="UART 2" value="true"/>
-        <property key="UART 1" value="true"/>
-        <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.eraseb4program" value="true"/>
-        <property key="memories.id" value="false"/>
-        <property key="ToolFirmwareFilePath" value=""/>
-        <property key="memories.eeprom" value="false"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
-        <property key="COMPARATOR" value="true"/>
-        <property key="programoptions.usehighvoltageonmclr" value="false"/>
-        <property key="INPUT CAPTURE 9" value="true"/>
-        <property key="INPUT CAPTURE 8" value="true"/>
-        <property key="INPUT CAPTURE 7" value="true"/>
-        <property key="INPUT CAPTURE 6" value="true"/>
-        <property key="INPUT CAPTURE 5" value="true"/>
-        <property key="INPUT CAPTURE 4" value="true"/>
-        <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="INPUT CAPTURE 2" value="true"/>
-        <property key="RTCC" value="true"/>
-        <property key="INPUT CAPTURE 1" value="true"/>
-        <property key="programoptions.preserveeeprom" value="false"/>
         <property key="ADC 1" value="true"/>
-        <property key="OUTPUT COMPARE 9" value="true"/>
-        <property key="OUTPUT COMPARE 8" value="true"/>
-        <property key="OUTPUT COMPARE 7" value="true"/>
-        <property key="hwtoolclock.frcindebug" value="false"/>
-        <property key="OUTPUT COMPARE 6" value="true"/>
-        <property key="OUTPUT COMPARE 5" value="true"/>
-        <property key="OUTPUT COMPARE 4" value="true"/>
-        <property key="memories.programmemory" value="true"/>
-        <property key="OUTPUT COMPARE 3" value="true"/>
-        <property key="OUTPUT COMPARE 2" value="true"/>
-        <property key="OUTPUT COMPARE 1" value="true"/>
-        <property key="poweroptions.powerenable" value="false"/>
-        <property key="memories.programmemory.start" value="0x0"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="AutoSelectMemRanges" value="auto"/>
-        <property key="voltagevalue" value="3.25"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
-        <property key="TIMER5" value="true"/>
-        <property key="SPI 3" value="true"/>
-        <property key="TIMER4" value="true"/>
-        <property key="SPI 2" value="true"/>
-        <property key="TIMER3" value="true"/>
-        <property key="SPI 1" value="true"/>
-        <property key="TIMER2" value="true"/>
-        <property key="TIMER1" value="true"/>
-        <property key="programmertogo.imagename" value=""/>
-        <property key="hwtoolclock.instructionspeed" value=""/>
-        <property key="CTMU" value="true"/>
         <property key="CLOCK CONTROL" value="true"/>
-        <property key="UCNFG1" value="true"/>
-        <property key="GRAPHICS" value="true"/>
+        <property key="COMPARATOR" value="true"/>
         <property key="CRC" value="true"/>
-        <property key="I2C3" value="true"/>
-        <property key="I2C2" value="true"/>
-        <property key="I2C1" value="true"/>
-        <property key="hwtoolclock.units" value="mips"/>
+        <property key="CTMU" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="GRAPHICS" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath" value=""/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="hwtoolclock.instructionspeed" value=""/>
+        <property key="hwtoolclock.units" value="mips"/>
+        <property key="memories.eeprom" value="false"/>
+        <property key="memories.id" value="false"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
     </conf>
     <conf name="IOIO0022" type="2">
@@ -269,91 +275,97 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1022;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="true"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="default"/>
         <property key="isolate-each-function" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="3"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="PLATFORM=1022;NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=".."/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="list-file" value=""/>
-        <property key="list-source" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="warning-level" value="emit-warnings"/>
-        <property key="list-section-info" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="false-conditionals" value="false"/>
-        <property key="expand-macros" value="false"/>
         <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=".."/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="1536"/>
-        <property key="remove-unused-sections" value="true"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value="conn;usb;adb;btstack"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories"
-                  value="../libconn/dist/PIC24FJ128DA206;../libadb/dist/PIC24FJ128DA206;../libusb/dist/PIC24FJ128DA206;../libbtstack/dist/PIC24FJ128DA206"/>
+                  value="../libconn/dist/PIC24FJ128DA206/production;../libadb/dist/PIC24FJ128DA206/production;../libusb/dist/PIC24FJ128DA206/production;../libbtstack/dist/PIC24FJ128DA206/production"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="1536"/>
+        <property key="input-libraries" value="conn;usb;adb;btstack"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
         <appendMe value="-T../blapi/app_IOIO0022.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
-        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
+        <property key="output-file-format" value="coff"/>
       </C30Global>
       <PICkit3PlatformTool>
       </PICkit3PlatformTool>
@@ -373,91 +385,97 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="optimization-level" value="3"/>
-        <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG"/>
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
-        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="true"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
                   value=".;..;../microchip/include;../common"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="data-model" value="default"/>
         <property key="isolate-each-function" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-all-warnings" value="true"/>
+        <property key="optimization-level" value="3"/>
+        <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="extra-include-directories-for-assembler" value="..;"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="list-file" value=""/>
-        <property key="list-source" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="relax" value="false"/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="warning-level" value="emit-warnings"/>
-        <property key="list-section-info" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="false-conditionals" value="false"/>
-        <property key="expand-macros" value="false"/>
         <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
-        <property key="preprocessor-macros" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="warn-section-align" value="false"/>
-        <property key="heap-size" value="1536"/>
-        <property key="remove-unused-sections" value="true"/>
-        <property key="stack-size" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="trace-symbols" value=""/>
-        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
-        <property key="enable-pack-data" value="true"/>
         <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
         <property key="boot-flash" value="no_flash"/>
-        <property key="report-memory-usage" value="true"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="input-libraries" value="conn;adb;usb;btstack"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="symbol-stripping" value="keep-all"/>
         <property key="boot-ram" value="no_ram"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories"
-                  value="../libconn/dist/PIC24FJ256DA206;../libadb/dist/PIC24FJ256DA206;../libbtstack/dist/PIC24FJ256DA206;../libusb/dist/PIC24FJ256DA206"/>
+                  value="../libconn/dist/PIC24FJ256DA206/production;../libadb/dist/PIC24FJ256DA206/production;../libbtstack/dist/PIC24FJ256DA206/production;../libusb/dist/PIC24FJ256DA206/production"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="1536"/>
+        <property key="input-libraries" value="conn;adb;usb;btstack"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
         <appendMe value="-T../blapi/app_IOIO0023.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>
-        <property key="output-file-format" value="coff"/>
         <property key="legacy-libc" value="false"/>
+        <property key="output-file-format" value="coff"/>
       </C30Global>
       <PICkit3PlatformTool>
       </PICkit3PlatformTool>
