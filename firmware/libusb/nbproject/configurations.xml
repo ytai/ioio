@@ -153,6 +153,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ128DA106_ADB" type="3">
       <toolsSet>
@@ -254,6 +256,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
@@ -364,6 +368,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ128DA206_ADB" type="3">
       <toolsSet>
@@ -465,6 +471,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
@@ -575,6 +583,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
     <conf name="PIC24FJ256DA206_ADB" type="3">
       <toolsSet>
@@ -676,6 +686,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <PICkit3PlatformTool>
+      </PICkit3PlatformTool>
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
