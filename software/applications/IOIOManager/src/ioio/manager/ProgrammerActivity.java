@@ -40,11 +40,14 @@ import java.io.File;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -119,6 +122,7 @@ public class ProgrammerActivity extends IOIOActivity {
 	private String selectedBoardName_;
 	private Chip target_;
 	private boolean cancel_ = false;
+	private WakeLock wakeLock_ = null;
 
 	private ProgrammerState programmerState_;
 	private ProgrammerState desiredState_;
@@ -141,6 +145,8 @@ public class ProgrammerActivity extends IOIOActivity {
 		desiredState_ = ProgrammerState.STATE_IOIO_DISCONNECTED;
 		prepareGui();
 		setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
+		PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wakeLock_ = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
 	}
 
 	private void prepareGui() {
@@ -178,6 +184,31 @@ public class ProgrammerActivity extends IOIOActivity {
 				desiredState_ = ProgrammerState.STATE_PROGRAM_START;
 			}
 		});
+	}
+
+	private void acquireWakeLock() {
+		if (wakeLock_ != null && !wakeLock_.isHeld()) {
+			wakeLock_.acquire();
+		}
+	}
+
+	private void releaseWakeLock() {
+		if (wakeLock_ != null && wakeLock_.isHeld()) {
+			wakeLock_.release();
+		}
+	}
+
+	private boolean working() {
+		switch (programmerState_) {
+		case STATE_PROGRAM_START:
+		case STATE_ERASE_START:
+		case STATE_PROGRAM_IN_PROGRESS:
+		case STATE_ERASE_IN_PROGRESS:
+		case STATE_VERIFY_IN_PROGRESS:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	private synchronized void setProgrammerState(final ProgrammerState state) {
@@ -219,6 +250,12 @@ public class ProgrammerActivity extends IOIOActivity {
 					showDialog(PROGRESS_DIALOG);
 					break;
 				}
+
+        if (working()) {
+          acquireWakeLock();
+        } else {
+          releaseWakeLock();
+        }
 
 				if (state == ProgrammerState.STATE_TARGET_CONNECTED) {
 					if (selectedBoardName_ != null) {
@@ -533,6 +570,12 @@ public class ProgrammerActivity extends IOIOActivity {
 			// file may have been removed when we were away...
 			setSelectedImage(null, null, null);
 		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		releaseWakeLock();
 	}
 
 	private void setSelectedImage(File file, String bundleName, String imageName) {
