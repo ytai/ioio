@@ -59,7 +59,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private boolean disconnect_ = false;
 
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'Y', 'T',
-			'A', 'I', '0', '0', '0', '1' };
+			'A', 'I', '0', '0', '0', '2' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
@@ -250,7 +250,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			for (int pin : Constants.RGB_LED_MATRIX_PINS) {
 				openPins_[pin] = false;
 			}
-			protocol_.rgbLedMatrixEnable(false);
+			protocol_.rgbLedMatrixEnable(0);
 		} catch (IOException e) {
 		} catch (ConnectionLostException e) {
 		}
@@ -568,7 +568,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public RgbLedMatrix openRgbLedMatrix() throws ConnectionLostException {
+	public RgbLedMatrix openRgbLedMatrix(RgbLedMatrix.Matrix kind)
+			throws ConnectionLostException {
 		checkState();
 		checkRgbLedMatrixFree();
 		for (int pin : Constants.RGB_LED_MATRIX_PINS) {
@@ -578,10 +579,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			openPins_[pin] = true;
 		}
 		openRgbLedMatrix_ = true;
-		RgbLedMatrixImpl result = new RgbLedMatrixImpl(this);
+		RgbLedMatrixImpl result = new RgbLedMatrixImpl(this, kind);
 		addDisconnectListener(result);
 		try {
-			protocol_.rgbLedMatrixEnable(true);
+			protocol_.rgbLedMatrixEnable(kind.shifterLen32);
 		} catch (IOException e) {
 			result.close();
 			throw new ConnectionLostException(e);

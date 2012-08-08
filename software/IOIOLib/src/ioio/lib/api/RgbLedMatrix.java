@@ -53,9 +53,25 @@ import ioio.lib.api.exception.ConnectionLostException;
  * 
  */
 public interface RgbLedMatrix extends Closeable {
+	enum Matrix {
+		ADAFRUIT_32x16(512, 768, 1),
+		SEEEDSTUDIO_32x16(512, 768, 2),
+		SEEEDSTUDIO_32x32(1024, 1536, 2);
+		
+		public final int inputSize;
+		public final int outputSize;
+		public final int shifterLen32;
+		
+		private Matrix(int is, int os, int sl) {
+			inputSize = is;
+			outputSize = os;
+			shifterLen32 = sl;
+		}
+	}
+	
 	/**
-	 * Write a frame. Buffer must be of size 512, where each element is a pixel
-	 * with the following ordering:
+	 * Write a frame. Buffer must be of size 512 for 32x16 or 1024 for 32x32,
+	 * where each element is a pixel with the following ordering:
 	 * 
 	 * <pre>
 	 *   0    1    2       ...  31

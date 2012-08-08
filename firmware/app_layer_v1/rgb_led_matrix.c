@@ -52,9 +52,10 @@
 #define OE_PIN _LATG7
 
 #define SUB_FRAMES_PER_FRAME 3
+#define ROWS_PER_SUB_FRAME 8
 
-typedef uint8_t bin_two_row_t[32];
-typedef bin_two_row_t bin_frame_t[8];
+typedef uint8_t bin_row_t[64];
+typedef bin_row_t bin_frame_t[ROWS_PER_SUB_FRAME];
 typedef bin_frame_t frame_t[SUB_FRAMES_PER_FRAME];
 
 static frame_t frames[2] __attribute__((far));
@@ -62,13 +63,15 @@ static const uint8_t *data;
 static int sub_frame;
 static int displayed_frame;
 static int back_frame_ready;
+static int shifter_repeat;
+static int address = 0;
 
-void RgbLedMatrixEnable(int enable) {
+void RgbLedMatrixEnable(int shifter_len_32) {
   _T4IE = 0;
 
-  if (enable) {
+  if (shifter_len_32) {
     LATE = 0;
-    ADDR_PORT = 7;
+    address = 7;
     LATG = (1 << 7);
 
     ODCE &= ~0x7F;
@@ -84,6 +87,7 @@ void RgbLedMatrixEnable(int enable) {
     sub_frame = SUB_FRAMES_PER_FRAME;
     displayed_frame = 0;
     back_frame_ready = 0;
+    shifter_repeat = shifter_len_32;
 
     // timer 4 is sysclk / 64 = 250KHz
     PR4 = 1;
@@ -97,17 +101,17 @@ void RgbLedMatrixEnable(int enable) {
   }
 }
 
-void RgbLedMatrixFrame(const uint8_t frame[RGB_LED_MATRIX_FRAME_SIZE]) {
+void RgbLedMatrixFrame(const uint8_t frame[]) {
   back_frame_ready = 0;
-  memcpy(frames[displayed_frame ^ 1], frame, sizeof(frame_t));
+  memcpy(frames[displayed_frame ^ 1], frame, 768 * shifter_repeat);
   back_frame_ready = 1;
 }
 
-static void draw_two_row() {
-  OE_PIN = 1; // black
-  if (++ADDR_PORT == 8) {
+static void draw_row() {
+  int i;
+  if (++address == ROWS_PER_SUB_FRAME) {
     // sub-frame done
-    ADDR_PORT = 0;
+    address = 0;
     if (++sub_frame == SUB_FRAMES_PER_FRAME + 1) {
       // frame done
       sub_frame = 0;
@@ -120,21 +124,32 @@ static void draw_two_row() {
     }
   }
 
-  if (sub_frame == SUB_FRAMES_PER_FRAME) return;
+  if (sub_frame == SUB_FRAMES_PER_FRAME) {
+    OE_PIN = 1; // black
+    return;
+  }
 
-  // push 32 bytes
-#define dump DATA_CLK_PORT = *data++; CLK_PIN = 1;
-  dump dump dump dump dump dump dump dump
-  dump dump dump dump dump dump dump dump
-  dump dump dump dump dump dump dump dump
-  dump dump dump dump dump dump dump dump
-#undef dump
+  for (i = shifter_repeat; i > 0; --i) {
+    // push 32 bytes
+  #define dump DATA_CLK_PORT = *data++; CLK_PIN = 1;
+    dump dump dump dump dump dump dump dump
+    dump dump dump dump dump dump dump dump
+    dump dump dump dump dump dump dump dump
+    dump dump dump dump dump dump dump dump
+  #undef dump
+  }
 
+  OE_PIN = 1; // black
   // latch
   LAT_PIN = 1;
   LAT_PIN = 0;
+  ADDR_PORT = address;
 
   OE_PIN = 0; // enable output
+}
+
+int RgbLedMatrixFrameSize() {
+  return shifter_repeat * 32 * ROWS_PER_SUB_FRAME * SUB_FRAMES_PER_FRAME;
 }
 
 static unsigned int times[] = {
@@ -142,7 +157,7 @@ static unsigned int times[] = {
 };
 
 void __attribute__((__interrupt__, auto_psv)) _T4Interrupt() {
-  draw_two_row();
+  draw_row();
   PR4 = times[sub_frame];
   TMR4 = 0;
   _T4IF = 0; // clear

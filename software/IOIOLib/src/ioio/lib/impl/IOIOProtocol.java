@@ -495,18 +495,17 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	public void rgbLedMatrixEnable(boolean enable) throws IOException {
+	public void rgbLedMatrixEnable(int shifterLen32) throws IOException {
 		beginBatch();
 		writeByte(RGB_LED_MATRIX_ENABLE);
-		writeByte(enable ? 1 : 0);
+		writeByte(shifterLen32 & 0x07);
 		endBatch();
 	}
 
 	public void rgbLedMatrixFrame(byte[] data) throws IOException {
-		assert data.length == 768;
 		beginBatch();
 		writeByte(RGB_LED_MATRIX_FRAME);
-		for (int i = 0; i < 768; ++i) {
+		for (int i = 0; i < data.length; ++i) {
 			writeByte(((int) data[i]) & 0xFF);
 		}
 		endBatch();

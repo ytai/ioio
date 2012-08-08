@@ -666,11 +666,13 @@ public interface IOIO {
 	/**
 	 * Opens an RGB LED matrix for output.
 	 * @return The RGB LED matrix interface.
+	 * @param kind The matrix kind.
 	 * @throws ConnectionLostException
 	 *             Connection was lost before or during the execution of this
 	 *             method.
 	 */
-	public RgbLedMatrix openRgbLedMatrix() throws ConnectionLostException;
+	public RgbLedMatrix openRgbLedMatrix(RgbLedMatrix.Matrix kind)
+			throws ConnectionLostException;
 
 	/**
 	 * Start a batch of operations. This is strictly an optimization and will

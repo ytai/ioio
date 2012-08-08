@@ -239,7 +239,8 @@ void CheckInterface(BYTE interface_id[8]) {
       = (memcmp(interface_id, PROTOCOL_IID_IOIO0003, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0002, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0001, 8) == 0)
-        || (memcmp(interface_id, PROTOCOL_IID_YTAI0001, 8) == 0);
+        || (memcmp(interface_id, PROTOCOL_IID_YTAI0001, 8) == 0)
+        || (memcmp(interface_id, PROTOCOL_IID_YTAI0002, 8) == 0);
   AppProtocolSendMessage(&msg);
 }
 

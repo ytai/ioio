@@ -22,7 +22,7 @@ public class CameraToMatrixActivity extends IOIOActivity {
 	private int height_;
 	private int width_;
 
-	private short[] frame_ = new short[512];
+	private short[] frame_ = new short[1024];
 	private short[] rgb_;
 
 	@Override
@@ -40,7 +40,7 @@ public class CameraToMatrixActivity extends IOIOActivity {
 		getSmallestPreviewSize(params);
 		params.setPreviewSize(width_, height_);
 		rgb_ = new short[width_ * height_];
-		// params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+		params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 		params.setWhiteBalance(Parameters.WHITE_BALANCE_AUTO);
 		camera_.setParameters(params);
 
@@ -49,7 +49,7 @@ public class CameraToMatrixActivity extends IOIOActivity {
 			public void onPreviewFrame(byte[] data, Camera camera) {
 				toRGB565(data, width_, height_, rgb_);
 				synchronized (frame_) {
-					for (int i = 0; i < 16; ++i) {
+					for (int i = 0; i < 32; ++i) {
 						System.arraycopy(rgb_, i * width_, frame_, i * 32, 32);
 					}
 					frame_.notify();
@@ -84,21 +84,27 @@ public class CameraToMatrixActivity extends IOIOActivity {
 
 	class IOIOThread extends BaseIOIOLooper {
 		private RgbLedMatrix matrix_;
+		private int b_ = 0;
 
 		@Override
 		protected void setup() throws ConnectionLostException {
-			matrix_ = ioio_.openRgbLedMatrix();
+			matrix_ = ioio_.openRgbLedMatrix(RgbLedMatrix.Matrix.SEEEDSTUDIO_32x32);
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException {
-			synchronized (frame_) {
+//			synchronized (frame_) {
 				try {
-					frame_.wait();
+//					frame_.wait();
+					for (int i = 0; i < 1024; ++i) {
+						frame_[i] = (short) ((i << 6) | (b_ & 0x3f));
+					}
 					matrix_.frame(frame_);
+					b_ += 4;
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
-			}
+//			}
 		}
 	}
 

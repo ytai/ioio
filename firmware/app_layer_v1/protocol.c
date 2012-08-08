@@ -169,7 +169,7 @@ static inline int IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
       return msg->args.i2c_write_read.write_size;
 
     case RGB_LED_MATRIX_FRAME:
-      return RGB_LED_MATRIX_FRAME_SIZE;
+      return RgbLedMatrixFrameSize();
 
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
@@ -498,7 +498,7 @@ static BOOL MessageDone() {
       break;
 
     case RGB_LED_MATRIX_ENABLE:
-      RgbLedMatrixEnable(rx_msg.args.rgb_led_matrix_enable.enable);
+      RgbLedMatrixEnable(rx_msg.args.rgb_led_matrix_enable.len);
       break;
 
     case RGB_LED_MATRIX_FRAME:

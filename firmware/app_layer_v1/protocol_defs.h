@@ -36,6 +36,7 @@
 #define IOIO_MAGIC 0x4F494F49L
 
 #define PROTOCOL_IID_YTAI0001 "YTAI0001"
+#define PROTOCOL_IID_YTAI0002 "YTAI0002"
 #define PROTOCOL_IID_IOIO0001 "IOIO0001"
 #define PROTOCOL_IID_IOIO0002 "IOIO0002"
 #define PROTOCOL_IID_IOIO0003 "IOIO0003"
@@ -375,7 +376,7 @@ typedef struct PACKED {
 
 // rgb led matrix enable
 typedef struct PACKED {
-  BYTE enable : 1;
+  BYTE len : 3;
 } RGB_LED_MATRIX_ENABLE_ARGS;
 
 // rgb led matrix frame

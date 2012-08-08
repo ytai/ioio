@@ -32,9 +32,17 @@
 
 #include <stdint.h>
 
-#define RGB_LED_MATRIX_FRAME_SIZE 768
+// Shifter_len_32 is the length of the shift register / 32.
+// 0: module is off.
+// 1: 32-deep register.
+// 2: 64-deep register.
+// etc.
+void RgbLedMatrixEnable(int shifter_len_32);
 
-void RgbLedMatrixEnable(int enable);
-void RgbLedMatrixFrame(const uint8_t frame[RGB_LED_MATRIX_FRAME_SIZE]);
+// Frame size in bytes is (num_pixels / 2 * color_depth), where color_depth is
+// currently 3.
+void RgbLedMatrixFrame(const uint8_t frame[]);
+
+int RgbLedMatrixFrameSize();
 
 #endif  // __RGBLEDMATRIX_H__
