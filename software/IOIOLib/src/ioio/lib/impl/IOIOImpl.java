@@ -582,7 +582,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		RgbLedMatrixImpl result = new RgbLedMatrixImpl(this, kind);
 		addDisconnectListener(result);
 		try {
-			protocol_.rgbLedMatrixEnable(kind.shifterLen32);
+			protocol_.rgbLedMatrixEnable(RgbLedMatrixImpl.getShifterLen(kind));
 		} catch (IOException e) {
 			result.close();
 			throw new ConnectionLostException(e);

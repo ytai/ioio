@@ -31,9 +31,12 @@ package ioio.lib.api;
 import ioio.lib.api.exception.ConnectionLostException;
 
 /**
- * An interface to control a 16x32 RGB LED matrix of this model: <a
- * href="http://www.adafruit.com/products/420"
- * >http://www.adafruit.com/products/420</a>
+ * An interface to control an RGB LED matrix of any if these models:
+ * <ul>
+ * <li><a href="http://www.adafruit.com/products/420">Adafruit 32x16</a></li>
+ * <li>SeeedStudio 32x32</li>
+ * <li>SeeedStudio 32x16</li>
+ * </ul>
  * <p>
  * Connection: In this diagram the female connector is depicted - it is a mirror
  * of the male on that is on the matrix board. Place the connector such that the
@@ -51,21 +54,21 @@ import ioio.lib.api.exception.ConnectionLostException;
  *          +-----+
  * </pre>
  * 
+ * On the SeeedStudio 32x16 model, pins 19, 20, 21 can be left unconnected.
+ * 
  */
 public interface RgbLedMatrix extends Closeable {
 	enum Matrix {
-		ADAFRUIT_32x16(512, 768, 1),
-		SEEEDSTUDIO_32x16(512, 768, 2),
-		SEEEDSTUDIO_32x32(1024, 1536, 2);
+		ADAFRUIT_32x16(32, 16),
+		SEEEDSTUDIO_32x16(32, 16),
+		SEEEDSTUDIO_32x32(32, 32);
 		
-		public final int inputSize;
-		public final int outputSize;
-		public final int shifterLen32;
+		public final int width;
+		public final int height;
 		
-		private Matrix(int is, int os, int sl) {
-			inputSize = is;
-			outputSize = os;
-			shifterLen32 = sl;
+		private Matrix(int w, int h) {
+			width = w;
+			height = h;
 		}
 	}
 	
@@ -78,6 +81,15 @@ public interface RgbLedMatrix extends Closeable {
 	 *   32   33   34      ...  63
 	 *   ...
 	 *   480  481  482     ...  512
+	 * </pre>
+	 * 
+	 * Or for 32x32:
+	 * 
+	 * <pre>
+	 *   0    1    2       ...  31
+	 *   32   33   34      ...  63
+	 *   ...
+	 *   992  993  994     ...  1023
 	 * </pre>
 	 * 
 	 * The encoding is RGB565.
