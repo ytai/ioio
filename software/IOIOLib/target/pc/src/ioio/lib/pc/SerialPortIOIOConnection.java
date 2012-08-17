@@ -36,42 +36,54 @@ import java.io.OutputStream;
 
 import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
+import purejavacomm.NoSuchPortException;
 import purejavacomm.SerialPort;
 
 class SerialPortIOIOConnection implements IOIOConnection {
 	// private static final String TAG = "SerialPortIOIOConnection";
-	private final CommPortIdentifier identifier_;
+	private boolean abort_ = false;
+	private final String name_;
 	private SerialPort serialPort_;
 	private InputStream inputStream_;
 	private OutputStream outputStream_;
 
-	public SerialPortIOIOConnection(CommPortIdentifier identifier) {
-		identifier_ = identifier;
+	public SerialPortIOIOConnection(String name) {
+		name_ = name;
 	}
 
 	@Override
 	public void waitForConnect() throws ConnectionLostException {
-		try {
-			synchronized (this) {
-				CommPort commPort = identifier_.open(this.getClass().getName(),
-						10000);
-				serialPort_ = (SerialPort) commPort;
-				serialPort_.enableReceiveThreshold(1);
-				serialPort_.setDTR(true);
-				Thread.sleep(100);
-				inputStream_ = serialPort_.getInputStream();
-				outputStream_ = serialPort_.getOutputStream();
+		while (!abort_) {
+			try {
+				synchronized (this) {
+					CommPortIdentifier identifier = CommPortIdentifier
+							.getPortIdentifier(name_);
+					CommPort commPort = identifier.open(this.getClass()
+							.getName(), 1000);
+					serialPort_ = (SerialPort) commPort;
+					serialPort_.enableReceiveThreshold(1);
+					serialPort_.setDTR(true);
+					Thread.sleep(100);
+					inputStream_ = serialPort_.getInputStream();
+					outputStream_ = serialPort_.getOutputStream();
+					return;
+				}
+			} catch (NoSuchPortException e) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+			} catch (Exception e) {
+				if (serialPort_ != null) {
+					serialPort_.close();
+				}
 			}
-		} catch (Exception e) {
-			if (serialPort_ != null) {
-				serialPort_.close();
-			}
-			throw new ConnectionLostException(e);
 		}
 	}
 
 	@Override
 	synchronized public void disconnect() {
+		abort_ = true;
 		if (serialPort_ != null) {
 			serialPort_.close();
 		}
