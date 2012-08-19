@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 by Matthias Ringwald
+ * Copyright (C) 2009-2012 by Matthias Ringwald
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,6 +13,9 @@
  * 3. Neither the name of the copyright holders nor the names of
  *    contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
+ * 4. Any redistribution, use, or modification is done solely for
+ *    personal benefit and not for any commercial purpose or for
+ *    monetary gain.
  *
  * THIS SOFTWARE IS PROVIDED BY MATTHIAS RINGWALD AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,6 +29,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * Please inquire about commercial licensing options at btstack@ringwald.ch
  *
  */
 
@@ -509,8 +514,8 @@ int sdp_handle_service_search_attribute_request(uint8_t * packet, uint16_t remot
             
             // store DES
             de_store_descriptor_with_len(&sdp_response_buffer[pos], DE_DES, DE_SIZE_VAR_16, filtered_attributes_size);
-            maximumAttributeByteCount -= 3;
             pos += 3;
+            maximumAttributeByteCount -= 3;
         }
         
         first_answer = 0;
@@ -519,6 +524,7 @@ int sdp_handle_service_search_attribute_request(uint8_t * packet, uint16_t remot
         uint16_t bytes_used;
         int complete = sdp_filter_attributes_in_attributeIDList(item->service_record, attributeIDList, continuation_offset, maximumAttributeByteCount, &bytes_used, &sdp_response_buffer[pos]);
         pos += bytes_used;
+        maximumAttributeByteCount -= bytes_used;
         
         if (complete) {
             continuation_offset = 0;
