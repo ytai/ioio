@@ -161,7 +161,7 @@ static void BTAttached() {
   hci_transport_t * transport = hci_transport_mchpusb_instance(bt_buf, bt_buf_size);
   bt_control_t * control = NULL;
   hci_uart_config_t * config = NULL;
-  remote_device_db_t * remote_db = NULL;
+  const remote_device_db_t * remote_db = &remote_device_db_memory;
   hci_init(transport, config, control, remote_db);
 
   // init L2CAP
