@@ -45,24 +45,33 @@ DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IE)
 DEFINE_REG_SETTERS_1B(NUM_INCAP_MODULES, _IC, IP)
 
 typedef struct {
-  unsigned int con1;
-  unsigned int con2;
-  unsigned int buf;
-  unsigned int tmr;
+  volatile unsigned int con1;
+  volatile unsigned int con2;
+  volatile unsigned int buf;
+  volatile unsigned int tmr;
 } INCAP_REG;
 
-static volatile INCAP_REG* incap_regs = (volatile INCAP_REG *) &IC1CON1;
+static INCAP_REG* incap_regs = (INCAP_REG *) &IC1CON1;
 
 typedef enum {
-  LEADING,
-  TRAILING,
-  FREQ
+  LEADING  = 0,
+  TRAILING = 1
 } EDGE_STATE;
 
+// Records for each module whether the next interrupt is a leading edge or a
+// traling edge.
 static EDGE_STATE edge_states[NUM_INCAP_MODULES];
+
+// For each module: the value that needs to be written to con1 in order to
+// enable the module in the right mode.
 static WORD con1_vals[NUM_INCAP_MODULES];
 
-static void InCapConfigInternal(int incap_num, int double_prec, int mode, int clock, int external);
+// For each module, if true, edge type will be flipped on every interrupt.
+// This is used for measuring pulses, as opposed to period.
+static unsigned flip[NUM_INCAP_MODULES];
+
+static void InCapConfigInternal(int incap_num, int double_prec, int mode,
+                                int clock, int external);
 
 void InCapInit() {
   log_printf("InCapInit()");
@@ -71,23 +80,27 @@ void InCapInit() {
     InCapConfigInternal(i, 0, 0, 0, 0);
   }
   PR5 = 0x0138;  // 5ms period = 200Hz
+//  PR5 = 0x0138 * 200;  // 5ms period = 200Hz
   TMR5 = 0x0000;
   _T5IP = 1;
   _T5IE = 1;
 }
 
-static void InCapConfigInternal(int incap_num, int double_prec, int mode, int clock, int external) {
-  volatile INCAP_REG* reg = incap_regs + incap_num;
-  volatile INCAP_REG* reg2 = reg + 1;
+static void InCapConfigInternal(int incap_num, int double_prec, int mode,
+                                int clock, int external) {
+  INCAP_REG* const reg = incap_regs + incap_num;
+  INCAP_REG* const reg2 = reg + 1;
   OUTGOING_MESSAGE msg;
   msg.type = INCAP_STATUS;
   msg.args.incap_status.incap_num = incap_num;
   if (external) {
-    log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode, clock);
+    log_printf("InCapConfig(%d, %d, %d, %d)", incap_num, double_prec, mode,
+               clock);
   }
   
   Set_ICIE[incap_num](0);  // disable interrupts
 
+  unsigned t5ie = _T5IE;
   _T5IE = 0;
   con1_vals[incap_num] = 0x0000;
   reg->con1 = 0x0000;      // disable module
@@ -97,14 +110,14 @@ static void InCapConfigInternal(int incap_num, int double_prec, int mode, int cl
     reg2->con1 = 0x0000;
     reg2->con2 = 0x0000;
   }
-  _T5IE = 1;
+  _T5IE = t5ie;
   Set_ICIF[incap_num](0);  // clear interrupts
 
-  // the ICM and ICI bits values to use, indexed by (mode - 1)
+  // Whether to flip, indexed by (mode - 1)
+  static const unsigned flips[] = { 1, 1, 0, 0, 0 };
+  // The ICM and ICI bits values to use, indexed by (mode - 1)
   static const unsigned int icm_ici[] = { 3, 2 , 3 | (1 << 5), 4 | (1 << 5), 5 | (1 << 5)};
-  // the initial edge state to use, indexed by (mode - 1)
-  static const EDGE_STATE initial_edge[] = { LEADING, LEADING, FREQ, FREQ, FREQ };
-  // the ICTSEL (clock select) bits values to use, indexed by clock
+  // The ICTSEL (clock select) bits values to use, indexed by clock
   static const unsigned int ictsel[] = { 7 << 10, 0 << 10, 2 << 10, 3 << 10};
 
   if (mode) {
@@ -112,16 +125,22 @@ static void InCapConfigInternal(int incap_num, int double_prec, int mode, int cl
       msg.args.incap_status.enabled = 1;
       AppProtocolSendMessage(&msg);
     }
-    EDGE_STATE edge = initial_edge[mode - 1];
-    edge_states[incap_num] = edge;
-    Set_ICIP[incap_num](edge == LEADING ? 6 : 1);
+    edge_states[incap_num] = LEADING;
+    flip[incap_num] = flips[mode - 1];
+    Set_ICIP[incap_num](6);
     Set_ICIE[incap_num](1); // enable interrupts
     if (double_prec) {
       reg2->con2 = (1 << 8);
       reg->con2 = (1 << 8);
+    }
+    unsigned t5ie = _T5IE;
+    _T5IE = 0;
+    if (double_prec) {
       con1_vals[incap_num + 1] = ictsel[clock] | icm_ici[mode - 1];
     }
     con1_vals[incap_num] = ictsel[clock] | icm_ici[mode - 1];
+    _T5IE = t5ie;
+    // The next T5 interrupt will enable the module.
   } else {
     if (external) {
       msg.args.incap_status.enabled = 0;
@@ -147,8 +166,8 @@ inline static int NumBytes32(DWORD val) {
 }
 
 inline static void ReportCapture(int incap_num, int double_prec) {
-  volatile INCAP_REG* reg = incap_regs + incap_num;
-  volatile INCAP_REG* reg2 = reg + 1;
+  INCAP_REG* const reg = incap_regs + incap_num;
+  INCAP_REG* const reg2 = reg + 1;
   int size;
   DWORD_VAL delta_time;
   OUTGOING_MESSAGE msg;
@@ -170,42 +189,40 @@ inline static void ReportCapture(int incap_num, int double_prec) {
   }
   msg.args.incap_report.size = size;
   AppProtocolSendMessageWithVarArg(&msg, &delta_time, size);
-  reg->con1 = 0x0000;  // disable module until next timer 5
-  if (double_prec) {
-    reg2->con1 = 0x0000;
-  }
-  Set_ICIF[incap_num](0);
 }
 
 inline static void FlipEdge(int incap_num, int double_prec) {
-  volatile INCAP_REG* reg = incap_regs + incap_num;
-  volatile INCAP_REG* reg2 = reg + 1;
-  con1_vals[incap_num] ^= 1;  // toggle bit 0 of con1: inverts edge polarity
-  reg->con1 = con1_vals[incap_num];
+  // Toggle bit 0 of con1: inverts edge polarity.
+  const unsigned f = flip[incap_num];
+  con1_vals[incap_num] ^= f;
   if (double_prec) {
-    con1_vals[incap_num + 1] ^= 1;  // toggle bit 0 of con1: inverts edge polarity
-    reg2->con1 = con1_vals[incap_num + 1];
+    con1_vals[incap_num + 1] ^= f;
   }
 }
 
 static void ICInterrupt(int incap_num) {
-  volatile INCAP_REG* reg = incap_regs + incap_num;
+  INCAP_REG* const reg = incap_regs + incap_num;
+  INCAP_REG* const reg2 = reg + 1;
   const int double_prec = reg->con2 & (1 << 8);
-  EDGE_STATE edge = edge_states[incap_num];
 
-  Set_ICIF[incap_num](0);
-  if (edge == LEADING) {
-    FlipEdge(incap_num, double_prec);
+  FlipEdge(incap_num, double_prec);
+  if (edge_states[incap_num] == LEADING) {
+    reg->con1 = con1_vals[incap_num];
+    if (double_prec) {
+      reg2->con1 = con1_vals[incap_num + 1];
+    }
     edge_states[incap_num] = TRAILING;
-    Set_ICIP[incap_num](1);
   } else {
     ReportCapture(incap_num, double_prec);
-    if (edge == TRAILING) {
-      FlipEdge(incap_num, double_prec);
-      edge_states[incap_num] = LEADING;
-      Set_ICIP[incap_num](6);
+    // Disable the module. T5 will enable it.
+    reg->con1 = 0x0000;
+    if (double_prec) {
+      reg2->con1 = 0x0000;
     }
+    edge_states[incap_num] = LEADING;
   }
+  Set_ICIF[incap_num](0);
+  Set_ICIP[incap_num](edge_states[incap_num] == LEADING ? 6 : 1);
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt() {
