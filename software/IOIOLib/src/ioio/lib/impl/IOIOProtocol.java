@@ -33,6 +33,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster.Rate;
 import ioio.lib.api.Uart;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,8 +41,6 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import android.util.Log;
 
 class IOIOProtocol {
 	static final int HARD_RESET                          = 0x00;
