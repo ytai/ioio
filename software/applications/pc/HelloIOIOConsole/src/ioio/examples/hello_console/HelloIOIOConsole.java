@@ -27,20 +27,15 @@ public class HelloIOIOConsole extends IOIOConsoleApp {
 		boolean abort = false;
 		String line;
 		while (!abort && (line = reader.readLine()) != null) {
-			switch (line) {
-			case "t":
+			if (line.equals("t")) {
 				ledOn_ = !ledOn_;
-				break;
-			case "n":
+			} else if (line.equals("n")) {
 				ledOn_ = true;
-				break;
-			case "f":
+			} else if (line.equals("f")) {
 				ledOn_ = false;
-				break;
-			case "q":
+			} else if (line.equals("q")) {
 				abort = true;
-				break;
-			default:
+			} else {
 				System.out
 						.println("Unknown input. t=toggle, n=on, f=off, q=quit.");
 			}
