@@ -52,7 +52,7 @@ public class SerialPortIOIOConnectionBootstrap implements
 		Collection<String> ports = getExplicitPorts();
 		if (ports == null) {
 			Log.w(TAG,
-					"gnu.io.SerialPorts not defined."
+					"ioio.SerialPorts not defined."
 							+ System.lineSeparator()
 							+ "Will attempt to enumerate all possible ports (slow) "
 							+ "and connect to a IOIO over each one."
