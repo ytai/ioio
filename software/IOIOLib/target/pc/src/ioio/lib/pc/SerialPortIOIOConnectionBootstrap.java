@@ -51,15 +51,12 @@ public class SerialPortIOIOConnectionBootstrap implements
 	public void getFactories(Collection<IOIOConnectionFactory> result) {
 		Collection<String> ports = getExplicitPorts();
 		if (ports == null) {
-			Log.w(TAG,
-					"ioio.SerialPorts not defined."
-							+ System.lineSeparator()
-							+ "Will attempt to enumerate all possible ports (slow) "
-							+ "and connect to a IOIO over each one."
-							+ System.lineSeparator()
-							+ "To fix, add the -Dioio.SerialPorts=xyz argument to "
-							+ "the java command line, where xyz is a colon-separated "
-							+ "list of port identifiers, e.g. COM1:COM2.");
+			Log.w(TAG, "ioio.SerialPorts not defined.\n"
+					+ "Will attempt to enumerate all possible ports (slow) "
+					+ "and connect to a IOIO over each one.\n"
+					+ "To fix, add the -Dioio.SerialPorts=xyz argument to "
+					+ "the java command line, where xyz is a colon-separated "
+					+ "list of port identifiers, e.g. COM1:COM2.");
 			ports = getAllOpenablePorts();
 		}
 		for (final String port : ports) {
