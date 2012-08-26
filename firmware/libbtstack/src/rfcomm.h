@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Matthias Ringwald
+ * Copyright (C) 2009-2012 by Matthias Ringwald
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,6 +13,9 @@
  * 3. Neither the name of the copyright holders nor the names of
  *    contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
+ * 4. Any redistribution, use, or modification is done solely for
+ *    personal benefit and not for any commercial purpose or for
+ *    monetary gain.
  *
  * THIS SOFTWARE IS PROVIDED BY MATTHIAS RINGWALD AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,6 +29,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * Please inquire about commercial licensing options at btstack@ringwald.ch
  *
  */
 
@@ -59,7 +64,7 @@ void rfcomm_unregister_service_internal(uint8_t service_channel);
 void rfcomm_accept_connection_internal(uint16_t rfcomm_cid);
 void rfcomm_decline_connection_internal(uint16_t rfcomm_cid);
 void rfcomm_grant_credits(uint16_t rfcomm_cid, uint8_t credits);
-int  rfcomm_send_internal(uint8_t rfcomm_cid, uint8_t *data, uint16_t len);
+int  rfcomm_send_internal(uint16_t rfcomm_cid, uint8_t *data, uint16_t len);
 int  rfcomm_can_send(uint8_t rfcomm_cid);
 void rfcomm_close_connection(void *connection);
 

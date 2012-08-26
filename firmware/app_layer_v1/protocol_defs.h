@@ -264,8 +264,8 @@ typedef struct PACKED {
 // i2c write read
 typedef struct PACKED {
   BYTE i2c_num : 2;
-  BYTE ten_bit_addr : 1;
   BYTE : 3;
+  BYTE ten_bit_addr : 1;
   BYTE addr_msb : 2;
   BYTE addr_lsb;
   BYTE write_size;

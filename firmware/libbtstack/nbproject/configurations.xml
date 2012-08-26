@@ -56,6 +56,7 @@
       <itemPath>src/sdp.c</itemPath>
       <itemPath>src/sdp_util.c</itemPath>
       <itemPath>src/utils.c</itemPath>
+      <itemPath>src/remote_device_db_memory.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

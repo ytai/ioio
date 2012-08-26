@@ -329,7 +329,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "MIRR0002";
+			return "MIRR0004";
 		}
 		return null;
 	}
