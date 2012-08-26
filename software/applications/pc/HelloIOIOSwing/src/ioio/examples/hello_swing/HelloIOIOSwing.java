@@ -81,10 +81,8 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		switch (event.getActionCommand()) {
-		case BUTTON_PRESSED:
+		if (event.getActionCommand().equals(BUTTON_PRESSED)) {
 			ledOn_ = ((JToggleButton) event.getSource()).isSelected();
-			break;
 		}
 	}
 }
