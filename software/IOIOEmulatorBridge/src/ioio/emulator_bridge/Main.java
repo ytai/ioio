@@ -21,6 +21,8 @@ public class Main {
 			IOException {
 		if (args.length != 1) {
 			System.err.println("Usage: java -jar bridge.jar <serial_port>");
+			System.err.println("Don't forget to first run:");
+			System.err.println("adb forward tcp:4545 tcp:4545");
 			System.exit(1);
 		}
 		final String portName = args[0];
