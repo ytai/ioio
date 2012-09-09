@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -59,23 +59,19 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
 			'I', 'O', '0', '0', '0', '3' };
 
-	private final IOIOConnection connection_;
-	private final IncomingState incomingState_ = new IncomingState();
-	private final boolean openPins_[] = new boolean[Constants.NUM_PINS];
-	private final boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
-	private boolean openIcsp_ = false;
-	private final ModuleAllocator pwmAllocator_ = new ModuleAllocator(
-			Constants.NUM_PWM_MODULES, "PWM");
-	private final ModuleAllocator uartAllocator_ = new ModuleAllocator(
-			Constants.NUM_UART_MODULES, "UART");
-	private final ModuleAllocator spiAllocator_ = new ModuleAllocator(
-			Constants.NUM_SPI_MODULES, "SPI");
-	private final ModuleAllocator incapAllocatorDouble_ = new ModuleAllocator(
-			Constants.INCAP_MODULES_DOUBLE, "INCAP_DOUBLE");
-	private final ModuleAllocator incapAllocatorSingle_ = new ModuleAllocator(
-			Constants.INCAP_MODULES_SINGLE, "INCAP_SINGLE");
+	private IOIOConnection connection_;
+	private IncomingState incomingState_ = new IncomingState();
+	private boolean openPins_[];
+	private boolean openTwi_[];
+	private boolean openIcsp_;
+	private ModuleAllocator pwmAllocator_;
+	private ModuleAllocator uartAllocator_;
+	private ModuleAllocator spiAllocator_;
+	private ModuleAllocator incapAllocatorDouble_;
+	private ModuleAllocator incapAllocatorSingle_;
 	IOIOProtocol protocol_;
 	private State state_ = State.INIT;
+	private Board.Hardware hardware_;
 
 	public IOIOImpl(IOIOConnection con) {
 		connection_ = con;
@@ -111,6 +107,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			}
 			Log.v(TAG, "Waiting for handshake");
 			incomingState_.waitConnectionEstablished();
+			initBoard();
 			Log.v(TAG, "Querying for required interface ID");
 			checkInterfaceVersion();
 			Log.v(TAG, "Required interface ID is supported");
@@ -119,6 +116,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		} catch (ConnectionLostException e) {
 			Log.d(TAG, "Connection lost / aborted");
 			state_ = State.DEAD;
+			throw e;
+		} catch (IncompatibilityException e) {
 			throw e;
 		} catch (InterruptedException e) {
 			Log.e(TAG, "Unexpected exception", e);
@@ -162,6 +161,24 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	@Override
 	public State getState() {
 		return state_;
+	}
+
+	private void initBoard() throws IncompatibilityException {
+		if (incomingState_.board_ == null) {
+			throw new IncompatibilityException("Unknown board: "
+					+ incomingState_.hardwareId_);
+		}
+		hardware_ = incomingState_.board_.hardware;
+		openPins_ = new boolean[hardware_.numPins()];
+		openTwi_ = new boolean[hardware_.numTwiModules()];
+		openIcsp_ = false;
+		pwmAllocator_ = new ModuleAllocator(hardware_.numPwmModules(), "PWM");
+		uartAllocator_ = new ModuleAllocator(hardware_.numUartModules(), "UART");
+		spiAllocator_ = new ModuleAllocator(hardware_.numSpiModules(), "SPI");
+		incapAllocatorDouble_ = new ModuleAllocator(
+				hardware_.incapDoubleModules(), "INCAP_DOUBLE");
+		incapAllocatorSingle_ = new ModuleAllocator(
+				hardware_.incapSingleModules(), "INCAP_SINGLE");
 	}
 
 	private void checkInterfaceVersion() throws IncompatibilityException,
@@ -229,8 +246,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				throw new IllegalStateException("TWI not open: " + twiNum);
 			}
 			openTwi_[twiNum] = false;
-			openPins_[Constants.TWI_PINS[twiNum][0]] = false;
-			openPins_[Constants.TWI_PINS[twiNum][1]] = false;
+			final int[][] twiPins = hardware_.twiPins();
+			openPins_[twiPins[twiNum][0]] = false;
+			openPins_[twiPins[twiNum][1]] = false;
 			protocol_.i2cClose(twiNum);
 		} catch (IOException e) {
 		} catch (ConnectionLostException e) {
@@ -244,8 +262,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				throw new IllegalStateException("ICSP not open");
 			}
 			openIcsp_ = false;
-			openPins_[Constants.ICSP_PINS[0]] = false;
-			openPins_[Constants.ICSP_PINS[1]] = false;
+			final int[] icspPins = hardware_.icspPins();
+			openPins_[icspPins[0]] = false;
+			openPins_[icspPins[1]] = false;
 			protocol_.icspClose();
 		} catch (ConnectionLostException e) {
 		} catch (IOException e) {
@@ -331,7 +350,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public DigitalInput openDigitalInput(DigitalInput.Spec spec)
 			throws ConnectionLostException {
 		checkState();
-		PinFunctionMap.checkValidPin(spec.pin);
+		hardware_.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalInputImpl result = new DigitalInputImpl(this, spec.pin);
 		addDisconnectListener(result);
@@ -359,7 +378,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			DigitalOutput.Spec spec, boolean startValue)
 			throws ConnectionLostException {
 		checkState();
-		PinFunctionMap.checkValidPin(spec.pin);
+		hardware_.checkValidPin(spec.pin);
 		checkPinFree(spec.pin);
 		DigitalOutputImpl result = new DigitalOutputImpl(this, spec.pin, startValue);
 		addDisconnectListener(result);
@@ -389,7 +408,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public AnalogInput openAnalogInput(int pin)
 			throws ConnectionLostException {
 		checkState();
-		PinFunctionMap.checkSupportsAnalogInput(pin);
+		hardware_.checkSupportsAnalogInput(pin);
 		checkPinFree(pin);
 		AnalogInputImpl result = new AnalogInputImpl(this, pin);
 		addDisconnectListener(result);
@@ -415,7 +434,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public PwmOutput openPwmOutput(DigitalOutput.Spec spec,
 			int freqHz) throws ConnectionLostException {
 		checkState();
-		PinFunctionMap.checkSupportsPeripheralOutput(spec.pin);
+		hardware_.checkSupportsPeripheralOutput(spec.pin);
 		checkPinFree(spec.pin);
 		int pwmNum = pwmAllocator_.allocateModule();
 
@@ -464,11 +483,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			Uart.StopBits stopbits) throws ConnectionLostException {
 		checkState();
 		if (rx != null) {
-			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
+			hardware_.checkSupportsPeripheralInput(rx.pin);
 			checkPinFree(rx.pin);
 		}
 		if (tx != null) {
-			PinFunctionMap.checkSupportsPeripheralOutput(tx.pin);
+			hardware_.checkSupportsPeripheralOutput(tx.pin);
 			checkPinFree(tx.pin);
 		}
 		int rxPin = rx != null ? rx.pin : INVALID_PIN;
@@ -507,10 +526,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			boolean smbus) throws ConnectionLostException {
 		checkState();
 		checkTwiFree(twiNum);
-		checkPinFree(Constants.TWI_PINS[twiNum][0]);
-		checkPinFree(Constants.TWI_PINS[twiNum][1]);
-		openPins_[Constants.TWI_PINS[twiNum][0]] = true;
-		openPins_[Constants.TWI_PINS[twiNum][1]] = true;
+		final int[][] twiPins = hardware_.twiPins();
+		checkPinFree(twiPins[twiNum][0]);
+		checkPinFree(twiPins[twiNum][1]);
+		openPins_[twiPins[twiNum][0]] = true;
+		openPins_[twiPins[twiNum][1]] = true;
 		openTwi_[twiNum] = true;
 		TwiMasterImpl twi = new TwiMasterImpl(this, twiNum);
 		addDisconnectListener(twi);
@@ -529,12 +549,13 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throws ConnectionLostException {
 		checkState();
 		checkIcspFree();
-		checkPinFree(Constants.ICSP_PINS[0]);
-		checkPinFree(Constants.ICSP_PINS[1]);
-		checkPinFree(Constants.ICSP_PINS[2]);
-		openPins_[Constants.ICSP_PINS[0]] = true;
-		openPins_[Constants.ICSP_PINS[1]] = true;
-		openPins_[Constants.ICSP_PINS[2]] = true;
+		final int[] icspPins = hardware_.icspPins();
+		checkPinFree(icspPins[0]);
+		checkPinFree(icspPins[1]);
+		checkPinFree(icspPins[2]);
+		openPins_[icspPins[0]] = true;
+		openPins_[icspPins[1]] = true;
+		openPins_[icspPins[2]] = true;
 		openIcsp_ = true;
 		IcspMasterImpl icsp = new IcspMasterImpl(this);
 		addDisconnectListener(icsp);
@@ -576,11 +597,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		checkState();
 		int ssPins[] = new int[slaveSelect.length];
 		checkPinFree(miso.pin);
-		PinFunctionMap.checkSupportsPeripheralInput(miso.pin);
+		hardware_.checkSupportsPeripheralInput(miso.pin);
 		checkPinFree(mosi.pin);
-		PinFunctionMap.checkSupportsPeripheralOutput(mosi.pin);
+		hardware_.checkSupportsPeripheralOutput(mosi.pin);
 		checkPinFree(clk.pin);
-		PinFunctionMap.checkSupportsPeripheralOutput(clk.pin);
+		hardware_.checkSupportsPeripheralOutput(clk.pin);
 		for (int i = 0; i < slaveSelect.length; ++i) {
 			checkPinFree(slaveSelect[i].pin);
 			ssPins[i] = slaveSelect[i].pin;
@@ -622,7 +643,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			boolean doublePrecision) throws ConnectionLostException {
 		checkState();
 		checkPinFree(spec.pin);
-		PinFunctionMap.checkSupportsPeripheralInput(spec.pin);
+		hardware_.checkSupportsPeripheralInput(spec.pin);
 		int incapNum = doublePrecision ? incapAllocatorDouble_.allocateModule()
 				: incapAllocatorSingle_.allocateModule();
 		IncapImpl incap = new IncapImpl(this, mode, incapNum, spec.pin,

@@ -29,6 +29,7 @@
 package ioio.lib.impl;
 
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.Board.Hardware;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 import ioio.lib.spi.Log;
 
@@ -39,6 +40,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class IncomingState implements IncomingHandler {
+	private static final String TAG = "IncomingState";
+
 	enum ConnectionState {
 		INIT, ESTABLISHED, CONNECTED, DISCONNECTED, UNSUPPORTED_IID
 	}
@@ -118,37 +121,18 @@ class IncomingState implements IncomingHandler {
 		}
 	}
 
-	private final InputPinState[] intputPinStates_ = new InputPinState[Constants.NUM_PINS];
-	private final DataModuleState[] uartStates_ = new DataModuleState[Constants.NUM_UART_MODULES];
-	private final DataModuleState[] twiStates_ = new DataModuleState[Constants.NUM_TWI_MODULES];
-	private final DataModuleState[] spiStates_ = new DataModuleState[Constants.NUM_SPI_MODULES];
-	private final DataModuleState[] incapStates_ = new DataModuleState[2
-			* Constants.INCAP_MODULES_DOUBLE.length
-			+ Constants.INCAP_MODULES_SINGLE.length];
-	private final DataModuleState icspState_ = new DataModuleState();
+	private InputPinState[] intputPinStates_;
+	private DataModuleState[] uartStates_;
+	private DataModuleState[] twiStates_;
+	private DataModuleState[] spiStates_;
+	private DataModuleState[] incapStates_;
+	private DataModuleState icspState_;
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
 	public String bootloaderId_;
 	public String firmwareId_;
-
-	public IncomingState() {
-		for (int i = 0; i < intputPinStates_.length; ++i) {
-			intputPinStates_[i] = new InputPinState();
-		}
-		for (int i = 0; i < uartStates_.length; ++i) {
-			uartStates_[i] = new DataModuleState();
-		}
-		for (int i = 0; i < twiStates_.length; ++i) {
-			twiStates_[i] = new DataModuleState();
-		}
-		for (int i = 0; i < spiStates_.length; ++i) {
-			spiStates_[i] = new DataModuleState();
-		}
-		for (int i = 0; i < incapStates_.length; ++i) {
-			incapStates_[i] = new DataModuleState();
-		}
-	}
+	public Board board_;
 
 	synchronized public void waitConnectionEstablished()
 			throws InterruptedException, ConnectionLostException {
@@ -349,9 +333,40 @@ class IncomingState implements IncomingHandler {
 		bootloaderId_ = new String(bootloaderId);
 		firmwareId_ = new String(firmwareId);
 
-		Log.i("IncomingState", "IOIO Connection established. Hardware ID: "
+		Log.i(TAG, "IOIO Connection established. Hardware ID: "
 				+ hardwareId_ + " Bootloader ID: " + bootloaderId_
 				+ " Firmware ID: " + firmwareId_);
+		try {
+			board_ = Board.valueOf(hardwareId_);
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "Unknown board: " + hardwareId_);
+		}
+		if (board_ != null) {
+			final Hardware hw = board_.hardware;
+			intputPinStates_ = new InputPinState[hw.numPins()];
+			for (int i = 0; i < intputPinStates_.length; ++i) {
+				intputPinStates_[i] = new InputPinState();
+			}
+			uartStates_ = new DataModuleState[hw.numUartModules()];
+			for (int i = 0; i < uartStates_.length; ++i) {
+				uartStates_[i] = new DataModuleState();
+			}
+			twiStates_ = new DataModuleState[hw.numTwiModules()];
+			for (int i = 0; i < twiStates_.length; ++i) {
+				twiStates_[i] = new DataModuleState();
+			}
+			spiStates_ = new DataModuleState[hw.numSpiModules()];
+			for (int i = 0; i < spiStates_.length; ++i) {
+				spiStates_[i] = new DataModuleState();
+			}
+			incapStates_ = new DataModuleState[2
+					* hw.incapDoubleModules().length
+					+ hw.incapSingleModules().length];
+			for (int i = 0; i < incapStates_.length; ++i) {
+				incapStates_[i] = new DataModuleState();
+			}
+			icspState_ = new DataModuleState();
+		}
 		synchronized (this) {
 			connection_ = ConnectionState.ESTABLISHED;
 			notifyAll();
