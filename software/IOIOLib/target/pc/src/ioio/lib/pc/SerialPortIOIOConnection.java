@@ -55,18 +55,20 @@ class SerialPortIOIOConnection implements IOIOConnection {
 	public void waitForConnect() throws ConnectionLostException {
 		while (!abort_) {
 			try {
+				CommPortIdentifier identifier = CommPortIdentifier
+						.getPortIdentifier(name_);
+				CommPort commPort = identifier.open(this.getClass()
+						.getName(), 1000);
 				synchronized (this) {
-					CommPortIdentifier identifier = CommPortIdentifier
-							.getPortIdentifier(name_);
-					CommPort commPort = identifier.open(this.getClass()
-							.getName(), 1000);
-					serialPort_ = (SerialPort) commPort;
-					serialPort_.enableReceiveThreshold(1);
-					serialPort_.setDTR(true);
-					Thread.sleep(100);
-					inputStream_ = serialPort_.getInputStream();
-					outputStream_ = serialPort_.getOutputStream();
-					return;
+					if (!abort_) {
+						serialPort_ = (SerialPort) commPort;
+						serialPort_.enableReceiveThreshold(1);
+						serialPort_.setDTR(true);
+						Thread.sleep(100);
+						inputStream_ = serialPort_.getInputStream();
+						outputStream_ = serialPort_.getOutputStream();
+						return;
+					}
 				}
 			} catch (NoSuchPortException e) {
 				try {
@@ -79,6 +81,7 @@ class SerialPortIOIOConnection implements IOIOConnection {
 				}
 			}
 		}
+		throw new ConnectionLostException();
 	}
 
 	@Override
