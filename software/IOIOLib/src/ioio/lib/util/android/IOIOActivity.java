@@ -35,6 +35,7 @@ import ioio.lib.util.IOIOLooperProvider;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * A convenience class for easy creation of IOIO-based activities.
@@ -74,6 +75,10 @@ public abstract class IOIOActivity extends Activity implements
 	private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(
 			this, this);
 
+
+    private static final String TAG = "IOIOActivity";
+    private static final boolean D = true;
+	
 	/**
 	 * Subclasses should call this method from their own onCreate() if
 	 * overloaded. It takes care of connecting with the IOIO.
@@ -90,29 +95,48 @@ public abstract class IOIOActivity extends Activity implements
 	 */
 	@Override
 	protected void onDestroy() {
-		helper_.destroy();
 		super.onDestroy();
+		helper_.destroy();
 	}
 
 	/**
 	 * Subclasses should call this method from their own onStart() if
 	 * overloaded. It takes care of connecting with the IOIO.
 	 */
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
+		//helper_.start();
+		if(D) Log.i(TAG, "++ ON START ++");
+	} 
+
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 		helper_.start();
+		if(D) Log.i(TAG, "+ ON RESUME +");
 	}
 
 	/**
 	 * Subclasses should call this method from their own onStop() if overloaded.
 	 * It takes care of disconnecting from the IOIO.
 	 */
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		helper_.stop();
+		if(D) Log.i(TAG, "- ON PAUSE -");
+	}
+	
 	@Override
 	protected void onStop() {
-		helper_.stop();
 		super.onStop();
-	}
+		//helper_.stop();
+		if(D) Log.i(TAG, "-- ON STOP --");
+	} 
 
 	@Override
 	protected void onNewIntent(Intent intent) {
