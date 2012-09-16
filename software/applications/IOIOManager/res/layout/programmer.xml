@@ -4,8 +4,8 @@
 	a:orientation="vertical">
 	<LinearLayout a:layout_width="fill_parent"
 		a:layout_height="wrap_content"
-		a:orientation="vertical" a:padding="10px" a:background="@drawable/border"
-		a:layout_margin="10px">
+		a:orientation="vertical" a:padding="10dp" a:background="@drawable/border"
+		a:layout_margin="10dp">
 		<LinearLayout a:layout_width="fill_parent"
 			a:layout_height="wrap_content">
 			<TextView a:textColor="@color/disabledText" a:text="@string/no_image_selected"
@@ -20,16 +20,16 @@
 	</LinearLayout>
 	<LinearLayout a:layout_width="fill_parent"
 		a:layout_height="wrap_content"
-		a:orientation="vertical" a:padding="10px" a:background="@drawable/border"
-		a:layout_margin="10px">
+		a:orientation="vertical" a:padding="10dp" a:background="@drawable/border"
+		a:layout_margin="10dp">
 		<LinearLayout a:layout_width="fill_parent"
 			a:layout_height="wrap_content"
-			a:gravity="center_vertical|center_horizontal" a:layout_margin="10px">
+			a:gravity="center_vertical|center_horizontal" a:layout_margin="10dp">
 			<Button a:layout_height="wrap_content" a:layout_width="wrap_content"
-				a:id="@+id/programButton" a:text="@string/program" a:width="80px"
+				a:id="@+id/programButton" a:text="@string/program"
 				a:enabled="false"></Button>
 			<Button a:layout_height="wrap_content" a:layout_width="wrap_content"
-				a:id="@+id/eraseButton" a:text="@string/erase" a:width="80px"
+				a:id="@+id/eraseButton" a:text="@string/erase"
 				a:enabled="false"></Button>
 		</LinearLayout>
 		<TextView a:layout_height="wrap_content" a:text="Programmer Status"
