@@ -35,6 +35,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <ul>
  * <li><a href="http://www.adafruit.com/products/420">Adafruit 32x16</a></li>
  * <li>SeeedStudio 32x32</li>
+ * <li>SeeedStudio 32x32 (NEW)</li>
  * <li>SeeedStudio 32x16</li>
  * </ul>
  * <p>
@@ -61,7 +62,8 @@ public interface RgbLedMatrix extends Closeable {
 	enum Matrix {
 		ADAFRUIT_32x16(32, 16),
 		SEEEDSTUDIO_32x16(32, 16),
-		SEEEDSTUDIO_32x32(32, 32);
+		SEEEDSTUDIO_32x32(32, 32),
+		SEEEDSTUDIO_32x32_NEW(32, 32);
 		
 		public final int width;
 		public final int height;

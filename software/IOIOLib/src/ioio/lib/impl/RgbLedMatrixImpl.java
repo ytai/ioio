@@ -65,6 +65,10 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 			convertSeeedStudio32x32(rgb565, frame_);
 			break;
 
+		case SEEEDSTUDIO_32x32_NEW:
+			convertSeeedStudio32x32New(rgb565, frame_);
+			break;
+
 		default:
 			throw new IllegalStateException("This format is not supported");
 		}
@@ -102,6 +106,32 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 					dest[outIndex++] = (byte) (r1 << 5 | g1 << 4 | b1 << 3
 							| r2 << 2 | g2 << 1 | b2 << 0);
 					++inIndex;
+				}
+			}
+		}
+	}
+
+	private static void convertSeeedStudio32x32New(short[] rgb565, byte[] dest) {
+		int outIndex = 0;
+		for (int subframe = 0; subframe < 3; ++subframe) {
+			for (int row = 0; row < 256; row += 32) {
+				for (int half = 0; half < 1024; half += 512) {
+					for (int col = 0; col < 32; ++col) {
+						final int inIndex = col + half + row;
+						int pixel1 = ((int) rgb565[inIndex]) & 0xFFFF;
+						int pixel2 = ((int) rgb565[inIndex + 256]) & 0xFFFF;
+
+						int r1 = (pixel1 >> (11 + 2 + subframe)) & 1;
+						int g1 = (pixel1 >> (5 + 3 + subframe)) & 1;
+						int b1 = (pixel1 >> (0 + 2 + subframe)) & 1;
+
+						int r2 = (pixel2 >> (11 + 2 + subframe)) & 1;
+						int g2 = (pixel2 >> (5 + 3 + subframe)) & 1;
+						int b2 = (pixel2 >> (0 + 2 + subframe)) & 1;
+
+						dest[outIndex++] = (byte) (r1 << 5 | g1 << 4 | b1 << 3
+								| r2 << 2 | g2 << 1 | b2 << 0);
+					}
 				}
 			}
 		}
@@ -185,6 +215,7 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 
 		case SEEEDSTUDIO_32x16:
 		case SEEEDSTUDIO_32x32:
+		case SEEEDSTUDIO_32x32_NEW:
 			return 2;
 
 		default:
@@ -199,6 +230,7 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 
 		case SEEEDSTUDIO_32x16:
 		case SEEEDSTUDIO_32x32:
+		case SEEEDSTUDIO_32x32_NEW:
 			return 1536;
 
 		default:
