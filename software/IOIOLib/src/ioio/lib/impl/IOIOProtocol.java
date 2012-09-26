@@ -454,40 +454,40 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	public void icspOpen() throws IOException {
+	synchronized public void icspOpen() throws IOException {
 		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x01);
 		endBatch();
 	}
 
-	public void icspClose() throws IOException {
+	synchronized public void icspClose() throws IOException {
 		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x00);
 		endBatch();
 	}
 
-	public void icspEnter() throws IOException {
+	synchronized public void icspEnter() throws IOException {
 		beginBatch();
 		writeByte(ICSP_PROG_ENTER);
 		endBatch();
 	}
 
-	public void icspExit() throws IOException {
+	synchronized public void icspExit() throws IOException {
 		beginBatch();
 		writeByte(ICSP_PROG_EXIT);
 		endBatch();
 	}
 
-	public void icspSix(int instruction) throws IOException {
+	synchronized public void icspSix(int instruction) throws IOException {
 		beginBatch();
 		writeByte(ICSP_SIX);
 		writeThreeBytes(instruction);
 		endBatch();
 	}
 
-	public void icspRegout() throws IOException {
+	synchronized public void icspRegout() throws IOException {
 		beginBatch();
 		writeByte(ICSP_REGOUT);
 		endBatch();
