@@ -456,53 +456,53 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	public void icspOpen() throws IOException {
+	synchronized public void icspOpen() throws IOException {
 		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x01);
 		endBatch();
 	}
 
-	public void icspClose() throws IOException {
+	synchronized public void icspClose() throws IOException {
 		beginBatch();
 		writeByte(ICSP_CONFIG);
 		writeByte(0x00);
 		endBatch();
 	}
 
-	public void icspEnter() throws IOException {
+	synchronized public void icspEnter() throws IOException {
 		beginBatch();
 		writeByte(ICSP_PROG_ENTER);
 		endBatch();
 	}
 
-	public void icspExit() throws IOException {
+	synchronized public void icspExit() throws IOException {
 		beginBatch();
 		writeByte(ICSP_PROG_EXIT);
 		endBatch();
 	}
 
-	public void icspSix(int instruction) throws IOException {
+	synchronized public void icspSix(int instruction) throws IOException {
 		beginBatch();
 		writeByte(ICSP_SIX);
 		writeThreeBytes(instruction);
 		endBatch();
 	}
 
-	public void icspRegout() throws IOException {
+	synchronized public void icspRegout() throws IOException {
 		beginBatch();
 		writeByte(ICSP_REGOUT);
 		endBatch();
 	}
 
-	public void rgbLedMatrixEnable(int shifterLen32) throws IOException {
+	synchronized public void rgbLedMatrixEnable(int shifterLen32) throws IOException {
 		beginBatch();
 		writeByte(RGB_LED_MATRIX_ENABLE);
 		writeByte(shifterLen32 & 0x07);
 		endBatch();
 	}
 
-	public void rgbLedMatrixFrame(byte[] data) throws IOException {
+	synchronized public void rgbLedMatrixFrame(byte[] data) throws IOException {
 		beginBatch();
 		writeByte(RGB_LED_MATRIX_FRAME);
 		for (int i = 0; i < data.length; ++i) {
