@@ -23,7 +23,7 @@ public class Album extends IOIOActivity {
 	// private static final String TAG = "Album";
 	
 	// TODO: change this on need or add a user-selectable option.
-	private static final RgbLedMatrix.Matrix KIND = Matrix.SEEEDSTUDIO_32x16;
+	private static final RgbLedMatrix.Matrix KIND = Matrix.SEEEDSTUDIO_32x32_NEW;
 
 	private int height_;
 	private int width_;
