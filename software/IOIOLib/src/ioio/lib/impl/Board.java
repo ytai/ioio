@@ -232,7 +232,7 @@ enum Board {
 
 		void checkSupportsAnalogInput(int pin) {
 			checkValidPin(pin);
-			if (map_[pin][Function.ANALOG_IN.ordinal()]) {
+			if (!map_[pin][Function.ANALOG_IN.ordinal()]) {
 				throw new IllegalArgumentException("Pin " + pin
 						+ " does not support analog input");
 			}
@@ -240,7 +240,7 @@ enum Board {
 
 		void checkSupportsPeripheralInput(int pin) {
 			checkValidPin(pin);
-			if (map_[pin][Function.PERIPHERAL_IN.ordinal()]) {
+			if (!map_[pin][Function.PERIPHERAL_IN.ordinal()]) {
 				throw new IllegalArgumentException("Pin " + pin
 						+ " does not support peripheral input");
 			}
@@ -248,7 +248,7 @@ enum Board {
 
 		void checkSupportsPeripheralOutput(int pin) {
 			checkValidPin(pin);
-			if (map_[pin][Function.PERIPHERAL_OUT.ordinal()]) {
+			if (!map_[pin][Function.PERIPHERAL_OUT.ordinal()]) {
 				throw new IllegalArgumentException("Pin " + pin
 						+ " does not support peripheral output");
 			}
