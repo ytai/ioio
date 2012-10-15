@@ -15,4 +15,5 @@ for PROJ in $PROJECTS; do
   echo ===========================================
   $MAKE -C firmware/$PROJ "$@" || success=fail
 done
+$success && echo Success || echo Failed
 $success
