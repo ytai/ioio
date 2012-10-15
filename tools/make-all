@@ -4,6 +4,6 @@ for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
-  colormake -C firmware/$PROJ $*
+  make -C firmware/$PROJ $*
 done
 
