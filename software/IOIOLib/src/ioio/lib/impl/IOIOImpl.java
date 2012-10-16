@@ -463,6 +463,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public Uart openUart(DigitalInput.Spec rx,
 			DigitalOutput.Spec tx, int baud, Uart.Parity parity,
 			Uart.StopBits stopbits) throws ConnectionLostException {
+		// TODO(dchristian): add flow
 		checkState();
 		if (rx != null) {
 			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
@@ -482,12 +483,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			if (rx != null) {
 				openPins_[rx.pin] = true;
 				protocol_.setPinDigitalIn(rx.pin, rx.mode);
-				protocol_.setPinUart(rx.pin, uartNum, false, true);
+				protocol_.setPinUart(rx.pin, uartNum, false, false, true);
 			}
 			if (tx != null) {
 				openPins_[tx.pin] = true;
 				protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
-				protocol_.setPinUart(tx.pin, uartNum, true, true);
+				protocol_.setPinUart(tx.pin, uartNum, true, false, true);
 			}
 			boolean speed4x = true;
 			int rate = Math.round(4000000.0f / baud) - 1;
