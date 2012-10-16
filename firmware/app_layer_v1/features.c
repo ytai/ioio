@@ -57,7 +57,10 @@ static void PinsInit() {
     SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
   }
   for (i = 0; i < NUM_UART_MODULES; ++i) {
-    SetPinUart(0, i, 0, 0);  // UART RX disabled
+    SetPinUart(0, i, 0, 0, 0);  // UART RX disabled
+    // Why isn't TX reset?
+    SetPinUart(0, i, 0, 1, 0);  // UART RTS disabled
+    SetPinUart(0, i, 1, 1, 0);  // UART CTS disabled
   }
   // clear and enable global CN interrupts
   _CNIF = 0;
@@ -110,33 +113,60 @@ void SetPinPwm(int pin, int pwm_num, int enable) {
   PinSetRpor(pin, enable ? (pwm_num == 8 ? 35 : 18 + pwm_num) : 0);
 }
 
-void SetPinUart(int pin, int uart_num, int dir, int enable) {
-  log_printf("SetPinUart(%d, %d, %d, %d)", pin, uart_num, dir, enable);
+void SetPinUart(int pin, int uart_num, int dir, int flow, int enable) {
+  // TODO(dchristian): add flow
+  log_printf("SetPinUart(%d, %d, %d, %d, %d)", pin, uart_num, dir, flow, enable);
   SAVE_PIN_FOR_LOG(pin);
   SAVE_UART_FOR_LOG(uart_num);
-  if (dir) {
-    // TX
-    const BYTE rp[] = { 3, 5, 28, 30 };
-    PinSetRpor(pin, enable ? rp[uart_num] : 0);
+  if (!flow) {
+    if (dir) {
+      // TX
+      const BYTE rp[] = { 3, 5, 28, 30 };
+      PinSetRpor(pin, enable ? rp[uart_num] : 0);
+    } else {
+      // RX
+      int rpin = enable ? PinToRpin(pin) : 0x3F;
+      switch (uart_num) {
+        case 0:
+          _U1RXR = rpin;
+          break;
+
+        case 1:
+          _U2RXR = rpin;
+          break;
+
+        case 2:
+          _U3RXR = rpin;
+          break;
+
+        case 3:
+          _U4RXR = rpin;
+          break;
+      }
+    }
   } else {
-    // RX
-    int rpin = enable ? PinToRpin(pin) : 0x3F;
-    switch (uart_num) {
-      case 0:
-        _U1RXR = rpin;
-        break;
+    if (dir) {  // CTS
+      int rpin = enable ? PinToRpin(pin) : 0x3F;
+      switch (uart_num) {
+        case 0:
+          _U1CTSR = rpin;
+          break;
 
-      case 1:
-        _U2RXR = rpin;
-        break;
+        case 1:
+          _U2CTSR = rpin;
+          break;
 
-      case 2:
-        _U3RXR = rpin;
-        break;
+        case 2:
+          _U3CTSR = rpin;
+          break;
 
-      case 3:
-        _U4RXR = rpin;
-        break;
+        case 3:
+          _U4CTSR = rpin;
+          break;
+      }
+    } else {    // RTS output
+      const BYTE rp[] = { 4, 6, 29, 31 };
+      PinSetRpor(pin, enable ? rp[uart_num] : 0);
     }
   }
 }

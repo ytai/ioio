@@ -64,12 +64,13 @@ DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIE)
 DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIF)
 DEFINE_REG_SETTERS_1B(NUM_UART_MODULES, _U, TXIP)
 
-static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity, int external);
+static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity,
+                               int flow_mode, int external);
 
 void UARTInit() {
   int i;
   for (i = 0; i < NUM_UART_MODULES; ++i) {
-    UARTConfigInternal(i, 0, 0, 0, 0, 0);
+    UARTConfigInternal(i, 0, 0, 0, 0, 0, 0);
     Set_URXIP[i](4);  // RX int. priority 4
     Set_UTXIP[i](4);  // TX int. priority 4
   }
@@ -83,12 +84,15 @@ static inline void UARTSendStatus(int uart_num, int enabled) {
   AppProtocolSendMessage(&msg);
 }
 
-static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity, int external) {
+static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity,
+                               int flow_mode, int external) {
+  // TODO(dchristian): add flow
   volatile UART* regs = uart_reg[uart_num];
   UART_STATE* uart = &uarts[uart_num];
+  const int flow_map[] = {0x0000, 0x1000, 0x0200, 0x0a00};  // none, irda, rtscts, rs485/simplex
   if (external) {
-    log_printf("UARTConfig(%d, %d, %d, %d, %d)", uart_num, rate, speed4x,
-               two_stop_bits, parity);
+    log_printf("UARTConfig(%d, %d, %d, %d, %d, %d)", uart_num, rate, speed4x,
+               two_stop_bits, parity, flow);
   }
   SAVE_UART_FOR_LOG(uart_num);
   Set_URXIE[uart_num](0);  // disable RX int.
@@ -106,7 +110,8 @@ static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop
     Set_URXIF[uart_num](0);  // clear RX int.
     Set_UTXIF[uart_num](0);  // clear TX int.
     Set_URXIE[uart_num](1);  // enable RX int.
-    regs->uxmode = 0x8000 | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
+    regs->uxmode = 0x8000 | flow_map[flow_mode & 0x3] \
+        | (speed4x ? 0x0008 : 0x0000) | two_stop_bits | (parity << 1);  // enable
     regs->uxsta = 0x8400;  // IRQ when TX buffer is empty, enable TX, IRQ when character received.
     uart->num_tx_since_last_report = TX_BUF_SIZE;
   } else {
@@ -116,8 +121,8 @@ static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop
   }
 }
 
-void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity) {
-  UARTConfigInternal(uart_num, rate, speed4x, two_stop_bits, parity, 1);
+void UARTConfig(int uart_num, int rate, int speed4x, int two_stop_bits, int parity, int flow_mode) {
+  UARTConfigInternal(uart_num, rate, speed4x, two_stop_bits, parity, flow_mode, 1);
 }
 
 
@@ -225,4 +230,3 @@ void UARTTransmit(int uart_num, const void* data, int size) {
 #if NUM_UART_MODULES >= 4
   DEFINE_INTERRUPT_HANDLERS(4)
 #endif
-
