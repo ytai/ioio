@@ -91,6 +91,18 @@ public interface Uart extends Closeable {
 		TWO
 	}
 
+	enum FlowMode {
+		/** No flow control. */
+		FLOW_NONE,
+		/** Use RTS/CTS flow control. */
+        FLOW_RTSCTS,
+		/** Raise RTS when transmitting (for RS-485 transmit enable).
+            Note that CTS should be connected to RTS. */
+		FLOW_RS485,
+		/** Use IRDA encode/decode and no flow control. */
+		FLOW_IRDA,
+	}
+
 	/**
 	 * Gets the input stream.
 	 * 

@@ -381,12 +381,13 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void setPinUart(int pin, int uartNum, boolean tx,
+	synchronized public void setPinUart(int pin, int uartNum, boolean tx, boolean flow,
 			boolean enable) throws IOException {
 		beginBatch();
 		writeByte(SET_PIN_UART);
 		writeByte(pin);
-		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | uartNum);
+                // if flow && tx: set CTS.  if flow && !tx: set RTS
+		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | (flow ? 0x20 : 0x00) | uartNum);
 		endBatch();
 	}
 
