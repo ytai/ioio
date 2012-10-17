@@ -94,7 +94,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -266,7 +266,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -376,7 +376,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -384,6 +384,21 @@
           </linkerLibItems>
         </linkerTool>
         <loading>
+          <makeArtifact PL="../bootloader"
+                        CT="1"
+                        CN="SPRK0016"
+                        AC="true"
+                        BL="true"
+                        WD="../bootloader"
+                        BC="${MAKE}  -f Makefile CONF=SPRK0016"
+                        DBC="${MAKE}  -f Makefile CONF=SPRK0016 TYPE_IMAGE=DEBUG_RUN"
+                        CC="rm -rf &quot;build/SPRK0016&quot; &quot;dist/SPRK0016&quot;"
+                        OP="dist/SPRK0016/production/bootloader.production.hex"
+                        DOP="dist/SPRK0016/debug/bootloader.debug.cof"
+                        FL="dist/SPRK0016/production/bootloader.production.hex"
+                        PD="dist/SPRK0016/production/bootloader.production.cof"
+                        DD="dist/SPRK0016/debug/bootloader.debug.cof">
+          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
@@ -417,7 +432,7 @@
         <property key="optimization-level" value="3"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG"/>
+        <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG;ENABLE_LOGGING"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
