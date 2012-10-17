@@ -258,11 +258,12 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void incapClose(int incapNum) throws IOException {
+	synchronized public void incapClose(int incapNum, boolean double_prec)
+			throws IOException {
 		beginBatch();
 		writeByte(INCAP_CONFIGURE);
 		writeByte(incapNum);
-		writeByte(0x00);
+		writeByte(double_prec ? 0x80 : 0x00);
 		endBatch();
 	}
 

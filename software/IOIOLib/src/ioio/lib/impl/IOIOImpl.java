@@ -271,7 +271,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			} else {
 				incapAllocatorSingle_.releaseModule(incapNum);
 			}
-			protocol_.incapClose(incapNum);
+			protocol_.incapClose(incapNum, doublePrecision);
 		} catch (IOException e) {
 		} catch (ConnectionLostException e) {
 		}
