@@ -154,8 +154,8 @@ enum Board {
 				new int[] { 36, 37, 38 });
 
 		private enum Function {
-			PERIPHERAL_IN,
 			PERIPHERAL_OUT,
+			PERIPHERAL_IN,
 			ANALOG_IN
 		}
 
@@ -170,7 +170,7 @@ enum Board {
 
 		private Hardware(boolean[][] map, int numPwmModules,
 				int numUartModules, int numSpiModules,
-				int[] incapSingleModules, int[] incapDoubleModules,
+				int[] incapDoubleModules, int[] incapSingleModules,
 				int[][] twiPins, int[] icspPins) {
 			if (map == null)
 				throw new IllegalArgumentException("WTF");
