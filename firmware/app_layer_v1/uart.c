@@ -92,7 +92,7 @@ static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop
   const int flow_map[] = {0x0000, 0x1000, 0x0200, 0x0a00};  // none, irda, rtscts, rs485/simplex
   if (external) {
     log_printf("UARTConfig(%d, %d, %d, %d, %d, %d)", uart_num, rate, speed4x,
-               two_stop_bits, parity, flow);
+               two_stop_bits, parity, flow_mode);
   }
   SAVE_UART_FOR_LOG(uart_num);
   Set_URXIE[uart_num](0);  // disable RX int.
