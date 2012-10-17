@@ -9,7 +9,9 @@
             <cpp-extensions/>
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
-            <make-dep-projects/>
+            <make-dep-projects>
+                <make-dep-project>../bootloader</make-dep-project>
+            </make-dep-projects>
         </data>
     </configuration>
 </project>
