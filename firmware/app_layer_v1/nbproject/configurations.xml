@@ -82,6 +82,7 @@
       <itemPath>../blapi/app_IOIO0021.gld</itemPath>
       <itemPath>../blapi/app_IOIO0022.gld</itemPath>
       <itemPath>../blapi/app_IOIO0023.gld</itemPath>
+      <itemPath>../blapi/app_IOIO0030.gld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -91,6 +92,7 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
@@ -263,6 +265,7 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
@@ -373,6 +376,7 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256DA206</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
@@ -481,11 +485,12 @@
     <conf name="IOIO0030" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256DA206</targetDevice>
+        <targetDevice>PIC24FJ256GB206</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -559,7 +564,7 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories"
-                  value="../libconn/dist/PIC24FJ256DA206/production;../libadb/dist/PIC24FJ256DA206/production;../libbtstack/dist/PIC24FJ256DA206/production;../libusb/dist/PIC24FJ256DA206_OTG/production"/>
+                  value="../libconn/dist/PIC24FJ256GB206/production;../libadb/dist/PIC24FJ256GB206/production;../libbtstack/dist/PIC24FJ256GB206/production;../libusb/dist/PIC24FJ256GB206_OTG/production"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
@@ -578,7 +583,7 @@
         <property key="symbol-stripping" value="keep-all"/>
         <property key="trace-symbols" value=""/>
         <property key="warn-section-align" value="false"/>
-        <appendMe value="-T../blapi/app_IOIO0023.gld"/>
+        <appendMe value="-T../blapi/app_IOIO0030.gld"/>
       </C30-LD>
       <C30Global>
         <property key="fast-math" value="false"/>

@@ -100,8 +100,8 @@
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
 #elif HARDWARE == HARDWARE_IOIO0004
-  #ifndef __PIC24FJ256DA206__
-    #error Platform and MCU mismatch - expecting PIC24FJ256DA206
+  #ifndef __PIC24FJ256GB206__
+    #error Platform and MCU mismatch - expecting PIC24FJ256GB206
   #endif
 #else
   #error Unknown platform
@@ -131,7 +131,7 @@
   #error Unknown hardware
 #endif
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
+#if defined(__PIC24FJ256GB206__) || defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   #define NUM_PWM_MODULES 9
   #define NUM_UART_MODULES 4
   #define NUM_SPI_MODULES 3

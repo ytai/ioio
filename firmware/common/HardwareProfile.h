@@ -30,7 +30,7 @@
 #ifndef _HARDWAREPROFILE_H_
 #define _HARDWAREPROFILE_H_
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__) || defined(__PIC24FJ256GB206__)
   #include <p24Fxxxx.h>
   // Various clock values
   #define GetSystemClock()            32000000UL

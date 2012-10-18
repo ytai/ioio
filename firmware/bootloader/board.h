@@ -60,9 +60,13 @@
   #ifndef __PIC24FJ128DA206__
     #error Board and MCU mismatch - expecting PIC24FJ128DA206
   #endif
-#elif BOARD_VER == BOARD_SPRK0016 || BOARD_VER == BOARD_SPRK0020
+#elif BOARD_VER == BOARD_SPRK0016
   #ifndef __PIC24FJ256DA206__
     #error Board and MCU mismatch - expecting PIC24FJ256DA206
+  #endif
+#elif BOARD_VER == BOARD_SPRK0020
+  #ifndef __PIC24FJ256GB206__
+    #error Board and MCU mismatch - expecting PIC24FJ256GB206
   #endif
 #elif BOARD_VER == BOARD_MINT0010
   #ifndef __PIC24FJ256DA206__
@@ -98,7 +102,7 @@
 #endif
 
 // This point to the beginning of the config word page, not writable by the app.
-#if defined(__PIC24FJ256DA206__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ256GB206__)
   #define APP_PROGSPACE_END 0x2A800
 #elif defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   #define APP_PROGSPACE_END 0x15400

@@ -66,7 +66,7 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
+#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ256GB206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   _CONFIG1(FWDTEN_OFF & ICS_PGx1 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
   _CONFIG2(POSCMOD_NONE & IOL1WAY_ON & OSCIOFNC_ON & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
   _CONFIG3(WPDIS_WPEN & WPFP_WPFP19 & WPCFG_WPCFGEN & WPEND_WPSTARTMEM & SOSCSEL_EC)
