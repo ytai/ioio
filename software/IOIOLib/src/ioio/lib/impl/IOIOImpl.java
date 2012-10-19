@@ -504,15 +504,16 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		addDisconnectListener(uart);
 		incomingState_.addUartListener(uartNum, uart);
 		try {
+		  // For compatibility, set RTS/CTS first.  TX/RX will override if not supported.
 			if (rts != null) {
 				openPins_[rts.pin] = true;
 				protocol_.setPinDigitalOut(rts.pin, false, rts.mode);
-				protocol_.setPinUart(rts.pin, uartNum, false, true, true);
+				protocol_.setPinUart(rts.pin, uartNum, true, true, true);
 			}
 			if (cts != null) {
 				openPins_[cts.pin] = true;
 				protocol_.setPinDigitalIn(cts.pin, cts.mode);
-				protocol_.setPinUart(cts.pin, uartNum, true, true, true);
+				protocol_.setPinUart(cts.pin, uartNum, false, true, true);
 			}
             if (rx != null) {
               openPins_[rx.pin] = true;
