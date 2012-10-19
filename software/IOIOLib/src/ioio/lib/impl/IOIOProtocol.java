@@ -387,7 +387,7 @@ class IOIOProtocol {
 		beginBatch();
 		writeByte(SET_PIN_UART);
 		writeByte(pin);
-                // if flow && tx: set CTS.  if flow && !tx: set RTS
+                // if flow && tx: set RTS.  if flow && !tx: set CTS
 		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | (flow ? 0x20 : 0x00) | uartNum);
 		endBatch();
 	}

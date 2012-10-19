@@ -59,8 +59,8 @@ static void PinsInit() {
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     SetPinUart(0, i, 0, 0, 0);  // UART RX disabled
     // Why isn't TX reset?
-    SetPinUart(0, i, 0, 1, 0);  // UART RTS disabled
-    SetPinUart(0, i, 1, 1, 0);  // UART CTS disabled
+    SetPinUart(0, i, 0, 1, 0);  // UART CTS disabled
+    SetPinUart(0, i, 1, 1, 0);  // UART RTS disabled
   }
   // clear and enable global CN interrupts
   _CNIF = 0;
@@ -144,7 +144,10 @@ void SetPinUart(int pin, int uart_num, int dir, int flow, int enable) {
       }
     }
   } else {
-    if (dir) {  // CTS
+    if (dir) {  // RTS output
+      const BYTE rp[] = { 4, 6, 29, 31 };
+      PinSetRpor(pin, enable ? rp[uart_num] : 0);
+    } else {    // CTS input
       int rpin = enable ? PinToRpin(pin) : 0x3F;
       switch (uart_num) {
         case 0:
@@ -163,9 +166,6 @@ void SetPinUart(int pin, int uart_num, int dir, int flow, int enable) {
           _U4CTSR = rpin;
           break;
       }
-    } else {    // RTS output
-      const BYTE rp[] = { 4, 6, 29, 31 };
-      PinSetRpor(pin, enable ? rp[uart_num] : 0);
     }
   }
 }
