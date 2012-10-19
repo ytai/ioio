@@ -496,7 +496,8 @@ public interface IOIO {
 	 * @see Uart
 	 */
 	public Uart openUart(DigitalInput.Spec rx, DigitalOutput.Spec tx, int baud,
-			Parity parity, StopBits stopbits) throws ConnectionLostException;
+			Parity parity, StopBits stopbits, Uart.FlowMode mode, DigitalOutput.Spec rts, 
+            DigitalInput.Spec cts) throws ConnectionLostException;
 
 	/**
 	 * Shorthand for
@@ -510,6 +511,19 @@ public interface IOIO {
 	public Uart openUart(int rx, int tx, int baud, Parity parity,
 			StopBits stopbits) throws ConnectionLostException;
 
+    /**
+     * Shorthand for
+     * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)}
+     * , where the input pins use their default specs. {@link #INVALID_PIN} can
+     * be used on either pin if a TX- or RX-only UART is needed.
+     * 
+     * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
+     *      Uart.StopBits)
+     */
+    public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
+        Uart.StopBits stopbits, Uart.FlowMode mode, int rts, 
+        int cts) throws ConnectionLostException;
+        
 	/**
 	 * Open a SPI master module, enabling communication with multiple
 	 * SPI-enabled slave modules.

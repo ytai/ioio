@@ -456,14 +456,26 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			Uart.StopBits stopbits) throws ConnectionLostException {
 		return openUart(rx == INVALID_PIN ? null : new DigitalInput.Spec(rx),
 				tx == INVALID_PIN ? null : new DigitalOutput.Spec(tx), baud,
-				parity, stopbits);
+				parity, stopbits, Uart.FlowMode.FLOW_NONE, null, null);
 	}
 
 	@Override
+	public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
+	    Uart.StopBits stopbits, Uart.FlowMode mode, int rts, 
+	    int cts) throws ConnectionLostException {
+	  return openUart(rx == INVALID_PIN ? null : new DigitalInput.Spec(rx),
+	      tx == INVALID_PIN ? null : new DigitalOutput.Spec(tx), baud,
+	      parity, stopbits, mode, 
+	      rts == INVALID_PIN ? null : new DigitalOutput.Spec(rts), 
+	      cts == INVALID_PIN ? null : new DigitalInput.Spec(cts));
+	 }
+	   
+	@Override
 	synchronized public Uart openUart(DigitalInput.Spec rx,
 			DigitalOutput.Spec tx, int baud, Uart.Parity parity,
-			Uart.StopBits stopbits) throws ConnectionLostException {
-		// TODO(dchristian): add flow
+			Uart.StopBits stopbits, Uart.FlowMode mode, DigitalOutput.Spec rts, 
+	        DigitalInput.Spec cts) throws ConnectionLostException {
+		// TODO(dchristian): make sure rts and cts are valid if flow is used
 		checkState();
 		if (rx != null) {
 			PinFunctionMap.checkSupportsPeripheralInput(rx.pin);
@@ -473,30 +485,53 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			PinFunctionMap.checkSupportsPeripheralOutput(tx.pin);
 			checkPinFree(tx.pin);
 		}
+        if (rts != null) {
+          PinFunctionMap.checkSupportsPeripheralOutput(rts.pin);
+          checkPinFree(rts.pin);
+        }
+        if (cts != null) {
+          PinFunctionMap.checkSupportsPeripheralInput(cts.pin);
+          checkPinFree(cts.pin);
+        }
+
 		int rxPin = rx != null ? rx.pin : INVALID_PIN;
 		int txPin = tx != null ? tx.pin : INVALID_PIN;
-		int uartNum = uartAllocator_.allocateModule();
-		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum);
+        int rtsPin = rts != null ? rts.pin : INVALID_PIN;
+        int ctsPin = cts != null ? cts.pin : INVALID_PIN;
+        int uartNum = uartAllocator_.allocateModule();
+		UartImpl uart = new UartImpl(this, txPin, rxPin, uartNum, 
+		    mode, rtsPin, ctsPin);
 		addDisconnectListener(uart);
 		incomingState_.addUartListener(uartNum, uart);
 		try {
-			if (rx != null) {
-				openPins_[rx.pin] = true;
-				protocol_.setPinDigitalIn(rx.pin, rx.mode);
-				protocol_.setPinUart(rx.pin, uartNum, false, false, true);
+			if (rts != null) {
+				openPins_[rts.pin] = true;
+				protocol_.setPinDigitalOut(rts.pin, false, rts.mode);
+				protocol_.setPinUart(rts.pin, uartNum, false, true, true);
 			}
-			if (tx != null) {
-				openPins_[tx.pin] = true;
-				protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
-				protocol_.setPinUart(tx.pin, uartNum, true, false, true);
+			if (cts != null) {
+				openPins_[cts.pin] = true;
+				protocol_.setPinDigitalIn(cts.pin, cts.mode);
+				protocol_.setPinUart(cts.pin, uartNum, true, true, true);
 			}
+            if (rx != null) {
+              openPins_[rx.pin] = true;
+              protocol_.setPinDigitalIn(rx.pin, rx.mode);
+              protocol_.setPinUart(rx.pin, uartNum, false, false, true);
+            }
+            if (tx != null) {
+              openPins_[tx.pin] = true;
+              protocol_.setPinDigitalOut(tx.pin, true, tx.mode);
+              protocol_.setPinUart(tx.pin, uartNum, true, false, true);
+            }
 			boolean speed4x = true;
 			int rate = Math.round(4000000.0f / baud) - 1;
-			if (rate > 65535) {
+			if ((rate > 65535) || (mode == Uart.FlowMode.FLOW_IRDA)) {
 				speed4x = false;
 				rate = Math.round(1000000.0f / baud) - 1;
 			}
-			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits, parity);
+			protocol_.uartConfigure(uartNum, rate, speed4x, stopbits, parity,
+			    mode);
 		} catch (IOException e) {
 			uart.close();
 			throw new ConnectionLostException(e);

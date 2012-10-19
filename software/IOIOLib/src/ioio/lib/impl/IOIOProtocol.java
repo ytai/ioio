@@ -361,13 +361,14 @@ class IOIOProtocol {
 	}
 
 	synchronized public void uartConfigure(int uartNum, int rate,
-			boolean speed4x, Uart.StopBits stopbits, Uart.Parity parity)
+			boolean speed4x, Uart.StopBits stopbits, Uart.Parity parity, Uart.FlowMode mode)
 			throws IOException {
 		int parbits = parity == Uart.Parity.EVEN ? 1
 				: (parity == Uart.Parity.ODD ? 2 : 0);
+		int modebits = mode.ordinal();
 		beginBatch();
 		writeByte(UART_CONFIG);
-		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
+		writeByte((uartNum << 6) | (modebits << 4) | (speed4x ? 0x08 : 0x00)
 				| (stopbits == Uart.StopBits.TWO ? 0x04 : 0x00) | parbits);
 		writeTwoBytes(rate);
 		endBatch();
