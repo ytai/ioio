@@ -365,7 +365,7 @@ class IOIOProtocol {
 			throws IOException {
 		int parbits = parity == Uart.Parity.EVEN ? 1
 				: (parity == Uart.Parity.ODD ? 2 : 0);
-		int modebits = mode.ordinal();
+		int modebits = mode.ordinal() & 0x3;
 		beginBatch();
 		writeByte(UART_CONFIG);
 		writeByte((uartNum << 6) | (modebits << 4) | (speed4x ? 0x08 : 0x00)
