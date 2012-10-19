@@ -114,7 +114,6 @@ void SetPinPwm(int pin, int pwm_num, int enable) {
 }
 
 void SetPinUart(int pin, int uart_num, int dir, int flow, int enable) {
-  // TODO(dchristian): add flow
   log_printf("SetPinUart(%d, %d, %d, %d, %d)", pin, uart_num, dir, flow, enable);
   SAVE_PIN_FOR_LOG(pin);
   SAVE_UART_FOR_LOG(uart_num);

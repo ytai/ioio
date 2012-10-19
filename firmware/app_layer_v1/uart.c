@@ -86,10 +86,10 @@ static inline void UARTSendStatus(int uart_num, int enabled) {
 
 static void UARTConfigInternal(int uart_num, int rate, int speed4x, int two_stop_bits, int parity,
                                int flow_mode, int external) {
-  // TODO(dchristian): add flow
   volatile UART* regs = uart_reg[uart_num];
   UART_STATE* uart = &uarts[uart_num];
-  const int flow_map[] = {0x0000, 0x1000, 0x0200, 0x0a00};  // none, irda, rtscts, rs485/simplex
+  // for irda, idle state is 0 for both RX and TX (i.e. for TFBS4711)
+  const int flow_map[] = {0x0000, 0x1010, 0x0200, 0x0a00};  // none, irda, rtscts, rs485/simplex
   if (external) {
     log_printf("UARTConfig(%d, %d, %d, %d, %d, %d)", uart_num, rate, speed4x,
                two_stop_bits, parity, flow_mode);
