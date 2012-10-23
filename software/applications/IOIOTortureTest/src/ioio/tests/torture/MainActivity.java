@@ -42,7 +42,7 @@ public class MainActivity extends IOIOActivity {
 			Log.i(TAG, "IOIO disconnected, killing workers");
 			for (int i = 0; i < workers_.length; ++i) {
 				if (workers_[i] != null) {
-					workers_[i].interrupt();
+					workers_[i].abort();
 				}
 			}
 			try {

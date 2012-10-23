@@ -21,7 +21,7 @@ public class AnalogInputTest implements Test<Boolean> {
 	}
 
 	@Override
-	public Boolean run() throws ConnectionLostException {
+	public Boolean run() throws ConnectionLostException, InterruptedException {
 		Log.i("IOIOTortureTest", "Starting AnalogInputTest on pins: " + pin1_
 				+ ", " + pin2_);
 		try {
@@ -39,9 +39,10 @@ public class AnalogInputTest implements Test<Boolean> {
 		return true;
 	}
 	
-	private boolean runTest(int inPin, int outPin) throws ConnectionLostException {
 		AnalogInput in = ioio_.openAnalogInput(inPin);
 		DigitalOutput out = ioio_.openDigitalOutput(outPin);
+	private boolean runTest(int inPin, int outPin)
+			throws ConnectionLostException, InterruptedException {
 		try {
 			boolean value = false;
 			for (int i = 0; i < 10; ++i) {
@@ -54,7 +55,6 @@ public class AnalogInputTest implements Test<Boolean> {
 				}
 				value = !value;
 			}
-		} catch (InterruptedException e) {
 		} finally {
 			if (in != null) {
 				in.close();

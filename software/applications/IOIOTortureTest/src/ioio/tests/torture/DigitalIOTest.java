@@ -21,7 +21,7 @@ public class DigitalIOTest implements Test<Boolean> {
 	}
 
 	@Override
-	public Boolean run() throws ConnectionLostException {
+	public Boolean run() throws ConnectionLostException, InterruptedException {
 		Log.i("IOIOTortureTest", "Starting DigitalIOTest on pins: " + pin1_
 				+ ", " + pin2_);
 		try {
@@ -31,7 +31,6 @@ public class DigitalIOTest implements Test<Boolean> {
 			if (!runTest(pin2_, pin1_)) {
 				return false;
 			}
-		} catch (InterruptedException e) {
 		} finally {
 			alloc_.freePinPair(pin1_);
 		}
