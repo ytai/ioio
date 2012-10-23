@@ -29,6 +29,7 @@
 
 #include "adc.h"
 
+#include <assert.h>
 #include "Compiler.h"
 #include "logging.h"
 #include "protocol.h"
@@ -47,55 +48,68 @@ static int analog_scan_num_channels;
 // priority 6 interrupt. then, in order to write to the output buffer, it would
 // trigger the priority 1 interrupt using GFX1, that will read the ADC data and
 // write to the buffer.
-// we've "abused" GFX1 interrupt that is never used in order to generate the
+// we've "abused" CRC interrupt that is never used in order to generate the
 // interrupt - we just manually raise its IF flag whenever we need an interrupt
 // and service this interrupt.
 static inline void ScanDoneInterruptInit() {
-  _GFX1IF = 0;
-  _GFX1IP = 1;
-  _GFX1IE = 1;
+  _CRCIP = 1;
 }
 
 // call this function to generate the priority 1 interrupt.
 static inline void ScanDoneInterruptTrigger() {
-  _GFX1IF = 1;
+  _CRCIF = 1;
 }
 
 // timer 3 is clocked @2MHz
 // we set its period to 2000 so that a match occurs @1KHz
 // used for ADC
-static inline void Timer3Prepare() {
-  _T3IE = 0;       // disable interrupt
-  _T3IF = 0;       // clear interrupt
-//  PR3   = 0x4E20;  // period is 20000 clocks
-  PR3   = 0x07CF;  // period is 2000 clocks
+static inline void Timer3Init() {
+  PR3   = 1999;  // period is 2000 clocks = 1KHz
   _T3IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
 }
 
-static inline void Timer3Start() {
+static inline void ADCStart() {
+  // Clear any possibly remaining interrupts before enabling them.
+  _AD1IF = 0;
+  _CRCIF = 0;
+
+  _ADON = 1;  // ADC on
+
+  _CRCIE = 1;  // We can enable interrupts now, they won't fire.
+  _AD1IE = 1;
+
+  // Reset counter and start triggering.
   TMR3  = 0x0000;  // reset counter
-  _T3IE = 1;       // enable interrupt
+  _T3IF = 0;
+  _T3IE = 1;  // We're ready to handle trigger interrupts.
 }
 
-static inline void Timer3Stop() {
-  _T3IE = 0;       // disable interrupt
-  _T3IF = 0;       // clear interrupt
+// IMPORTANT:
+// A post-condition of this function is that no interrupts (related to this
+// module) will fire.
+static inline void ADCStop() {
+  // Disable interrupts
+  _T3IE = 0;
+  _AD1IE = 0;
+  _CRCIE = 0;
+  // No more interrupts at this point.
+  _ADON = 0;         // ADC off
 }
 
 void ADCInit() {
-  _AD1IE = 0;        // disable interrupt
+  ADCStop();        // Just in case we were running. No interrupts after this point.
+  Timer3Init();  // initiliaze the timer. stopped if already running.
+
+  // Now nothing will interrupt us
   AD1CON1 = 0x00E0;  // ADC off, auto-convert
   AD1CON2 = 0x0400;  // Avdd Avss ref, scan inputs, single buffer, interrupt on every sample
   AD1CON3 = 0x1F01;  // system clock, 31 Tad acquisition time, ADC clock @8MHz
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
   AD1CSSL = 0x0000;  // reset scan mask.
 
-  _AD1IF = 0;        // clear interrupt
   _AD1IP = 7;        // high priority to stop automatic sampling
-  _AD1IE = 1;        // enable interrupt
 
   ScanDoneInterruptInit();  // when triggered, generates an immediate interrupt to read ADC buffer
-  Timer3Prepare();  // runs when ADC is used to periodically trigger sampling
 
   analog_scan_bitmask = 0x0000;
   analog_scan_num_channels = 0;
@@ -153,27 +167,15 @@ static inline void ReportAnalogInFormat() {
   AppProtocolSendMessageWithVarArg(&msg, var_arg, var_arg_pos);
 }
 
-static inline void ADCStart() {
-  _ADON = 1;  // ADC on
-  Timer3Start();
-}
-
-static inline void ADCStop() {
-  Timer3Stop();
-  _ADON = 0;  // ADC off
-}
-
 static inline void ADCTrigger() {
+  assert(analog_scan_num_channels != 0);
+  // Has format changed since our previous report?
   if (AD1CSSL != analog_scan_bitmask) {
-    ReportAnalogInFormat();
     AD1CSSL = analog_scan_bitmask;
     _SMPI = analog_scan_num_channels - 1;
+    ReportAnalogInFormat();
   }
-  if (analog_scan_num_channels) {
-    _ASAM = 1;  // start sampling
-  } else {
-    ADCStop();
-  }
+  _ASAM = 1;  // start a sample
 }
 
 void ADCSetScan(int pin, int enable) {
@@ -187,6 +189,8 @@ void ADCSetScan(int pin, int enable) {
     if (analog_scan_num_channels) {
       // already running, just add the new channel
       _T3IE = 0;
+      // These two variables are shared with the triggering code, ran from
+      // timer 3 interrupt context.
       ++analog_scan_num_channels;
       analog_scan_bitmask |= mask;
       _T3IE = 1;
@@ -197,23 +201,33 @@ void ADCSetScan(int pin, int enable) {
       ADCStart();
     }
   } else {
-    // if this was the last channel, the next T2 interrupt will stop the sampling
     _T3IE = 0;
     --analog_scan_num_channels;
     analog_scan_bitmask &= ~mask;
-    _T3IE = 1;
+    if (analog_scan_num_channels) {
+      _T3IE = 1;
+    } else {
+      // This was the last channel. At this point no new samples will be
+      // triggered, but we may be in the middle of a sample.
+      ADCStop();
+      // Now we're safe. Report the change in format.
+      ReportAnalogInFormat();
+      AD1CSSL = 0;  // To let the next trigger detect that this is the last
+                    // reported format.
+    }
   }
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T3Interrupt() {
-  // TODO: check that the previous sample is done?
   ADCTrigger();
+  _T3IE = 0;  // disable interrupts. will be re-enabled when sampling is done.
   _T3IF = 0;  // clear
 }
 
-void __attribute__((__interrupt__, auto_psv)) _GFX1Interrupt() {
+void __attribute__((__interrupt__, auto_psv)) _CRCInterrupt() {
   ReportAnalogInStatus();
-  _GFX1IF = 0;  // clear
+  _T3IE = 1;   // ready for next trigger.
+  _CRCIF = 0;  // clear
 }
 
 void __attribute__((__interrupt__, auto_psv)) _ADC1Interrupt() {
