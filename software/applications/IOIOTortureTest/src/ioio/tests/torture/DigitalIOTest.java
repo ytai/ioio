@@ -46,8 +46,18 @@ public class DigitalIOTest implements Test<Boolean> {
 			boolean value = false;
 			for (int i = 0; i < 10; ++i) {
 				out.write(value);
-				Thread.sleep(100);
-				if (in.read() != value) {
+				boolean correct = false;
+				// We don't care about latency here, so we're sampling the input
+				// at 10ms intervals and will give up only if it doesn't reach
+				// the expect value after 50 attempts.
+				for (int attempt = 0; !correct && attempt < 50; ++attempt) {
+					if (value == in.read()) {
+						correct = true;
+					} else {
+						Thread.sleep(10);
+					}
+				}
+				if (!correct) {
 					Log.w("IOIOTortureTest", "Failed DigitalIOTest input: "
 							+ inPin + ", output: " + outPin);
 					return false;
