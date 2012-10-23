@@ -1,10 +1,12 @@
 package ioio.tests.torture;
 
+import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import ioio.tests.torture.ResourceAllocator.Board;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -18,17 +20,19 @@ public class MainActivity extends IOIOActivity {
 
 	class Looper extends BaseIOIOLooper {
 		private static final String TAG = "TortureTest";
-		private ResourceAllocator alloc_ = new ResourceAllocator();
-		private TestProvider provider_;
 		private TestThread[] workers_ = new TestThread[8];
 
 		@Override
 		protected void setup() throws ConnectionLostException,
 				InterruptedException {
-			provider_ = new TestProvider(MainActivity.this, ioio_, alloc_);
+			ResourceAllocator alloc_ = new ResourceAllocator(
+					Board.valueOf(ioio_
+							.getImplVersion(IOIO.VersionType.HARDWARE_VER)));
+			TestProvider provider = new TestProvider(MainActivity.this, ioio_,
+					alloc_);
 			showVersions();
 			for (int i = 0; i < workers_.length; ++i) {
-				workers_[i] = new TestThread(provider_);
+				workers_[i] = new TestThread(provider);
 				workers_[i].start();
 			}
 		}
