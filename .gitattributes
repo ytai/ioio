@@ -1,2 +1,6 @@
+* text=auto
+proguard.cfg eol=native
+*.xml eol=native
+tools/* eol=lf
 project.xml -diff
 configurations.xml -diff
