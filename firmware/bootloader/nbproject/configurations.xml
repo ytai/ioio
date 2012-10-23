@@ -802,8 +802,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros"
-                  value="BOARD_VER=1016;NDEBUG;ENABLE_LOGGING"/>
+        <property key="preprocessor-macros" value="BOARD_VER=1016;NDEBUG"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
