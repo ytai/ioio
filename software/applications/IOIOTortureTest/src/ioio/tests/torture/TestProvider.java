@@ -57,7 +57,7 @@ class TestProvider {
 	}
 	
 	public synchronized TestRunner newTest() throws InterruptedException {
-		int selection = random_.nextInt(7);
+		int selection = random_.nextInt(8);
 		switch (selection) {
 		case 0:
 			return new TypedTestRunner<Boolean>(
@@ -80,6 +80,9 @@ class TestProvider {
 		case 6:
 			return new TypedTestRunner<Boolean>(new PwmIncapTest(
 					ioio_, alloc_), incapAgg_);
+	    case 7:
+           return new TypedTestRunner<Boolean>(new UartFlowTest(
+                   ioio_, alloc_), uartAgg_);
 		}
 		return null;
 	}
