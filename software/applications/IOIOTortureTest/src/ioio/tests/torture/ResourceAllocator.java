@@ -84,23 +84,24 @@ class ResourceAllocator {
 		}
 	}
 
-	static final int PIN_PAIR_DIGITAL = 0x0001; 
-	static final int PIN_PAIR_ANALOG = 0x0002; 
+	static final int PIN_PAIR_DIGITAL = 0x0001;
+	static final int PIN_PAIR_ANALOG = 0x0002;
 	static final int PIN_PAIR_PERIPHERAL = 0x0004;
-	
+
 	private class PinPair {
 		public final int first_pin_num;
 		public final int caps;
+
 		public PinPair(int num, int c) {
 			first_pin_num = num;
 			caps = c;
 		}
 	}
-	
+
 	private final int[] pinCaps_;
 	List<PinPair> pinPairs_ = new LinkedList<ResourceAllocator.PinPair>();
 	private int[] peripherals_;
-	
+
 	public ResourceAllocator(Board board) {
 		pinCaps_ = board.hardware.pinCaps_;
 		freeAll();
@@ -117,20 +118,17 @@ class ResourceAllocator {
 		}
 		peripherals_ = new int[] { 9, 4, 3, 3, 3 };
 	}
-	
+
 	enum PeripheralType {
-		PWM,
-		UART,
-		SPI,
-		INCAP_SINGLE,
-		INCAP_DOUBLE
+		PWM, UART, SPI, INCAP_SINGLE, INCAP_DOUBLE
 	}
-	
-	public synchronized int allocatePinPair(int caps) throws InterruptedException {
+
+	public synchronized int allocatePinPair(int caps)
+			throws InterruptedException {
 		while (true) {
 			PinPair p;
 			for (Iterator<PinPair> i = pinPairs_.iterator(); i.hasNext();) {
-				 p = i.next();
+				p = i.next();
 				if ((p.caps & caps) != 0) {
 					i.remove();
 					return p.first_pin_num;
@@ -139,19 +137,20 @@ class ResourceAllocator {
 			wait();
 		}
 	}
-	
+
 	public synchronized void freePinPair(int pin) {
 		pinPairs_.add(new PinPair(pin, pinCaps_[(pin - 1) / 2]));
 		notify();
 	}
-	
-	public synchronized void allocPeripheral(PeripheralType type) throws InterruptedException {
+
+	public synchronized void allocPeripheral(PeripheralType type)
+			throws InterruptedException {
 		while (peripherals_[type.ordinal()] == 0) {
 			wait();
 		}
 		peripherals_[type.ordinal()]--;
 	}
-	
+
 	public synchronized void freePeripheral(PeripheralType type) {
 		peripherals_[type.ordinal()]++;
 		notify();
