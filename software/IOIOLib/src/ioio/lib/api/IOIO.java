@@ -485,6 +485,17 @@ public interface IOIO {
 	 *            The parity mode, as in {@link Parity}.
 	 * @param stopbits
 	 *            Number of stop bits, as in {@link StopBits}.
+	 * @param mode
+	 *            Flow control mode, as in {@link FlowMode}.  This can by FLOW_NONE,
+	 *            FLOW_IRDA, FLOW_RTSCTS, or FLOW_RS485.
+	 * @param rts
+	 *            Pin number specification for the RTS (Request To Send) output pin.
+	 *            If the flow control mode is not FLOW_RTSCTS or FLOW_RS485, then
+	 *            this parameter is ignored.
+	 * @param cts
+	 *            Pin number specification for the CTS (Clear To Send) input pin.
+	 *            If the flow control mode is not FLOW_RTSCTS or FLOW_RS485, then
+	 *            this parameter is ignored.
 	 * @return Interface of the assigned module.
 	 * @throws ConnectionLostException
 	 *             Connection was lost before or during the execution of this
@@ -496,34 +507,34 @@ public interface IOIO {
 	 * @see Uart
 	 */
 	public Uart openUart(DigitalInput.Spec rx, DigitalOutput.Spec tx, int baud,
-			Parity parity, StopBits stopbits, Uart.FlowMode mode, DigitalOutput.Spec rts, 
-            DigitalInput.Spec cts) throws ConnectionLostException;
+			Parity parity, StopBits stopbits, Uart.FlowMode mode, DigitalOutput.Spec rts,
+			DigitalInput.Spec cts) throws ConnectionLostException;
 
 	/**
 	 * Shorthand for
-	 * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)}
+	 * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)}
 	 * , where the input pins use their default specs. {@link #INVALID_PIN} can
-	 * be used on either pin if a TX- or RX-only UART is needed.
+	 * be used on either pin if a TX- or RX-only UART is needed.  The flow mode is FLOW_NONE.
 	 * 
 	 * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
-	 *      Uart.StopBits)
+	 *      Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)
 	 */
 	public Uart openUart(int rx, int tx, int baud, Parity parity,
 			StopBits stopbits) throws ConnectionLostException;
 
-    /**
-     * Shorthand for
-     * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)}
-     * , where the input pins use their default specs. {@link #INVALID_PIN} can
-     * be used on either pin if a TX- or RX-only UART is needed.
-     * 
-     * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
-     *      Uart.StopBits)
-     */
+	/**
+	 * Shorthand for
+	 * {@link #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)}
+	 * , where the input pins use their default specs. {@link #INVALID_PIN} can
+	 * be used on either pin if a TX- or RX-only UART is needed.
+	 * 
+	 * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
+	 *      Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)
+	 */
     public Uart openUart(int rx, int tx, int baud, Uart.Parity parity,
-        Uart.StopBits stopbits, Uart.FlowMode mode, int rts, 
+        Uart.StopBits stopbits, Uart.FlowMode mode, int rts,
         int cts) throws ConnectionLostException;
-        
+
 	/**
 	 * Open a SPI master module, enabling communication with multiple
 	 * SPI-enabled slave modules.
