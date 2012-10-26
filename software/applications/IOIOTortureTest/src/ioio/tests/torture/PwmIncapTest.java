@@ -62,7 +62,7 @@ public class PwmIncapTest implements Test<Boolean> {
 				PulseMode.FREQ, false))
 			return false;
 		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_2MHz,
-				PulseMode.FREQ_SCALE_16, false))
+				PulseMode.FREQ, false))
 			return false;
 		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_16MHz,
 				PulseMode.FREQ_SCALE_16, true))
@@ -86,9 +86,9 @@ public class PwmIncapTest implements Test<Boolean> {
 			float duration = pulseDurIn.getDuration();
 			float expectedDuration = pulseWidthUsec / 1000000.f;
 			if (Math.abs((duration - expectedDuration) / duration) > 0.02) {
-				Log.w("IOIOTortureTest", "Positive pulse duration is: "
-						+ duration + "[s] while expected " + expectedDuration
-						+ "[s]");
+				Log.w("IOIOTortureTest", "Failed test on pins " + inPin + ", "
+						+ outPin + ". Positive pulse duration is: " + duration
+						+ "[s] while expected " + expectedDuration + "[s]");
 				return false;
 			}
 			pulseDurIn.close();
@@ -98,9 +98,9 @@ public class PwmIncapTest implements Test<Boolean> {
 			duration = pulseDurIn.getDuration();
 			expectedDuration = (1.f / freq) - (pulseWidthUsec / 1000000.f);
 			if (Math.abs((duration - expectedDuration) / duration) > 0.02) {
-				Log.w("IOIOTortureTest", "Negative pulse duration is: "
-						+ duration + "[s] while expected " + expectedDuration
-						+ "[s]");
+				Log.w("IOIOTortureTest", "Failed test on pins " + inPin + ", "
+						+ outPin + ". Negative pulse duration is: " + duration
+						+ "[s] while expected " + expectedDuration + "[s]");
 				return false;
 			}
 			pulseDurIn.close();
@@ -110,7 +110,8 @@ public class PwmIncapTest implements Test<Boolean> {
 					rate, freqScaling, doublePrecision);
 			float actualFreq = pulseFreqIn.getFrequency();
 			if (Math.abs((actualFreq - freq) / freq) > 0.02) {
-				Log.w("IOIOTortureTest", "Frequency is: " + actualFreq
+				Log.w("IOIOTortureTest", "Failed test on pins " + inPin + ", "
+						+ outPin + ". Frequency is: " + actualFreq
 						+ " while expected " + freq);
 				return false;
 			}
