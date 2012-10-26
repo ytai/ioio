@@ -7,10 +7,12 @@ if [[ -z "$MAKE" ]] && which colormake > /dev/null 2>&1 ; then
 else
    MAKE=make     
 fi
+
+success=true
 for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
-  $MAKE -C firmware/$PROJ "$@"
+  $MAKE -C firmware/$PROJ "$@" || success=fail
 done
-
+$success
