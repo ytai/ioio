@@ -456,7 +456,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			Uart.StopBits stopbits) throws ConnectionLostException {
 		return openUart(rx == INVALID_PIN ? null : new DigitalInput.Spec(rx),
 				tx == INVALID_PIN ? null : new DigitalOutput.Spec(tx), baud,
-				parity, stopbits, Uart.FlowMode.FLOW_NONE, null, null);
+				parity, stopbits, Uart.FlowMode.NONE, null, null);
 	}
 
 	@Override
@@ -527,7 +527,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             }
 			boolean speed4x = true;
 			int rate = Math.round(4000000.0f / baud) - 1;
-			if ((rate > 65535) || (mode == Uart.FlowMode.FLOW_IRDA)) {
+			if ((rate > 65535) || (mode == Uart.FlowMode.IRDA)) {
 				speed4x = false;
 				rate = Math.round(1000000.0f / baud) - 1;
 			}

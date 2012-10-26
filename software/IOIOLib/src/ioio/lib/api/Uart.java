@@ -94,14 +94,14 @@ public interface Uart extends Closeable {
 	/** Flow control line modes */
 	enum FlowMode {
 		/** No flow control. */
-		FLOW_NONE,
+		NONE,
 		/** Use IRDA encode/decode and no flow control. */
-		FLOW_IRDA,
+		IRDA,
 		/** Use RTS/CTS lines for flow control. */
-		FLOW_RTSCTS,
+		RTSCTS,
 		/** Raise RTS when transmitting (for RS-485 transmit enable).
 		Note that CTS should be connected to RTS. */
-		FLOW_RS485,
+		RS485,
 	}
 
 	/**
