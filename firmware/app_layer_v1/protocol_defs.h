@@ -160,12 +160,19 @@ typedef struct PACKED {
   BYTE data[0];
 } UART_DATA_ARGS;
 
+typedef enum {
+  FLOW_NONE,
+  FLOW_IRDA,
+  FLOW_RTSCTS,
+  FLOW_RS485,
+} UART_FLOW_MODE;
+
 // uart config
 typedef struct PACKED {
   BYTE parity : 2;
   BYTE two_stop_bits : 1;
   BYTE speed4x : 1;
-  BYTE : 2;
+  BYTE flow : 2;
   BYTE uart_num : 2;
   WORD rate;
 } UART_CONFIG_ARGS;
@@ -182,7 +189,8 @@ typedef struct PACKED {
   BYTE pin : 6;
   BYTE : 2;
   BYTE uart_num : 2;
-  BYTE : 4;
+  BYTE : 3;
+  BYTE flow : 1;
   BYTE dir : 1;
   BYTE enable : 1;
 } SET_PIN_UART_ARGS;

@@ -46,14 +46,21 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
 	private final int uartNum_;
 	private final int rxPinNum_;
 	private final int txPinNum_;
+	private final Uart.FlowMode flowMode_;
+	private final int rtsPinNum_;
+	private final int ctsPinNum_;
 	private final FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
 	private final QueueInputStream incoming_ = new QueueInputStream();
 	
-	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum) throws ConnectionLostException {
+	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum, 
+	    Uart.FlowMode mode, int rtsPin, int ctsPin) throws ConnectionLostException {
 		super(ioio);
 		uartNum_ = uartNum;
 		rxPinNum_ = rxPin;
 		txPinNum_ = txPin;
+		flowMode_ = mode;
+		rtsPinNum_ = rtsPin;
+		ctsPinNum_ = ctsPin;
 	}
 
 	@Override
@@ -82,6 +89,12 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
 		if (txPinNum_ != IOIO.INVALID_PIN) {
 			ioio_.closePin(txPinNum_);
 		}
+        if (rtsPinNum_ != IOIO.INVALID_PIN) {
+          ioio_.closePin(rtsPinNum_);
+        }
+        if (ctsPinNum_ != IOIO.INVALID_PIN) {
+          ioio_.closePin(ctsPinNum_);
+        }
 	}
 	
 	@Override

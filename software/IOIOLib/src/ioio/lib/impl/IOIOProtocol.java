@@ -361,13 +361,14 @@ class IOIOProtocol {
 	}
 
 	synchronized public void uartConfigure(int uartNum, int rate,
-			boolean speed4x, Uart.StopBits stopbits, Uart.Parity parity)
+			boolean speed4x, Uart.StopBits stopbits, Uart.Parity parity, Uart.FlowMode mode)
 			throws IOException {
 		int parbits = parity == Uart.Parity.EVEN ? 1
 				: (parity == Uart.Parity.ODD ? 2 : 0);
+		int modebits = mode.ordinal() & 0x3;
 		beginBatch();
 		writeByte(UART_CONFIG);
-		writeByte((uartNum << 6) | (speed4x ? 0x08 : 0x00)
+		writeByte((uartNum << 6) | (modebits << 4) | (speed4x ? 0x08 : 0x00)
 				| (stopbits == Uart.StopBits.TWO ? 0x04 : 0x00) | parbits);
 		writeTwoBytes(rate);
 		endBatch();
@@ -381,12 +382,13 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void setPinUart(int pin, int uartNum, boolean tx,
+	synchronized public void setPinUart(int pin, int uartNum, boolean tx, boolean flow,
 			boolean enable) throws IOException {
 		beginBatch();
 		writeByte(SET_PIN_UART);
 		writeByte(pin);
-		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | uartNum);
+                // if flow && tx: set RTS.  if flow && !tx: set CTS
+		writeByte((enable ? 0x80 : 0x00) | (tx ? 0x40 : 0x00) | (flow ? 0x20 : 0x00) | uartNum);
 		endBatch();
 	}
 

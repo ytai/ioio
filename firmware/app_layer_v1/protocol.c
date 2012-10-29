@@ -335,7 +335,8 @@ static BOOL MessageDone() {
                  rx_msg.args.uart_config.rate,
                  rx_msg.args.uart_config.speed4x,
                  rx_msg.args.uart_config.two_stop_bits,
-                 rx_msg.args.uart_config.parity);
+                 rx_msg.args.uart_config.parity,
+                 rx_msg.args.uart_config.flow);
       break;
 
     case SET_PIN_UART:
@@ -344,6 +345,7 @@ static BOOL MessageDone() {
       SetPinUart(rx_msg.args.set_pin_uart.pin,
                  rx_msg.args.set_pin_uart.uart_num,
                  rx_msg.args.set_pin_uart.dir,
+                 rx_msg.args.set_pin_uart.flow,
                  rx_msg.args.set_pin_uart.enable);
       break;
 
