@@ -40,7 +40,7 @@ import java.io.OutputStream;
  * asynchronous point-to-point data transfer. It typically serves for opening
  * consoles or as a basis for higher-level protocols, such as MIDI, RS-232 and
  * RS-485. Uart instances are obtained by calling
- * {@link IOIO#openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)}.
+ * {@link IOIO#openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)}.
  * <p>
  * The UART protocol is completely symmetric - there is no "master" and "slave"
  * at this layer. Each end may send any number of bytes at arbitrary times,
@@ -70,7 +70,7 @@ import java.io.OutputStream;
  * </pre>
  * 
  * @see IOIO#openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
- *      Uart.StopBits)
+ *      Uart.StopBits, Uart.FlowMode, DigitalOutput.Spec, DigitalInput.Spec)
  */
 public interface Uart extends Closeable {
 	/** Parity-bit mode. */
@@ -89,6 +89,19 @@ public interface Uart extends Closeable {
 		ONE,
 		/** Two stop bits. */
 		TWO
+	}
+
+	/** Flow control line modes */
+	enum FlowMode {
+		/** No flow control. */
+		NONE,
+		/** Use IRDA encode/decode and no flow control. */
+		IRDA,
+		/** Use RTS/CTS lines for flow control. */
+		RTSCTS,
+		/** Raise RTS when transmitting (for RS-485 transmit enable).
+		Note that CTS should be connected to RTS. */
+		RS485,
 	}
 
 	/**
