@@ -1,9 +1,19 @@
+#!/bin/bash
+
 PROJECTS="libusb libconn libbtstack libadb bootloader app_layer_v1 blink latency_tester"
 
+if [[ -z "$MAKE" ]] && which colormake > /dev/null 2>&1 ; then
+   MAKE=colormake
+else
+   MAKE=make     
+fi
+
+success=true
 for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
-  make -C firmware/$PROJ $*
+  $MAKE -C firmware/$PROJ "$@" || success=fail
 done
-
+$success && echo Success || echo Failed
+$success
