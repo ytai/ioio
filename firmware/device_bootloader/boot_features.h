@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2012 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -26,63 +26,20 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
+#ifndef BOOT_FEATURES_H
+#define	BOOT_FEATURES_H
 
-#include "adb_connection.h"
+#include <stdbool.h>
+#include "GenericTypeDefs.h"
 
-#include <limits.h>
+#define FINGERPRINT_SIZE 16
 
-#include "adb.h"
-#include "adb_private.h"
-#define USB_SUPPORT_HOST
-#include "usb_host_android.h"
+void HardReset();
+bool EraseFingerprint();
+bool ReadFingerprint();
+bool WriteFingerprint(BYTE fp[FINGERPRINT_SIZE]);
+void SendChecksum(WORD checksum);
+void CheckInterface(BYTE interface_id[8]);
 
-static int adb_connected = 0;
+#endif	// BOOT_FEATURES_H
 
-static void ADBConInit(void *buf, int size) {
-  return ADBInit();
-}
-
-static int ADBConIsAvailable() {
-  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB);
-}
-
-static int ADBConIsReadyToOpen() {
-  return adb_connected;
-}
-
-static void ADBConTasks() {
-  adb_connected = (ADBTasks() == 1);
-}
-
-static int ADBConOpenChannel(ChannelCallback cb, int_or_ptr_t open_arg,
-                             int_or_ptr_t cb_args) {
-  return ADBOpen((const char *) open_arg.p, cb, cb_args);
-}
-
-static void ADBConCloseChannel(int h) {
-  ADBClose(h);
-}
-
-static void ADBConSend(int h, const void *data, int size) {
-  ADBWrite(h, data, size);
-}
-
-static int ADBConCanSend(int h) {
-  return ADBChannelReady(h);
-}
-
-static int ADBConMaxPacketSize(int h) {
-  return INT_MAX; // unlimited
-}
-
-const CONNECTION_FACTORY adb_connection_factory = {
-  ADBConInit,
-  ADBConTasks,
-  ADBConIsAvailable,
-  ADBConIsReadyToOpen,
-  ADBConOpenChannel,
-  ADBConCloseChannel,
-  ADBConSend,
-  ADBConCanSend,
-  ADBConMaxPacketSize
-};

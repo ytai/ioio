@@ -27,62 +27,10 @@
  * or implied.
  */
 
-#include "adb_connection.h"
+#include "board.h"
 
-#include <limits.h>
-
-#include "adb.h"
-#include "adb_private.h"
-#define USB_SUPPORT_HOST
-#include "usb_host_android.h"
-
-static int adb_connected = 0;
-
-static void ADBConInit(void *buf, int size) {
-  return ADBInit();
-}
-
-static int ADBConIsAvailable() {
-  return USBHostAndroidIsInterfaceAttached(ANDROID_INTERFACE_ADB);
-}
-
-static int ADBConIsReadyToOpen() {
-  return adb_connected;
-}
-
-static void ADBConTasks() {
-  adb_connected = (ADBTasks() == 1);
-}
-
-static int ADBConOpenChannel(ChannelCallback cb, int_or_ptr_t open_arg,
-                             int_or_ptr_t cb_args) {
-  return ADBOpen((const char *) open_arg.p, cb, cb_args);
-}
-
-static void ADBConCloseChannel(int h) {
-  ADBClose(h);
-}
-
-static void ADBConSend(int h, const void *data, int size) {
-  ADBWrite(h, data, size);
-}
-
-static int ADBConCanSend(int h) {
-  return ADBChannelReady(h);
-}
-
-static int ADBConMaxPacketSize(int h) {
-  return INT_MAX; // unlimited
-}
-
-const CONNECTION_FACTORY adb_connection_factory = {
-  ADBConInit,
-  ADBConTasks,
-  ADBConIsAvailable,
-  ADBConIsReadyToOpen,
-  ADBConOpenChannel,
-  ADBConCloseChannel,
-  ADBConSend,
-  ADBConCanSend,
-  ADBConMaxPacketSize
-};
+struct {
+  const char hardware[8];
+  const char bootloader[8];
+} _version __attribute__((section("version.sec"), space(psv)))
+    = { HW_IMPL_VER, "IOIO0350" };

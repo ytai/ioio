@@ -31,7 +31,7 @@
 
 #include "logging.h"
 #include "latency.h"
-#include "../app_layer_v1/byte_queue.h"
+#include "../common/byte_queue.h"
 
 // Connection-related stuff
 DEFINE_STATIC_BYTE_QUEUE(out_queue, 4096);

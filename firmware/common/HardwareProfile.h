@@ -55,6 +55,7 @@
   #error Unsupported target
 #endif
 
+#define FCY GetInstructionClock()
 
 #endif  
 

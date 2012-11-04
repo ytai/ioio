@@ -1,24 +1,26 @@
 HARDWARE
-- check whether oscillator is required.
-- test PIC24FJ256GB206
+v check whether oscillator is required.
+v test PIC24FJ256GB206
 
 FIRMWARE
+- linker scripts for new platform.
+- cleanup microchip code.
+- check wassup with EVENT_TRANSFER_TERMINATED. call USBCDCEventHandler?
+- make sure LED is always opened in open-drain.
 v tweak parameters in usb_config.h
 v verify build and run of V1 configs.
 v detect connection on-off without the soft open close.
-- cleanup microchip code.
-- check wassup with EVENT_TRANSFER_TERMINATED. call USBCDCEventHandler?
 v VID/PID
 v Is someone masking all interrupts?
 v Look into [usb_host_bluetooth.c: 336] Write failed when dongle isn't plugged.
 v Soft close seems to put firmware in an unrecoverable state.
-- Bluetooth keystore to eliminate the need to re-pair?
+v Bluetooth keystore to eliminate the need to re-pair?
 
 SOFTWARE
 v figure out how to orgranize the code and distribute the different IOIOLib versions.
 x figure out the right rxtx binaries to use and how to distribute them.
 v Author IOIOMain and IOIOSwing.
-- Graceful handling of IOIO disconnect.
+v Graceful handling of IOIO disconnect.
 v How to detect the serial port?
 - Check purejavacomm license.
 v Make sure all targets build.

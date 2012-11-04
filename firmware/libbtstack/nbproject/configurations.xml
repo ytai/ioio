@@ -113,7 +113,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
@@ -172,7 +172,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
@@ -231,7 +231,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
@@ -290,7 +290,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>

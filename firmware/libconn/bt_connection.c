@@ -36,6 +36,7 @@
 #include <stdio.h>
 
 #include "logging.h"
+#define USB_SUPPORT_HOST
 #include "usb_host_bluetooth.h"
 #include "hci.h"
 #include "l2cap.h"

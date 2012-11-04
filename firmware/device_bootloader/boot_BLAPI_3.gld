@@ -1,0 +1,327 @@
+/* PROGRAM MEMORY */
+__IVT_BASE  = 0x4;
+__AIVT_BASE = 0x104;
+__CODE_BASE = 0x200;
+__APP_RESET = 0x5000;
+__APP_IVT_BASE = 0x5000;
+__BLAPI_BASE = 0x4F80;
+
+_hardware_version   = __BLAPI_BASE + 0x00;
+_bootloader_version = __BLAPI_BASE + 0x08;
+
+/* DATA MEMORY */
+__DATA_BASE = 0x800;
+__BOOTDATA_BASE = 0x1FFE;
+
+__APP_USB1Interrupt = __APP_IVT_BASE + 0x10C;
+
+/*
+** ==================== Section Map ======================
+*/
+SECTIONS
+{
+  /*
+  ** ========== Program Memory ==========
+  */
+
+
+  /*
+  ** Reset Instruction
+  */
+  .reset :
+  {
+        SHORT(ABSOLUTE(__reset));
+        SHORT(0x04);
+        SHORT((ABSOLUTE(__reset) >> 16) & 0x7F);
+        SHORT(0);
+  } >reset
+
+  /*
+  ** User Code and Library Code
+  **
+  ** This section must not be assigned to __CODE_BASE,
+  ** because CodeGuard(tm) sections may be located there.
+  **
+  ** Note that input sections *(.text) are not mapped here.
+  ** The best-fit allocator locates them, so that .text
+  ** may flow around PSV sections as needed.
+  */
+  .text :
+  {
+        *(.init);
+        *(.user_init);
+        *(.handle);
+        *(.libc) *(.libm) *(.libdsp);  /* keep together in this order */
+        *(.lib*);
+        KEEP(*(int.sec));
+        KEEP(*(.isr*));
+        /* A RESET instruction to handle an otherwise unhandled interrupt. */
+        __DEFAULT_VECTOR = .;
+        LONG(0xFE0000);
+  } >program
+
+  /*
+  ** User-Defined Section in Program Memory
+  **
+  ** note: can specify an address using
+  **       the following syntax:
+  **
+  **       usercode 0x1234 :
+  **         {
+  **           *(usercode);
+  **         } >program
+  */
+  blapi.sec :
+  {
+    KEEP(*("version.sec"));
+  } >blapi
+
+
+  /*
+  ** User-Defined Constants in Program Memory
+  **
+  ** For PSV type sections, the Load Memory Address (LMA)
+  ** should be specified as follows:
+  **
+  **       userconst : AT(0x1234)
+  **         {
+  **           *(userconst);
+  **         } >program
+  **
+  ** Note that mapping PSV sections in linker scripts
+  ** is not generally recommended.
+  **
+  ** Because of page alignment restrictions, memory is
+  ** often used more efficiently when PSV sections
+  ** do not appear in the linker script.
+  **
+  ** For more information on memory allocation,
+  ** please refer to chapter 10, 'Linker Processing'
+  ** in the Assembler, Linker manual (DS51317).
+  */
+
+
+  /*
+  ** Configuration Words
+  */
+  __CONFIG4 :
+  { KEEP(*(__CONFIG4.sec))    } >CONFIG4
+  __CONFIG3 :
+  { KEEP(*(__CONFIG3.sec))    } >CONFIG3
+  __CONFIG2 :
+  { KEEP(*(__CONFIG2.sec))    } >CONFIG2
+  __CONFIG1 :
+  { KEEP(*(__CONFIG1.sec))    } >CONFIG1
+
+
+  /*
+  ** =========== Data Memory ===========
+  */
+  bootdata __BOOTDATA_BASE : {
+    *(bootflag.sec);
+  } > data
+
+  /*
+  ** ICD Debug Exec
+  **
+  ** This section provides optional storage for
+  ** the ICD2 debugger. Define a global symbol
+  ** named __ICD2RAM to enable ICD2. This section
+  ** must be loaded at data address 0x800.
+  */
+  .icd __DATA_BASE (NOLOAD):
+  {
+    . += (DEFINED (__ICD2RAM) ? 0x50 : 0 );
+  } > data
+
+
+  /*
+  ** Other sections in data memory are not explicitly mapped.
+  ** Instead they are allocated according to their section
+  ** attributes, which is most efficient.
+  ** 
+  ** If a specific arrangement of sections is required
+  ** (other than what can be achieved using attributes)
+  ** additional sections may be defined here. See chapter
+  ** 10.5 in the MPLAB ASM30/LINK30 User's Guide (DS51317)
+  ** for more information.
+  */
+
+
+  /*
+  ** ========== Debug Info ==============
+  */
+
+  .comment        0 : { *(.comment) }
+
+  /*
+  ** DWARF-2
+  */
+  .debug_info     0 : { *(.debug_info) *(.gnu.linkonce.wi.*) }
+  .debug_abbrev   0 : { *(.debug_abbrev) }
+  .debug_line     0 : { *(.debug_line) }
+  .debug_frame    0 : { *(.debug_frame) }
+  .debug_str      0 : { *(.debug_str) }
+  .debug_loc      0 : { *(.debug_loc) }
+  .debug_macinfo  0 : { *(.debug_macinfo) }
+  .debug_pubnames 0 : { *(.debug_pubnames) }
+  .debug_ranges   0 : { *(.debug_ranges) }
+  .debug_aranges  0 : { *(.debug_aranges) }
+
+} /* SECTIONS */
+
+/*
+** ================= End of Section Map ================
+*/
+
+/*
+** Section Map for Interrupt Vector Tables
+*/
+SECTIONS
+{
+/*
+** Interrupt Vector Table
+** 
+** This table has been modified from the original content to jump to the .application_ivt goto table.
+**   This is done so that when this linker file is used to program a device using a programmer instead
+**   of the bootloader, it will work just like the bootloader resulting in identical interrupt latency.
+*/
+.ivt __IVT_BASE :
+  {
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __ReservedTrap0 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x008); /* __OscillatorFail */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x00C); /* __AddressError */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x010); /* __StackError */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x014); /* __MathError */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __ReservedTrap5 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __ReservedTrap6 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __ReservedTrap7 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x018); /* __INT0Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x01C); /* __IC1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x020); /* __OC1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x024); /* __T1Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt4 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x028); /* __IC2Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x02C); /* __OC2Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x030); /* __T2Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x034); /* __T3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x038); /* __SPI1ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x03C); /* __SPI1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x040); /* __U1RXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x044); /* __U1TXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x048); /* __ADC1Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt14 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt15 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x04C); /* __SI2C1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x050); /* __MI2C1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x054); /* __CompInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x058); /* __CNInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x05C); /* __INT1Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt21 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x060); /* __IC7Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x064); /* __IC8Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt24 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x068); /* __OC3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x06C); /* __OC4Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x070); /* __T4Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x074); /* __T5Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x078); /* __INT2Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x07C); /* __U2RXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x080); /* __U2TXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x084); /* __SPI2ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x088); /* __SPI2Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt34 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt35 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt36 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x08C); /* __IC3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x090); /* __IC4Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x094); /* __IC5Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x098); /* __IC6Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x09C); /* __OC5Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0A0); /* __OC6Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0A4); /* __OC7Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0A8); /* __OC8Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0AC); /* __PMPInterrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt46 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt47 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt48 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0B0); /* __SI2C2Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0B4); /* __MI2C2Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt51 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt52 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0B8); /* __INT3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0BC); /* __INT4Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt55 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt56 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt57 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt58 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt59 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt60 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt61 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0C0); /* __RTCCInterrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt63 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt64 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0C4); /* __U1ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0C8); /* __U2ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0CC); /* __CRCInterrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt68 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt69 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt70 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt71 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0D0); /* __LVDInterrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt73 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt74 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt75 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt76 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0D4); /* __CTMUInterrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt78 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt79 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt80 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0D8); /* __U3ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0DC); /* __U3RXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E0); /* __U3TXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E4); /* __SI2C3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0E8); /* __MI2C3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x10C); /* __USB1Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0EC); /* __U4ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F0); /* __U4RXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F4); /* __U4TXInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0F8); /* __SPI3ErrInterrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x0FC); /* __SPI3Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x100); /* __OC9Interrupt */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x104); /* __IC9Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt94 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt95 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt96 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt97 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt98 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt99 */
+    LONG(ABSOLUTE(__APP_IVT_BASE) + 0x108); /* __GFX1Interrupt */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt101 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt102 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt103 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt104 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt105 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt106 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt107 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt108 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt109 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt110 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt111 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt112 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt113 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt114 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt115 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt116 */
+    LONG(ABSOLUTE(__DEFAULT_VECTOR));       /* __Interrupt117 */
+  } >ivt
+
+
+/*
+** Alternate Interrupt Vector Table
+*/
+.aivt __AIVT_BASE :
+  {
+    /* not currently remapped by the bootloader - do not use */
+  } >aivt
+} /* SECTIONS */

@@ -118,8 +118,9 @@
 #define led_off()        led  = 1;
 #define led_toggle()     led  = !led;
 #elif BOARD_VER >= BOARD_SPRK0020
-#define led_init()       {LATCbits.LATC12 = 1; TRISCbits.TRISC12 = 0; }
-#define led              LATCbits.LATC12
+#define led_init()       { _ODC12 = 1; _LATC12 = 1; _TRISC12 = 0; }
+#define led_read()       _RC12
+#define led              _LATC12
 #define led_on()         led  = 0;
 #define led_off()        led  = 1;
 #define led_toggle()     led  = !led;

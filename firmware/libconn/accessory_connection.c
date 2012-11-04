@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdint.h>
 
+#define USB_SUPPORT_HOST
 #include "usb_host_android.h"
 #include "logging.h"
 #include "USB/usb_common.h"

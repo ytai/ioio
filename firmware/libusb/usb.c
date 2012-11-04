@@ -31,8 +31,12 @@
 #ifndef DISABLE_BLUETOOTH
 #include "usb_host_bluetooth.h"
 #endif
+#if defined(USB_SUPPORT_HOST) && !(defined(DISABLE_ACCESSORY) && defined(DISABLE_ADB))
 #include "usb_host_android.h"
+#endif
+#ifdef USB_SUPPORT_DEVICE
 #include "usb_device.h"
+#endif
 #ifdef USB_USE_CDC
 #include "usb_device_cdc.h"
 #endif
