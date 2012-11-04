@@ -18,9 +18,9 @@
         <itemPath>../microchip/include/struct_queue.h</itemPath>
         <itemPath>../microchip/include/timer.h</itemPath>
         <itemPath>../microchip/include/uart2.h</itemPath>
+        <itemPath>../common/byte_queue.h</itemPath>
       </logicalFolder>
       <itemPath>adc.h</itemPath>
-      <itemPath>byte_queue.h</itemPath>
       <itemPath>digital.h</itemPath>
       <itemPath>features.h</itemPath>
       <itemPath>i2c.h</itemPath>
@@ -56,9 +56,9 @@
       <logicalFolder name="f3" displayName="Common" projectFiles="true">
         <itemPath>../common/logging.c</itemPath>
         <itemPath>../microchip/common/uart2.c</itemPath>
+        <itemPath>../common/byte_queue.c</itemPath>
       </logicalFolder>
       <itemPath>adc.c</itemPath>
-      <itemPath>byte_queue.c</itemPath>
       <itemPath>digital.c</itemPath>
       <itemPath>features.c</itemPath>
       <itemPath>i2c.c</itemPath>
