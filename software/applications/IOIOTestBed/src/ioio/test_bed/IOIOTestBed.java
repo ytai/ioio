@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 public class IOIOTestBed extends IOIOActivity {
 	private static final String LOG_TAG = "IOIO_TEST_BED";
-	private static final int PIN_COUNT = 48;
+	private static final int PIN_COUNT = 46;
 
 	private static final Set<Integer> IGNORE_PINS_SET = new HashSet<Integer>(
 			Arrays.asList(37, 38));
