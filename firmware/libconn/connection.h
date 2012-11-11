@@ -76,6 +76,8 @@ CHANNEL_HANDLE ConnectionOpenChannelBtServer(ChannelCallback cb,
                                              int_or_ptr_t cb_arg);
 CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb,
                                               int_or_ptr_t cb_arg);
+CHANNEL_HANDLE ConnectionOpenChannelCdc(ChannelCallback cb,
+                                        int_or_ptr_t cb_arg);
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size);
 BOOL ConnectionCanSend(CHANNEL_HANDLE ch);
 void ConnectionCloseChannel(CHANNEL_HANDLE ch);

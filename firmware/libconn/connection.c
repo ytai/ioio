@@ -108,6 +108,12 @@ CHANNEL_HANDLE ConnectionOpenChannelAccessory(ChannelCallback cb,
   return ConnectionOpenChannel(CHANNEL_TYPE_ACC, cb, open_arg, cb_arg);
 }
 
+CHANNEL_HANDLE ConnectionOpenChannelCdc(ChannelCallback cb,
+                                        int_or_ptr_t cb_arg) {
+  int_or_ptr_t open_arg = { .i = 0 };
+  return ConnectionOpenChannel(CHANNEL_TYPE_CDC_DEVICE, cb, open_arg, cb_arg);
+}
+
 void ConnectionSend(CHANNEL_HANDLE ch, const void *data, int size) {
   int t = ch >> 12;
   int h = ch & 0x0FFF;

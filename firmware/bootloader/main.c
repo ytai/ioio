@@ -164,7 +164,7 @@ BOOL WriteFingerprint() {
   return TRUE;
 }
 
-void FileRecvFingerprint(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+void FileRecvFingerprint(const void* data, UINT32 data_len, int_or_ptr_t arg) {
   if (data) {
     if (fingerprint_size != -1 && data_len <= FINGERPRINT_SIZE - fingerprint_size) {
       memcpy(fingerprint + fingerprint_size, data, data_len);
@@ -193,7 +193,7 @@ void FileRecvFingerprint(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
-void FileRecvImage(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+void FileRecvImage(const void* data, UINT32 data_len, int_or_ptr_t arg) {
   if (data) {
     if (!IOIOFileHandleBuffer(data, data_len)) {
       state = MAIN_STATE_ERROR;
@@ -208,14 +208,14 @@ void FileRecvImage(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
-void FileRecvPackages(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
+void FileRecvPackages(const void* data, UINT32 data_len, int_or_ptr_t arg) {
   if (data) {
     if (auth_result == AUTH_BUSY) {
       auth_result = AuthProcess(data, data_len);
       if (auth_result == AUTH_BUSY) {
         return;
       } else {
-        ADBFileClose(h);
+        ADBFileClose(*((ADB_FILE_HANDLE *) arg.p));
       }
     }
   }
@@ -228,7 +228,7 @@ void FileRecvPackages(ADB_FILE_HANDLE h, const void* data, UINT32 data_len) {
   }
 }
 
-void RecvDumpsys(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
+void RecvDumpsys(const void* data, UINT32 data_len, int_or_ptr_t arg) {
   if (state != MAIN_STATE_FIND_PATH) return;
 
   if (data) {
@@ -238,7 +238,7 @@ void RecvDumpsys(ADB_CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
       return;
     } else {
       // Done.
-      ADBClose(h);
+      ADBClose(*((ADB_CHANNEL_HANDLE *) arg.p));
       if (manager_path != DUMPSYS_ERROR) {
         log_printf("IOIO manager found with path %s", manager_path);
         state = MAIN_STATE_FIND_PATH_DONE;
@@ -286,9 +286,10 @@ static void SignalRcon() {
 }
 #endif
 
+static ADB_FILE_HANDLE f;
+static ADB_CHANNEL_HANDLE h;
+
 int main() {
-  ADB_FILE_HANDLE f;
-  ADB_CHANNEL_HANDLE h;
   led_init();
   log_init();
 #ifdef SIGNAL_AFTER_BAD_RESET
@@ -325,7 +326,8 @@ int main() {
             log_printf("ADB connected - starting boot sequence");
             manager_path = DUMPSYS_BUSY;
             DumpsysInit();
-            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys);
+            h = ADBOpen("shell:dumpsys package ioio.manager", &RecvDumpsys,
+                        (int_or_ptr_t) (void *) &h);
             state = MAIN_STATE_FIND_PATH;
         }
         break;
@@ -334,7 +336,8 @@ int main() {
         fingerprint_size = 0;
         strcpy(filepath, manager_path);
         strcat(filepath, "/files/" PLATFORM_ID ".fp");
-        f = ADBFileRead(filepath, &FileRecvFingerprint);
+        f = ADBFileRead(filepath, &FileRecvFingerprint,
+                        (int_or_ptr_t) (void *) &f);
         state = MAIN_STATE_WAIT_RECV_FP;
         break;
 
@@ -345,7 +348,8 @@ int main() {
 #endif
         auth_result = AUTH_BUSY;
         AuthInit();
-        f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages);
+        f = ADBFileRead("/data/system/packages.xml", &FileRecvPackages,
+                        (int_or_ptr_t) (void *) &f);
         state = MAIN_STATE_AUTH_MANAGER;
         break;
 
@@ -356,7 +360,8 @@ int main() {
           IOIOFileInit();
           strcpy(filepath, manager_path);
           strcat(filepath, "/files/" PLATFORM_ID ".ioio");
-          f = ADBFileRead(filepath, &FileRecvImage);
+          f = ADBFileRead(filepath, &FileRecvImage,
+                          (int_or_ptr_t) (void *) &f);
           state = MAIN_STATE_WAIT_RECV_IMAGE;
         }
         break;
