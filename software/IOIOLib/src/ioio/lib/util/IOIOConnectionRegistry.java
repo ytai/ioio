@@ -120,7 +120,7 @@ public class IOIOConnectionRegistry {
 			Log.d(TAG, "No runtime support for: " + className + ". Not adding.");
 		} catch (Throwable e) {
 			Log.e(TAG,
-					"Exception caught while attempting to initialize accessory connection factory",
+					"Exception caught while attempting to initialize connection factory",
 					e);
 		}
 	}
