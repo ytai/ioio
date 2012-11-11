@@ -31,6 +31,7 @@ package ioio.lib.pc;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -57,15 +58,17 @@ class SerialPortIOIOConnection implements IOIOConnection {
 			try {
 				CommPortIdentifier identifier = CommPortIdentifier
 						.getPortIdentifier(name_);
-				CommPort commPort = identifier.open(this.getClass()
-						.getName(), 1000);
+				CommPort commPort = identifier.open(this.getClass().getName(),
+						1000);
 				synchronized (this) {
 					if (!abort_) {
 						serialPort_ = (SerialPort) commPort;
 						serialPort_.enableReceiveThreshold(1);
+						serialPort_.enableReceiveTimeout(500);
 						serialPort_.setDTR(true);
 						Thread.sleep(100);
-						inputStream_ = serialPort_.getInputStream();
+						inputStream_ = new GracefullyClosingInputStream(
+								serialPort_.getInputStream());
 						outputStream_ = serialPort_.getOutputStream();
 						return;
 					}
@@ -88,6 +91,10 @@ class SerialPortIOIOConnection implements IOIOConnection {
 	synchronized public void disconnect() {
 		abort_ = true;
 		if (serialPort_ != null) {
+			try {
+				inputStream_.close();
+			} catch (IOException e) {
+			}
 			serialPort_.close();
 		}
 	}
@@ -105,5 +112,90 @@ class SerialPortIOIOConnection implements IOIOConnection {
 	@Override
 	public boolean canClose() {
 		return true;
+	}
+
+	// This is a hack:
+	// On Linux and OSX, PJC will not unblock a blocked read() on an input
+	// stream when closed from another thread.
+	// The workaround is to set a timeout on the InputStream and to read in a
+	// loop until something is actually read.
+	// Since a timeout is indistinguishable from an end-of-stream when using 
+	// the no-argument read(), we set a flag to designate that this is a real
+	// close, prior to actually closing, causing the read loop to exit upon the
+	// next timeout.
+	private static class GracefullyClosingInputStream extends InputStream {
+		private final InputStream underlying_;
+		private boolean closed_ = false;
+
+		public GracefullyClosingInputStream(InputStream is) {
+			underlying_ = is;
+		}
+
+		@Override
+		public int read(byte[] b) throws IOException {
+			while (!closed_) {
+				int i = underlying_.read(b);
+				if (i > 0) {
+					return i;
+				}
+			}
+			;
+			return -1;
+		}
+
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			while (!closed_) {
+				int i = underlying_.read(b, off, len);
+				if (i > 0) {
+					return i;
+				}
+			}
+			;
+			return -1;
+		}
+
+		@Override
+		public long skip(long n) throws IOException {
+			return underlying_.skip(n);
+		}
+
+		@Override
+		public int available() throws IOException {
+			return underlying_.available();
+		}
+
+		@Override
+		public void close() throws IOException {
+			closed_ = true;
+			underlying_.close();
+		}
+
+		@Override
+		public synchronized void mark(int readlimit) {
+			underlying_.mark(readlimit);
+		}
+
+		@Override
+		public synchronized void reset() throws IOException {
+			underlying_.reset();
+		}
+
+		@Override
+		public boolean markSupported() {
+			return underlying_.markSupported();
+		}
+
+		@Override
+		public int read() throws IOException {
+			while (!closed_) {
+				int i = underlying_.read();
+				if (i >= 0) {
+					return i;
+				}
+			}
+			;
+			return -1;
+		}
 	}
 }
