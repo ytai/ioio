@@ -1,13 +1,14 @@
 package ioio.dude;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class IOIODudeMain {
 	private static final int ESTABLISH_CONNECTION = 0x00;
@@ -82,15 +83,15 @@ public class IOIODudeMain {
 			connect(portName_);
 			switch (command_) {
 			case VERSIONS:
-				versions();
+				versionsCommand();
 				break;
 
 			case FINGERPRINT:
-				fingerprint();
+				fingerprintCommand();
 				break;
 
 			case WRITE:
-				write();
+				writeCommand();
 				break;
 			}
 			if (reset_) {
@@ -114,41 +115,53 @@ public class IOIODudeMain {
 		out_.write(new byte[] { 0x00, 'I', 'O', 'I', 'O' });
 	}
 
-	private static void write() throws IOException, ProtocolException,
+	private static void writeCommand() throws IOException, ProtocolException,
 			NoSuchAlgorithmException {
 		checkBootloaderProtocol();
 		File file = new File(fileName_);
-		byte[] fileFp = calculateFingerprint(file);
-
-		if (!force_) {
-			System.err.println("Comparing fingerprints...");
-			byte[] currentFp = readFingerprint();
-
-			if (Arrays.equals(currentFp, fileFp)) {
-				System.err.println("Fingerprint match - skipping write.");
+		ZipFile zip = new ZipFile(file, ZipFile.OPEN_READ);
+		try {
+			ZipEntry entry = zip.getEntry(platformVersion_ + ".ioio");
+			if (entry == null) {
+				System.err
+						.println("Application bundle does not include an image for the platform "
+								+ platformVersion_);
 				return;
-			} else {
-				System.err.println("Fingerprint mismatch.");
 			}
-		}
 
-		System.err.println("Writing image...");
-		short checksum = writeImage(file);
-		if (readChecksum() != checksum) {
-			throw new ProtocolException(
-					"Bad checksum. IOIO image is possibly corrupt.");
+			byte[] fileFp = calculateFingerprint(zip.getInputStream(entry));
+
+			if (!force_) {
+				System.err.println("Comparing fingerprints...");
+				byte[] currentFp = readFingerprint();
+
+				if (Arrays.equals(currentFp, fileFp)) {
+					System.err.println("Fingerprint match - skipping write.");
+					return;
+				} else {
+					System.err.println("Fingerprint mismatch.");
+				}
+			}
+
+			System.err.println("Writing image...");
+			short checksum = writeImage(zip.getInputStream(entry),
+					(int) entry.getSize());
+			if (readChecksum() != checksum) {
+				throw new ProtocolException(
+						"Bad checksum. IOIO image is possibly corrupt.");
+			}
+			System.err.println("Writing fingerprint...");
+			writeFingerprint(fileFp);
+			System.err.println("Done.");
+		} finally {
+			zip.close();
 		}
-		System.err.println("Writing fingerprint...");
-		writeFingerprint(fileFp);
-		System.err.println("Done.");
 	}
 
-	private static short writeImage(File file) throws IOException {
-		InputStream in = new FileInputStream(file);
-
+	private static short writeImage(InputStream in, int length)
+			throws IOException {
 		out_.write(WRITE_IMAGE);
 
-		final int length = (int) file.length();
 		out_.write((int) ((length >> 0) & 0xff));
 		out_.write((int) ((length >> 8) & 0xff));
 		out_.write((int) ((length >> 16) & 0xff));
@@ -194,9 +207,8 @@ public class IOIODudeMain {
 		return (short) (b0 | b1 << 8);
 	}
 
-	private static byte[] calculateFingerprint(File file) throws IOException,
+	private static byte[] calculateFingerprint(InputStream in) throws IOException,
 			NoSuchAlgorithmException {
-		InputStream in = new FileInputStream(file);
 		MessageDigest digester = MessageDigest.getInstance("MD5");
 		byte[] bytes = new byte[1024];
 		int byteCount;
@@ -212,7 +224,8 @@ public class IOIODudeMain {
 		out_.write(fingerprint);
 	}
 
-	private static void fingerprint() throws IOException, ProtocolException {
+	private static void fingerprintCommand() throws IOException,
+			ProtocolException {
 		checkBootloaderProtocol();
 		byte[] fingerprint = readFingerprint();
 		for (int i = 0; i < 16; ++i) {
@@ -259,7 +272,7 @@ public class IOIODudeMain {
 		}
 	}
 
-	private static void versions() {
+	private static void versionsCommand() {
 		switch (whatIsConnected_) {
 		case PROTOCOL_IOIO:
 			System.err.println("IOIO Application detected.");
@@ -324,7 +337,11 @@ public class IOIODudeMain {
 	}
 
 	private static void parseCommand(String arg) throws BadArgumentsException {
-		command_ = Command.valueOf(arg.toUpperCase());
+		try {
+			command_ = Command.valueOf(arg.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new BadArgumentsException("Unrecognized command: " + arg);
+		}
 	}
 
 	private static void parseOption(String arg) throws BadArgumentsException {
