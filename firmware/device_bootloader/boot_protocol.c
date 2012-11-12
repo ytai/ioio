@@ -104,7 +104,7 @@ typedef enum {
 
 static INCOMING_MESSAGE rx_msg;
 static int rx_buffer_cursor;
-static int rx_message_remaining;
+static DWORD rx_message_remaining;
 static RX_MESSAGE_STATE rx_message_state;
 static uint16_t file_checksum;
 

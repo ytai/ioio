@@ -110,16 +110,7 @@ static void StartBlink() {
 int main() {
   // First thing: if "boot" is not grounded, go immediately to app.
   if (led_read()) {
-//    __asm__("goto __APP_RESET");
-    
-    // TEMP
-    led_init();
-    while (1) {
-      led_on();
-      __delay_ms(100);
-      led_off();
-      __delay_ms(100);
-    }
+    __asm__("goto __APP_RESET");
   }
   // We need to enter bootloader mode, wait for the boot pin to be released.
   while (!led_read());

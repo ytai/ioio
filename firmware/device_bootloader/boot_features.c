@@ -40,13 +40,12 @@ bool ReadFingerprint() {
   OUTGOING_MESSAGE msg;
   int i;
   DWORD addr = BOOTLOADER_FINGERPRINT_ADDRESS;
-  BYTE* fp = msg.args.fingerprint.fingerprint;
   msg.type = FINGERPRINT;
+  BYTE* fp = msg.args.fingerprint.fingerprint;
   for (i = 0; i < FINGERPRINT_SIZE / 2; ++i) {
     DWORD_VAL dw = {FlashReadDWORD(addr)};
-    if (*fp++ != dw.byte.LB) return false;
-    if (*fp++ != dw.byte.HB) return false;
-    if (dw.word.HW != 0) return false;
+    *fp++ = dw.byte.LB;
+    *fp++ = dw.byte.HB;
     addr += 2;
   }
   BootProtocolSendMessage(&msg);
