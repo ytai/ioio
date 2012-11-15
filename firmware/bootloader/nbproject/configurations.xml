@@ -5,18 +5,18 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="ADB" displayName="ADB" projectFiles="true">
-        <itemPath>../libconn/adb.h</itemPath>
-        <itemPath>../libconn/adb_file.h</itemPath>
+        <itemPath>../libadb/adb.h</itemPath>
+        <itemPath>../libadb/adb_file.h</itemPath>
       </logicalFolder>
       <logicalFolder name="BLAPI" displayName="BLAPI" projectFiles="true">
         <itemPath>../blapi/version.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.h</itemPath>
-        <itemPath>bootloader_defs.h</itemPath>
         <itemPath>dumpsys.h</itemPath>
-        <itemPath>ioio_file.h</itemPath>
         <itemPath>xml.h</itemPath>
+        <itemPath>../bootloader_common/bootloader_defs.h</itemPath>
+        <itemPath>../bootloader_common/ioio_file.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
         <itemPath>../microchip/include/Compiler.h</itemPath>
@@ -25,10 +25,9 @@
         <itemPath>../microchip/include/timer.h</itemPath>
         <itemPath>../microchip/include/uart2.h</itemPath>
       </logicalFolder>
-      <itemPath>board.h</itemPath>
       <itemPath>bootloader_conn.h</itemPath>
-      <itemPath>flash.h</itemPath>
       <itemPath>../common/logging.h</itemPath>
+      <itemPath>../bootloader_common/board.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -49,10 +48,10 @@
       <logicalFolder name="Bootloader" displayName="Bootloader" projectFiles="true">
         <itemPath>auth.c</itemPath>
         <itemPath>dumpsys.c</itemPath>
-        <itemPath>flash.c</itemPath>
-        <itemPath>ioio_file.c</itemPath>
         <itemPath>version.c</itemPath>
         <itemPath>xml.c</itemPath>
+        <itemPath>../bootloader_common/flash.c</itemPath>
+        <itemPath>../bootloader_common/ioio_file.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
         <itemPath>../common/logging.c</itemPath>
@@ -60,7 +59,7 @@
       </logicalFolder>
       <itemPath>bootloader_conn.c</itemPath>
       <itemPath>main.c</itemPath>
-      <itemPath>usb_int.s</itemPath>
+      <itemPath>../bootloader_common/usb_int.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -73,6 +72,7 @@
       <itemPath>boot_IOIO0023.gld</itemPath>
       <itemPath>boot_IOIO0030.gld</itemPath>
     </logicalFolder>
+    <itemPath>../bootloader_common/flash.h</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -121,7 +121,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -294,7 +294,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -467,7 +467,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -630,7 +630,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -803,7 +803,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -965,12 +965,13 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="BOARD_VER=2010;NDEBUG"/>
+        <property key="preprocessor-macros"
+                  value="BOARD_VER=2010;NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>
@@ -1128,7 +1129,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb"/>
+                  value=".;..;../blapi;../common;../libadb;../microchip/include;../libusb;../bootloader_common"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
