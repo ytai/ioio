@@ -16,7 +16,7 @@ configs=("${configs[@]:2}")
 i=0
 for config in "${configs[@]}"; do
   echo $config
-  $HEX2IOIO $DISTDIR/$config/production/*production.hex /tmp/$config.ioio
+  $HEX2IOIO $DISTDIR/$config/production/*.production.hex /tmp/$config.ioio
   results[$((i++))]=/tmp/$config.ioio
 done
 
