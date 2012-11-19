@@ -42,7 +42,7 @@
         <targetDevice>PIC24FJ128DA106</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
         <platform>3</platform>
@@ -127,8 +127,6 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
-      <ICD3PlatformTool>
-      </ICD3PlatformTool>
     </conf>
     <conf name="IOIO0022" type="2">
       <toolsSet>
@@ -136,7 +134,7 @@
         <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
         <platform>3</platform>
@@ -221,8 +219,6 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
-      <ICD3PlatformTool>
-      </ICD3PlatformTool>
     </conf>
     <conf name="IOIO0023" type="2">
       <toolsSet>
@@ -230,7 +226,7 @@
         <targetDevice>PIC24FJ256DA206</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
         <platform>3</platform>
@@ -315,8 +311,6 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
-      <ICD3PlatformTool>
-      </ICD3PlatformTool>
     </conf>
     <conf name="IOIO0030" type="2">
       <toolsSet>
@@ -324,7 +318,7 @@
         <targetDevice>PIC24FJ256GB206</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
         <platform>3</platform>
@@ -409,8 +403,6 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
-      <ICD3PlatformTool>
-      </ICD3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

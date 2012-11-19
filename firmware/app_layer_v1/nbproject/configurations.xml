@@ -191,6 +191,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <Simulator>
+      </Simulator>
     </conf>
     <conf name="IOIO0022" type="2">
       <toolsSet>
@@ -300,6 +302,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <Simulator>
+      </Simulator>
     </conf>
     <conf name="IOIO0023" type="2">
       <toolsSet>
@@ -409,6 +413,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <Simulator>
+      </Simulator>
     </conf>
     <conf name="IOIO0030" type="2">
       <toolsSet>
@@ -518,6 +524,8 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
+      <Simulator>
+      </Simulator>
     </conf>
   </confs>
 </configurationDescriptor>
