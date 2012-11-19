@@ -8,12 +8,11 @@ else
    MAKE=make     
 fi
 
-success=true
 for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
-  $MAKE -C firmware/$PROJ "$@" || success=fail
+  if ! $MAKE -C firmware/$PROJ "$@"; then echo FAILURE ; exit 1 ; fi
 done
-$success && echo Success || echo Failed
-$success
+echo SUCCESS
+
