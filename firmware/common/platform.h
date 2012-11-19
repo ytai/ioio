@@ -120,13 +120,13 @@
 
 // on-board LED of each platform
 #if HARDWARE >= HARDWARE_IOIO0000 && HARDWARE <= HARDWARE_IOIO0003
-#define led_init() do { TRISFbits.TRISF3 = 1; LATFbits.LATF3 = 0; } while (0)
-#define led_on()   do { TRISFbits.TRISF3 = 0; } while (0)
-#define led_off()  do { TRISFbits.TRISF3 = 1; } while (0)
+#define led_init() do { _ODF3 = 1; _LATF3 = 1; _TRISF3 = 0; } while (0)
+#define led_on()   do { _LATF3 = 0; } while (0)
+#define led_off()  do { _LATF3 = 1; } while (0)
 #elif HARDWARE == HARDWARE_IOIO0004
-#define led_init() do { TRISCbits.TRISC12 = 1; LATCbits.LATC12 = 0; } while (0)
-#define led_on()   do { TRISCbits.TRISC12 = 0; } while (0)
-#define led_off()  do { TRISCbits.TRISC12 = 1; } while (0)
+#define led_init() do { _ODC12 = 1; _LATC12 = 1; _TRISC12 = 0; } while (0)
+#define led_on()   do { _LATC12 = 0; } while (0)
+#define led_off()  do { _LATC12 = 1; } while (0)
 #else
   #error Unknown hardware
 #endif

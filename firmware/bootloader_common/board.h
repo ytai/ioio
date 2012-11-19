@@ -112,8 +112,8 @@
 
 // LED
 #if BOARD_VER >= BOARD_SPRK0010 && BOARD_VER < BOARD_SPRK0020
-#define led_init()       {LATFbits.LATF3 = 1; TRISFbits.TRISF3 = 0;}
-#define led              LATFbits.LATF3
+#define led_init()       { _ODF3 = 1; _LATF3 = 1; _TRISF3 = 0;}
+#define led              _LATF3
 #define led_on()         led  = 0;
 #define led_off()        led  = 1;
 #define led_toggle()     led  = !led;
