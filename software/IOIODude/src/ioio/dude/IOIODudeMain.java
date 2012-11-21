@@ -201,10 +201,13 @@ public class IOIODudeMain {
 		int written = 0;
 		int progress = -1;
 		int i;
-		while (-1 != (i = in.read())) {
-			checksum += i;
-			out_.write(i);
-			++written;
+		byte[] buffer = new byte[1024];
+		while (-1 != (i = in.read(buffer))) {
+			for (int j = 0; j < i; ++j) {
+				checksum += ((int) buffer[j]) & 0xFF;
+			}
+			out_.write(buffer, 0, i);
+			written += i;
 			if (written * PROGRESS_SIZE / length != progress) {
 				progress = written * PROGRESS_SIZE / length;
 				printProgress(progress);
