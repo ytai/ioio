@@ -133,7 +133,7 @@ int main() {
     while (!(USBGetDeviceState() == CONFIGURED_STATE
       && CDCIsDtePresent())) USBTasks();
 
-    // Connected!
+    log_printf("Connected!");
     BootProtocolInit();
 
     while (USBGetDeviceState() == CONFIGURED_STATE && CDCIsDtePresent()) {
@@ -142,13 +142,14 @@ int main() {
       BYTE size = getsUSBUSART(in_buf, sizeof(in_buf));
       if (!BootProtocolProcess(in_buf, size)) {
         log_printf("Protocol error. Will detach / re-attach.");
-        USBDeviceDetach();
-        __delay_ms(100);
+        USBSoftDetach();
+        __delay_ms(2000);
         USBDeviceAttach();
         break;
       }
       BootProtocolTasks();
     }
+    log_printf("Disconnected!");
   }
   return 0;
 }

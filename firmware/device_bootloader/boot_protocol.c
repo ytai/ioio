@@ -85,16 +85,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   // Array is indexed by message type enum.
 };
 
-//typedef enum {
-//  STATE_OPEN,
-//  STATE_CLOSING,
-//  STATE_CLOSED
-//} STATE;
-
 DEFINE_STATIC_BYTE_QUEUE(tx_queue, 128);
 static int bytes_out;
 static int max_packet;
-//static STATE state;
 
 typedef enum {
   WAIT_TYPE,
@@ -124,7 +117,6 @@ void BootProtocolInit() {
   rx_message_state = WAIT_TYPE;
   ByteQueueClear(&tx_queue);
   max_packet = 64;
-//  state = STATE_OPEN;
 
   OUTGOING_MESSAGE msg;
   msg.type = ESTABLISH_CONNECTION;
@@ -190,15 +182,16 @@ static bool MessageDone() {
         return false;
       }
       file_checksum = 0;
+      log_printf("Starting to receive image file");
       IOIOFileInit();
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
-    // Call Echo() if the message is to be echoed back.
     default:
-      return FALSE;
+      log_printf("Unexpected message type: 0x%x", rx_msg.type);
+      return false;
   }
-  return TRUE;
+  return true;
 }
 
 bool BootProtocolProcess(const void* data, size_t data_len) {
@@ -239,6 +232,10 @@ bool BootProtocolProcess(const void* data, size_t data_len) {
       switch (rx_message_state) {
         case WAIT_TYPE:
           rx_message_state = WAIT_ARGS;
+          if (rx_msg.type >= MESSAGE_TYPE_LIMIT) {
+            log_printf("Unexpected message type: 0x%x", rx_msg.type);
+            return false;
+          }
           rx_message_remaining = incoming_arg_size[rx_msg.type];
           if (rx_message_remaining) break;
           // fall-through on purpose
@@ -252,7 +249,12 @@ bool BootProtocolProcess(const void* data, size_t data_len) {
           // fall-through on purpose
 
         case WAIT_FILE:
-          if (!IOIOFileDone()) return false;
+          if (!IOIOFileDone()) {
+            log_printf("Unexpected end of file");
+            return false;
+          } else {
+            log_printf("Image done successfully");
+          }
           SendChecksum(file_checksum);
           rx_message_state = WAIT_TYPE;
           rx_message_remaining = 1;

@@ -58,7 +58,6 @@ bool EraseFingerprint() {
 
 bool WriteFingerprint(BYTE fp[FINGERPRINT_SIZE]) {
   log_printf("WriteFingerprint()");
-  log_print_buf(fp, sizeof(fp));
 
   if (!EraseFingerprint()) return false;
   int i;
