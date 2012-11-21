@@ -55,8 +55,8 @@ echo Updating Android library projects
 echo =================================
 i=0
 for PROJECT in $LIBPROJECTS; do
-  $ANDROID update lib-project -p $PROJECT -t "${LIBTARGETS[i]}" 
-  ant -f $PROJECT/build.xml clean
+  $ANDROID update lib-project -p $PROJECT -t "${LIBTARGETS[i]}"  || exit 1
+  ant -f $PROJECT/build.xml clean || exit 1
   let "i++"
 done
 
@@ -65,8 +65,8 @@ echo Updating Android application projects
 echo =====================================
 i=0
 for PROJECT in $APPPROJECTS; do
-  $ANDROID update project -p $PROJECT -t "${APPTARGETS[i]}" -n "${APPNAMES[i]}"
-  ant -f $PROJECT/build.xml clean
+  $ANDROID update project -p $PROJECT -t "${APPTARGETS[i]}" -n "${APPNAMES[i]}" || exit 1
+  ant -f $PROJECT/build.xml clean || exit 1
   let "i++"
 done
 
@@ -74,14 +74,14 @@ done
 echo ==============================
 echo Generating Javadoc for IOIOLib
 echo ==============================
-ant -q -f IOIOLib/javadoc.xml
+ant -q -f IOIOLib/javadoc.xml || exit 1
 
 echo =================
 echo Packaging sources
 echo =================
 for DIR in $SOURCEDIRS; do
   echo SOURCE: $DIR
-  $ZIP -q -r $TMPOUT $DIR -x bin local.properties
+  $ZIP -q -r $TMPOUT $DIR -x bin local.properties || exit 1
 done
 
 echo =================================
@@ -92,11 +92,12 @@ read -p "Buiding libraries is broken. Build manually now and press Enter..."
 echo ============================================================
 echo Building Android application projects and packaging binaries
 echo ============================================================
+read -p "Buiding applications is broken. Build manually now and press Enter..."
 i=0
 for PROJECT in $APPPROJECTS; do
-  ant -f $PROJECT/build.xml debug
-  mv $PROJECT/bin/${APPNAMES[i]}{-debug,}.apk
-  $ZIP -q -j $TMPOUT $PROJECT/bin/${APPNAMES[i]}.apk
+  # ant -f $PROJECT/build.xml debug || exit 1
+  # mv $PROJECT/bin/${APPNAMES[i]}{-debug,}.apk || exit 1
+  $ZIP -q -j $TMPOUT $PROJECT/bin/${APPNAMES[i]}.apk || exit 1
   let "i++"
 done
 
@@ -105,8 +106,8 @@ echo Packaging PC application JARs
 echo =============================
 read -p "Please build jars now and press Enter..."
 for JAR in $APPJARS; do
-  $ZIP -q -j $TMPOUT $JAR
+  $ZIP -q -j $TMPOUT $JAR || exit 1
 done
 
 cd -
-mv $TMPOUT $1
+mv $TMPOUT $1 || exit 1
