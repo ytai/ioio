@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>IOIOEmulatorBridge</name>
+	<name>IOIOBridge</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -18,13 +18,17 @@
 		<link>
 			<name>lib</name>
 			<type>2</type>
-			<locationURI>IOIOLIB/target/pc/lib</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/IOIOLIB/target/pc/lib</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
 			<name>IOIOLIB</name>
 			<value>$%7BPARENT-1-PROJECT_LOC%7D/IOIOLib</value>
+		</variable>
+		<variable>
+			<name>IOIOLIB1</name>
+			<value>$%7BPARENT-2-PROJECT_LOC%7D/ioio/software/IOIOLib</value>
 		</variable>
 	</variableList>
 </projectDescription>

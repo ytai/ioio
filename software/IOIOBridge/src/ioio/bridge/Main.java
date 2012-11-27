@@ -1,4 +1,4 @@
-package ioio.emulator_bridge;
+package ioio.bridge;
 
 import java.io.IOException;
 import java.io.InputStream;
