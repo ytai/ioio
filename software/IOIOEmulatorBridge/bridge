@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR=$(dirname $0)
+adb forward tcp:4545 tcp:4545 && java -jar $DIR/bridge.jar $*
+
