@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include "atomic.h"
 #include "logging.h"
 
 void ByteQueueOverflow() {
@@ -46,7 +47,7 @@ void ByteQueuePushByte(BYTE_QUEUE* q, BYTE b) {
   if (q->write_cursor == q->capacity) {
     q->write_cursor = 0;
   }
-  ++q->size;
+  atomic16_add(&q->size, 1);
 }
 
 BYTE ByteQueuePullByte(BYTE_QUEUE* q) {
@@ -56,7 +57,7 @@ BYTE ByteQueuePullByte(BYTE_QUEUE* q) {
   if (q->read_cursor == q->capacity) {
     q->read_cursor = 0;
   }
-  --q->size;
+  atomic16_add(&q->size, -1);
   return ret;
 }
 
@@ -88,7 +89,7 @@ void ByteQueuePushBuffer(BYTE_QUEUE* q, const void* buf, int len) {
     memcpy(q->buf, ((const BYTE*) buf) + size_first, len - size_first);
     q->write_cursor += len - q->capacity;
   }
-  q->size += len;
+  atomic16_add(&q->size, len);
 }
 
 void ByteQueuePeek(BYTE_QUEUE* q, const BYTE** data, int* size) {
@@ -134,7 +135,7 @@ void ByteQueuePeekMax(BYTE_QUEUE* q, int max_size, const BYTE** data1,
 void ByteQueuePull(BYTE_QUEUE* q, int size) {
   assert(size <= q->size);
   q->read_cursor += size;
-  q->size -= size;
+  atomic16_add(&q->size, -size);
   if (q->read_cursor >= q->capacity) {
     q->read_cursor -= q->capacity;
   }
