@@ -93,7 +93,7 @@ public class IOIOConnectionRegistry {
 	 * For advanced usage only! Add platform-specific connection bootstrap
 	 * classes. Call before calling {@link #getConnectionFactories()}.
 	 */
-	public static void addBootstraps(String[] classNames) {
+	public static void addBootstraps(String... classNames) {
 		for (String className : classNames) {
 			addBootstrap(className);
 		}
@@ -101,11 +101,13 @@ public class IOIOConnectionRegistry {
 
 	private static final String TAG = "IOIOConnectionRegistry";
 
-	private static Collection<IOIOConnectionBootstrap> bootstraps_;
+	private static LinkedList<IOIOConnectionBootstrap> bootstraps_;
 
 	static {
 		bootstraps_ = new LinkedList<IOIOConnectionBootstrap>();
-		String[] classNames = new String[] { "ioio.lib.impl.SocketIOIOConnectionBootstrap" };
+		String[] classNames = new String[] { 
+		    "ioio.lib.socket.SocketIOIOConnectionBootstrap",
+		    };
 		addBootstraps(classNames);
 	}
 
@@ -114,7 +116,7 @@ public class IOIOConnectionRegistry {
 			Class<? extends IOIOConnectionBootstrap> bootstrapClass = Class
 					.forName(className).asSubclass(
 							IOIOConnectionBootstrap.class);
-			bootstraps_.add(bootstrapClass.newInstance());
+			bootstraps_.addFirst(bootstrapClass.newInstance());
 			Log.d(TAG, "Successfully added bootstrap class: " + className);
 		} catch (ClassNotFoundException e) {
 			Log.d(TAG, "Bootstrap class not found: " + className
