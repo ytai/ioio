@@ -45,8 +45,7 @@ public class IOIOSimpleApp extends IOIOActivity {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-			final float reading = input_.read();
-			setText(Float.toString(reading));
+			setNumber(input_.read());
 			pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
 			led_.write(!toggleButton_.isChecked());
 			Thread.sleep(10);
@@ -73,7 +72,8 @@ public class IOIOSimpleApp extends IOIOActivity {
 		});
 	}
 
-	private void setText(final String str) {
+	private void setNumber(float f) {
+		final String str = String.format("%.2f", f);
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
