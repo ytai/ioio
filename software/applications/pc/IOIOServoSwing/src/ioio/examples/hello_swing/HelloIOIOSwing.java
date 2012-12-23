@@ -81,7 +81,7 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener, Chan
 			protected void setup() throws ConnectionLostException,
 					InterruptedException {
 				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
-				servo_ = ioio_.openPwmOutput(1, 50);
+				servo_ = ioio_.openPwmOutput(12, 50);
 			}
 
 			@Override
@@ -92,9 +92,9 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener, Chan
 				
 				// servo
 				final double freq = slider_ / 50.;
-				phase_ += 2 * Math.PI * freq / 100;
+				phase_ += 2 * Math.PI * freq / 100 * 2;
 				final double amplitude = Math.sin(phase_);
-				servo_.setPulseWidth(1500 + (float) (amplitude * 1000));
+				servo_.setPulseWidth(1500 + (float) (amplitude * 500));
 				
 				Thread.sleep(10);
 			}
