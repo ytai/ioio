@@ -35,25 +35,57 @@
 
 void BootProtocolSendMessage(const OUTGOING_MESSAGE* msg);
 
+static void ReadFingerprintToBuffer(BYTE* buffer) {
+  int i;
+  DWORD addr = BOOTLOADER_FINGERPRINT_ADDRESS;
+  for (i = 0; i < FINGERPRINT_SIZE / 2; ++i) {
+    DWORD_VAL dw = {FlashReadDWORD(addr)};
+    *buffer++ = dw.byte.LB;
+    *buffer++ = dw.byte.HB;
+    addr += 2;
+  }
+}
+
+static bool IsFingerprintErased(const BYTE *fp) {
+  int i;
+  for (i = 0; i < FINGERPRINT_SIZE; ++i) {
+    if (*fp++ != 0xFF) return false;
+  }
+  return true;
+}
+
 bool ReadFingerprint() {
   log_printf("ReadFingerprint()");
   OUTGOING_MESSAGE msg;
-  int i;
-  DWORD addr = BOOTLOADER_FINGERPRINT_ADDRESS;
   msg.type = FINGERPRINT;
-  BYTE* fp = msg.args.fingerprint.fingerprint;
-  for (i = 0; i < FINGERPRINT_SIZE / 2; ++i) {
-    DWORD_VAL dw = {FlashReadDWORD(addr)};
-    *fp++ = dw.byte.LB;
-    *fp++ = dw.byte.HB;
-    addr += 2;
-  }
+  ReadFingerprintToBuffer(msg.args.fingerprint.fingerprint);
   BootProtocolSendMessage(&msg);
   return true;
 }
 
+BYTE ReadOscTun() {
+  return FlashReadDWORD(BOOTLOADER_OSCTUN_ADDRESS) & 0xFF;
+}
+
+bool WriteOscTun(BYTE tun) {
+  DWORD dw = 0xFFFFFF00 | tun;
+  return FlashWriteDWORD(BOOTLOADER_OSCTUN_ADDRESS, dw);
+}
+
 bool EraseFingerprint() {
-  return FlashErasePage(BOOTLOADER_FINGERPRINT_PAGE);
+  // First, read the fingerprint. Avoid a Flash cycle if already erased.
+  BYTE fp[FINGERPRINT_SIZE];
+  ReadFingerprintToBuffer(fp);
+  if (IsFingerprintErased(fp)) return true;
+
+  // We actually need to erase. Backup OscTun, erase, rewrite OscTun.
+  BYTE tun = ReadOscTun();
+  return FlashErasePage(BOOTLOADER_CONFIG_PAGE)
+      && WriteOscTun(tun);
+}
+
+bool EraseConfig() {
+  return FlashErasePage(BOOTLOADER_CONFIG_PAGE);
 }
 
 bool WriteFingerprint(BYTE fp[FINGERPRINT_SIZE]) {

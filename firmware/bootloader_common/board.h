@@ -124,6 +124,10 @@
 #define led_on()         led  = 0;
 #define led_off()        led  = 1;
 #define led_toggle()     led  = !led;
+
+#define pin1_pullup   _CN17PUE
+#define pin1_read()   _RF4
+
 #else
   #error Unknown board
 #endif

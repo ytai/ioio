@@ -30,6 +30,8 @@
 // Bootloader main
 
 #include <string.h>
+#include <stdint.h>
+
 #include "HardwareProfile.h"
 #include <libpic30.h>
 #include "GenericTypeDefs.h"
@@ -42,6 +44,7 @@
 #include "USB/usb_common.h"
 #include "USB/usb_function_cdc.h"
 #include "USB/usb_device.h"
+#include "boot_features.h"
 
 // Desired behavior:
 // 1. Read the status of the "boot" pin (LED). If high, skip the bootloader
@@ -96,9 +99,8 @@ static void SignalRcon() {
 }
 #endif
 
-static void StartBlink() {
-  int i = 5;
-  while (i-- > 0) {
+static void Blink(int times) {
+  while (times-- > 0) {
     led_on();
     __delay_ms(100);
     led_off();
@@ -106,26 +108,123 @@ static void StartBlink() {
   }
 }
 
+// Measures the period of one USB frame, based on SOF interrupts.
+// Depends on timer2/3 running in 32-bit configuration.
+uint32_t MeasureSOF() {
+    USBSOFIF = 1;  // Clear.
+    while (!USBSOFIF);
+    const uint32_t start = TMR2 | (((uint32_t) TMR3HLD) << 16);
+    USBSOFIF = 1;  // Clear.
+    while (!USBSOFIF);
+    const uint32_t end = TMR2 | (((uint32_t) TMR3HLD) << 16);
+    return end - start;
+}
+
+// Calibrate the oscillar according to the SOF clock coming from a USB host.
+// This function will first block until a USB connection has been established.
+// Then it will wait for 32 SOF's for the tuning process (will hang if they do
+// not arrive!). Then, if will disconnect from the USB bus and wait 2 seconds.
+// Upon exit, the _TUN register will hold the correct value.
+static void OscCalibrate() {
+  int i;
+
+  led_init();
+  USBInitialize();
+
+  // Start timer2/3 as 32-bit, system clock (16MHz).
+  T2CON = 0x0008;
+  PR2 = PR3 = 0xFFFF;
+  T2CON = 0x8008;
+
+  // Wait for a USB connection. Blink meanwhile.
+  int led_counter = 0;
+  while (USBGetDeviceState() != POWERED_STATE) {
+    USBTasks();
+    if ((led_counter++ & 0x3FFF) == 0) led_toggle();
+  }
+  led_off();
+
+  log_printf("Connected to host. Starting calibration.");
+
+  // Start from 0 (redundant, but better be explicit).
+  _TUN = 0;
+
+  for (i = 0; i < 32; ++i) {
+    uint32_t duration;
+    // Repeat for sanity: if for some reason the SOF is too long or too short,
+    // ignore it.
+    do {
+      duration = MeasureSOF();
+    } while (duration < 15000 || duration > 17000);
+
+    if (duration < 16000 && _TUN != 31) {
+      // We're running too slow.
+      _TUN++;
+    } else if (duration > 16000 && _TUN != 32) {
+      // We're running too fast.
+      _TUN--;
+    }
+  }
+  log_printf("Duration: %lu, TUN=%d", MeasureSOF(), _TUN);
+
+  // Undo side-effects.
+  T2CON = 0x0000;
+
+  // Detach, wait.
+  USBShutdown();
+  __delay_ms(2000);
+}
+
+// Tune the oscillator by reading the value from configuration, or otherwise
+// start the tuning process and store the result.
+void OscCalibrateCached() {
+  BYTE tun = ReadOscTun();
+  log_printf("Read tune value 0x%X.", tun);
+  if (tun > 0x3F) {
+    log_printf("Entering oscillator calibration process.");
+    OscCalibrate();
+    WriteOscTun(_TUN);  // Write result to flash.
+  } else {
+    _TUN = tun;
+  }
+}
+
+static bool IsPin1Grounded() {
+  bool result;
+  pin1_pullup = 1;
+  result = !pin1_read();
+  pin1_pullup = 0;
+  return result;
+}
 
 int main() {
-  // First thing: if "boot" is not grounded, go immediately to app.
+  log_init();
+
+  // If "boot" is not grounded, go immediately to app.
   if (led_read()) {
+    OscCalibrateCached();
+    log_printf("Running app...");
     __asm__("goto __APP_RESET");
   }
+
   // We need to enter bootloader mode, wait for the boot pin to be released.
   while (!led_read());
 
   // Now we can start!
   led_init();
-  log_init();
 #ifdef SIGNAL_AFTER_BAD_RESET
   if (RCON & 0b1100001001000000) {
     SignalRcon();
   }
 #endif
-  StartBlink();
 
   log_printf("Hello from Bootloader!!!");
+  if (IsPin1Grounded()) {
+    log_printf("Erasing config.");
+    EraseConfig();
+  }
+  OscCalibrateCached();
+  Blink(5);
   USBInitialize();
 
   while (1) {
@@ -139,6 +238,7 @@ int main() {
     while (USBGetDeviceState() == CONFIGURED_STATE && CDCIsDtePresent()) {
       static char in_buf[64];
       USBTasks();
+
       BYTE size = getsUSBUSART(in_buf, sizeof(in_buf));
       if (!BootProtocolProcess(in_buf, size)) {
         log_printf("Protocol error. Will detach / re-attach.");

@@ -65,7 +65,7 @@ BOOL FlashWriteDWORD(DWORD address, DWORD value)	{
   return NVMCONbits.WRERR == 0;
 }
 
-BOOL FlashWriteBlock(DWORD address, BYTE block[192]) {
+BOOL FlashWriteBlock(DWORD address, const BYTE block[192]) {
   assert((address & 0x7F) == 0);
   unsigned int i = 0;
   DWORD_VAL a = { address };

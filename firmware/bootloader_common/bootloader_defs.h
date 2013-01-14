@@ -33,12 +33,20 @@
 #include "GenericTypeDefs.h"
 #include "board.h"
 
+// Structure of the program (Flash) space:
+// [0x0000                         : BOOTLOADER_MIN_APP_ADDRESS)          - Reserved for bootloader.
+// [BOOTLOADER_MIN_APP_ADDRESS     : BOOTLOADER_MAX_APP_ADDRESS)          - Application code.
+// [BOOTLOADER_FINGERPRINT_ADDRESS : BOOTLOADER_FINGERPRINT_ADDRESS + 16) - Fingerprint (low-words only).
+// [BOOTLOADER_OSCTUN_ADDRESS      : BOOTLOADER_OSCTUN_ADDRESS      + 2)  - Osctun (low-byte only).
+
+
 #define FORCEROM __attribute__((space(auto_psv)))
 
-#define BOOTLOADER_MIN_APP_ADDRESS 0x4000
+#define BOOTLOADER_MIN_APP_ADDRESS 0x5000
 #define BOOTLOADER_MAX_APP_ADDRESS (APP_PROGSPACE_END - 0x100)  // last page reseved for fingerprint
 #define BOOTLOADER_FINGERPRINT_ADDRESS BOOTLOADER_MAX_APP_ADDRESS
-#define BOOTLOADER_FINGERPRINT_PAGE (BOOTLOADER_FINGERPRINT_ADDRESS & 0xFFFFF400)
+#define BOOTLOADER_OSCTUN_ADDRESS (BOOTLOADER_FINGERPRINT_ADDRESS + 16)
+#define BOOTLOADER_CONFIG_PAGE (BOOTLOADER_MAX_APP_ADDRESS & 0xFFFFF400)
 #define BOOTLOADER_INVALID_ADDRESS ((DWORD) -1)
 
 static const char manager_app_name[] = "ioio.manager";

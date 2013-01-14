@@ -72,7 +72,7 @@ BOOL FlashWriteDWORD(DWORD address, DWORD value);
 // It is assumed that the address range has previously been erased using
 // FlashErasePage().
 // The function returns TRUE if the operation succeeded.
-BOOL FlashWriteBlock(DWORD address, BYTE block[192]);
+BOOL FlashWriteBlock(DWORD address, const BYTE block[192]);
 
 // Read a single 24-bit value from Flash.
 // The top 8-bits of the returned value are always 0.

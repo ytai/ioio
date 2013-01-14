@@ -147,7 +147,7 @@ BOOL ValidateFingerprint() {
 }
 
 BOOL EraseFingerprint() {
-  return FlashErasePage(BOOTLOADER_FINGERPRINT_PAGE);
+  return FlashErasePage(BOOTLOADER_CONFIG_PAGE);
 }
 
 BOOL WriteFingerprint() {

@@ -36,10 +36,13 @@
 
 void HardReset();
 bool EraseFingerprint();
+bool EraseConfig();
 bool ReadFingerprint();
 bool WriteFingerprint(BYTE fp[FINGERPRINT_SIZE]);
 void SendChecksum(WORD checksum);
 void CheckInterface(BYTE interface_id[8]);
+BYTE ReadOscTun();
+bool WriteOscTun(BYTE tun);
 
 #endif	// BOOT_FEATURES_H
 

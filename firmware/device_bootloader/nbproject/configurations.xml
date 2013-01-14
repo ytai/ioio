@@ -13,6 +13,7 @@
         <itemPath>boot_protocol.h</itemPath>
         <itemPath>boot_protocol_defs.h</itemPath>
         <itemPath>boot_features.h</itemPath>
+        <itemPath>../bootloader_common/flash.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Common" displayName="Common" projectFiles="true">
         <itemPath>../microchip/include/Compiler.h</itemPath>
@@ -62,7 +63,6 @@
       <itemPath>boot_BLAPI_3.gld</itemPath>
       <itemPath>boot_IOIO0030.gld</itemPath>
     </logicalFolder>
-    <itemPath>../bootloader_common/flash.h</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
