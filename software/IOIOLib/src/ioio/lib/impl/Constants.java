@@ -42,4 +42,5 @@ class Constants {
 	
 	static final int[][] TWI_PINS = new int[][] {{ 4, 5 }, { 47, 48 }, { 26, 25 }};
 	static final int[] ICSP_PINS = new int[] { 36, 37, 38 };
+	static final int[] RGB_LED_MATRIX_PINS = new int[] { 7, 10, 11, 19, 20, 21, 22, 23, 24, 25, 27, 28};
 }

@@ -64,7 +64,8 @@ static inline void ScanDoneInterruptTrigger() {
 // we set its period to 2000 so that a match occurs @1KHz
 // used for ADC
 static inline void Timer3Init() {
-  PR3   = 1999;  // period is 2000 clocks = 1KHz
+ // PR3   = 1999;  // period is 2000 clocks = 1KHz
+  PR3 = 0xFFFF;
   _T3IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
 }
 

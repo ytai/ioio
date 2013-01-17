@@ -35,6 +35,8 @@
 
 #define IOIO_MAGIC 0x4F494F49L
 
+#define PROTOCOL_IID_YTAI0001 "YTAI0001"
+#define PROTOCOL_IID_YTAI0002 "YTAI0002"
 #define PROTOCOL_IID_IOIO0001 "IOIO0001"
 #define PROTOCOL_IID_IOIO0002 "IOIO0002"
 #define PROTOCOL_IID_IOIO0003 "IOIO0003"
@@ -372,6 +374,15 @@ typedef struct PACKED {
 typedef struct PACKED {
 } SOFT_CLOSE_ARGS;
 
+// rgb led matrix enable
+typedef struct PACKED {
+  BYTE len : 3;
+} RGB_LED_MATRIX_ENABLE_ARGS;
+
+// rgb led matrix frame
+typedef struct PACKED {
+  BYTE data[0];
+} RGB_LED_MATRIX_FRAME_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
@@ -408,9 +419,12 @@ typedef struct PACKED {
     INCAP_CONFIG_ARGS                        incap_config;
     SET_PIN_INCAP_ARGS                       set_pin_incap;
     SOFT_CLOSE_ARGS                          soft_close;
+    RGB_LED_MATRIX_ENABLE_ARGS               rgb_led_matrix_enable;
+    RGB_LED_MATRIX_FRAME_ARGS                rgb_led_matrix_frame;
+
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
-  BYTE __vabuf[64];  // buffer for var args. never access directly!
+  BYTE __vabuf[768];  // buffer for var args. never access directly!
 } INCOMING_MESSAGE;
 
 typedef struct PACKED {
@@ -498,6 +512,9 @@ typedef enum {
   INCAP_REPORT                        = 0x1C,
 
   SOFT_CLOSE                          = 0x1D,
+
+  RGB_LED_MATRIX_ENABLE               = 0x1E,
+  RGB_LED_MATRIX_FRAME                = 0x1F,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
