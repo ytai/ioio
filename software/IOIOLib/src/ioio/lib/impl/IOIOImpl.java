@@ -40,6 +40,7 @@ import ioio.lib.api.PulseInput;
 import ioio.lib.api.PulseInput.ClockRate;
 import ioio.lib.api.PulseInput.PulseMode;
 import ioio.lib.api.PwmOutput;
+import ioio.lib.api.RgbLedMatrix;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster;
 import ioio.lib.api.TwiMaster.Rate;
@@ -57,14 +58,15 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private static final String TAG = "IOIOImpl";
 	private boolean disconnect_ = false;
 
-	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
-			'I', 'O', '0', '0', '0', '3' };
+	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'Y', 'T',
+			'A', 'I', '0', '0', '0', '2' };
 
 	private final IOIOConnection connection_;
 	private final IncomingState incomingState_ = new IncomingState();
 	private final boolean openPins_[] = new boolean[Constants.NUM_PINS];
 	private final boolean openTwi_[] = new boolean[Constants.NUM_TWI_MODULES];
 	private boolean openIcsp_ = false;
+	private boolean openRgbLedMatrix_ = false;
 	private final ModuleAllocator pwmAllocator_ = new ModuleAllocator(
 			Constants.NUM_PWM_MODULES, "PWM");
 	private final ModuleAllocator uartAllocator_ = new ModuleAllocator(
@@ -238,6 +240,22 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 	}
 
+	synchronized public void closeRgbLedMatrix() {
+		try {
+			checkState();
+			if (!openRgbLedMatrix_) {
+				throw new IllegalStateException("RGB LED matrix not open");
+			}
+			openRgbLedMatrix_ = false;
+			for (int pin : Constants.RGB_LED_MATRIX_PINS) {
+				openPins_[pin] = false;
+			}
+			protocol_.rgbLedMatrixEnable(0);
+		} catch (IOException e) {
+		} catch (ConnectionLostException e) {
+		}
+	}
+
 	synchronized void closeIcsp() {
 		try {
 			checkState();
@@ -311,7 +329,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "IOIO0326";
+			return "MIRR0004";
 		}
 		return null;
 	}
@@ -550,6 +568,29 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
+	public RgbLedMatrix openRgbLedMatrix(RgbLedMatrix.Matrix kind)
+			throws ConnectionLostException {
+		checkState();
+		checkRgbLedMatrixFree();
+		for (int pin : Constants.RGB_LED_MATRIX_PINS) {
+			checkPinFree(pin);
+		}
+		for (int pin : Constants.RGB_LED_MATRIX_PINS) {
+			openPins_[pin] = true;
+		}
+		openRgbLedMatrix_ = true;
+		RgbLedMatrixImpl result = new RgbLedMatrixImpl(this, kind);
+		addDisconnectListener(result);
+		try {
+			protocol_.rgbLedMatrixEnable(RgbLedMatrixImpl.getShifterLen(kind));
+		} catch (IOException e) {
+			result.close();
+			throw new ConnectionLostException(e);
+		}
+		return result;
+	}
+
+	@Override
 	public SpiMaster openSpiMaster(int miso, int mosi, int clk,
 			int slaveSelect, SpiMaster.Rate rate)
 			throws ConnectionLostException {
@@ -665,6 +706,12 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private void checkIcspFree() {
 		if (openIcsp_) {
 			throw new IllegalArgumentException("ICSP already open");
+		}
+	}
+
+	private void checkRgbLedMatrixFree() {
+		if (openRgbLedMatrix_) {
+			throw new IllegalArgumentException("RGB LED matrix already open");
 		}
 	}
 

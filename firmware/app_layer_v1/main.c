@@ -91,7 +91,7 @@ void AppCallback(CHANNEL_HANDLE h, const void* data, UINT32 data_len) {
     // connection closed, soft reset and re-establish
     if (state == STATE_CONNECTED) {
       log_printf("Channel closed");
-      SoftReset();
+      //SoftReset();
     } else {
       log_printf("Channel failed to open");
     }
@@ -111,7 +111,7 @@ int main() {
         && state > STATE_OPEN_CHANNEL) {
       // just got disconnected
       log_printf("Disconnected");
-      SoftReset();
+      //SoftReset();
       state = STATE_INIT;
     }
     switch (state) {
