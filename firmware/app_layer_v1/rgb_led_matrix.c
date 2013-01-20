@@ -66,6 +66,10 @@ static int back_frame_ready;
 static int shifter_repeat;
 static int address = 0;
 
+//static const frame_t DEFAULT_FRAME = {
+//#include "default_frame.inl"
+//};
+
 void RgbLedMatrixEnable(int shifter_len_32) {
   _T4IE = 0;
 
@@ -83,6 +87,7 @@ void RgbLedMatrixEnable(int shifter_len_32) {
     TRISG &= ~0xC0;
 
     memset(frames[0], 0, sizeof(frames[0]));
+    // memcpy(frames[0], DEFAULT_FRAME, sizeof(frames[0]));
     data = (const uint8_t *) frames[0];
     sub_frame = SUB_FRAMES_PER_FRAME;
     displayed_frame = 0;

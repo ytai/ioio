@@ -105,6 +105,7 @@ int main() {
 
   ConnectionInit();
   SoftReset();
+  // Enable the matrix here if you want a default frame shown before connecting.
   while (1) {
     BOOL connected = ConnectionTasks();
     if (!connected
