@@ -48,13 +48,26 @@
 // Pin modes
 ////////////////////////////////////////////////////////////////////////////////
 
+#define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
+
+static int PinIsMatrix(int i) {
+  static const int MATRIX_PINS[] = { 7, 10, 11, 19, 20, 21, 22, 23, 24, 25, 27, 28 };
+  int j;
+  for (j = 0; j < ARRAY_LEN(MATRIX_PINS); ++j) {
+    if (MATRIX_PINS[j] == i) return 1;
+  }
+  return 0;
+}
+
 static void PinsInit() {
   int i;
   _CNIE = 0;
   // reset pin states
   SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
   for (i = 1; i < NUM_PINS; ++i) {
-    SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+    if (!PinIsMatrix(i)) {
+      SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+    }
   }
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     SetPinUart(0, i, 0, 0);  // UART RX disabled
