@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Build;
@@ -49,11 +50,13 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	private final BluetoothDevice device_;
 	private final String name_;
 	private final String address_;
+	private final BluetoothAdapter adapter_;
 
-	public BluetoothIOIOConnection(BluetoothDevice device) {
+	public BluetoothIOIOConnection(BluetoothDevice device, BluetoothAdapter adapter) {
 		device_ = device;
 		name_ = device.getName();
 		address_ = device.getAddress();
+		adapter_ = adapter;
 	}
 
 	@Override
@@ -71,6 +74,7 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		// keep trying to connect as long as we're not aborting
 		while (true) {
 			try {
+				adapter_.cancelDiscovery();
 				Log.v(TAG, "Attempting to connect to Bluetooth device: " + name_);
 				socket_.connect();
 				Log.v(TAG, "Established connection to device " + name_

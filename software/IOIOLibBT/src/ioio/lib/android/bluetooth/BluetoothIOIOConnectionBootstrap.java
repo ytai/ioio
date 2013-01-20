@@ -55,9 +55,9 @@ public class BluetoothIOIOConnectionBootstrap implements
 			}
 		} catch (Throwable e) {
 		}
-			throw new NoRuntimeSupportException(
-					"Bluetooth is not supported on this device.");
-		}
+		throw new NoRuntimeSupportException(
+				"Bluetooth is not supported on this device.");
+	}
 
 	@Override
 	public void getFactories(Collection<IOIOConnectionFactory> result) {
@@ -80,7 +80,7 @@ public class BluetoothIOIOConnectionBootstrap implements
 
 						@Override
 						public IOIOConnection createConnection() {
-							return new BluetoothIOIOConnection(device);
+							return new BluetoothIOIOConnection(device, adapter_);
 						}
 					});
 				}
