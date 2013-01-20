@@ -1,8 +1,16 @@
-If most cases, you will not need to modify PIXEL's firmware and thus do not need this reporsitory. Instead just refer to the source code of PIXEL's apps. 
-If however you want to modify the fundamental behavior of PIXEL, then
-see http://ledpixelart.com/developers.html for instructions.
+See http://ledpixelart.com/developers.html for instructions to write your own app for PIXEL.
+
+_________________________________________________________________________
+FIRMWARE INFO - Most developers will not need to touch the firmware and you can ignore this section. You only need to worry about the firmware if you're making a
+fundamental change to how PIXEL works. This is a fork of the RGB-LED branch of the IOIO repository on Github https://github.com/ytai/ioio/wiki. The 
+major changes from the RGB-LED branch are as follows:
+
+1. Bluetooth name is changed from IOIO to PIXEL
+2. The IOIO Loop frequency is changed from 1 Khz to 30 hz (ie, 30 times a second)
+3. On soft reset, the pins used by the LED matrix (see pins below) are not reset. This is to keep the matrix going after the Android device has been disconnected.
 
 
+For reference, here's the IOIO pins used by PIXEL. You only care about this however if you're doing a firmware modification. The 
 
 Pixel's firmware is a modified version of the standard IOIO board app firmware which was developed by Ytai Ben-Tsvi specifically to interface with the LED matrix hardware used by Pixel.
 
