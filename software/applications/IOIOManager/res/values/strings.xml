@@ -13,10 +13,10 @@
 	<string name="about">About</string>
 	<string name="programmer">Programmer</string>
 	<string name="about_title">About IOIO Manager</string>
-	<string name="about_message">IOIO Manager V1.1\nYtai Ben-Tsvi
-		2011\nPart of the
+	<string name="about_message">IOIO Manager V1.3\nYtai Ben-Tsvi
+		2012\nPart of the
 		IOIO open-source project.\nMore information and help
-		on:\nhttp://codaset.com/ytai/ioio/wiki\nDiscussion
+		on:\nhttp://github.com/ytai/ioio/wiki\nDiscussion
 		group:\nhttps://groups.google.com/forum/#!forum/ioio-users
 	</string>
 	<string name="no_image_selected">No image selected</string>

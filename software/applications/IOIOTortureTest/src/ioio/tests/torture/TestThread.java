@@ -9,6 +9,7 @@ import android.util.Log;
 
 class TestThread extends Thread {
 	private final TestProvider provider_;
+	private boolean run_ = true;
 
 	public TestThread(TestProvider provider) {
 		provider_ = provider;
@@ -17,16 +18,18 @@ class TestThread extends Thread {
 	@Override
 	public void run() {
 		super.run();
-		while (true) {
+		while (run_) {
 			Timer t = new Timer();
 			t.schedule(new TimerTask() {
 				@Override
 				public void run() {
 					StackTraceElement[] stackTrace = TestThread.this.getStackTrace();
-					Log.e("TortureTest", "====== Hung test stack trace ======");
+					Log.e("TortureTest", "====== Hung test on thread ["
+							+ TestThread.this.getId() + "]. Stack trace ======");
 					for (StackTraceElement el : stackTrace) {
 						Log.e("TortureTest", el.toString());
 					}
+					TestThread.this.interrupt();
 				}
 			}, 10000);
 			try {
@@ -35,8 +38,7 @@ class TestThread extends Thread {
 				runner.run();
 				Log.i("TortureTest", "TestThread [" + getId() + "] finished test " + runner.testClassName());
 			} catch (InterruptedException e) {
-				Log.i("TortureTest", "TestThread [" + getId() + "] interrupted, exiting.");
-				break;
+				Log.i("TortureTest", "TestThread [" + getId() + "] interrupted.");
 			} catch (ConnectionLostException e) {
 				Log.i("TortureTest",
 						"IOIO connection lost, TestThread [" + getId() + "] exiting.");
@@ -45,5 +47,10 @@ class TestThread extends Thread {
 				t.cancel();
 			}
 		}
+	}
+
+	public void abort() {
+		run_ = false;
+		interrupt();
 	}
 }

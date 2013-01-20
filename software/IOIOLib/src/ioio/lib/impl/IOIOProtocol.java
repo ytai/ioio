@@ -37,8 +37,10 @@ import ioio.lib.api.Uart;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import android.util.Log;
@@ -260,11 +262,12 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void incapClose(int incapNum) throws IOException {
+	synchronized public void incapClose(int incapNum, boolean double_prec)
+			throws IOException {
 		beginBatch();
 		writeByte(INCAP_CONFIGURE);
 		writeByte(incapNum);
-		writeByte(0x00);
+		writeByte(double_prec ? 0x80 : 0x00);
 		endBatch();
 	}
 
@@ -532,7 +535,8 @@ class IOIOProtocol {
 
 		public void handleAnalogPinStatus(int pin, boolean open);
 
-		public void handleReportAnalogInStatus(int pins[], int values[]);
+		public void handleReportAnalogInStatus(List<Integer> pins,
+				List<Integer> values);
 
 		public void handleUartOpen(int uartNum);
 
@@ -579,21 +583,18 @@ class IOIOProtocol {
 		private int validBytes_ = 0;
 		private byte[] inbuf_ = new byte[64];
 
-		private int[] analogFramePins_ = new int[0];
-		private Set<Integer> removedPins_ = new HashSet<Integer>(
-				Constants.NUM_ANALOG_PINS);
-		private Set<Integer> addedPins_ = new HashSet<Integer>(
-				Constants.NUM_ANALOG_PINS);
+		private List<Integer> analogPinValues_ = new ArrayList<Integer>();
+		private List<Integer> analogFramePins_ = new ArrayList<Integer>();
+		private List<Integer> newFramePins_ = new ArrayList<Integer>();
+		private Set<Integer> removedPins_ = new HashSet<Integer>();
+		private Set<Integer> addedPins_ = new HashSet<Integer>();
 
-		private void findDelta(int[] newPins) {
+		private void calculateAnalogFrameDelta() {
 			removedPins_.clear();
+			removedPins_.addAll(analogFramePins_);
 			addedPins_.clear();
-			for (int i : analogFramePins_) {
-				removedPins_.add(i);
-			}
-			for (int i : newPins) {
-				addedPins_.add(i);
-			}
+			addedPins_.addAll(newFramePins_);
+			// Remove the intersection from both.
 			for (Iterator<Integer> it = removedPins_.iterator(); it.hasNext();) {
 				Integer current = it.next();
 				if (addedPins_.contains(current)) {
@@ -601,6 +602,10 @@ class IOIOProtocol {
 					addedPins_.remove(current);
 				}
 			}
+			// swap
+			List<Integer> temp = analogFramePins_;
+			analogFramePins_ = newFramePins_;
+			newFramePins_ = temp;
 		}
 
 		private void fillBuf() throws IOException {
@@ -663,6 +668,7 @@ class IOIOProtocol {
 						break;
 
 					case SOFT_RESET:
+						analogFramePins_.clear();
 						handler_.handleSoftReset();
 						break;
 
@@ -688,33 +694,32 @@ class IOIOProtocol {
 
 					case REPORT_ANALOG_IN_FORMAT:
 						numPins = readByte();
-						int[] newFormat = new int[numPins];
+						newFramePins_.clear();
 						for (int i = 0; i < numPins; ++i) {
-							newFormat[i] = readByte();
+							newFramePins_.add(readByte());
 						}
-						findDelta(newFormat);
+						calculateAnalogFrameDelta();
 						for (Integer i : removedPins_) {
 							handler_.handleAnalogPinStatus(i, false);
 						}
 						for (Integer i : addedPins_) {
 							handler_.handleAnalogPinStatus(i, true);
 						}
-						analogFramePins_ = newFormat;
 						break;
 
 					case REPORT_ANALOG_IN_STATUS:
-						numPins = analogFramePins_.length;
+						numPins = analogFramePins_.size();
 						int header = 0;
-						int[] values = new int[numPins];
+						analogPinValues_.clear();
 						for (int i = 0; i < numPins; ++i) {
 							if (i % 4 == 0) {
 								header = readByte();
 							}
-							values[i] = (readByte() << 2) | (header & 0x03);
+							analogPinValues_.add((readByte() << 2) | (header & 0x03));
 							header >>= 2;
 						}
 						handler_.handleReportAnalogInStatus(analogFramePins_,
-								values);
+								analogPinValues_);
 						break;
 
 					case UART_REPORT_TX_STATUS:

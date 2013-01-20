@@ -32,6 +32,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -395,10 +396,11 @@ class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleReportAnalogInStatus(int pins[], int values[]) {
+	public void handleReportAnalogInStatus(List<Integer> pins,
+			List<Integer> values) {
 		// logMethod("handleReportAnalogInStatus", pins, values);
-		for (int i = 0; i < pins.length; ++i) {
-			intputPinStates_[pins[i]].setValue(values[i]);
+		for (int i = 0; i < pins.size(); ++i) {
+			intputPinStates_[pins.get(i)].setValue(values.get(i));
 		}
 	}
 

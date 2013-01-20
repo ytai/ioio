@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:a="http://schemas.android.com/apk/res/android"
-	a:id="@+id/programmerListItemTitle" a:text="Item Title" a:paddingLeft="50px"
-	a:height="50px" a:gravity="left|center_vertical" a:layout_height="wrap_content"
-	a:layout_weight="1" a:layout_width="wrap_content" a:longClickable="false"></TextView>
+<TextView a:id="@+id/programmerListItemTitle" a:gravity="left|center_vertical"
+	a:layout_height="wrap_content" a:layout_weight="1" a:layout_width="wrap_content"
+	a:longClickable="false" a:paddingLeft="50dp" a:paddingRight="50dp"
+	a:paddingTop="5sp" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:paddingBottom="5sp" xmlns:a="http://schemas.android.com/apk/res/android"
+	a:text="Item Title"></TextView>

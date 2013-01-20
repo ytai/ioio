@@ -25,7 +25,8 @@ class DigitalLatencyTest implements Test<List<Float>> {
 	}
 
 	@Override
-	public List<Float> run() throws ConnectionLostException {
+	public List<Float> run() throws ConnectionLostException,
+			InterruptedException {
 		Log.i("IOIOTortureTest", "Starting DigitalLatencyTest on pins: " + pin1_
 				+ ", " + pin2_);
 		List<Float> results = new ArrayList<Float>(20);
@@ -51,7 +52,6 @@ class DigitalLatencyTest implements Test<List<Float>> {
 				results.add((System.nanoTime() - start) / 1000000.f);
 				value = !value;
 			}
-		} catch (InterruptedException e) {
 		} finally {
 			in.close();
 			out.close();
