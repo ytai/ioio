@@ -424,7 +424,7 @@ typedef struct PACKED {
 
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
-  BYTE __vabuf[768];  // buffer for var args. never access directly!
+  BYTE __vabuf[1536];  // buffer for var args. never access directly!
 } INCOMING_MESSAGE;
 
 typedef struct PACKED {
