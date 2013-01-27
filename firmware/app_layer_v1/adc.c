@@ -128,7 +128,7 @@ static inline void ReportAnalogInStatus() {
   volatile unsigned int* buf = &ADC1BUF0;
   int num_channels = CountOnes(AD1CSSL);
   int i;
-  BYTE var_arg[16];
+  BYTE var_arg[16 / 4 * 5];
   int var_arg_pos = 0;
   int group_header_pos;
   int pos_in_group;
@@ -152,7 +152,7 @@ static inline void ReportAnalogInStatus() {
 static inline void ReportAnalogInFormat() {
   unsigned int mask = analog_scan_bitmask;
   int channel = 0;
-  BYTE var_arg[16 / 4 * 5];
+  BYTE var_arg[16];
   int var_arg_pos = 0;
   OUTGOING_MESSAGE msg;
   msg.type = REPORT_ANALOG_IN_FORMAT;
