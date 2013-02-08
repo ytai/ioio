@@ -92,11 +92,11 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput,
 
 	@Override
 	public synchronized void close() {
-		super.close();
 		try {
 			ioio_.protocol_.setAnalogInSampling(pinNum_, false);
 		} catch (IOException e) {
 		}
+		super.close();
 	}
 
 	@Override
