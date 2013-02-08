@@ -56,9 +56,6 @@ static void PinsInit() {
   for (i = 1; i < NUM_PINS; ++i) {
     SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
   }
-  for (i = 0; i < NUM_UART_MODULES; ++i) {
-    SetPinUart(0, i, 0, 0);  // UART RX disabled
-  }
   // clear and enable global CN interrupts
   _CNIF = 0;
   _CNIE = 1;
@@ -71,7 +68,6 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
   // Protect from the user trying to use push-pull, later pulling low using the
   // bootloader pin.
   if (pin == 0) open_drain = 1;
-  ADCSetScan(pin, 0);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
@@ -85,7 +81,6 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
 void SetPinDigitalIn(int pin, int pull) {
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
   SAVE_PIN_FOR_LOG(pin);
-  ADCSetScan(pin, 0);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);
   PinSetCnen(pin, 0);
@@ -166,7 +161,21 @@ void SetPinAnalogIn(int pin) {
   PinSetCnpd(pin, 0);
   PinSetAnsel(pin, 1);
   PinSetTris(pin, 1);
-  ADCSetScan(pin, 0);
+}
+
+void SetPinCapSense(int pin) {
+  log_printf("SetPinCapSense(%d)", pin);
+  SAVE_PIN_FOR_LOG(pin);
+
+  // In cap-sense mode, the pin is configured for analog input, but initially
+  // pulling low in order to discharge, the circuit.
+  PinSetRpor(pin, 0);
+  PinSetCnen(pin, 0);
+  PinSetCnpu(pin, 0);
+  PinSetCnpd(pin, 0);
+  PinSetAnsel(pin, 1);
+  PinSetLat(pin, 0);
+  PinSetTris(pin, 1);
 }
 
 void SetPinSpi(int pin, int spi_num, int mode, int enable) {

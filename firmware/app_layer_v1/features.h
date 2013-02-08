@@ -35,6 +35,7 @@
 void SetPinDigitalOut(int pin, int value, int open_drain);
 void SetPinDigitalIn(int pin, int pull);
 void SetPinAnalogIn(int pin);
+void SetPinCapSense(int pin);
 void SetPinPwm(int pin, int pwm_num, int enable);
 void SetPinUart(int pin, int uart_num, int dir, int enable);
 void SetPinSpi(int pin, int spi_num, int mode, int enable);

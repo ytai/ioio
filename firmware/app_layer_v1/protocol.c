@@ -79,7 +79,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_CONFIG_ARGS),
   sizeof(SET_PIN_INCAP_ARGS),
-  sizeof(SOFT_CLOSE_ARGS)
+  sizeof(SOFT_CLOSE_ARGS),
+  sizeof(SET_PIN_CAPSENSE_ARGS),
+  sizeof(SET_CAPSENSE_SAMPLING_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -114,7 +116,9 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(ICSP_CONFIG_ARGS),
   sizeof(INCAP_STATUS_ARGS),
   sizeof(INCAP_REPORT_ARGS),
-  sizeof(SOFT_CLOSE_ARGS)
+  sizeof(SOFT_CLOSE_ARGS),
+  sizeof(CAPSENSE_REPORT_ARGS),
+  sizeof(SET_CAPSENSE_SAMPLING_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
@@ -487,6 +491,17 @@ static BOOL MessageDone() {
       log_printf("Soft close requested");
       Echo();
       state = STATE_CLOSING;
+      break;
+
+    case SET_PIN_CAPSENSE:
+      CHECK(rx_msg.args.set_pin_capsense.pin < NUM_PINS);
+      SetPinCapSense(rx_msg.args.set_pin_capsense.pin);
+      break;
+
+    case SET_CAPSENSE_SAMPLING:
+      CHECK(rx_msg.args.set_capsense_sampling.pin < NUM_PINS);
+      ADCSetCapSense(rx_msg.args.set_capsense_sampling.pin,
+                     rx_msg.args.set_capsense_sampling.enable);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

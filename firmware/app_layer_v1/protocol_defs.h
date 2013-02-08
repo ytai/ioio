@@ -372,6 +372,24 @@ typedef struct PACKED {
 typedef struct PACKED {
 } SOFT_CLOSE_ARGS;
 
+// set pin capsense
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 2;
+} SET_PIN_CAPSENSE_ARGS;
+
+// capsense report
+typedef struct PACKED {
+  BYTE pin : 6;
+  WORD value : 10;
+} CAPSENSE_REPORT_ARGS;
+
+// set capsense sampling
+typedef struct PACKED {
+  BYTE pin : 6;
+  BYTE : 1;
+  BYTE enable : 1;
+} SET_CAPSENSE_SAMPLING_ARGS;
 
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
@@ -408,6 +426,8 @@ typedef struct PACKED {
     INCAP_CONFIG_ARGS                        incap_config;
     SET_PIN_INCAP_ARGS                       set_pin_incap;
     SOFT_CLOSE_ARGS                          soft_close;
+    SET_PIN_CAPSENSE_ARGS                    set_pin_capsense;
+    SET_CAPSENSE_SAMPLING_ARGS               set_capsense_sampling;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[64];  // buffer for var args. never access directly!
@@ -436,6 +456,8 @@ typedef struct PACKED {
     INCAP_STATUS_ARGS                       incap_status;
     INCAP_REPORT_ARGS                       incap_report;
     SOFT_CLOSE_ARGS                         soft_close;
+    CAPSENSE_REPORT_ARGS                    capsense_report;
+    SET_CAPSENSE_SAMPLING_ARGS              set_capsense_sampling;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -498,6 +520,10 @@ typedef enum {
   INCAP_REPORT                        = 0x1C,
 
   SOFT_CLOSE                          = 0x1D,
+
+  SET_PIN_CAPSENSE                    = 0x1E,
+  CAPSENSE_REPORT                     = 0x1E,
+  SET_CAPSENSE_SAMPLING               = 0x1F,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
