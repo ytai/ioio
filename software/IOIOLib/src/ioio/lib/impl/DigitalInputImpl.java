@@ -57,8 +57,7 @@ class DigitalInputImpl extends AbstractPin implements DigitalInput,
 	@Override
 	synchronized public void waitForValue(boolean value)
 			throws InterruptedException, ConnectionLostException {
-		checkState();
-		while ((!valid_ || value_ != value) && state_ != State.DISCONNECTED) {
+		while ((!valid_ || value_ != value) && state_ == State.OPEN) {
 			wait();
 		}
 		checkState();
@@ -76,8 +75,7 @@ class DigitalInputImpl extends AbstractPin implements DigitalInput,
 	@Override
 	synchronized public boolean read() throws InterruptedException,
 			ConnectionLostException {
-		checkState();
-		while (!valid_ && state_ != State.DISCONNECTED) {
+		while (!valid_ && state_ == State.OPEN) {
 			wait();
 		}
 		checkState();

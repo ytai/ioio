@@ -76,7 +76,6 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput,
 	@Override
 	synchronized public float read() throws InterruptedException,
 			ConnectionLostException {
-		checkState();
 		while (!valid_ && state_ == State.OPEN) {
 			wait();
 		}
