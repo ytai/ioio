@@ -662,6 +662,36 @@ public interface IOIO {
 	 *             method.
 	 */
 	public IcspMaster openIcspMaster() throws ConnectionLostException;
+	
+	/**
+	 * Shorthand for openCapSense(pin, CapSense.DEFAULT_COEF).
+	 * 
+	 * @see #openCapSense(int, float)
+	 */
+	public CapSense openCapSense(int pin) throws ConnectionLostException;
+
+	/**
+	 * Open a pin for cap-sense.
+	 * <p>
+	 * A cap-sense input pin can be used to measure capacitance, typically in
+	 * touch sensing applications. Note that not every pin can be used as cap-
+	 * sense. See board documentation for the legal pins.
+	 * <p>
+	 * The pin will operate in this mode until close() is invoked on the
+	 * returned interface. It is illegal to open a pin that has already been
+	 * opened and has not been closed. A connection must have been established
+	 * prior to calling this method, by invoking {@link #waitForConnect()}.
+	 * 
+	 * @param pin
+	 *            Pin number, as labeled on the board.
+	 * @return Interface of the assigned pin.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this
+	 *             method.
+	 * @see CapSense
+	 */
+	public CapSense openCapSense(int pin, float filterCoef)
+			throws ConnectionLostException;
 
 	/**
 	 * Start a batch of operations. This is strictly an optimization and will

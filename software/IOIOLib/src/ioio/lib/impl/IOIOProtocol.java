@@ -92,6 +92,9 @@ class IOIOProtocol {
 	static final int SET_PIN_INCAP                       = 0x1C;
 	static final int INCAP_REPORT                        = 0x1C;
 	static final int SOFT_CLOSE                          = 0x1D;
+	static final int SET_PIN_CAPSENSE                    = 0x1E;
+	static final int CAPSENSE_REPORT                     = 0x1E;
+	static final int SET_CAPSENSE_SAMPLING               = 0x1F;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -494,6 +497,20 @@ class IOIOProtocol {
 		writeByte(ICSP_REGOUT);
 		endBatch();
 	}
+	
+	synchronized public void setPinCapSense(int pinNum) throws IOException {
+		beginBatch();
+		writeByte(SET_PIN_CAPSENSE);
+		writeByte(pinNum & 0x3F);
+		endBatch();
+	}
+
+	synchronized public void setCapSenseSampling(int pinNum, boolean enable) throws IOException {
+		beginBatch();
+		writeByte(SET_CAPSENSE_SAMPLING);
+		writeByte((pinNum & 0x3F) | (enable ? 0x80 : 0x00));
+		endBatch();
+	}
 
 	public interface IncomingHandler {
 		public void handleEstablishConnection(byte[] hardwareId,
@@ -557,6 +574,10 @@ class IOIOProtocol {
 		public void handleIncapClose(int incapNum);
 
 		public void handleIncapOpen(int incapNum);
+		
+		public void handleCapSenseReport(int pinNum, int value);
+		
+		public void handleSetCapSenseSampling(int pinNum, boolean enable);
 	}
 
 	class IncomingThread extends Thread {
@@ -829,7 +850,18 @@ class IOIOProtocol {
 					case SOFT_CLOSE:
 						Log.d(TAG, "Received soft close.");
 						throw new IOException("Soft close");
-
+						
+					case CAPSENSE_REPORT:
+						arg1 = readByte();
+						arg2 = readByte();
+						handler_.handleCapSenseReport(arg1 & 0x3F, (arg1 >> 6)
+								| (arg2 << 2));
+						break;
+						
+					case SET_CAPSENSE_SAMPLING:
+						arg1 = readByte();
+						handler_.handleSetCapSenseSampling(arg1 & 0x3F, (arg1 & 0x80) != 0);
+						break;
 
 					default:
 						in_.close();

@@ -259,5 +259,14 @@ enum Board {
 				throw new IllegalArgumentException("Illegal pin: " + pin);
 			}
 		}
+
+		void checkSupportsCapSense(int pin) {
+			checkValidPin(pin);
+			// Currently, all analog pins are also cap-sense.
+			if (!map_[pin][Function.ANALOG_IN.ordinal()]) {
+				throw new IllegalArgumentException("Pin " + pin
+						+ " does not support cap-sense");
+			}
+		}
 	}
 }
