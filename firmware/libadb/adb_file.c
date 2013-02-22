@@ -91,7 +91,9 @@ typedef enum {
   ADB_FILE_STATE_WAIT_OPEN,
   ADB_FILE_STATE_WAIT_HEADER,
   ADB_FILE_STATE_WAIT_DATA,
-  ADB_FILE_STATE_WAIT_FAIL_DATA
+  ADB_FILE_STATE_WAIT_FAIL_DATA,
+  ADB_FILE_STATE_WAIT_CLOSE,
+  ADB_FILE_STATE_ERROR
 } ADB_FILE_STATE;
 
 typedef struct {
@@ -113,8 +115,16 @@ static void ADBFileCallback(const void* data, UINT32 data_len, int_or_ptr_t i) {
   assert(i < ADB_FILE_MAX_FILES);
   f = &adb_files[i.i];
 
-  // handle unexpected channel closure
-  if (!data) goto error;
+  // Handle channel closure
+  if (!data) {
+    f->func(NULL,
+            f->state == ADB_FILE_STATE_WAIT_CLOSE && data_len == 0
+                ? 0   // Clean closure.
+                : 1,  // Error.
+            f->callback_arg);
+    memset(f, 0, sizeof(ADB_FILE));
+    return;
+  }
 
   // consume data
   while (1) {
@@ -151,9 +161,8 @@ static void ADBFileCallback(const void* data, UINT32 data_len, int_or_ptr_t i) {
         if (f->msg.id == ID_DONE) {
           if (data_len != f->read_remain) goto close_and_error;
           // success - EOF
-          f->func(NULL, 0, f->callback_arg);
+          CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_CLOSE);
           ADBClose(f->handle);
-          memset(f, 0, sizeof(ADB_FILE));
           return;
         } else {
           data = ((const BYTE*) data) + f->read_remain;
@@ -178,16 +187,18 @@ static void ADBFileCallback(const void* data, UINT32 data_len, int_or_ptr_t i) {
         return;
       }
       break;
+
+     case ADB_FILE_STATE_WAIT_CLOSE:
+     case ADB_FILE_STATE_ERROR:
+      return;  // Ignore everything, just wait to be closed.
     }
   }
-  return;
+  assert(0);  // We should never get here.
 
 close_and_error:
   ADBClose(f->handle);
-error:
   log_printf("Failed to open or read file %s", f->path);
-  f->func(NULL, 1, f->callback_arg);
-  memset(f, 0, sizeof(ADB_FILE));
+  CHANGE_STATE(f->state, ADB_FILE_STATE_ERROR);
 }
 
 ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func,
@@ -215,13 +226,12 @@ ADB_FILE_HANDLE ADBFileRead(const char* path, ADBChannelRecvFunc recv_func,
 }
 
 void ADBFileClose(ADB_FILE_HANDLE h) {
-  log_printf("Closing file %d", h);
+  log_printf("File %d close requested", h);
   assert(h >= 0 && h < ADB_FILE_MAX_FILES);
   ADB_FILE* f = &adb_files[h];
-  if (f->state != ADB_FILE_STATE_FREE) {
-    ADBClose(f->handle);
-    memset(f, 0, sizeof(ADB_FILE));
-  }
+  assert(f->state != ADB_FILE_STATE_FREE);
+  CHANGE_STATE(f->state, ADB_FILE_STATE_WAIT_CLOSE);
+  ADBClose(f->handle);
 }
 
 void ADBFileInit() {
