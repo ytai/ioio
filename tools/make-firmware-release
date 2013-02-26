@@ -22,44 +22,54 @@ DEVBOOT_APP_CONFIGS=(IOIO0030)
 # Which configurations to use for the app.
 APP_CONFIGS=(IOIO00{21,22,23,30})
 
-echo 'Building bootloader-only bundles.'
-mkdir -p release/firmware/bootloader
-tools/make-ioio-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.ioioimg ${BOOT_CONFIGS[@]}
-tools/make-hex-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.zip ${BOOT_CONFIGS[@]}
+TEMPDIR=$(mktemp -dt dist.XXXXXX)
 
-echo 'Building device-bootloader-only bundles.'
-mkdir -p release/firmware/device-bootloader
-tools/make-ioio-bundle firmware/device_bootloader/dist release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.ioioimg ${DEVBOOT_CONFIGS[@]}
-tools/make-hex-bundle firmware/device_bootloader/dist release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.zip ${DEVBOOT_CONFIGS[@]}
+if [ ! -f release/firmware/bootloader/Boot-$BOOT_VER.zip ]; then
+  echo 'Building bootloader-only bundles.'
+  mkdir -p release/firmware/bootloader
+  tools/make-ioio-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.ioioimg ${BOOT_CONFIGS[@]}
+  tools/make-hex-bundle firmware/bootloader/dist release/firmware/bootloader/Boot-$BOOT_VER.zip ${BOOT_CONFIGS[@]}
+else
+  echo 'Using existing bootloader images'
+fi
+unzip release/firmware/bootloader/Boot-$BOOT_VER.zip -d $TEMPDIR/Boot
+
+if [ ! -f release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.zip ]; then
+  echo 'Building device-bootloader-only bundles.'
+  mkdir -p release/firmware/device-bootloader
+  tools/make-ioio-bundle firmware/device_bootloader/dist release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.ioioimg ${DEVBOOT_CONFIGS[@]}
+  tools/make-hex-bundle firmware/device_bootloader/dist release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.zip ${DEVBOOT_CONFIGS[@]}
+else
+  echo 'Using existing device bootloader images'
+fi
+unzip release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER.zip -d $TEMPDIR/DevBoot
 
 echo 'Building app-only bundles.'
 mkdir -p release/firmware/application
 tools/make-ioio-bundle firmware/app_layer_v1/dist release/firmware/application/App-$APP_VER.ioioapp ${APP_CONFIGS[@]}
 
 echo 'Building bootloader + app bundles.'
-DIST=$(mktemp -dt dist.XXXXXX)
 
 for ((i = 0; i < ${#BOOT_CONFIGS[@]}; ++i)); do
   BOOT_CONFIG=${BOOT_CONFIGS[i]}
   APP_CONFIG=${BOOT_APP_CONFIGS[i]}
-  mkdir -p $DIST/$BOOT_CONFIG/production
-  tools/merge-hex firmware/bootloader/dist/$BOOT_CONFIG/production/bootloader.production.hex firmware/app_layer_v1/dist/$APP_CONFIG/production/app_layer_v1.production.hex > $DIST/$BOOT_CONFIG/production/merged.production.hex
+  mkdir -p $TEMPDIR/$BOOT_CONFIG/production
+  tools/merge-hex $TEMPDIR/Boot/$BOOT_CONFIG.hex firmware/app_layer_v1/dist/$APP_CONFIG/production/app_layer_v1.production.hex > $TEMPDIR/$BOOT_CONFIG/production/merged.production.hex
 done
 
-tools/make-ioio-bundle $DIST release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.ioioimg ${BOOT_CONFIGS[@]}
-tools/make-hex-bundle $DIST release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.zip ${BOOT_CONFIGS[@]}
+tools/make-ioio-bundle $TEMPDIR release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.ioioimg ${BOOT_CONFIGS[@]}
+tools/make-hex-bundle $TEMPDIR release/firmware/bootloader/Boot-$BOOT_VER-App-$APP_VER.zip ${BOOT_CONFIGS[@]}
 
 echo 'Building device-bootloader + app bundles.'
-DIST=$(mktemp -dt dist.XXXXXX)
 
 for ((i = 0; i < ${#DEVBOOT_CONFIGS[@]}; ++i)); do
   DEVBOOT_CONFIG=${DEVBOOT_CONFIGS[i]}
   APP_CONFIG=${DEVBOOT_APP_CONFIGS[i]}
-  mkdir -p $DIST/$DEVBOOT_CONFIG/production
-  tools/merge-hex firmware/device_bootloader/dist/$DEVBOOT_CONFIG/production/device_bootloader.production.hex firmware/app_layer_v1/dist/$APP_CONFIG/production/app_layer_v1.production.hex > $DIST/$DEVBOOT_CONFIG/production/merged.production.hex
+  mkdir -p $TEMPDIR/$DEVBOOT_CONFIG/production
+  tools/merge-hex $TEMPDIR/DevBoot/$DEVBOOT_CONFIG.hex firmware/app_layer_v1/dist/$APP_CONFIG/production/app_layer_v1.production.hex > $TEMPDIR/$DEVBOOT_CONFIG/production/merged.production.hex
 done
 
-tools/make-ioio-bundle $DIST release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER-App-$APP_VER.ioioimg ${DEVBOOT_CONFIGS[@]}
-tools/make-hex-bundle $DIST release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER-App-$APP_VER.zip ${DEVBOOT_CONFIGS[@]}
+tools/make-ioio-bundle $TEMPDIR release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER-App-$APP_VER.ioioimg ${DEVBOOT_CONFIGS[@]}
+tools/make-hex-bundle $TEMPDIR release/firmware/device-bootloader/DevBoot-$DEVBOOT_VER-App-$APP_VER.zip ${DEVBOOT_CONFIGS[@]}
 
 
