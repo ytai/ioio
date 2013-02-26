@@ -58,7 +58,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private boolean disconnect_ = false;
 
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
-			'I', 'O', '0', '0', '0', '3' };
+			'I', 'O', '0', '0', '0', '4' };
 
 	private IOIOConnection connection_;
 	private IncomingState incomingState_ = new IncomingState();
@@ -330,7 +330,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		case APP_FIRMWARE_VER:
 			return incomingState_.firmwareId_;
 		case IOIOLIB_VER:
-			return "IOIO0326";
+			return "IOIO0400";
 		}
 		return null;
 	}

@@ -48,7 +48,7 @@
 #include "protocol_defs.h"
 
 // Human-readable string describing app firmware version.
-#define FW_IMPL_VER "IOIO0330"
+#define FW_IMPL_VER "IOIO0400"
 
 // Initialize this module.
 // This function completely resets the module's state and can be called even
