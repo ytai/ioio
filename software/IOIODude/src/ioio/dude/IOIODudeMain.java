@@ -232,7 +232,7 @@ public class IOIODudeMain {
 
 	private static short readChecksum() throws IOException, ProtocolException {
 		if (in_.read() != CHECKSUM) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		readExactly(2);
 		final int b0 = ((int) buffer_[0]) & 0xff;
@@ -272,7 +272,7 @@ public class IOIODudeMain {
 			IOException {
 		out_.write(READ_FINGERPRINT);
 		if (in_.read() != FINGERPRINT) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		readExactly(16);
 		byte[] fingerprint = new byte[16];
@@ -297,7 +297,7 @@ public class IOIODudeMain {
 		out_.write("BOOT0001".getBytes());
 		readExactly(2);
 		if (buffer_[0] != CHECK_INTERFACE_RESPONSE) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		if ((buffer_[1] & 0x01) == 0) {
 			throw new ProtocolException(
