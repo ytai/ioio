@@ -96,7 +96,7 @@ class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
 	@Override
 	public synchronized void close() {
 		try {
-			ioio_.protocol_.setAnalogInSampling(pinNum_, false);
+			ioio_.protocol_.setCapSenseSampling(pinNum_, false);
 		} catch (IOException e) {
 		}
 		super.close();
