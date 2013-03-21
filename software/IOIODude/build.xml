@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse.ant.import?>
-<project basedir="." default="build" name="IOIODude">
+<project basedir="." default="jar" name="IOIODude">
 	<property environment="env" />
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
     <path id="IOIODude.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/jna-3.5.1.jar"/>
-        <pathelement location="lib/purejavacomm-0.0.11.jar"/>
+        <pathelement location="lib/purejavacomm-0.0.16.jar"/>
     </path>
 		<target name="init">
 		<mkdir dir="bin" />
@@ -34,10 +34,10 @@
 		<jar destfile="bin/ioiodude.jar" basedir="bin/classes">
 			<manifest>
 				<attribute name="Main-Class" value="ioio.dude.IOIODudeMain" />
-				<attribute name="Class-Path" value="./ jna-3.5.1.jar purejavacomm-0.0.11.jar" />
+				<attribute name="Class-Path" value="./ jna-3.5.1.jar purejavacomm-0.0.16.jar" />
 			</manifest>
 			<zipgroupfileset dir="lib" includes="jna-3.5.1.jar" />
-			<zipgroupfileset dir="lib" includes="purejavacomm-0.0.11.jar" />
+			<zipgroupfileset dir="lib" includes="purejavacomm-0.0.16.jar" />
 		</jar>
 	</target>
 	<target depends="jar" name="zip">
