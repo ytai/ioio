@@ -66,13 +66,28 @@ typedef struct {
   unsigned int* cn_force;
   unsigned int pos_mask;
   unsigned int neg_mask;
+  PORT name;
+  int nbit;
 } PORT_INFO;
 
 #if defined(__PIC24FJ256GB206__) ||  defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 
-#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, &CNEN##port, &CNBACKUP##port, &CNFORCE##port, (1 << num), ~(1 << num) }
+#define MAKE_PORT_INFO(port, num) { \
+  &TRIS##port,                      \
+  &ANS##port,                       \
+  &PORT##port,                      \
+  &LAT##port,                       \
+  &ODC##port,                       \
+  &CNEN##port,                      \
+  &CNBACKUP##port,                  \
+  &CNFORCE##port,                   \
+  (1 << num),                       \
+  ~(1 << num),                      \
+  PORT_##port,                      \
+  num                               \
+}
 
 typedef struct {
   SFR* cnen;
@@ -424,4 +439,10 @@ int PinToAnalogChannel(int pin) {
 
 int PinToRpin(int pin) {
   return pin_to_rpin[pin];
+}
+
+void PinToPortBit(int pin, PORT *port, int *nbit) {
+  const PORT_INFO* info = &port_info[pin];
+  *port = info->name;
+  *nbit = info->nbit;
 }
