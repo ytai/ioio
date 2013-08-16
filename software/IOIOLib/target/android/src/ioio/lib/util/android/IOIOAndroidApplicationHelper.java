@@ -73,7 +73,7 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
 						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
 						"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
 						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
-						"ioio.lib.android.otg.OTGConnectionBootstrap"});
+						"ioio.lib.android.device.DeviceConnectionBootstrap"});
 	}
 
 	public void create() {
