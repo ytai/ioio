@@ -147,15 +147,19 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	private void openStreams() {
 		connection_ = usbManager_.openDevice(device_);
+		if (connection_ == null) {
+			Log.e(TAG, "Couldn't open UsbDevice");
+			setState(State.CLOSED);
+			return;
+		}
 		if (!claimInterfaces()) {
 			closeStreams();
 			setState(State.CLOSED);
 			return;
 		}
 
-		if (controlInterface_.getEndpointCount() != 1
-				|| controlInterface_.getEndpoint(0).getDirection() != UsbConstants.USB_DIR_OUT) {
-			Log.e(TAG, "Control interface (0) of UsbDevice doesn't have exactly 1 OUT end point");
+		if (controlInterface_.getEndpointCount() != 1) {
+			Log.e(TAG, "Control interface (0) of UsbDevice doesn't have exactly 1 end point");
 			closeStreams();
 			setState(State.CLOSED);
 			return;
