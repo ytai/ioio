@@ -38,6 +38,10 @@ public class Streams {
 			if (offset == 0) {
 				return connection_.bulkTransfer(ep_, buffer, buffer.length, TRANSFER_TIMEOUT_MILLIS);
 			}
+			// This next code is not very efficient. It allocates more memory, and does a copy of it.
+			// It seems that there's no much better way to do that without compromising memory
+			// footprint (by having a member buffer).
+			// BUT: This code never gets called from IOIOLibAndroid - so it shouldn't hurt us.
 			byte[] tmp = new byte[length];
 			int readAmount = connection_.bulkTransfer(ep_, tmp, buffer.length,
 					TRANSFER_TIMEOUT_MILLIS);
@@ -49,6 +53,7 @@ public class Streams {
 	public static class DeviceOutputStream extends OutputStream {
 		private final UsbDeviceConnection connection_;
 		private final UsbEndpoint ep_;
+		private final byte[] oneByteBuffer_ = new byte[1];
 
 		DeviceOutputStream(UsbDeviceConnection connection, UsbEndpoint ep) {
 			this.connection_ = connection;
@@ -56,8 +61,9 @@ public class Streams {
 		}
 
 		@Override
-		public void write(int oneByte) throws IOException {
-			write(new byte[] { (byte) oneByte });
+		public synchronized void write(int oneByte) throws IOException {
+			oneByteBuffer_[0] = (byte) oneByte;
+			write(oneByteBuffer_);
 		}
 
 		@Override
