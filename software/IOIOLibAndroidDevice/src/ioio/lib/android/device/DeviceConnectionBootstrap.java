@@ -293,6 +293,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 					try {
 						DeviceConnectionBootstrap.this.wait();
 					} catch (InterruptedException e) {
+						Log.e(TAG, "waitForConnect() was interrupted");
 					}
 				}
 				if (instanceState_ == InstanceState.DEAD) {
