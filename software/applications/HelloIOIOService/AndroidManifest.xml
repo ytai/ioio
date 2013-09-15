@@ -14,8 +14,14 @@
 			<intent-filter>
 				<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
 			</intent-filter>
+			<intent-filter>
+				<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+			</intent-filter>
 			<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
 				android:resource="@xml/accessory_filter" />
+			<meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+			
 		</service>
 		<activity android:label="@string/app_name" android:name="MainActivity"
 			android:launchMode="singleTask">
