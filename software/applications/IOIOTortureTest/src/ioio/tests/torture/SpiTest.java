@@ -1,5 +1,7 @@
 package ioio.tests.torture;
 
+import ioio.lib.api.DigitalInput;
+import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -18,8 +20,7 @@ public class SpiTest implements Test<Boolean> {
 	private final int pin3_;
 	private final int pin4_;
 
-	public SpiTest(IOIO ioio, ResourceAllocator alloc)
-			throws InterruptedException {
+	public SpiTest(IOIO ioio, ResourceAllocator alloc) throws InterruptedException {
 		ioio_ = ioio;
 		alloc_ = alloc;
 		pin1_ = alloc.allocatePinPair(ResourceAllocator.PIN_PAIR_PERIPHERAL);
@@ -31,8 +32,7 @@ public class SpiTest implements Test<Boolean> {
 
 	@Override
 	public Boolean run() throws ConnectionLostException, InterruptedException {
-		Log.i("IOIOTortureTest", "Starting SpiTest on pins: " + pin1_ + ", "
-				+ pin2_ + ", " + pin3_ + ", " + pin4_);
+		Log.i("IOIOTortureTest", "Starting SpiTest on pins: " + pin1_ + ", " + pin2_ + ", " + pin3_ + ", " + pin4_);
 		try {
 			// pin 4 is even => never pin 9, so we'll use it for clk
 			if (!runTest(pin1_, pin2_, pin4_, pin3_)) {
@@ -46,21 +46,22 @@ public class SpiTest implements Test<Boolean> {
 			alloc_.freePinPair(pin3_);
 			alloc_.freePeripheral(PeripheralType.SPI);
 		}
-		Log.i("IOIOTortureTest", "Passed SpiTest on pins: " + pin1_ + ", "
-				+ pin2_ + ", " + pin3_ + ", " + pin4_);
+		Log.i("IOIOTortureTest", "Passed SpiTest on pins: " + pin1_ + ", " + pin2_ + ", " + pin3_ + ", " + pin4_);
 		return true;
 	}
 
-	private boolean runTest(int misoPin, int mosiPin, int clkPin, int ssPin)
-			throws ConnectionLostException, InterruptedException {
+	private boolean runTest(int misoPin, int mosiPin, int clkPin, int ssPin) throws ConnectionLostException,
+			InterruptedException {
 		if (mosiPin == 9) {
 			// pin 9 doesn't support peripheral output
 			return true;
 		}
 		final int SEED = 17;
 
-		SpiMaster spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPin,
-				SpiMaster.Rate.RATE_1M);
+		SpiMaster spi = ioio_.openSpiMaster(new DigitalInput.Spec(misoPin), new DigitalOutput.Spec(mosiPin),
+				new DigitalOutput.Spec(clkPin, DigitalOutput.Spec.Mode.OPEN_DRAIN),
+				new DigitalOutput.Spec[] { new DigitalOutput.Spec(ssPin, DigitalOutput.Spec.Mode.OPEN_DRAIN) },
+				new SpiMaster.Config(SpiMaster.Rate.RATE_1M));
 
 		try {
 			Random rand = new Random(SEED);
@@ -69,49 +70,35 @@ public class SpiTest implements Test<Boolean> {
 			byte[] response = new byte[15];
 			for (int i = 0; i < 100; ++i) {
 				rand.nextBytes(request);
-				spi.writeRead(request, request.length, 25, response,
-						response.length);
+				spi.writeRead(request, request.length, 25, response, response.length);
 				for (int j = 0; j < response.length; ++j) {
 					if (j < 10) {
 						if (response[j] != request[j + 10]) {
+							Log.w("IOIOTortureTest", "Failed SpiTest (contents) on pins: " + misoPin + ", " + mosiPin
+									+ ", " + clkPin + ", " + ssPin);
 							Log.w("IOIOTortureTest",
-									"Failed SpiTest (contents) on pins: "
-											+ pin1_ + ", " + pin2_ + ", "
-											+ pin3_ + ", " + pin4_);
-							Log.w("IOIOTortureTest",
-									"Requested: " + Arrays.toString(request)
-											+ " got: "
-											+ Arrays.toString(response));
+									"Requested: " + Arrays.toString(request) + " got: " + Arrays.toString(response));
 							return false;
 						}
 					} else {
 						if (response[j] != (byte) 0xFF) {
+							Log.w("IOIOTortureTest", "Failed SpiTest (suffix) on pins: " + misoPin + ", " + mosiPin
+									+ ", " + clkPin + ", " + ssPin);
 							Log.w("IOIOTortureTest",
-									"Failed SpiTest (suffix) on pins: " + pin1_
-											+ ", " + pin2_ + ", " + pin3_
-											+ ", " + pin4_);
-							Log.w("IOIOTortureTest",
-									"Requested: " + Arrays.toString(request)
-											+ " got: "
-											+ Arrays.toString(response));
+									"Requested: " + Arrays.toString(request) + " got: " + Arrays.toString(response));
 							return false;
 						}
 					}
 				}
 				// send a write-only and a read-only request every 10 requests
 				if (i % 10 == 0) {
-					spi.writeRead(request, request.length, request.length,
-							null, 0);
-					spi.writeRead(null, 0, response.length, response,
-							response.length);
+					spi.writeRead(request, request.length, request.length, null, 0);
+					spi.writeRead(null, 0, response.length, response, response.length);
 					for (int j = 0; j < response.length; ++j) {
 						if (response[j] != (byte) 0xFF) {
-							Log.w("IOIOTortureTest",
-									"Failed SpiTest (read-only) on pins: "
-											+ pin1_ + ", " + pin2_ + ", "
-											+ pin3_ + ", " + pin4_);
-							Log.w("IOIOTortureTest",
-									" got: " + Arrays.toString(response));
+							Log.w("IOIOTortureTest", "Failed SpiTest (read-only) on pins: " + pin1_ + ", " + pin2_
+									+ ", " + pin3_ + ", " + pin4_);
+							Log.w("IOIOTortureTest", " got: " + Arrays.toString(response));
 							return false;
 						}
 					}

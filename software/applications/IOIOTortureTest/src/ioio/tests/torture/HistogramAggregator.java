@@ -74,4 +74,9 @@ class HistogramAggregator implements TestResultAggregator<List<Float>> {
 			}
 		});
 	}
+
+	@Override
+	public void addException(Exception e) {
+		// TODO: Count failures
+	}
 }

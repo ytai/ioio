@@ -1,6 +1,7 @@
 package ioio.tests.torture;
 
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.spi.Log;
 
 class TypedTestRunner<E> implements TestRunner {
 	Test<E> test_;
@@ -13,7 +14,17 @@ class TypedTestRunner<E> implements TestRunner {
 	
 	@Override
 	public void run() throws ConnectionLostException, InterruptedException {
-		agg_.addResult(test_.run());
+		try {
+			agg_.addResult(test_.run());
+		} catch (InterruptedException e) {
+			agg_.addException(e);
+			throw e;
+		} catch (ConnectionLostException e) {
+			throw e;
+		} catch (Exception e) {
+			Log.e("TortureTest", "Test threw an exception: ", e);
+			agg_.addException(e);
+		}
 	}
 
 	@Override

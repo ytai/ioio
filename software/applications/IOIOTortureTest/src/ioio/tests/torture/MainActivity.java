@@ -32,7 +32,7 @@ public class MainActivity extends IOIOActivity {
 					alloc_);
 			showVersions();
 			for (int i = 0; i < workers_.length; ++i) {
-				workers_[i] = new TestThread(provider);
+				workers_[i] = new TestThread(provider, "Test-" + i);
 				workers_[i].start();
 			}
 		}
