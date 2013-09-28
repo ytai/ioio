@@ -30,8 +30,8 @@ package ioio.lib.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 class FlowControlledOutputStream extends OutputStream {
 	interface Sender {
@@ -39,8 +39,9 @@ class FlowControlledOutputStream extends OutputStream {
 	}
 
 	private final Sender sender_;
-	private final BlockingQueue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
-			Constants.BUFFER_SIZE);
+	// We don't actually need the queue to be blocking, but ArrayDeque is only
+	// available since API-9.
+	private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(Constants.BUFFER_SIZE);
 	private final FlushThread thread_ = new FlushThread();
 	private final int maxPacket_;
 	private final byte[] packet_;
@@ -110,8 +111,7 @@ class FlowControlledOutputStream extends OutputStream {
 						while (readyToSend_ == 0 || queue_.isEmpty()) {
 							FlowControlledOutputStream.this.wait();
 						}
-						toSend = Math.min(maxPacket_,
-								Math.min(readyToSend_, queue_.size()));
+						toSend = Math.min(maxPacket_, Math.min(readyToSend_, queue_.size()));
 						for (int i = 0; i < toSend; ++i) {
 							packet_[i] = queue_.remove();
 						}
@@ -121,6 +121,7 @@ class FlowControlledOutputStream extends OutputStream {
 					sender_.send(packet_, toSend);
 				}
 			} catch (InterruptedException e) {
+				// This is here to exit the loop.
 			}
 		}
 	}

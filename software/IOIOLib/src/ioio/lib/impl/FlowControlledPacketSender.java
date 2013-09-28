@@ -29,8 +29,8 @@
 package ioio.lib.impl;
 
 import java.io.IOException;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 class FlowControlledPacketSender {
 	interface Packet {
@@ -42,8 +42,9 @@ class FlowControlledPacketSender {
 	}
 
 	private final Sender sender_;
-	private final BlockingQueue<Packet> queue_ = new ArrayBlockingQueue<Packet>(
-			Constants.PACKET_BUFFER_SIZE);
+	// We don't actually need the queue to be blocking, but ArrayDeque is only
+	// available since API-9.
+	private final Queue<Packet> queue_ = new ArrayBlockingQueue<Packet>(Constants.PACKET_BUFFER_SIZE);
 	private final FlushThread thread_ = new FlushThread();
 
 	private int readyToSend_ = 0;
@@ -63,7 +64,7 @@ class FlowControlledPacketSender {
 			throw new IOException("Interrupted");
 		}
 		if (closed_) {
-			throw new IllegalStateException("Stream has been closed");
+			throw new IOException("Stream has been closed");
 		}
 	}
 
@@ -76,7 +77,7 @@ class FlowControlledPacketSender {
 			throw new IOException("Interrupted");
 		}
 		if (closed_) {
-			throw new IllegalStateException("Stream has been closed");
+			throw new IOException("Stream has been closed");
 		}
 		notifyAll();
 	}
@@ -101,17 +102,21 @@ class FlowControlledPacketSender {
 			super.run();
 			try {
 				while (true) {
+					Packet p;
 					synchronized (FlowControlledPacketSender.this) {
-						while (queue_.isEmpty()
-								|| readyToSend_ < queue_.peek().getSize()) {
+						while (queue_.isEmpty() || readyToSend_ < queue_.peek().getSize()) {
 							FlowControlledPacketSender.this.wait();
 						}
-						FlowControlledPacketSender.this.notifyAll();
 						readyToSend_ -= queue_.peek().getSize();
+						p = queue_.remove();
+						// We now have less room in our outgoing queue and more
+						// room in our incoming queue.
+						FlowControlledPacketSender.this.notifyAll();
 					}
-					sender_.send(queue_.remove());
+					sender_.send(p);
 				}
 			} catch (InterruptedException e) {
+				// This is here to exit the loop.
 			}
 		}
 	}
