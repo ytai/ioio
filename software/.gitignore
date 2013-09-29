@@ -1,5 +1,4 @@
 bin
-gen
 doc
 *.settings
 build.xml
