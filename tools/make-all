@@ -12,6 +12,7 @@ for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
+  if ! prjMakefilesGenerator.bat firmware/$PROJ; then echo "WARNING: failed to regenerate Makefiles."; fi
   if ! $MAKE -C firmware/$PROJ "$@"; then echo FAILURE ; exit 1 ; fi
 done
 echo SUCCESS
