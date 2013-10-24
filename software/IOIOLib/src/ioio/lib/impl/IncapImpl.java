@@ -1,17 +1,45 @@
+/*
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
+ *  
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied.
+ */
 package ioio.lib.impl;
 
 import ioio.lib.api.PulseInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-class IncapImpl extends AbstractPin implements DataModuleListener,
-		PulseInput {
+class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	private static final int MAX_QUEUE_LEN = 32;
 	private final PulseMode mode_;
-	private final int incapNum_;
+	private final ResourceManager.Resource incap_;
 	private long lastDuration_;
 	private final float timeBase_;
 	private final boolean doublePrecision_;
@@ -19,12 +47,13 @@ class IncapImpl extends AbstractPin implements DataModuleListener,
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
 
-	public IncapImpl(IOIOImpl ioio, PulseMode mode, int incapNum, int pin,
+	public IncapImpl(IOIOImpl ioio, PulseMode mode,
+			ResourceManager.Resource incap, ResourceManager.Resource pin,
 			int clockRate, int scale, boolean doublePrecision)
 			throws ConnectionLostException {
 		super(ioio, pin);
 		mode_ = mode;
-		incapNum_ = incapNum;
+		incap_ = incap;
 		timeBase_ = 1.0f / (scale * clockRate);
 		doublePrecision_ = doublePrecision;
 	}
@@ -96,7 +125,12 @@ class IncapImpl extends AbstractPin implements DataModuleListener,
 
 	@Override
 	public synchronized void close() {
-		ioio_.closeIncap(incapNum_, doublePrecision_);
+		checkClose();
+		try {
+			ioio_.protocol_.incapClose(incap_.id, doublePrecision_);
+			ioio_.resourceManager_.free(incap_);
+		} catch (IOException e) {
+		}
 		super.close();
 	}
 

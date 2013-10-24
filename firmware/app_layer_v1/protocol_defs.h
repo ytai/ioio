@@ -30,6 +30,7 @@
 #ifndef __PROTOCOLDEFS_H__
 #define __PROTOCOLDEFS_H__
 
+#include "GenericTypeDefs.h"
 
 #define PACKED __attribute__ ((packed))
 
@@ -39,6 +40,7 @@
 #define PROTOCOL_IID_IOIO0002 "IOIO0002"
 #define PROTOCOL_IID_IOIO0003 "IOIO0003"
 #define PROTOCOL_IID_IOIO0004 "IOIO0004"
+#define PROTOCOL_IID_IOIO0005 "IOIO0005"
 
 // hard reset
 typedef struct PACKED {
@@ -392,6 +394,30 @@ typedef struct PACKED {
   BYTE enable : 1;
 } SET_CAPSENSE_SAMPLING_ARGS;
 
+// sequencer configure
+typedef struct PACKED {
+  BYTE size;
+  BYTE config[0];
+} SEQUENCER_CONFIGURE_ARGS;
+
+// sequencer push cue
+typedef struct PACKED {
+  WORD time;
+  BYTE cue[0];
+} SEQUENCER_PUSH_ARGS;
+
+// sequencer control
+typedef struct PACKED {
+  BYTE cmd;
+  union {
+    BYTE extra[0];
+  };
+} SEQUENCER_CONTROL_ARGS;
+
+typedef struct PACKED {
+  BYTE event;
+} SEQUENCER_EVENT_ARGS;
+
 // BOOKMARK(add_feature): Add a struct for the new incoming / outgoing message
 // arguments.
 
@@ -429,9 +455,12 @@ typedef struct PACKED {
     SOFT_CLOSE_ARGS                          soft_close;
     SET_PIN_CAPSENSE_ARGS                    set_pin_capsense;
     SET_CAPSENSE_SAMPLING_ARGS               set_capsense_sampling;
+    SEQUENCER_CONFIGURE_ARGS                 sequencer_configure;
+    SEQUENCER_PUSH_ARGS                      sequencer_push;
+    SEQUENCER_CONTROL_ARGS                   sequencer_control;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
-  BYTE __vabuf[64];  // buffer for var args. never access directly!
+  BYTE __vabuf[72];  // buffer for var args. never access directly!
 } INCOMING_MESSAGE;
 
 typedef struct PACKED {
@@ -459,6 +488,7 @@ typedef struct PACKED {
     SOFT_CLOSE_ARGS                         soft_close;
     CAPSENSE_REPORT_ARGS                    capsense_report;
     SET_CAPSENSE_SAMPLING_ARGS              set_capsense_sampling;
+    SEQUENCER_EVENT_ARGS                    sequencer_event;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
 } OUTGOING_MESSAGE;
@@ -525,6 +555,11 @@ typedef enum {
   SET_PIN_CAPSENSE                    = 0x1E,
   CAPSENSE_REPORT                     = 0x1E,
   SET_CAPSENSE_SAMPLING               = 0x1F,
+
+  SEQUENCER_CONFIGURE                 = 0x20,
+  SEQUENCER_EVENT                     = 0x20,
+  SEQUENCER_PUSH                      = 0x21,
+  SEQUENCER_CONTROL                   = 0x22,
 
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT

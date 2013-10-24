@@ -39,7 +39,8 @@ class DigitalInputImpl extends AbstractPin implements DigitalInput,
 	private boolean value_;
 	private boolean valid_ = false;
 
-	DigitalInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
+	DigitalInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
+			throws ConnectionLostException {
 		super(ioio, pin);
 	}
 
@@ -65,11 +66,12 @@ class DigitalInputImpl extends AbstractPin implements DigitalInput,
 
 	@Override
 	synchronized public void close() {
-		super.close();
+		checkClose();
 		try {
-			ioio_.protocol_.setChangeNotify(pinNum_, false);
+			ioio_.protocol_.setChangeNotify(pin_.id, false);
 		} catch (IOException e) {
 		}
+		super.close();
 	}
 
 	@Override

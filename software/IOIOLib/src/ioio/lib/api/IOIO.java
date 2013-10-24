@@ -693,6 +693,9 @@ public interface IOIO {
 	public CapSense openCapSense(int pin, float filterCoef)
 			throws ConnectionLostException;
 
+	public Sequencer openSequencer(Sequencer.ChannelConfig config[])
+			throws ConnectionLostException;
+
 	/**
 	 * Start a batch of operations. This is strictly an optimization and will
 	 * not change functionality: if the client knows that a sequence of several

@@ -31,13 +31,36 @@
 
 #include "Compiler.h"
 #include "logging.h"
+#include "sync.h"
 
 void TimersInit() {
   log_printf("TimersInit()");
-  // timer 3 is sysclk / 8 = 2MHz
-  T3CON = 0x8010;
-  // timer 4 is sysclk / 64 = 250KHz
-  T4CON = 0x8020;
-  // timer 5 is sysclk / 256 = 62.5KHz
-  T5CON = 0x8030;
+
+  // The timers are initialized as follows:
+  // T2, T5: sysclk / 256 = 62.5KHz
+  // T3    : sysclk / 8 = 2MHz
+  // T4    : sysclk / 64 = 250KHz
+  // T3, T4, T5 all have their prescaler synchronized (i.e., in the exact same
+  // cycle when T5 increments, T3 and T4 increments as well.
+  // T2 lags behind T5 by exactly 46 cycles. Together with the 220 cycles it
+  // takes the ISR to process a sequencer cue, we're at 256 cycles, meaning all
+  // timers are immediately incremented.
+
+  T2CON = 0x8030;  // timer 2 is sysclk / 256 = 62.5KHz
+  T3CON = 0x8010;  // timer 3 is sysclk / 8 = 2MHz
+  T4CON = 0x8020;  // timer 4 is sysclk / 64 = 250KHz
+  T5CON = 0x8030;  // timer 5 is sysclk / 256 = 62.5KHz
+
+  PRIORITY(7) {
+    asm("clr _TMR4\n"
+        "repeat #53\n"
+        "nop\n"
+        "clr _TMR3\n"
+        "repeat #5\n"
+        "nop\n"
+        "clr _TMR5\n"
+        "repeat #43\n"
+        "nop\n"
+        "clr _TMR2\n");
+  }
 }

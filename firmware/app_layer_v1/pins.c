@@ -27,9 +27,11 @@
  * or implied.
  */
 
-#include "pins.h"
 #include <p24Fxxxx.h>
 #include <assert.h>
+
+#include "atomic.h"
+#include "pins.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define SFR volatile unsigned int
@@ -66,13 +68,28 @@ typedef struct {
   unsigned int* cn_force;
   unsigned int pos_mask;
   unsigned int neg_mask;
+  PORT name;
+  int nbit;
 } PORT_INFO;
 
 #if defined(__PIC24FJ256GB206__) ||  defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
 #define ANSE (*((SFR*) 0))  // hack: there is no ANSE register on 64-pin devices
 #endif
 
-#define MAKE_PORT_INFO(port, num) { &TRIS##port, &ANS##port, &PORT##port, &LAT##port, &ODC##port, &CNEN##port, &CNBACKUP##port, &CNFORCE##port, (1 << num), ~(1 << num) }
+#define MAKE_PORT_INFO(port, num) { \
+  &TRIS##port,                      \
+  &ANS##port,                       \
+  &PORT##port,                      \
+  &LAT##port,                       \
+  &ODC##port,                       \
+  &CNEN##port,                      \
+  &CNBACKUP##port,                  \
+  &CNFORCE##port,                   \
+  (1 << num),                       \
+  ~(1 << num),                      \
+  PORT_##port,                      \
+  num                               \
+}
 
 typedef struct {
   SFR* cnen;
@@ -319,31 +336,25 @@ typedef struct {
   };
 #endif
 
-void PinSetTris(int pin, int val) {
-  const PORT_INFO* info = &port_info[pin];
-  if (val) {
-    *info->tris |= info->pos_mask;
-  } else {
-    *info->tris &= info->neg_mask;
+// A macro for setting or clearing a bit on one of the pin registers.
+#define SET_REG(name, pin, val)               \
+  const PORT_INFO* info = &port_info[pin];    \
+  if (val) {                                  \
+    atomic16_or(info->name, info->pos_mask);  \
+  } else {                                    \
+    atomic16_and(info->name, info->neg_mask); \
   }
+
+void PinSetTris(int pin, int val) {
+  SET_REG(tris, pin, val);
 }
 
 void PinSetAnsel(int pin, int val) {
-  const PORT_INFO* info = &port_info[pin];
-  if (val) {
-    *info->ansel |= info->pos_mask;
-  } else {
-    *info->ansel &= info->neg_mask;
-  }
+  SET_REG(ansel, pin, val);
 }
 
 void PinSetLat(int pin, int val) {
-  const PORT_INFO* info = &port_info[pin];
-  if (val) {
-    *info->lat |= info->pos_mask;
-  } else {
-    *info->lat &= info->neg_mask;
-  }
+  SET_REG(lat, pin, val);
 }
 
 int PinGetPort(int pin) {
@@ -352,12 +363,7 @@ int PinGetPort(int pin) {
 }
 
 void PinSetOdc(int pin, int val) {
-  const PORT_INFO* info = &port_info[pin];
-  if (val) {
-    *info->odc |= info->pos_mask;
-  } else {
-    *info->odc &= info->neg_mask;
-  }
+  SET_REG(odc, pin, val);
 }
 
 void PinSetCnen(int pin, int cnen) {
@@ -366,11 +372,11 @@ void PinSetCnen(int pin, int cnen) {
   const PORT_INFO* pinfo = &port_info[pin];
   _CNIE = 0;  // disable CN interrupts
   if (cnen) {
-    *cinfo->cnen |= cinfo->pos_mask;
-    *pinfo->fake_cnen |= pinfo->pos_mask;
+    atomic16_or(cinfo->cnen, cinfo->pos_mask);
+    atomic16_or(pinfo->fake_cnen, pinfo->pos_mask);
   } else {
-    *cinfo->cnen &= cinfo->neg_mask;
-    *pinfo->fake_cnen &= pinfo->neg_mask;
+    atomic16_and(cinfo->cnen, cinfo->neg_mask);
+    atomic16_and(pinfo->fake_cnen, pinfo->neg_mask);
   }
   _CNIE = cnie_backup;  // enable CN interrupts
 }
@@ -386,18 +392,18 @@ void PinSetCnforce(int pin) {
 void PinSetCnpu(int pin, int cnpu) {
   const CN_INFO* info = &cn_info[pin];
   if (cnpu) {
-    *info->cnpu |= info->pos_mask;
+    atomic16_or(info->cnpu, info->pos_mask);
   } else {
-    *info->cnpu &= info->neg_mask;
+    atomic16_and(info->cnpu, info->neg_mask);
   }
 }
 
 void PinSetCnpd(int pin, int cnpd) {
   const CN_INFO* info = &cn_info[pin];
   if (cnpd) {
-    *info->cnpd |= info->pos_mask;
+    atomic16_or(info->cnpd, info->pos_mask);
   } else {
-    *info->cnpd &= info->neg_mask;
+    atomic16_and(info->cnpd, info->neg_mask);
   }
 }
 
@@ -424,4 +430,10 @@ int PinToAnalogChannel(int pin) {
 
 int PinToRpin(int pin) {
   return pin_to_rpin[pin];
+}
+
+void PinToPortBit(int pin, PORT *port, int *nbit) {
+  const PORT_INFO* info = &port_info[pin];
+  *port = info->name;
+  *nbit = info->nbit;
 }

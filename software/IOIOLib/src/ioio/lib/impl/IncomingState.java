@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -31,6 +31,7 @@ package ioio.lib.impl;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.Board.Hardware;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
+import ioio.lib.impl.IOIOProtocol.SequencerEvent;
 import ioio.lib.spi.Log;
 
 import java.util.HashSet;
@@ -60,11 +61,27 @@ class IncomingState implements IncomingHandler {
 		void reportAdditionalBuffer(int bytesToAdd);
 	}
 
-	class InputPinState {
-		private Queue<InputPinListener> listeners_ = new ConcurrentLinkedQueue<InputPinListener>();
+	interface SequencerEventListener {
+
+		void opened(int arg);
+
+		void nextCue();
+
+		void paused();
+
+		void stopped(int arg);
+
+		void closed();
+
+		void stalled();
+
+	}
+
+	class ListenerQueue<T> {
+		private Queue<T> listeners_ = new ConcurrentLinkedQueue<T>();
 		private boolean currentOpen_ = false;
 
-		void pushListener(InputPinListener listener) {
+		void pushListener(T listener) {
 			listeners_.add(listener);
 		}
 
@@ -82,42 +99,25 @@ class IncomingState implements IncomingHandler {
 			}
 		}
 
-		void setValue(int v) {
+		T peek() {
 			assert (currentOpen_);
-			listeners_.peek().setValue(v);
+			return listeners_.peek();
 		}
 	}
 
-	class DataModuleState {
-		private Queue<DataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.DataModuleListener>();
-		private boolean currentOpen_ = false;
-
-		void pushListener(DataModuleListener listener) {
-			listeners_.add(listener);
+	class InputPinState extends ListenerQueue<InputPinListener> {
+		void setValue(int v) {
+			peek().setValue(v);
 		}
+	}
 
-		void closeCurrentListener() {
-			if (currentOpen_) {
-				currentOpen_ = false;
-				listeners_.remove();
-			}
-		}
-
-		void openNextListener() {
-			assert (!listeners_.isEmpty());
-			if (!currentOpen_) {
-				currentOpen_ = true;
-			}
-		}
-
+	class DataModuleState extends ListenerQueue<DataModuleListener> {
 		void dataReceived(byte[] data, int size) {
-			assert (currentOpen_);
-			listeners_.peek().dataReceived(data, size);
+			peek().dataReceived(data, size);
 		}
 
 		public void reportAdditionalBuffer(int bytesRemaining) {
-			assert (currentOpen_);
-			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
+			peek().reportAdditionalBuffer(bytesRemaining);
 		}
 	}
 
@@ -127,6 +127,7 @@ class IncomingState implements IncomingHandler {
 	private DataModuleState[] spiStates_;
 	private DataModuleState[] incapStates_;
 	private DataModuleState icspState_;
+	private ListenerQueue<SequencerEventListener> sequencerListeners_;
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -189,6 +190,10 @@ class IncomingState implements IncomingHandler {
 		spiStates_[spiNum].pushListener(listener);
 	}
 
+	public void addSequencerEventListener(SequencerEventListener listener) {
+		sequencerListeners_.pushListener(listener);
+	}
+
 	synchronized public void addDisconnectListener(DisconnectListener listener)
 			throws ConnectionLostException {
 		checkNotDisconnected();
@@ -203,18 +208,14 @@ class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleConnectionLost() {
+	public synchronized void handleConnectionLost() {
 		// logMethod("handleConnectionLost");
-		synchronized (this) {
-			connection_ = ConnectionState.DISCONNECTED;
-		}
+		connection_ = ConnectionState.DISCONNECTED;
 		for (DisconnectListener listener : disconnectListeners_) {
 			listener.disconnected();
 		}
 		disconnectListeners_.clear();
-		synchronized (this) {
-			notifyAll();
-		}
+		notifyAll();
 	}
 
 	@Override
@@ -333,9 +334,9 @@ class IncomingState implements IncomingHandler {
 		bootloaderId_ = new String(bootloaderId);
 		firmwareId_ = new String(firmwareId);
 
-		Log.i(TAG, "IOIO Connection established. Hardware ID: "
-				+ hardwareId_ + " Bootloader ID: " + bootloaderId_
-				+ " Firmware ID: " + firmwareId_);
+		Log.i(TAG, "IOIO Connection established. Hardware ID: " + hardwareId_
+				+ " Bootloader ID: " + bootloaderId_ + " Firmware ID: "
+				+ firmwareId_);
 		try {
 			board_ = Board.valueOf(hardwareId_);
 		} catch (IllegalArgumentException e) {
@@ -366,6 +367,7 @@ class IncomingState implements IncomingHandler {
 				incapStates_[i] = new DataModuleState();
 			}
 			icspState_ = new DataModuleState();
+			sequencerListeners_ = new ListenerQueue<SequencerEventListener>();
 		}
 		synchronized (this) {
 			connection_ = ConnectionState.ESTABLISHED;
@@ -459,7 +461,7 @@ class IncomingState implements IncomingHandler {
 		// logMethod("handleCapSenseReport", pinNum, value);
 		intputPinStates_[pinNum].setValue(value);
 	}
-	
+
 	@Override
 	public void handleSetCapSenseSampling(int pinNum, boolean enable) {
 		// logMethod("handleSetCapSenseSampling", pinNum, enable);
@@ -469,14 +471,45 @@ class IncomingState implements IncomingHandler {
 			intputPinStates_[pinNum].closeCurrentListener();
 		}
 	}
-	
+
+	@Override
+	public void handleSequencerEvent(SequencerEvent event, int arg) {
+		// logMethod("handleSequencerEvent", event, arg);
+		switch (event) {
+		case OPENED:
+			sequencerListeners_.openNextListener();
+			sequencerListeners_.peek().opened(arg);
+			break;
+
+		case NEXT_CUE:
+			sequencerListeners_.peek().nextCue();
+			break;
+
+		case PAUSED:
+			sequencerListeners_.peek().paused();
+			break;
+
+		case STOPPED:
+			sequencerListeners_.peek().stopped(arg);
+			break;
+
+		case CLOSED:
+			sequencerListeners_.peek().closed();
+			sequencerListeners_.closeCurrentListener();
+			break;
+
+		case STALLED:
+			sequencerListeners_.peek().stalled();
+		}
+	}
+
 	private void checkNotDisconnected() throws ConnectionLostException {
 		if (connection_ == ConnectionState.DISCONNECTED) {
 			throw new ConnectionLostException();
 		}
 	}
 
-//	private void logMethod(String name, Object... args) {
+//	private static void logMethod(String name, Object... args) {
 //		StringBuffer msg = new StringBuffer(name);
 //		msg.append('(');
 //		for (int i = 0; i < args.length; ++i) {

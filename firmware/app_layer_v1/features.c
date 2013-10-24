@@ -41,8 +41,10 @@
 #include "spi.h"
 #include "i2c.h"
 #include "timers.h"
+#include "sequencer.h"
 #include "pp_util.h"
 #include "incap.h"
+#include "sync.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pin modes
@@ -228,27 +230,28 @@ void HardReset() {
 }
 
 void SoftReset() {
-  BYTE ipl_backup = SRbits.IPL;
-  SRbits.IPL = 7;  // disable interrupts
-  log_printf("SoftReset()");
-  TimersInit();
-  PinsInit();
-  PWMInit();
-  ADCInit();
-  UARTInit();
-  SPIInit();
-  I2CInit();
-  InCapInit();
+  PRIORITY(7) {
+    log_printf("SoftReset()");
+    TimersInit();
+    PinsInit();
+    PWMInit();
+    ADCInit();
+    UARTInit();
+    SPIInit();
+    I2CInit();
+    InCapInit();
+    SequencerInit();
 
-  // TODO: reset all peripherals!
-  SRbits.IPL = ipl_backup;  // enable interrupts
+    // TODO: reset all peripherals!
+  }
 }
 
 void CheckInterface(BYTE interface_id[8]) {
   OUTGOING_MESSAGE msg;
   msg.type = CHECK_INTERFACE_RESPONSE;
   msg.args.check_interface_response.supported
-      = (memcmp(interface_id, PROTOCOL_IID_IOIO0004, 8) == 0)
+      = (memcmp(interface_id, PROTOCOL_IID_IOIO0005, 8) == 0)
+        || (memcmp(interface_id, PROTOCOL_IID_IOIO0004, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0003, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0002, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0001, 8) == 0);

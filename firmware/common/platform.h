@@ -137,6 +137,17 @@
   #define NUM_SPI_MODULES 3
   #define NUM_I2C_MODULES 3
   #define NUM_INCAP_MODULES 9
+
+  typedef enum {
+    PORT_B,
+    PORT_C,
+    PORT_D,
+    PORT_E,
+    PORT_F,
+    PORT_G,
+    NUM_PORTS
+  } PORT;
+
 #else
   #error Unknown MCU
 #endif

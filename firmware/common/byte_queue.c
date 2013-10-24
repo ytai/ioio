@@ -120,7 +120,8 @@ void ByteQueuePeekAll(BYTE_QUEUE* q, const BYTE** data1, int* size1,
 
 void ByteQueuePeekMax(BYTE_QUEUE* q, int max_size, const BYTE** data1,
                       int* size1, const BYTE** data2, int* size2) {
-  if (max_size > q->size) max_size = q->size;
+  int size = q->size;  // create local copy, this might change!
+  if (max_size > size) max_size = size;
   *data1 = q->buf + q->read_cursor;
   if (q->read_cursor + max_size > q->capacity) {
     *size1 = q->capacity - q->read_cursor;

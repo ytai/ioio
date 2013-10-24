@@ -39,5 +39,19 @@
         :                         \
         : "r"(addr), "r"(value))
 
+// Atomically execute: *addr &= value
+#define atomic16_and(addr, value) \
+    asm volatile(                 \
+        "and %1  ,[%0], [%0] \n"  \
+        :                         \
+        : "r"(addr), "r"(value))
+
+// Atomically execute: *addr |= value
+#define atomic16_or(addr, value)  \
+    asm volatile(                 \
+        "ior %1  ,[%0], [%0] \n"  \
+        :                         \
+        : "r"(addr), "r"(value))
+
 
 #endif  // __ATOMIC_H__

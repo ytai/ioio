@@ -30,29 +30,32 @@ package ioio.lib.impl;
 
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.ResourceManager.Resource;
 
 import java.io.IOException;
 
-class PwmImpl extends AbstractResource implements PwmOutput {
-	private final int pwmNum_;
-	private final int pinNum_;
+class PwmImpl extends AbstractPin implements PwmOutput {
+	private final Resource pwm_;
 	private final float baseUs_;
 	private final int period_;
 
-	public PwmImpl(IOIOImpl ioio, int pinNum, int pwmNum, int period,
+	public PwmImpl(IOIOImpl ioio, Resource pin, Resource pwm, int period,
 			float baseUs) throws ConnectionLostException {
-		super(ioio);
-		pwmNum_ = pwmNum;
-		pinNum_ = pinNum;
+		super(ioio, pin);
+		pwm_ = pwm;
 		baseUs_ = baseUs;
 		period_ = period;
 	}
 
 	@Override
 	public synchronized void close() {
+		checkClose();
+		try {
+			ioio_.protocol_.setPwmPeriod(pwm_.id, 0, IOIOProtocol.PwmScale.SCALE_1X);
+			ioio_.resourceManager_.free(pwm_);
+		} catch (IOException e) {
+		}
 		super.close();
-		ioio_.closePwm(pwmNum_);
-		ioio_.closePin(pinNum_);
 	}
 
 	@Override
@@ -93,7 +96,7 @@ class PwmImpl extends AbstractResource implements PwmOutput {
 			fraction = ((int) p * 4) & 0x03;
 		}
 		try {
-			ioio_.protocol_.setPwmDutyCycle(pwmNum_, pw, fraction);
+			ioio_.protocol_.setPwmDutyCycle(pwm_.id, pw, fraction);
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}

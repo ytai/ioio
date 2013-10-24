@@ -26,7 +26,6 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-
 package ioio.lib.util.android;
 
 import ioio.lib.impl.SocketIOIOConnection;
