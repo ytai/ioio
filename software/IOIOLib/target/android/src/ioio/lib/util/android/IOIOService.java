@@ -95,13 +95,7 @@ public abstract class IOIOService extends Service implements
 		super.onDestroy();
 	}
 
-	/**
-	 * Subclasses should call this method from their own onStart() if
-	 * overloaded. It takes care of connecting with the IOIO.
-	 */
-	@Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
+	private void start(Intent intent) {
 		if (!started_) {
 			helper_.start();
 			started_ = true;
@@ -110,6 +104,28 @@ public abstract class IOIOService extends Service implements
 				helper_.restart();
 			}
 		}
+	}
+
+	/**
+	 * This is the old onStart() method. Override and/or call this method only
+	 * if you're using Android API level lower than 5. Otherwise you shoud call
+	 * the onStartCommand() method.
+	 */
+	@Override
+	public void onStart(Intent intent, int startId) {
+		start(intent);
+	}
+
+	/**
+	 * Subclasses should call this method from their own onStartCommand() if
+	 * overloaded. It takes care of connecting with the IOIO.
+	 */
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		start(intent);
+		// We want this service to continue running until it is explicitly
+		// stopped, so return sticky.
+		return START_STICKY;
 	}
 
 	/**
