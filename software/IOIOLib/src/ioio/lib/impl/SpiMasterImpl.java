@@ -36,8 +36,6 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.spi.Log;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -79,7 +77,6 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 			this);
 
 	private final int spiNum_;
-	private final Map<Integer, Integer> ssPinToIndex_;
 	private final int[] indexToSsPin_;
 	private final int mosiPinNum_;
 	private final int misoPinNum_;
@@ -93,10 +90,6 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		misoPinNum_ = misoPinNum;
 		clkPinNum_ = clkPinNum;
 		indexToSsPin_ = ssPins.clone();
-		ssPinToIndex_ = new HashMap<Integer, Integer>(ssPins.length);
-		for (int i = 0; i < ssPins.length; ++i) {
-			ssPinToIndex_.put(ssPins[i], i);
-		}
 	}
 
 	@Override
