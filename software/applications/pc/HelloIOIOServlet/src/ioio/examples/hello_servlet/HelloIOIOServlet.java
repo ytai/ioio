@@ -23,6 +23,16 @@ public class HelloIOIOServlet extends IOIOServlet {
 	boolean ledOn = true;
 	private static final long serialVersionUID = 1L;
 
+	
+	/**
+	 * Run this main method just like any other java main method. Then, use your web-browser
+	 * to navigate to the following URLs:
+	 * http://localhost:8181/off
+	 * http://localhost:8181/on
+	 * 
+	 * This will turn the LED on or off. At startup, the IOIO's LED will turn on, which indicates
+	 * that the servlet is running and ready.
+	 */
 	public static void main(String[] args) throws Exception {
 		Tomcat tomcat = new Tomcat();
 		final int port = 8181;
