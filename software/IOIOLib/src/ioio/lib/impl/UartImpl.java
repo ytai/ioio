@@ -28,11 +28,11 @@
  */
 package ioio.lib.impl;
 
-import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledOutputStream.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
+import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
 
 import java.io.IOException;
@@ -42,17 +42,17 @@ import java.io.OutputStream;
 class UartImpl extends AbstractResource implements DataModuleListener, Sender, Uart {
 	private static final int MAX_PACKET = 64;
 	
-	private final int uartNum_;
-	private final int rxPinNum_;
-	private final int txPinNum_;
+	private final Resource uart_;
+	private final Resource rxPin_;
+	private final Resource txPin_;
 	private final FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
 	private final QueueInputStream incoming_ = new QueueInputStream();
 	
-	public UartImpl(IOIOImpl ioio, int txPin, int rxPin, int uartNum) throws ConnectionLostException {
+	public UartImpl(IOIOImpl ioio, Resource txPin, Resource rxPin, Resource uartNum) throws ConnectionLostException {
 		super(ioio);
-		uartNum_ = uartNum;
-		rxPinNum_ = rxPin;
-		txPinNum_ = txPin;
+		uart_ = uartNum;
+		rxPin_ = rxPin;
+		txPin_ = txPin;
 	}
 
 	@Override
@@ -63,7 +63,7 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
 	@Override
 	public void send(byte[] data, int size) {
 		try {
-			ioio_.protocol_.uartData(uartNum_, size, data);
+			ioio_.protocol_.uartData(uart_.id, size, data);
 		} catch (IOException e) {
 			Log.e("UartImpl", e.getMessage());
 		}
@@ -71,16 +71,20 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
 
 	@Override
 	synchronized public void close() {
-		super.close();
 		incoming_.close();
 		outgoing_.close();
-		ioio_.closeUart(uartNum_);
-		if (rxPinNum_ != IOIO.INVALID_PIN) {
-			ioio_.closePin(rxPinNum_);
+		try {
+			ioio_.protocol_.uartClose(uart_.id);
+			ioio_.resourceManager_.free(uart_);
+		} catch (IOException e) {
 		}
-		if (txPinNum_ != IOIO.INVALID_PIN) {
-			ioio_.closePin(txPinNum_);
+		if (rxPin_ != null) {
+			ioio_.closePin(rxPin_);
 		}
+		if (txPin_ != null) {
+			ioio_.closePin(txPin_);
+		}
+		super.close();
 	}
 	
 	@Override

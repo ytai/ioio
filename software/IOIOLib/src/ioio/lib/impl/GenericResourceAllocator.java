@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -28,65 +28,51 @@
  */
 package ioio.lib.impl;
 
-import ioio.lib.api.DigitalInput;
-import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.impl.IncomingState.InputPinListener;
+import ioio.lib.api.exception.OutOfResourceException;
+import ioio.lib.impl.ResourceManager.Resource;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-class DigitalInputImpl extends AbstractPin implements DigitalInput,
-		InputPinListener {
-	private boolean value_;
-	private boolean valid_ = false;
+class GenericResourceAllocator implements ResourceManager.ResourceAllocator {
+	private final List<Integer> available_;
+	private final Set<Integer> allocated_;
 
-	DigitalInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
-			throws ConnectionLostException {
-		super(ioio, pin);
-	}
-
-	@Override
-	synchronized public void setValue(int value) {
-		// Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
-		assert (value == 0 || value == 1);
-		value_ = (value == 1);
-		if (!valid_) {
-			valid_ = true;
+	public GenericResourceAllocator(int offset, int count) {
+		available_ = new ArrayList<Integer>(count);
+		allocated_ = new HashSet<Integer>(count);
+		for (int i = 0; i < count; i++) {
+			available_.add(i + offset);
 		}
-		notifyAll();
 	}
 
-	@Override
-	synchronized public void waitForValue(boolean value)
-			throws InterruptedException, ConnectionLostException {
-		while ((!valid_ || value_ != value) && state_ == State.OPEN) {
-			wait();
+	public GenericResourceAllocator(int ids[]) {
+		available_ = new ArrayList<Integer>(ids.length);
+		allocated_ = new HashSet<Integer>(ids.length);
+		for (int i = 0; i < ids.length; i++) {
+			available_.add(ids[i]);
 		}
-		checkState();
 	}
 
 	@Override
-	synchronized public void close() {
-		checkClose();
-		try {
-			ioio_.protocol_.setChangeNotify(pin_.id, false);
-		} catch (IOException e) {
+	public synchronized void alloc(Resource r) {
+		if (available_.isEmpty()) {
+			throw new OutOfResourceException(
+					"No more resources of the requested type: " + r.type);
 		}
-		super.close();
+		r.id = available_.remove(available_.size() - 1);
+		allocated_.add(r.id);
 	}
 
 	@Override
-	synchronized public boolean read() throws InterruptedException,
-			ConnectionLostException {
-		while (!valid_ && state_ == State.OPEN) {
-			wait();
+	public synchronized void free(Resource r) {
+		if (!allocated_.contains(r.id)) {
+			throw new IllegalArgumentException("Resource " + r
+					+ " not yet allocated");
 		}
-		checkState();
-		return value_;
-	}
-
-	@Override
-	public synchronized void disconnected() {
-		super.disconnected();
-		notifyAll();
+		available_.add(r.id);
+		allocated_.remove(r.id);
 	}
 }

@@ -4,14 +4,14 @@ import ioio.lib.api.PulseInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-class IncapImpl extends AbstractPin implements DataModuleListener,
-		PulseInput {
+class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	private static final int MAX_QUEUE_LEN = 32;
 	private final PulseMode mode_;
-	private final int incapNum_;
+	private final ResourceManager.Resource incap_;
 	private long lastDuration_;
 	private final float timeBase_;
 	private final boolean doublePrecision_;
@@ -19,12 +19,13 @@ class IncapImpl extends AbstractPin implements DataModuleListener,
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
 
-	public IncapImpl(IOIOImpl ioio, PulseMode mode, int incapNum, int pin,
+	public IncapImpl(IOIOImpl ioio, PulseMode mode,
+			ResourceManager.Resource incap, ResourceManager.Resource pin,
 			int clockRate, int scale, boolean doublePrecision)
 			throws ConnectionLostException {
 		super(ioio, pin);
 		mode_ = mode;
-		incapNum_ = incapNum;
+		incap_ = incap;
 		timeBase_ = 1.0f / (scale * clockRate);
 		doublePrecision_ = doublePrecision;
 	}
@@ -96,7 +97,12 @@ class IncapImpl extends AbstractPin implements DataModuleListener,
 
 	@Override
 	public synchronized void close() {
-		ioio_.closeIncap(incapNum_, doublePrecision_);
+		checkClose();
+		try {
+			ioio_.protocol_.incapClose(incap_.id, doublePrecision_);
+			ioio_.resourceManager_.free(incap_);
+		} catch (IOException e) {
+		}
 		super.close();
 	}
 

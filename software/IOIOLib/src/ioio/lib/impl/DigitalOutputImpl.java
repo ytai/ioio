@@ -36,7 +36,8 @@ import java.io.IOException;
 class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 	boolean value_;
 
-	DigitalOutputImpl(IOIOImpl ioio, int pin, boolean startValue) throws ConnectionLostException {
+	DigitalOutputImpl(IOIOImpl ioio, ResourceManager.Resource pin,
+			boolean startValue) throws ConnectionLostException {
 		super(ioio, pin);
 		value_ = startValue;
 	}
@@ -46,7 +47,7 @@ class DigitalOutputImpl extends AbstractPin implements DigitalOutput {
 		checkState();
 		if (val != value_) {
 			try {
-				ioio_.protocol_.setDigitalOutLevel(pinNum_, val);
+				ioio_.protocol_.setDigitalOutLevel(pin_.id, val);
 				value_ = val;
 			} catch (IOException e) {
 				throw new ConnectionLostException(e);

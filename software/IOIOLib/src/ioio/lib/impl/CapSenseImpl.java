@@ -41,7 +41,7 @@ class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
 	private boolean valid_ = false;
 	private float coef_;
 
-	CapSenseImpl(IOIOImpl ioio, int pin, float filterCoef)
+	CapSenseImpl(IOIOImpl ioio, ResourceManager.Resource pin, float filterCoef)
 			throws ConnectionLostException {
 		super(ioio, pin);
 		setFilterCoef(filterCoef);
@@ -95,8 +95,9 @@ class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
 
 	@Override
 	public synchronized void close() {
+		checkClose();
 		try {
-			ioio_.protocol_.setCapSenseSampling(pinNum_, false);
+			ioio_.protocol_.setCapSenseSampling(pin_.id, false);
 		} catch (IOException e) {
 		}
 		super.close();

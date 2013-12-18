@@ -60,11 +60,11 @@ class IncomingState implements IncomingHandler {
 		void reportAdditionalBuffer(int bytesToAdd);
 	}
 
-	class InputPinState {
-		private Queue<InputPinListener> listeners_ = new ConcurrentLinkedQueue<InputPinListener>();
+	class ListenerQueue<T> {
+		private Queue<T> listeners_ = new ConcurrentLinkedQueue<T>();
 		private boolean currentOpen_ = false;
 
-		void pushListener(InputPinListener listener) {
+		void pushListener(T listener) {
 			listeners_.add(listener);
 		}
 
@@ -82,42 +82,25 @@ class IncomingState implements IncomingHandler {
 			}
 		}
 
-		void setValue(int v) {
+		T peek() {
 			assert (currentOpen_);
-			listeners_.peek().setValue(v);
+			return listeners_.peek();
 		}
 	}
 
-	class DataModuleState {
-		private Queue<DataModuleListener> listeners_ = new ConcurrentLinkedQueue<IncomingState.DataModuleListener>();
-		private boolean currentOpen_ = false;
-
-		void pushListener(DataModuleListener listener) {
-			listeners_.add(listener);
+	class InputPinState extends ListenerQueue<InputPinListener> {
+		void setValue(int v) {
+			peek().setValue(v);
 		}
+	}
 
-		void closeCurrentListener() {
-			if (currentOpen_) {
-				currentOpen_ = false;
-				listeners_.remove();
-			}
-		}
-
-		void openNextListener() {
-			assert (!listeners_.isEmpty());
-			if (!currentOpen_) {
-				currentOpen_ = true;
-			}
-		}
-
+	class DataModuleState extends ListenerQueue<DataModuleListener> {
 		void dataReceived(byte[] data, int size) {
-			assert (currentOpen_);
-			listeners_.peek().dataReceived(data, size);
+			peek().dataReceived(data, size);
 		}
 
 		public void reportAdditionalBuffer(int bytesRemaining) {
-			assert (currentOpen_);
-			listeners_.peek().reportAdditionalBuffer(bytesRemaining);
+			peek().reportAdditionalBuffer(bytesRemaining);
 		}
 	}
 
@@ -203,18 +186,14 @@ class IncomingState implements IncomingHandler {
 	}
 
 	@Override
-	public void handleConnectionLost() {
+	public synchronized void handleConnectionLost() {
 		// logMethod("handleConnectionLost");
-		synchronized (this) {
-			connection_ = ConnectionState.DISCONNECTED;
-		}
+		connection_ = ConnectionState.DISCONNECTED;
 		for (DisconnectListener listener : disconnectListeners_) {
 			listener.disconnected();
 		}
 		disconnectListeners_.clear();
-		synchronized (this) {
-			notifyAll();
-		}
+		notifyAll();
 	}
 
 	@Override

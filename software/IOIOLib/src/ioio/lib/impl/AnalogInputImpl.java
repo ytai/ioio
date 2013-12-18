@@ -46,7 +46,8 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput,
 	int bufferWriteCursor_;
 	int bufferOverflowCount_ = 0;
 
-	AnalogInputImpl(IOIOImpl ioio, int pin) throws ConnectionLostException {
+	AnalogInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
+			throws ConnectionLostException {
 		super(ioio, pin);
 	}
 
@@ -91,8 +92,9 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput,
 
 	@Override
 	public synchronized void close() {
+		checkClose();
 		try {
-			ioio_.protocol_.setAnalogInSampling(pinNum_, false);
+			ioio_.protocol_.setAnalogInSampling(pin_.id, false);
 		} catch (IOException e) {
 		}
 		super.close();

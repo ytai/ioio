@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -28,65 +28,34 @@
  */
 package ioio.lib.impl;
 
-import ioio.lib.api.DigitalInput;
-import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.impl.IncomingState.InputPinListener;
+import ioio.lib.impl.ResourceManager.Resource;
 
-import java.io.IOException;
+class SpecificResourceAllocator implements ResourceManager.ResourceAllocator {
+	private final boolean[] claimed_;
+	private final int offset_;
 
-class DigitalInputImpl extends AbstractPin implements DigitalInput,
-		InputPinListener {
-	private boolean value_;
-	private boolean valid_ = false;
-
-	DigitalInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
-			throws ConnectionLostException {
-		super(ioio, pin);
+	public SpecificResourceAllocator(int offset, int count) {
+		offset_ = offset;
+		claimed_ = new boolean[count];
 	}
 
 	@Override
-	synchronized public void setValue(int value) {
-		// Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
-		assert (value == 0 || value == 1);
-		value_ = (value == 1);
-		if (!valid_) {
-			valid_ = true;
-		}
-		notifyAll();
-	}
-
-	@Override
-	synchronized public void waitForValue(boolean value)
-			throws InterruptedException, ConnectionLostException {
-		while ((!valid_ || value_ != value) && state_ == State.OPEN) {
-			wait();
-		}
-		checkState();
-	}
-
-	@Override
-	synchronized public void close() {
-		checkClose();
+	public synchronized void alloc(Resource r) {
 		try {
-			ioio_.protocol_.setChangeNotify(pin_.id, false);
-		} catch (IOException e) {
+			if (claimed_[r.id - offset_]) {
+				throw new IllegalArgumentException("Resource already claimed: " + r);
+			}
+			claimed_[r.id - offset_] = true;
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Resource doesn't exist: " + r);
 		}
-		super.close();
 	}
 
 	@Override
-	synchronized public boolean read() throws InterruptedException,
-			ConnectionLostException {
-		while (!valid_ && state_ == State.OPEN) {
-			wait();
+	public synchronized void free(Resource r) {
+		if (!claimed_[r.id - offset_]) {
+			throw new IllegalArgumentException("Resource not claimed: " + r);
 		}
-		checkState();
-		return value_;
-	}
-
-	@Override
-	public synchronized void disconnected() {
-		super.disconnected();
-		notifyAll();
+		claimed_[r.id - offset_] = false;
 	}
 }

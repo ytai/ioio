@@ -33,6 +33,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledPacketSender.Packet;
 import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
+import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
 
 import java.io.IOException;
@@ -78,11 +79,13 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
 	private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<TwiMasterImpl.TwiResult>();
 	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
 			this);
-	private final int twiNum_;
+	private final Resource twi_;
+	private final Resource[] pins_;
 
-	TwiMasterImpl(IOIOImpl ioio, int twiNum) throws ConnectionLostException {
+	TwiMasterImpl(IOIOImpl ioio, Resource twi, Resource[] pins) throws ConnectionLostException {
 		super(ioio);
-		twiNum_ = twiNum;
+		twi_ = twi;
+		pins_ = pins;
 	}
 
 	@Override
@@ -150,16 +153,21 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
 
 	@Override
 	synchronized public void close() {
-		super.close();
+		checkClose();
 		outgoing_.close();
-		ioio_.closeTwi(twiNum_);
+		try {
+			ioio_.protocol_.i2cClose(twi_.id);
+			ioio_.resourceManager_.free(twi_, pins_);
+		} catch (IOException e) {
+		}
+		super.close();
 	}
 
 	@Override
 	public void send(Packet packet) {
 		OutgoingPacket p = (OutgoingPacket) packet;
 		try {
-			ioio_.protocol_.i2cWriteRead(twiNum_, p.tenBitAddr_, p.addr_,
+			ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_,
 					p.writeSize_, p.readSize_, p.writeData_);
 		} catch (IOException e) {
 			Log.e("TwiImpl", "Caught exception", e);
