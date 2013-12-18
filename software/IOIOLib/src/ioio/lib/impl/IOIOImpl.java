@@ -41,6 +41,7 @@ import ioio.lib.api.PulseInput;
 import ioio.lib.api.PulseInput.ClockRate;
 import ioio.lib.api.PulseInput.PulseMode;
 import ioio.lib.api.PwmOutput;
+import ioio.lib.api.Sequencer;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.TwiMaster;
 import ioio.lib.api.TwiMaster.Rate;
@@ -60,7 +61,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	private boolean disconnect_ = false;
 
 	private static final byte[] REQUIRED_INTERFACE_ID = new byte[] { 'I', 'O',
-			'I', 'O', '0', '0', '0', '4' };
+			'I', 'O', '0', '0', '0', '5' };
 
 	IOIOProtocol protocol_;
 	ResourceManager resourceManager_;
@@ -603,6 +604,11 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				mode, true);
 	}
 
+	@Override
+	public Sequencer openSequencer(Sequencer.ChannelConfig config[])
+			throws ConnectionLostException {
+		return new SequencerImpl(this, config);
+	}
 
 	private void checkState() throws ConnectionLostException {
 		if (state_ == State.DEAD) {

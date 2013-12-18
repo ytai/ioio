@@ -694,6 +694,21 @@ public interface IOIO {
 			throws ConnectionLostException;
 
 	/**
+	 * Open a motion-control sequencer.
+	 * <p>
+	 * This module allows fast and precise sequencing of waveforms, primarily intended for
+	 * synchronized driving of various kinds of motors and other actuators. There is currently
+	 * support for only a single instance of this module. For more details, see {@link Sequencer}.
+	 *
+	 * @param config
+	 *            The sequencer configuration.
+	 * @return The sequencer instance.
+	 * @throws ConnectionLostException
+	 *             Connection was lost before or during the execution of this method.
+	 */
+	public Sequencer openSequencer(Sequencer.ChannelConfig config[]) throws ConnectionLostException;
+
+	/**
 	 * Start a batch of operations. This is strictly an optimization and will
 	 * not change functionality: if the client knows that a sequence of several
 	 * IOIO operations are going to be performed immediately following each

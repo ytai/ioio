@@ -31,6 +31,7 @@ package ioio.lib.impl;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.Board.Hardware;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
+import ioio.lib.impl.IOIOProtocol.SequencerEvent;
 import ioio.lib.spi.Log;
 
 import java.util.HashSet;
@@ -58,6 +59,22 @@ class IncomingState implements IncomingHandler {
 		void dataReceived(byte[] data, int size);
 
 		void reportAdditionalBuffer(int bytesToAdd);
+	}
+
+	interface SequencerEventListener {
+
+		void opened(int arg);
+
+		void nextCue();
+
+		void paused();
+
+		void stopped(int arg);
+
+		void closed();
+
+		void stalled();
+
 	}
 
 	class ListenerQueue<T> {
@@ -110,6 +127,7 @@ class IncomingState implements IncomingHandler {
 	private DataModuleState[] spiStates_;
 	private DataModuleState[] incapStates_;
 	private DataModuleState icspState_;
+	private ListenerQueue<SequencerEventListener> sequencerListeners_;
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -172,6 +190,10 @@ class IncomingState implements IncomingHandler {
 		spiStates_[spiNum].pushListener(listener);
 	}
 
+	public void addSequencerEventListener(SequencerEventListener listener) {
+		sequencerListeners_.pushListener(listener);
+	}
+
 	synchronized public void addDisconnectListener(DisconnectListener listener)
 			throws ConnectionLostException {
 		checkNotDisconnected();
@@ -215,6 +237,7 @@ class IncomingState implements IncomingHandler {
 			incapState.closeCurrentListener();
 		}
 		icspState_.closeCurrentListener();
+		sequencerListeners_.closeCurrentListener();
 	}
 
 	@Override
@@ -345,6 +368,7 @@ class IncomingState implements IncomingHandler {
 				incapStates_[i] = new DataModuleState();
 			}
 			icspState_ = new DataModuleState();
+			sequencerListeners_ = new ListenerQueue<SequencerEventListener>();
 		}
 		synchronized (this) {
 			connection_ = ConnectionState.ESTABLISHED;
@@ -449,6 +473,37 @@ class IncomingState implements IncomingHandler {
 		}
 	}
 	
+	@Override
+	public void handleSequencerEvent(SequencerEvent event, int arg) {
+		// logMethod("handleSequencerEvent", event, arg);
+		switch (event) {
+		case OPENED:
+			sequencerListeners_.openNextListener();
+			sequencerListeners_.peek().opened(arg);
+			break;
+
+		case NEXT_CUE:
+			sequencerListeners_.peek().nextCue();
+			break;
+
+		case PAUSED:
+			sequencerListeners_.peek().paused();
+			break;
+
+		case STOPPED:
+			sequencerListeners_.peek().stopped(arg);
+			break;
+
+		case CLOSED:
+			sequencerListeners_.peek().closed();
+			sequencerListeners_.closeCurrentListener();
+			break;
+
+		case STALLED:
+			sequencerListeners_.peek().stalled();
+		}
+	}
+
 	private void checkNotDisconnected() throws ConnectionLostException {
 		if (connection_ == ConnectionState.DISCONNECTED) {
 			throw new ConnectionLostException();

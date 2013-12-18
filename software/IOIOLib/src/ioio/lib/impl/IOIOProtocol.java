@@ -95,6 +95,10 @@ class IOIOProtocol {
 	static final int SET_PIN_CAPSENSE                    = 0x1E;
 	static final int CAPSENSE_REPORT                     = 0x1E;
 	static final int SET_CAPSENSE_SAMPLING               = 0x1F;
+	static final int SEQUENCER_CONFIGURE                 = 0x20;
+	static final int SEQUENCER_EVENT                     = 0x20;
+	static final int SEQUENCER_PUSH                      = 0x21;
+	static final int SEQUENCER_CONTROL                   = 0x22;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -138,6 +142,10 @@ class IOIOProtocol {
 		}
 	}
 
+	enum SequencerEvent {
+		PAUSED, STALLED, OPENED, NEXT_CUE, STOPPED, CLOSED
+	}
+
 	private byte[] outbuf_ = new byte[256];
 	private int pos_ = 0;
 	private int batchCounter_ = 0;
@@ -152,6 +160,13 @@ class IOIOProtocol {
 		outbuf_[pos_++] = (byte) b;
 	}
 	
+	private void writeBytes(byte[] buf, int offset, int size)
+			throws IOException {
+		while (size-- > 0) {
+			writeByte(((int) buf[offset++]) & 0xFF);
+		}
+	}
+
 	public synchronized void beginBatch() {
 		++batchCounter_;
 	}
@@ -516,6 +531,74 @@ class IOIOProtocol {
 		endBatch();
 	}
 
+	synchronized public void sequencerOpen(byte[] config, int size) throws IOException {
+		assert config != null;
+		assert size >= 0 && size <= 68;
+
+		beginBatch();
+		writeByte(SEQUENCER_CONFIGURE);
+		writeByte(size);
+		writeBytes(config, 0, size);
+		endBatch();
+	}
+
+	synchronized public void sequencerClose() throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONFIGURE);
+		writeByte(0);
+		endBatch();
+	}
+
+	synchronized public void sequencerPush(int duration, byte[] cue, int size)
+			throws IOException {
+		assert cue != null;
+		assert size >= 0 && size <= 68;
+		assert duration < (1 << 16);
+
+		beginBatch();
+		writeByte(SEQUENCER_PUSH);
+		writeTwoBytes(duration);
+		writeBytes(cue, 0, size);
+		endBatch();
+	}
+
+	synchronized public void sequencerStop() throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONTROL);
+		writeByte(0);
+		endBatch();
+	}
+
+	synchronized public void sequencerStart() throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONTROL);
+		writeByte(1);
+		endBatch();
+	}
+
+	synchronized public void sequencerPause() throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONTROL);
+		writeByte(2);
+		endBatch();
+	}
+
+	synchronized public void sequencerManualStart(byte[] cue, int size)
+			throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONTROL);
+		writeByte(3);
+		writeBytes(cue, 0, size);
+		endBatch();
+	}
+
+	synchronized public void sequencerManualStop() throws IOException {
+		beginBatch();
+		writeByte(SEQUENCER_CONTROL);
+		writeByte(4);
+		endBatch();
+	}
+
 	public interface IncomingHandler {
 		public void handleEstablishConnection(byte[] hardwareId,
 				byte[] bootloaderId, byte[] firmwareId);
@@ -865,6 +948,22 @@ class IOIOProtocol {
 					case SET_CAPSENSE_SAMPLING:
 						arg1 = readByte();
 						handler_.handleSetCapSenseSampling(arg1 & 0x3F, (arg1 & 0x80) != 0);
+						break;
+
+					case SEQUENCER_EVENT:
+						arg1 = readByte();
+						// OPEN and STOPPED events has an additional argument.
+						if (arg1 == 2 || arg1 == 4) {
+							arg2 = readByte();
+						} else {
+							arg2 = 0;
+						}
+						try {
+							handler_.handleSequencerEvent(
+									SequencerEvent.values()[arg1], arg2);
+						} catch (ArrayIndexOutOfBoundsException e) {
+							throw new IOException("Unexpected eveent: " + arg1);
+						}
 						break;
 
 					default:
