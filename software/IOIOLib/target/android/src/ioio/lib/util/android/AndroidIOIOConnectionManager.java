@@ -28,12 +28,13 @@
  */
 package ioio.lib.util.android;
 
-import java.util.Collection;
-
-import android.content.ContextWrapper;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.util.IOIOConnectionManager;
 import ioio.lib.util.IOIOConnectionRegistry;
+
+import java.util.Collection;
+
+import android.content.ContextWrapper;
 
 /**
  * An extension of {@link IOIOConnectionManager} for the Android environment.

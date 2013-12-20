@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -156,10 +156,10 @@ class IOIOProtocol {
 			// buffer is full
 			flush();
 		}
-		//Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
+		// Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
 		outbuf_[pos_++] = (byte) b;
 	}
-	
+
 	private void writeBytes(byte[] buf, int offset, int size)
 			throws IOException {
 		while (size-- > 0) {
@@ -170,7 +170,7 @@ class IOIOProtocol {
 	public synchronized void beginBatch() {
 		++batchCounter_;
 	}
-	
+
 	public synchronized void endBatch() throws IOException {
 		if (--batchCounter_ == 0) {
 			flush();
@@ -516,7 +516,7 @@ class IOIOProtocol {
 		writeByte(ICSP_REGOUT);
 		endBatch();
 	}
-	
+
 	synchronized public void setPinCapSense(int pinNum) throws IOException {
 		beginBatch();
 		writeByte(SET_PIN_CAPSENSE);
@@ -524,7 +524,8 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void setCapSenseSampling(int pinNum, boolean enable) throws IOException {
+	synchronized public void setCapSenseSampling(int pinNum, boolean enable)
+			throws IOException {
 		beginBatch();
 		writeByte(SET_CAPSENSE_SAMPLING);
 		writeByte((pinNum & 0x3F) | (enable ? 0x80 : 0x00));
@@ -661,10 +662,12 @@ class IOIOProtocol {
 		public void handleIncapClose(int incapNum);
 
 		public void handleIncapOpen(int incapNum);
-		
+
 		public void handleCapSenseReport(int pinNum, int value);
-		
+
 		public void handleSetCapSenseSampling(int pinNum, boolean enable);
+
+		public void handleSequencerEvent(SequencerEvent event, int arg);
 	}
 
 	class IncomingThread extends Thread {
@@ -703,7 +706,7 @@ class IOIOProtocol {
 				if (validBytes_ <= 0) {
 					throw new IOException("Unexpected stream closure");
 				}
-				//Log.v(TAG, "received " + validBytes_ + " bytes");
+				// Log.v(TAG, "received " + validBytes_ + " bytes");
 				readOffset_ = 0;
 			} catch (IOException e) {
 				Log.i(TAG, "IOIO disconnected");
@@ -716,8 +719,8 @@ class IOIOProtocol {
 				fillBuf();
 			}
 			int b = inbuf_[readOffset_++];
-			b &= 0xFF;  // make unsigned
-			//Log.v(TAG, "received: 0x" + Integer.toHexString(b));
+			b &= 0xFF; // make unsigned
+			// Log.v(TAG, "received: 0x" + Integer.toHexString(b));
 			return b;
 		}
 
@@ -804,7 +807,8 @@ class IOIOProtocol {
 							if (i % 4 == 0) {
 								header = readByte();
 							}
-							analogPinValues_.add((readByte() << 2) | (header & 0x03));
+							analogPinValues_.add((readByte() << 2)
+									| (header & 0x03));
 							header >>= 2;
 						}
 						handler_.handleReportAnalogInStatus(analogFramePins_,
@@ -914,7 +918,7 @@ class IOIOProtocol {
 							handler_.handleIcspClose();
 						}
 						break;
-						
+
 					case INCAP_STATUS:
 						arg1 = readByte();
 						if ((arg1 & 0x80) != 0) {
@@ -923,7 +927,7 @@ class IOIOProtocol {
 							handler_.handleIncapClose(arg1 & 0x0F);
 						}
 						break;
-						
+
 					case INCAP_REPORT:
 						arg1 = readByte();
 						size = arg1 >> 6;
@@ -937,17 +941,18 @@ class IOIOProtocol {
 					case SOFT_CLOSE:
 						Log.d(TAG, "Received soft close.");
 						throw new IOException("Soft close");
-						
+
 					case CAPSENSE_REPORT:
 						arg1 = readByte();
 						arg2 = readByte();
 						handler_.handleCapSenseReport(arg1 & 0x3F, (arg1 >> 6)
 								| (arg2 << 2));
 						break;
-						
+
 					case SET_CAPSENSE_SAMPLING:
 						arg1 = readByte();
-						handler_.handleSetCapSenseSampling(arg1 & 0x3F, (arg1 & 0x80) != 0);
+						handler_.handleSetCapSenseSampling(arg1 & 0x3F,
+								(arg1 & 0x80) != 0);
 						break;
 
 					case SEQUENCER_EVENT:

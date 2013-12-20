@@ -286,7 +286,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		checkState();
 		Resource pin = new Resource(ResourceType.PIN, spec.pin);
 		resourceManager_.alloc(pin);
-		
+
 		DigitalOutputImpl result = new DigitalOutputImpl(this, pin, startValue);
 		addDisconnectListener(result);
 		try {
@@ -366,7 +366,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			int freqHz) throws ConnectionLostException {
 		checkState();
 		hardware_.checkSupportsPeripheralOutput(spec.pin);
-		
+
 		Resource pin = new Resource(ResourceType.PIN, spec.pin);
 		Resource oc = new Resource(ResourceType.OUTCOMPARE);
 
@@ -459,7 +459,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		checkState();
 
 		final int[][] twiPins = hardware_.twiPins();
-		
+
 		Resource twi = new Resource(ResourceType.TWI, twiNum);
 		Resource[] pins = new Resource[] {
 				new Resource(ResourceType.PIN, twiPins[twiNum][0]),
@@ -483,7 +483,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	synchronized public IcspMaster openIcspMaster()
 			throws ConnectionLostException {
 		checkState();
-		
+
 		final int[] icspPins = hardware_.icspPins();
 		Resource icsp = new Resource(ResourceType.ICSP);
 		Resource[] pins = new Resource[] {
@@ -531,7 +531,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			DigitalOutput.Spec[] slaveSelect, SpiMaster.Config config)
 			throws ConnectionLostException {
 		checkState();
-		
+
 		hardware_.checkSupportsPeripheralInput(miso.pin);
 		hardware_.checkSupportsPeripheralOutput(mosi.pin);
 		hardware_.checkSupportsPeripheralOutput(clk.pin);

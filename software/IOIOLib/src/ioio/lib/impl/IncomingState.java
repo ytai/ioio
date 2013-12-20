@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -335,9 +335,9 @@ class IncomingState implements IncomingHandler {
 		bootloaderId_ = new String(bootloaderId);
 		firmwareId_ = new String(firmwareId);
 
-		Log.i(TAG, "IOIO Connection established. Hardware ID: "
-				+ hardwareId_ + " Bootloader ID: " + bootloaderId_
-				+ " Firmware ID: " + firmwareId_);
+		Log.i(TAG, "IOIO Connection established. Hardware ID: " + hardwareId_
+				+ " Bootloader ID: " + bootloaderId_ + " Firmware ID: "
+				+ firmwareId_);
 		try {
 			board_ = Board.valueOf(hardwareId_);
 		} catch (IllegalArgumentException e) {
@@ -462,7 +462,7 @@ class IncomingState implements IncomingHandler {
 		// logMethod("handleCapSenseReport", pinNum, value);
 		intputPinStates_[pinNum].setValue(value);
 	}
-	
+
 	@Override
 	public void handleSetCapSenseSampling(int pinNum, boolean enable) {
 		// logMethod("handleSetCapSenseSampling", pinNum, enable);
@@ -472,7 +472,7 @@ class IncomingState implements IncomingHandler {
 			intputPinStates_[pinNum].closeCurrentListener();
 		}
 	}
-	
+
 	@Override
 	public void handleSequencerEvent(SequencerEvent event, int arg) {
 		// logMethod("handleSequencerEvent", event, arg);
@@ -510,7 +510,7 @@ class IncomingState implements IncomingHandler {
 		}
 	}
 
-//	private void logMethod(String name, Object... args) {
+//	private static void logMethod(String name, Object... args) {
 //		StringBuffer msg = new StringBuffer(name);
 //		msg.append('(');
 //		for (int i = 0; i < args.length; ++i) {
