@@ -33,6 +33,10 @@
       <itemPath>sync.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
+      <itemPath>queue.h</itemPath>
+      <itemPath>sequence.h</itemPath>
+      <itemPath>sequencer.h</itemPath>
+      <itemPath>sequencer_protocol.h</itemPath>
       <itemPath>field_accessors.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
@@ -69,6 +73,9 @@
       <itemPath>spi.c</itemPath>
       <itemPath>timers.c</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>sequencer.c</itemPath>
+      <itemPath>sequencer_asm.s</itemPath>
+      <itemPath>sequencer_protocol.c</itemPath>
       <itemPath>field_accessors.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"

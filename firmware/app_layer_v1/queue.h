@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,40 +27,27 @@
  * or implied.
  */
 
-#include "timers.h"
+#ifndef QUEUE_H
+#define	QUEUE_H
 
-#include "Compiler.h"
-#include "logging.h"
-#include "sync.h"
 
-void TimersInit() {
-  log_printf("TimersInit()");
+#define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
 
-  // The timers are initialized as follows:
-  // T2, T5: sysclk / 256 = 62.5KHz
-  // T3    : sysclk / 8 = 2MHz
-  // T4    : sysclk / 64 = 250KHz
-  // T3, T4, T5 all have their prescaler synchronized (i.e., in the exact same
-  // cycle when T5 increments, T3 and T4 increments as well.
-  // T2 lags behind T5 by exactly 46 cycles. Together with the 210 cycles it
-  // takes the ISR to process a sequencer cue, we're at 256 cycles, meaning all
-  // timers are immediately incremented.
-
-  T2CON = 0x8030;  // timer 2 is sysclk / 256 = 62.5KHz
-  T3CON = 0x8010;  // timer 3 is sysclk / 8 = 2MHz
-  T4CON = 0x8020;  // timer 4 is sysclk / 64 = 250KHz
-  T5CON = 0x8030;  // timer 5 is sysclk / 256 = 62.5KHz
-
-  PRIORITY(7) {
-    asm("clr _TMR4\n"
-        "repeat #53\n"
-        "nop\n"
-        "clr _TMR3\n"
-        "repeat #5\n"
-        "nop\n"
-        "clr _TMR5\n"
-        "repeat #43\n"
-        "nop\n"
-        "clr _TMR2\n");
-  }
+#define QUEUE(T, SIZE) struct { \
+  volatile int read_count;      \
+  volatile int write_count;     \
+  T buf[SIZE];                  \
 }
+
+#define QUEUE_CLEAR(q) (q)->read_count = (q)->write_count = 0
+#define QUEUE_SIZE(q) ((unsigned) ((q)->write_count - (q)->read_count))
+#define QUEUE_CAPACITY(q) ARRAY_LEN((q)->buf)
+
+#define QUEUE_PEEK(q) (&(q)->buf[(q)->read_count % QUEUE_CAPACITY(q)])
+#define QUEUE_POKE(q) (&(q)->buf[(q)->write_count % QUEUE_CAPACITY(q)])
+#define QUEUE_PULL(q) (++(q)->read_count)
+#define QUEUE_PUSH(q) (++(q)->write_count)
+
+
+#endif	// QUEUE_H
+

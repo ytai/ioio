@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,40 +27,36 @@
  * or implied.
  */
 
-#include "timers.h"
+#include "sequencer_protocol.h"
+#include "protocol.h"
 
-#include "Compiler.h"
-#include "logging.h"
-#include "sync.h"
+void SequencerTasks() {
+  // Flush the event queue.
+  uint8_t e;
+  while ((e = SequencerGetEvent()) != SEQ_EVENT_NONE) {
+    SequencerEvent const ev = e & 0x07;
+    OUTGOING_MESSAGE msg;
+    msg.type = SEQUENCER_EVENT;
+    msg.args.sequencer_event.event = ev;
+    if (ev == SEQ_EVENT_OPENED) {
+      uint8_t size = (uint8_t) SequencerQueueLength();
+      AppProtocolSendMessageWithVarArg(&msg, &size, 1);
+    } else if (ev == SEQ_EVENT_STOPPED) {
+      uint8_t size = e >> 3;
+      AppProtocolSendMessageWithVarArg(&msg, &size, 1);
+    } else {
+      AppProtocolSendMessage(&msg);
+    }
+  }
+}
 
-void TimersInit() {
-  log_printf("TimersInit()");
-
-  // The timers are initialized as follows:
-  // T2, T5: sysclk / 256 = 62.5KHz
-  // T3    : sysclk / 8 = 2MHz
-  // T4    : sysclk / 64 = 250KHz
-  // T3, T4, T5 all have their prescaler synchronized (i.e., in the exact same
-  // cycle when T5 increments, T3 and T4 increments as well.
-  // T2 lags behind T5 by exactly 46 cycles. Together with the 210 cycles it
-  // takes the ISR to process a sequencer cue, we're at 256 cycles, meaning all
-  // timers are immediately incremented.
-
-  T2CON = 0x8030;  // timer 2 is sysclk / 256 = 62.5KHz
-  T3CON = 0x8010;  // timer 3 is sysclk / 8 = 2MHz
-  T4CON = 0x8020;  // timer 4 is sysclk / 64 = 250KHz
-  T5CON = 0x8030;  // timer 5 is sysclk / 256 = 62.5KHz
-
-  PRIORITY(7) {
-    asm("clr _TMR4\n"
-        "repeat #53\n"
-        "nop\n"
-        "clr _TMR3\n"
-        "repeat #5\n"
-        "nop\n"
-        "clr _TMR5\n"
-        "repeat #43\n"
-        "nop\n"
-        "clr _TMR2\n");
+bool SequencerCommand(SEQ_CMD cmd, uint8_t const * extra) {
+  switch (cmd) {
+    case SEQ_CMD_STOP:         return SequencerStop();
+    case SEQ_CMD_START:        return SequencerStart();
+    case SEQ_CMD_PAUSE:        return SequencerPause();
+    case SEQ_CMD_MANUAL_START: return SequencerManualCue(extra);
+    case SEQ_CMD_MANUAL_STOP:  return SequencerManualStop();
+    default:                   return false;
   }
 }

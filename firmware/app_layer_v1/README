@@ -71,3 +71,5 @@ Priority assignment:
 
 6 - Input capture pulse for changing polarity between leading and trailing edge.
 6 - ADC for reading converted value from buffer before another one comes in.
+
+7 - Sequencer timer.

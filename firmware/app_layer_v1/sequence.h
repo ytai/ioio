@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,40 +27,71 @@
  * or implied.
  */
 
-#include "timers.h"
+#ifndef SEQUENCE_H
+#define SEQUENCE_H
 
-#include "Compiler.h"
-#include "logging.h"
-#include "sync.h"
 
-void TimersInit() {
-  log_printf("TimersInit()");
+#include <assert.h>
+#include <stdint.h>
 
-  // The timers are initialized as follows:
-  // T2, T5: sysclk / 256 = 62.5KHz
-  // T3    : sysclk / 8 = 2MHz
-  // T4    : sysclk / 64 = 250KHz
-  // T3, T4, T5 all have their prescaler synchronized (i.e., in the exact same
-  // cycle when T5 increments, T3 and T4 increments as well.
-  // T2 lags behind T5 by exactly 46 cycles. Together with the 210 cycles it
-  // takes the ISR to process a sequencer cue, we're at 256 cycles, meaning all
-  // timers are immediately incremented.
+#include "platform.h"
+#include "queue.h"
 
-  T2CON = 0x8030;  // timer 2 is sysclk / 256 = 62.5KHz
-  T3CON = 0x8010;  // timer 3 is sysclk / 8 = 2MHz
-  T4CON = 0x8020;  // timer 4 is sysclk / 64 = 250KHz
-  T5CON = 0x8030;  // timer 5 is sysclk / 256 = 62.5KHz
+#define SEQUENCE_LENGTH 32
 
-  PRIORITY(7) {
-    asm("clr _TMR4\n"
-        "repeat #53\n"
-        "nop\n"
-        "clr _TMR3\n"
-        "repeat #5\n"
-        "nop\n"
-        "clr _TMR5\n"
-        "repeat #43\n"
-        "nop\n"
-        "clr _TMR2\n");
-  }
+typedef struct {
+  uint16_t rs;
+  uint16_t r;
+  uint16_t con1;
+  uint16_t inc;
+} OCCue;
+
+typedef struct {
+  uint16_t and;
+  uint16_t or;
+} PortCue;
+
+typedef struct {
+  OCCue   oc[NUM_PWM_MODULES];
+  PortCue port[NUM_PORTS];
+} Cue;
+
+typedef struct {
+  Cue      cue;
+  uint16_t time;
+} TimedCue;
+
+typedef QUEUE(TimedCue, SEQUENCE_LENGTH) Sequence;
+
+extern inline void SequenceClear(Sequence *seq) {
+  QUEUE_CLEAR(seq);
 }
+
+extern inline unsigned SequenceSize(Sequence const *seq) {
+  return QUEUE_SIZE(seq);
+}
+
+extern inline bool SequenceFull(Sequence const *seq) {
+  return QUEUE_SIZE(seq) == QUEUE_CAPACITY(seq);
+}
+
+extern inline TimedCue * SequencePoke(Sequence *seq) {
+  assert(QUEUE_SIZE(seq) < QUEUE_CAPACITY(seq));
+  return QUEUE_POKE(seq);
+}
+
+extern inline TimedCue const * SequencePeek(Sequence const *seq) {
+  if (QUEUE_SIZE(seq) == 0) return NULL;
+  return QUEUE_PEEK(seq);
+}
+
+extern inline void SequencePull(Sequence *seq) {
+  QUEUE_PULL(seq);
+}
+
+extern inline void SequencePush(Sequence *seq) {
+  QUEUE_PUSH(seq);
+}
+
+#endif	// SEQUENCE_H
+

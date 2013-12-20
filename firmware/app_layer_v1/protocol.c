@@ -46,6 +46,7 @@
 #include "sync.h"
 #include "icsp.h"
 #include "incap.h"
+#include "sequencer_protocol.h"
 
 #define CHECK(cond) do { if (!(cond)) { log_printf("Check failed: %s", #cond); return FALSE; }} while(0)
 
@@ -81,7 +82,10 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_PIN_INCAP_ARGS),
   sizeof(SOFT_CLOSE_ARGS),
   sizeof(SET_PIN_CAPSENSE_ARGS),
-  sizeof(SET_CAPSENSE_SAMPLING_ARGS)
+  sizeof(SET_CAPSENSE_SAMPLING_ARGS),
+  sizeof(SEQUENCER_CONFIGURE_ARGS),
+  sizeof(SEQUENCER_PUSH_ARGS),
+  sizeof(SEQUENCER_CONTROL_ARGS)
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -118,7 +122,10 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(INCAP_REPORT_ARGS),
   sizeof(SOFT_CLOSE_ARGS),
   sizeof(CAPSENSE_REPORT_ARGS),
-  sizeof(SET_CAPSENSE_SAMPLING_ARGS)
+  sizeof(SET_CAPSENSE_SAMPLING_ARGS),
+  sizeof(SEQUENCER_EVENT_ARGS),
+  sizeof(RESERVED_ARGS),
+  sizeof(RESERVED_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for outgoing message).
   // Array is indexed by message type enum.
@@ -130,7 +137,15 @@ typedef enum {
   STATE_CLOSED
 } STATE;
 
-DEFINE_STATIC_BYTE_QUEUE(tx_queue, 8192);
+// Not enough RAM in the 24K RAM (old prototypes) platforms, since the
+// introduction of the motion control library.
+#ifdef __PIC24FJ128DA106__
+#define QUEUE_SIZE 4096
+#else
+#define QUEUE_SIZE 8192
+#endif
+
+DEFINE_STATIC_BYTE_QUEUE(tx_queue, QUEUE_SIZE);
 static int bytes_out;
 static int max_packet;
 static STATE state;
@@ -166,6 +181,17 @@ static inline BYTE IncomingVarArgSize(const INCOMING_MESSAGE* msg) {
 
     case I2C_WRITE_READ:
       return msg->args.i2c_write_read.write_size;
+
+    case SEQUENCER_CONFIGURE:
+      return msg->args.sequencer_configure.size;
+
+    case SEQUENCER_PUSH:
+      return SequencerExpectedCueSize();
+
+    case SEQUENCER_CONTROL:
+      return msg->args.sequencer_control.cmd == SEQ_CMD_MANUAL_START
+                                                ? SequencerExpectedCueSize()
+                                                : 0;
 
     // BOOKMARK(add_feature): Add more cases here if incoming message has variable args.
     default:
@@ -235,6 +261,7 @@ void AppProtocolTasks(CHANNEL_HANDLE h) {
   SPITasks();
   I2CTasks();
   ICSPTasks();
+  SequencerTasks();
   if (ConnectionCanSend(h)) {
     const BYTE* data;
     if (bytes_out) {
@@ -501,6 +528,22 @@ static BOOL MessageDone() {
       ADCSetCapSense(rx_msg.args.set_capsense_sampling.pin,
                      rx_msg.args.set_capsense_sampling.enable);
       break;
+
+    case SEQUENCER_CONFIGURE:
+      if (rx_msg.args.sequencer_configure.size) {
+        return SequencerOpen(rx_msg.args.sequencer_configure.config,
+                             rx_msg.args.sequencer_configure.size);
+      } else {
+        return SequencerClose();
+      }
+
+    case SEQUENCER_PUSH:
+      return SequencerPush(rx_msg.args.sequencer_push.cue,
+                           rx_msg.args.sequencer_push.time);
+
+    case SEQUENCER_CONTROL:
+      return SequencerCommand((SEQ_CMD) rx_msg.args.sequencer_control.cmd,
+                              rx_msg.args.sequencer_control.extra);
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
     // Call Echo() if the message is to be echoed back.

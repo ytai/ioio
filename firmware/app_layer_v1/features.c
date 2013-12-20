@@ -240,6 +240,7 @@ void SoftReset() {
     SPIInit();
     I2CInit();
     InCapInit();
+    SequencerInit();
 
     // TODO: reset all peripherals!
   }

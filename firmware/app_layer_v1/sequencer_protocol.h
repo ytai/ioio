@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *
  *
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -27,40 +27,22 @@
  * or implied.
  */
 
-#include "timers.h"
+#ifndef SEQUENCER_PROTOCOL_H
+#define	SEQUENCER_PROTOCOL_H
 
-#include "Compiler.h"
-#include "logging.h"
-#include "sync.h"
+#include "sequencer.h"
 
-void TimersInit() {
-  log_printf("TimersInit()");
+// sequencer control command constants
+typedef enum {
+  SEQ_CMD_STOP         = 0,
+  SEQ_CMD_START        = 1,
+  SEQ_CMD_PAUSE        = 2,
+  SEQ_CMD_MANUAL_START = 3,
+  SEQ_CMD_MANUAL_STOP  = 4
+} SEQ_CMD;
 
-  // The timers are initialized as follows:
-  // T2, T5: sysclk / 256 = 62.5KHz
-  // T3    : sysclk / 8 = 2MHz
-  // T4    : sysclk / 64 = 250KHz
-  // T3, T4, T5 all have their prescaler synchronized (i.e., in the exact same
-  // cycle when T5 increments, T3 and T4 increments as well.
-  // T2 lags behind T5 by exactly 46 cycles. Together with the 210 cycles it
-  // takes the ISR to process a sequencer cue, we're at 256 cycles, meaning all
-  // timers are immediately incremented.
+void SequencerTasks();
+bool SequencerCommand(SEQ_CMD cmd, uint8_t const * extra);
 
-  T2CON = 0x8030;  // timer 2 is sysclk / 256 = 62.5KHz
-  T3CON = 0x8010;  // timer 3 is sysclk / 8 = 2MHz
-  T4CON = 0x8020;  // timer 4 is sysclk / 64 = 250KHz
-  T5CON = 0x8030;  // timer 5 is sysclk / 256 = 62.5KHz
+#endif	// SEQUENCER_PROTOCOL_H
 
-  PRIORITY(7) {
-    asm("clr _TMR4\n"
-        "repeat #53\n"
-        "nop\n"
-        "clr _TMR3\n"
-        "repeat #5\n"
-        "nop\n"
-        "clr _TMR5\n"
-        "repeat #43\n"
-        "nop\n"
-        "clr _TMR2\n");
-  }
-}
