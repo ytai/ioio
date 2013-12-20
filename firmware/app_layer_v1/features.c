@@ -41,8 +41,10 @@
 #include "spi.h"
 #include "i2c.h"
 #include "timers.h"
+#include "sequencer.h"
 #include "pp_util.h"
 #include "incap.h"
+#include "sync.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pin modes
@@ -228,20 +230,19 @@ void HardReset() {
 }
 
 void SoftReset() {
-  BYTE ipl_backup = SRbits.IPL;
-  SRbits.IPL = 7;  // disable interrupts
-  log_printf("SoftReset()");
-  TimersInit();
-  PinsInit();
-  PWMInit();
-  ADCInit();
-  UARTInit();
-  SPIInit();
-  I2CInit();
-  InCapInit();
+  PRIORITY(7) {
+    log_printf("SoftReset()");
+    TimersInit();
+    PinsInit();
+    PWMInit();
+    ADCInit();
+    UARTInit();
+    SPIInit();
+    I2CInit();
+    InCapInit();
 
-  // TODO: reset all peripherals!
-  SRbits.IPL = ipl_backup;  // enable interrupts
+    // TODO: reset all peripherals!
+  }
 }
 
 void CheckInterface(BYTE interface_id[8]) {

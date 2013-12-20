@@ -39,19 +39,35 @@ The file board.h contains information on specific boards.
 
 Interrupts and Priorities
 -------------------------
-Many of the modules facilitate interrupts. For that purpose it is important to
-protect resources shared between different priority levels.
-This is done by assigning to every resource a "resource priority level".
-This resource should never be accessed from an interrupt with priority greater
-than the resource priority level, and whenever it is accessed from an interrupt
-with lower priority (or from non-interrupt context), the priority should be
-raised accordingly.
+Priority levels serve two purposes:
+- Manage interrupt latency (higher priorities will have better worst-case
+  latency).
+- Serialize access to shared resources. Certain resources are shared between
+  multiple interrupts as well as non-interrupt ("main") code. Each such resource
+  is given a priority level from which it should be accessed. It should never be
+  accessed from within a different priority level. The interrupt level can be
+  explicitly raised when accessing the resource from a lower-priority interrupt
+  or non-interrupt code. It can never be accessed from a higher priority
+  interrupt.
 
-Resource priority assignment:
-1 - writing to outgoing ADB channel
-4 - writing to UART, SPI buffers, setting a digital output pin level
+Priority assignment:
+0 - Main code
+1 - writing to outgoing channel. Includes:
+    + Main code raising itself to level 1 for synchronizing access to the
+      outgoing stream.
+    + ADC secondary interrupt.
+    + Change notify interrupt (digital input).
+    + Input capture (second interrupt).
 
-Aside from that, interrupt priorities are used as follows:
-5 - USB
-6 - input capture pulse for changing polarity between leading and trailing edge.
-7 - ADC for reading converted value from buffer before another one comes in.
+2 - UART TX
+2 - I2C
+
+3 - SPI
+
+4 - UART RX
+4 - Setting a digital output pin level (can be avoided be making SetPinLat atomic).
+
+5 - USB host
+
+6 - Input capture pulse for changing polarity between leading and trailing edge.
+6 - ADC for reading converted value from buffer before another one comes in.

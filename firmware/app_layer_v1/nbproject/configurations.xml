@@ -15,6 +15,7 @@
         <itemPath>../microchip/include/timer.h</itemPath>
         <itemPath>../microchip/include/uart2.h</itemPath>
         <itemPath>../common/byte_queue.h</itemPath>
+        <itemPath>../common/atomic.h</itemPath>
       </logicalFolder>
       <itemPath>adc.h</itemPath>
       <itemPath>digital.h</itemPath>
@@ -32,6 +33,7 @@
       <itemPath>sync.h</itemPath>
       <itemPath>timers.h</itemPath>
       <itemPath>uart.h</itemPath>
+      <itemPath>field_accessors.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -67,6 +69,7 @@
       <itemPath>spi.c</itemPath>
       <itemPath>timers.c</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>field_accessors.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -88,11 +91,10 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA106</targetDevice>
         <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -135,6 +137,7 @@
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="PLATFORM=1021;NDEBUG"/>
         <property key="scalar-model" value="default"/>
+        <appendMe value="-std=gnu99"/>
       </C30>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
@@ -199,11 +202,10 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ128DA206</targetDevice>
         <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -246,6 +248,7 @@
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="PLATFORM=1022;NDEBUG"/>
         <property key="scalar-model" value="default"/>
+        <appendMe value="-std=gnu99"/>
       </C30>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
@@ -310,11 +313,10 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256DA206</targetDevice>
         <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -357,6 +359,7 @@
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="PLATFORM=1023;NDEBUG"/>
         <property key="scalar-model" value="default"/>
+        <appendMe value="-std=gnu99"/>
       </C30>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
@@ -421,11 +424,10 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ256GB206</targetDevice>
         <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -468,6 +470,7 @@
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="PLATFORM=1030;NDEBUG"/>
         <property key="scalar-model" value="default"/>
+        <appendMe value="-std=gnu99"/>
       </C30>
       <C30-AS>
         <property key="assembler-symbols" value=""/>

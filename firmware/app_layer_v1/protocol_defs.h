@@ -30,6 +30,7 @@
 #ifndef __PROTOCOLDEFS_H__
 #define __PROTOCOLDEFS_H__
 
+#include "GenericTypeDefs.h"
 
 #define PACKED __attribute__ ((packed))
 

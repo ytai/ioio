@@ -39,15 +39,19 @@
 #include "logging.h"
 #include "protocol.h"
 #include "pins.h"
+#include "sync.h"
 
-static unsigned int analog_scan_bitmask;
-static int analog_scan_num_channels;
+#define FAST_INT_PRIORITY 6
+#define SLOW_INT_PRIORITY 1
+
+static volatile uint16_t analog_scan_bitmask;
+static volatile int analog_scan_num_channels;
 // Bit k is set iff channel k is marked for capsense reporting.
-static uint16_t capsense_bitmask;
+static volatile uint16_t capsense_bitmask;
 // Bit k is set iff the status of channel k has changed wrt capsense sampling
 // and we have not yet reported back this fact. This bit is set whenever the
 // status changes and cleared as soon as we report.
-static uint16_t capsense_dirty_bitmask;
+static volatile uint16_t capsense_dirty_bitmask;
 // Current channel to capsense.
 static uint16_t capsense_current = 15;
 // Set to true before triggering a sample to designate this is a cap-sense
@@ -55,7 +59,7 @@ static uint16_t capsense_current = 15;
 static bool capsense_sample = false;
 // Used to decide whether or not to enable T3 interrupt. When 0, interrupt
 // should be enabled, otherwise, disabled.
-static int t3_int_counter;
+static volatile int t3_int_counter;
 
 // we need to generate a priority 1 interrupt in order to send a message
 // containing ADC-captured data.
@@ -71,7 +75,7 @@ static int t3_int_counter;
 // interrupt - we just manually raise its IF flag whenever we need an interrupt
 // and service this interrupt.
 static inline void ScanDoneInterruptInit() {
-  _CRCIP = 1;
+  _CRCIP = SLOW_INT_PRIORITY;
 }
 
 // call this function to generate the priority 1 interrupt.
@@ -84,18 +88,21 @@ static inline void ScanDoneInterruptTrigger() {
 // used for ADC
 static inline void Timer3Init() {
   PR3   = 1999;  // period is 2000 clocks = 1KHz
-  _T3IP = 1;       // interrupt priority 1 (this interrupt may write to outgoing channel)
+  _T3IP = SLOW_INT_PRIORITY; // interrupt priority 1 (this interrupt may write to outgoing channel)
 }
 
 static inline void T3IntBlock() {
-  if (t3_int_counter++ == 0) {
+  PRIORITY(1) {
     _T3IE = 0;
+    ++t3_int_counter;
   }
 }
 
 static inline void T3IntUnblock() {
-  if (--t3_int_counter == 0) {
-    _T3IE = 1;
+  PRIORITY(1) {
+    if (--t3_int_counter == 0) {
+      _T3IE = 1;
+    }
   }
 }
 
@@ -139,7 +146,7 @@ void ADCInit() {
   AD1CHS  = 0x0000;  // Sample AN0 against negative reference.
   AD1CSSL = 0x0000;  // reset scan mask.
 
-  _AD1IP = 7;        // high priority to stop automatic sampling
+  _AD1IP = FAST_INT_PRIORITY;        // high priority to stop automatic sampling
 
   // Setup CTMU
   CTMUCON = (1 << 8)  // CTTRIG
