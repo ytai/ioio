@@ -561,6 +561,9 @@ typedef enum {
   SEQUENCER_PUSH                      = 0x21,
   SEQUENCER_CONTROL                   = 0x22,
 
+  SYNC                                = 0x23,
+
+
   // BOOKMARK(add_feature): Add new message type to enum.
   MESSAGE_TYPE_LIMIT
 } MESSAGE_TYPE;

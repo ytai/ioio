@@ -85,7 +85,9 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SET_CAPSENSE_SAMPLING_ARGS),
   sizeof(SEQUENCER_CONFIGURE_ARGS),
   sizeof(SEQUENCER_PUSH_ARGS),
-  sizeof(SEQUENCER_CONTROL_ARGS)
+  sizeof(SEQUENCER_CONTROL_ARGS),
+  sizeof(RESERVED_ARGS)
+
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
 };
@@ -124,6 +126,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(CAPSENSE_REPORT_ARGS),
   sizeof(SET_CAPSENSE_SAMPLING_ARGS),
   sizeof(SEQUENCER_EVENT_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS)
 
@@ -544,6 +547,10 @@ static BOOL MessageDone() {
     case SEQUENCER_CONTROL:
       return SequencerCommand((SEQ_CMD) rx_msg.args.sequencer_control.cmd,
                               rx_msg.args.sequencer_control.extra);
+
+    case SYNC:
+      Echo();
+      break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.
     // Call Echo() if the message is to be echoed back.
