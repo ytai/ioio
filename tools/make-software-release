@@ -43,7 +43,8 @@ SOURCEDIRS="IOIOLib \
             applications/HelloIOIOService \
             applications/IOIOSimpleApp \
             applications/pc/HelloIOIOConsole \
-            applications/pc/HelloIOIOSwing"
+            applications/pc/HelloIOIOSwing \
+            applications/pc/HelloSequencer"
 
 APPJARS="applications/pc/HelloIOIOConsole/bin/HelloIOIOConsole.jar \
          applications/pc/HelloIOIOSwing/bin/HelloIOIOSwing.jar"
