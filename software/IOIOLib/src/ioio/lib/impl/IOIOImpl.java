@@ -57,6 +57,32 @@ import ioio.lib.spi.Log;
 import java.io.IOException;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
+	private static class SyncListener implements IncomingState.SyncListener, DisconnectListener {
+		enum State { WAITING, SIGNALED, DISCONNECTED };
+		private State state_ = State.WAITING;
+
+		@Override
+		public synchronized void sync() {
+			state_ = State.SIGNALED;
+			notifyAll();
+		}
+
+		public synchronized void waitSync() throws InterruptedException, ConnectionLostException {
+			while (state_ == State.WAITING) {
+				wait();
+			}
+			if (state_ == State.DISCONNECTED) {
+				throw new ConnectionLostException();
+			}
+		}
+
+		@Override
+		public synchronized void disconnected() {
+			state_ = State.DISCONNECTED;
+			notifyAll();
+		}
+	}
+
 	private static final String TAG = "IOIOImpl";
 	private boolean disconnect_ = false;
 
@@ -638,5 +664,21 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
+	}
+
+	@Override
+	public void sync() throws ConnectionLostException, InterruptedException {
+		SyncListener listener = new SyncListener();
+		synchronized (this) {
+			checkState();
+			incomingState_.addSyncListener(listener);
+			incomingState_.addDisconnectListener(listener);
+			try {
+				protocol_.sync();
+			} catch (IOException e) {
+				throw new ConnectionLostException(e);
+			}
+		}
+		listener.waitSync();
 	}
 }

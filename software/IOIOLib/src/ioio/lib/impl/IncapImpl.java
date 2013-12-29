@@ -43,13 +43,13 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	private long lastDuration_;
 	private final float timeBase_;
 	private final boolean doublePrecision_;
-	private boolean valid_ = false;
+	private long sampleCount_ = 0;
+
 	// TODO: a fixed-size array would have been much better than a linked list.
 	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
 
-	public IncapImpl(IOIOImpl ioio, PulseMode mode,
-			ResourceManager.Resource incap, ResourceManager.Resource pin,
-			int clockRate, int scale, boolean doublePrecision)
+	public IncapImpl(IOIOImpl ioio, PulseMode mode, ResourceManager.Resource incap,
+			ResourceManager.Resource pin, int clockRate, int scale, boolean doublePrecision)
 			throws ConnectionLostException {
 		super(ioio, pin);
 		mode_ = mode;
@@ -59,8 +59,7 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	}
 
 	@Override
-	public float getFrequency() throws InterruptedException,
-			ConnectionLostException {
+	public float getFrequency() throws InterruptedException, ConnectionLostException {
 		if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
 				&& mode_ != PulseMode.FREQ_SCALE_16) {
 			throw new IllegalStateException(
@@ -70,19 +69,45 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	}
 
 	@Override
-	public synchronized float getDuration() throws InterruptedException,
-			ConnectionLostException {
-		checkState();
-		while (!valid_) {
-			wait();
-			checkState();
+	public float getFrequencySync() throws InterruptedException, ConnectionLostException {
+		if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
+				&& mode_ != PulseMode.FREQ_SCALE_16) {
+			throw new IllegalStateException(
+					"Cannot query frequency when module was not opened in frequency mode.");
 		}
+		return 1.0f / getDurationSync();
+	}
+
+	@Override
+	public synchronized float getDuration() throws InterruptedException, ConnectionLostException {
+		// Wait for sample count to be non-zero.
+		while (sampleCount_ == 0 && state_ == State.OPEN) {
+			wait();
+		}
+		checkState();
 		return timeBase_ * lastDuration_;
 	}
 
 	@Override
-	public synchronized float waitPulseGetDuration()
-			throws InterruptedException, ConnectionLostException {
+	public synchronized float getDurationSync() throws InterruptedException, ConnectionLostException {
+		final long initialSampleCount = sampleCount_;
+		// Wait for sample count to increase.
+		while (sampleCount_ == initialSampleCount && state_ == State.OPEN) {
+			wait();
+		}
+		checkState();
+		return timeBase_ * lastDuration_;
+	}
+
+	@Override
+	public synchronized float waitPulseGetDuration() throws InterruptedException,
+			ConnectionLostException {
+		return getDurationBuffered();
+	}
+
+	@Override
+	public synchronized float getDurationBuffered() throws InterruptedException,
+			ConnectionLostException {
 		if (mode_ != PulseMode.POSITIVE && mode_ != PulseMode.NEGATIVE) {
 			throw new IllegalStateException(
 					"Cannot wait for pulse when module was not opened in pulse mode.");
@@ -102,7 +127,7 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 			pulseQueue_.remove();
 		}
 		pulseQueue_.add(lastDuration_);
-		valid_ = true;
+		++sampleCount_;
 		notifyAll();
 	}
 

@@ -49,17 +49,9 @@ public class AnalogInputTest implements Test<Boolean> {
 			boolean value = false;
 			for (int i = 0; i < 10; ++i) {
 				out.write(value);
-				boolean correct = false;
-				// We don't care about latency here, so we're sampling the input
-				// at 10ms intervals and will give up only if it doesn't reach
-				// the expect value after 50 attempts.
-				for (int attempt = 0; !correct && attempt < 50; ++attempt) {
-					if (value && in.read() > 0.9 || !value && in.read() < 0.1) {
-						correct = true;
-					} else {
-						Thread.sleep(10);
-					}
-				}
+				ioio_.sync();
+				final float reading = in.readSync();
+				final boolean correct = value && reading > 0.9 || !value && reading < 0.1;
 				if (!correct) {
 					Log.w("IOIOTortureTest", "Failed AnalogInputTest input: "
 							+ inPin + ", output: " + outPin);

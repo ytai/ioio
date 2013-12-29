@@ -99,6 +99,7 @@ class IOIOProtocol {
 	static final int SEQUENCER_EVENT                     = 0x20;
 	static final int SEQUENCER_PUSH                      = 0x21;
 	static final int SEQUENCER_CONTROL                   = 0x22;
+	static final int SYNC                                = 0x23;
 
 	static final int[] SCALE_DIV = new int[] {
 		0x1F,  // 31.25
@@ -198,6 +199,12 @@ class IOIOProtocol {
 		writeByte(i & 0xFF);
 		writeByte((i >> 8) & 0xFF);
 		writeByte((i >> 16) & 0xFF);
+	}
+
+	public synchronized void sync() throws IOException {
+		beginBatch();
+		writeByte(SYNC);
+		endBatch();
 	}
 
 	synchronized public void hardReset() throws IOException {
@@ -668,6 +675,8 @@ class IOIOProtocol {
 		public void handleSetCapSenseSampling(int pinNum, boolean enable);
 
 		public void handleSequencerEvent(SequencerEvent event, int arg);
+
+		public void handleSync();
 	}
 
 	class IncomingThread extends Thread {
@@ -969,6 +978,10 @@ class IOIOProtocol {
 						} catch (ArrayIndexOutOfBoundsException e) {
 							throw new IOException("Unexpected eveent: " + arg1);
 						}
+						break;
+
+					case SYNC:
+						handler_.handleSync();
 						break;
 
 					default:

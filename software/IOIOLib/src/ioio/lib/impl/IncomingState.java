@@ -61,6 +61,10 @@ class IncomingState implements IncomingHandler {
 		void reportAdditionalBuffer(int bytesToAdd);
 	}
 
+	interface SyncListener {
+		void sync();
+	}
+
 	interface SequencerEventListener {
 
 		void opened(int arg);
@@ -121,6 +125,14 @@ class IncomingState implements IncomingHandler {
 		}
 	}
 
+	class SyncListeners extends ListenerQueue<SyncListener> {
+		void syncRecieved() {
+			openNextListener();
+			peek().sync();
+			closeCurrentListener();
+		}
+	}
+
 	private InputPinState[] intputPinStates_;
 	private DataModuleState[] uartStates_;
 	private DataModuleState[] twiStates_;
@@ -128,6 +140,7 @@ class IncomingState implements IncomingHandler {
 	private DataModuleState[] incapStates_;
 	private DataModuleState icspState_;
 	private ListenerQueue<SequencerEventListener> sequencerListeners_;
+	private SyncListeners syncListeners_;
 	private final Set<DisconnectListener> disconnectListeners_ = new HashSet<IncomingState.DisconnectListener>();
 	private ConnectionState connection_ = ConnectionState.INIT;
 	public String hardwareId_;
@@ -192,6 +205,10 @@ class IncomingState implements IncomingHandler {
 
 	public void addSequencerEventListener(SequencerEventListener listener) {
 		sequencerListeners_.pushListener(listener);
+	}
+
+	public void addSyncListener(SyncListener listener) {
+		syncListeners_.pushListener(listener);
 	}
 
 	synchronized public void addDisconnectListener(DisconnectListener listener)
@@ -369,6 +386,7 @@ class IncomingState implements IncomingHandler {
 			}
 			icspState_ = new DataModuleState();
 			sequencerListeners_ = new ListenerQueue<SequencerEventListener>();
+			syncListeners_ = new SyncListeners();
 		}
 		synchronized (this) {
 			connection_ = ConnectionState.ESTABLISHED;
@@ -502,6 +520,12 @@ class IncomingState implements IncomingHandler {
 		case STALLED:
 			sequencerListeners_.peek().stalled();
 		}
+	}
+
+
+	@Override
+	public void handleSync() {
+		syncListeners_.syncRecieved();
 	}
 
 	private void checkNotDisconnected() throws ConnectionLostException {
