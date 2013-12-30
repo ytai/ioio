@@ -80,22 +80,22 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 
 	@Override
 	public synchronized float getDuration() throws InterruptedException, ConnectionLostException {
-		// Wait for sample count to be non-zero.
-		while (sampleCount_ == 0 && state_ == State.OPEN) {
-			wait();
-		}
 		checkState();
+		// Wait for sample count to be non-zero.
+		while (sampleCount_ == 0) {
+			safeWait();
+		}
 		return timeBase_ * lastDuration_;
 	}
 
 	@Override
 	public synchronized float getDurationSync() throws InterruptedException, ConnectionLostException {
+		checkState();
 		final long initialSampleCount = sampleCount_;
 		// Wait for sample count to increase.
-		while (sampleCount_ == initialSampleCount && state_ == State.OPEN) {
-			wait();
+		while (sampleCount_ == initialSampleCount) {
+			safeWait();
 		}
-		checkState();
 		return timeBase_ * lastDuration_;
 	}
 
@@ -113,10 +113,9 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 					"Cannot wait for pulse when module was not opened in pulse mode.");
 		}
 		checkState();
-		while (pulseQueue_.isEmpty() && state_ == State.OPEN) {
-			wait();
+		while (pulseQueue_.isEmpty()) {
+			safeWait();
 		}
-		checkState();
 		return timeBase_ * pulseQueue_.remove();
 	}
 
@@ -158,11 +157,4 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 		}
 		super.close();
 	}
-
-	@Override
-	public synchronized void disconnected() {
-		notifyAll();
-		super.disconnected();
-	}
-
 }

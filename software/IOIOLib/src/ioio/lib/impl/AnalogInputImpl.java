@@ -76,30 +76,23 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListen
 
 	@Override
 	synchronized public float read() throws InterruptedException, ConnectionLostException {
-		// Wait for sample count to be non-zero.
-		while (sampleCount_ == 0 && state_ == State.OPEN) {
-			wait();
-		}
 		checkState();
+		// Wait for sample count to be non-zero.
+		while (sampleCount_ == 0) {
+			safeWait();
+		}
 		return (float) value_ / 1023.0f;
 	}
-
 
 	@Override
 	public synchronized float readSync() throws InterruptedException, ConnectionLostException {
+		checkState();
 		final long initialSampleCount = sampleCount_;
 		// Wait for sample count to increase.
-		while (sampleCount_ == initialSampleCount && state_ == State.OPEN) {
-			wait();
+		while (sampleCount_ == initialSampleCount) {
+			safeWait();
 		}
-		checkState();
 		return (float) value_ / 1023.0f;
-	}
-
-	@Override
-	public synchronized void disconnected() {
-		super.disconnected();
-		notifyAll();
 	}
 
 	@Override
@@ -154,14 +147,14 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListen
 	}
 
 	private synchronized short bufferPull() throws InterruptedException, ConnectionLostException {
+		checkState();
 		if (buffer_ == null) {
 			throw new IllegalStateException(
 					"Need to call setBuffer() before reading buffered values.");
 		}
-		while (bufferSize_ == 0 && state_ == State.OPEN) {
-			wait();
+		while (bufferSize_ == 0) {
+			safeWait();
 		}
-		checkState();
 		short result = buffer_[bufferReadCursor_++];
 		if (bufferReadCursor_ == bufferCapacity_) {
 			bufferReadCursor_ = 0;

@@ -298,11 +298,8 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 
 	private synchronized void waitRemoteState(RemoteState target) throws InterruptedException,
 			ConnectionLostException {
-		while (remoteState_ != target && state_ == State.OPEN) {
-			wait();
-		}
-		if (state_ == State.DISCONNECTED) {
-			throw new ConnectionLostException();
+		while (remoteState_ != target) {
+			safeWait();
 		}
 	}
 
@@ -625,11 +622,5 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 	private void pushEvent(Event.Type t) {
 		lastEvent_ = new Event(t, numCuesStarted_);
 		eventQueue_.pushDiscardingOld(lastEvent_);
-	}
-
-	@Override
-	public synchronized void disconnected() {
-		eventQueue_.nudge();
-		super.disconnected();
 	}
 }

@@ -63,22 +63,22 @@ class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
 	@Override
 	synchronized public float read() throws InterruptedException,
 			ConnectionLostException {
-		while (sampleCount_ == 0 && state_ == State.OPEN) {
-			wait();
-		}
 		checkState();
+		while (sampleCount_ == 0) {
+			safeWait();
+		}
 		final float voltage = 3.3f * value_;
 		return CHARGE / voltage;
 	}
 
 	@Override
 	public synchronized float readSync() throws InterruptedException, ConnectionLostException {
+		checkState();
 		final long initialSampleCount = sampleCount_;
 		// Wait for sample count to increase.
-		while (sampleCount_ == initialSampleCount && state_ == State.OPEN) {
-			wait();
+		while (sampleCount_ == initialSampleCount) {
+			safeWait();
 		}
-		checkState();
 		final float voltage = 3.3f * value_;
 		return CHARGE / voltage;
 	}
@@ -111,12 +111,6 @@ class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
 		while (readSync() >= threshold) {
 			wait();
 		}
-	}
-
-	@Override
-	public synchronized void disconnected() {
-		super.disconnected();
-		notifyAll();
 	}
 
 	@Override

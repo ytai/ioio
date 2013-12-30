@@ -41,9 +41,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleListener, Sender {
-	public class SpiResult implements Result {
-		boolean ready_;
-		final byte[] data_;
+	public class SpiResult extends ResourceLifeCycle implements Result {
+		private boolean ready_ = false;
+		private final byte[] data_;
 
 		SpiResult(byte[] data) {
 			data_ = data;
@@ -51,10 +51,19 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 
 		@Override
 		public synchronized void waitReady() throws ConnectionLostException, InterruptedException {
-			while (!ready_ && state_ != State.DISCONNECTED) {
-				wait();
-			}
 			checkState();
+			while (!ready_) {
+				safeWait();
+			}
+		}
+
+		public synchronized void ready() {
+			ready_ = true;
+			notifyAll();
+		}
+
+		public byte[] getData() {
+			return data_;
 		}
 	}
 
@@ -92,13 +101,11 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 
 	@Override
 	synchronized public void disconnected() {
-		super.disconnected();
 		outgoing_.kill();
-		for (SpiResult tr : pendingRequests_) {
-			synchronized (tr) {
-				tr.notify();
-			}
+		for (SpiResult result : pendingRequests_) {
+			result.disconnected();
 		}
+		super.disconnected();
 	}
 
 	@Override
@@ -146,8 +153,8 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 	public void dataReceived(byte[] data, int size) {
 		SpiResult result = pendingRequests_.remove();
 		synchronized (result) {
-			result.ready_ = true;
-			System.arraycopy(data, 0, result.data_, 0, size);
+			System.arraycopy(data, 0, result.getData(), 0, size);
+			result.ready();
 			result.notify();
 		}
 	}
@@ -161,6 +168,9 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 	synchronized public void close() {
 		checkClose();
 		outgoing_.close();
+		for (SpiResult result : pendingRequests_) {
+			result.close();
+		}
 
 		try {
 			ioio_.protocol_.spiClose(spi_.id);
