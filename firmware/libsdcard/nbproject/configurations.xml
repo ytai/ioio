@@ -81,7 +81,7 @@
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="NDEBUG"/>
+        <property key="preprocessor-macros" value="NDEBUG;MEDIA_SOFT_DETECT"/>
         <property key="scalar-model" value="default"/>
       </C30>
       <C30-AS>

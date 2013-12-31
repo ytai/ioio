@@ -48,6 +48,7 @@ static void StartPlayFile() {
 
   BYTE shiftbuff[sizeof(int)];
   shifter_length_file = FSfopen(SHIFTER_LENGTH_FILENAME, "r");
+  if (!shifter_length_file) return;
   FSfread(shiftbuff, sizeof( int ), 1, shifter_length_file);
   FSfclose(shifter_length_file);
 
@@ -59,6 +60,7 @@ static void StartPlayFile() {
   //Open the metadata File
   BYTE buff[sizeof(int)];
   metadata_file = FSfopen(METADATA_FILENAME, "r");
+  if (!metadata_file) return;
   FSfread(buff, sizeof( int ), 1, metadata_file);
   FSfclose(metadata_file);
 
@@ -132,6 +134,7 @@ static void StartWriteFile(int fd, int sl32) {
   shiftbuff[1] = (BYTE)((sl32 & 0xFF00) >> 8);
 
   shifter_length_file = FSfopen(SHIFTER_LENGTH_FILENAME, "w");
+  if (!shifter_length_file) return;
   FSfwrite(shiftbuff, sizeof shiftbuff, 1, shifter_length_file);
   FSfclose(shifter_length_file);
   // write the arguments into the meta file.
@@ -142,6 +145,7 @@ static void StartWriteFile(int fd, int sl32) {
   buff[1] = (BYTE)((fd & 0xFF00) >> 8);
 
   metadata_file = FSfopen(METADATA_FILENAME, "w");
+  if (!metadata_file) return;
   FSfwrite(buff, sizeof buff, 1, metadata_file);
   FSfclose(metadata_file);
   // write the arguments into the meta file.
