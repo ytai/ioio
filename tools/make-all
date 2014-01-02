@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECTS="libusb libconn libbtstack libadb libsdcard bootloader app_layer_v1 blink latency_tester"
+PROJECTS="libusb libconn libbtstack libadb libsdcard bootloader device_bootloader app_layer_v1 blink latency_tester"
 
 if [[ -z "$MAKE" ]] && which colormake > /dev/null 2>&1 ; then
    MAKE=colormake
@@ -8,12 +8,12 @@ else
    MAKE=make     
 fi
 
-success=true
 for PROJ in $PROJECTS; do
   echo ===========================================
   echo $PROJ
   echo ===========================================
-  $MAKE -C firmware/$PROJ "$@" || success=fail
+  if ! prjMakefilesGenerator.bat firmware/$PROJ; then echo "WARNING: failed to regenerate Makefiles."; fi
+  if ! $MAKE -C firmware/$PROJ "$@"; then echo FAILURE ; exit 1 ; fi
 done
-$success && echo Success || echo Failed
-$success
+echo SUCCESS
+

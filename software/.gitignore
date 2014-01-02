@@ -3,4 +3,6 @@ gen
 doc
 *.settings
 build.xml
+!IOIODude/build.xml
 local.properties
+proguard-project.txt

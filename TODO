@@ -1,0 +1,48 @@
+HARDWARE
+v check whether oscillator is required.
+v test PIC24FJ256GB206
+
+FIRMWARE
+v linker scripts for new platform.
+- cleanup microchip code.
+- check wassup with EVENT_TRANSFER_TERMINATED. call USBCDCEventHandler?
+- make sure LED is always opened in open-drain.
+v tweak parameters in usb_config.h
+v verify build and run of V1 configs.
+v detect connection on-off without the soft open close.
+v VID/PID
+v Is someone masking all interrupts?
+v Look into [usb_host_bluetooth.c: 336] Write failed when dongle isn't plugged.
+v Soft close seems to put firmware in an unrecoverable state.
+v Bluetooth keystore to eliminate the need to re-pair?
+
+SOFTWARE
+v figure out how to orgranize the code and distribute the different IOIOLib versions.
+x figure out the right rxtx binaries to use and how to distribute them.
+v Author IOIOMain and IOIOSwing.
+v Graceful handling of IOIO disconnect.
+v How to detect the serial port?
+v Check purejavacomm license.
+v Make sure all targets build.
+v Fix release scripts.
+v Run torture test.
+v Documentation.
+v Establishing the connection takes too long.
+v JVM parameter to limit the COM ports used (bypass enumeration).
+- Tidy up ioiodude, add to release.
+v Make ioiodude capable of reading ioioapp files.
+- Update release scripts.
+- Library dependencies in MPLAB projects.
+- Update version numbers.
+- Build launch bundles.
+- ioiodude version.
+
+DOC
+- Document device bootloader and ioiodude.
+- Update "Getting to know the board" and several peripheral docs that refer to pin numbers.
+
+MISC
+v Debug analog input problem.
+v Fix bootloader.
+v IOIOService close.
+

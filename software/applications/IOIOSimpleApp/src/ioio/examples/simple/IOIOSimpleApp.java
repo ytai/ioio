@@ -18,51 +18,42 @@ public class IOIOSimpleApp extends IOIOActivity {
 	private SeekBar seekBar_;
 	private ToggleButton toggleButton_;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        textView_ = (TextView)findViewById(R.id.TextView);
-        seekBar_ = (SeekBar)findViewById(R.id.SeekBar);
-        toggleButton_ = (ToggleButton)findViewById(R.id.ToggleButton);
+		textView_ = (TextView) findViewById(R.id.TextView);
+		seekBar_ = (SeekBar) findViewById(R.id.SeekBar);
+		toggleButton_ = (ToggleButton) findViewById(R.id.ToggleButton);
 
-        enableUi(false);
-    }
-	
+		enableUi(false);
+	}
+
 	class Looper extends BaseIOIOLooper {
 		private AnalogInput input_;
 		private PwmOutput pwmOutput_;
 		private DigitalOutput led_;
 
-		
 		@Override
 		public void setup() throws ConnectionLostException {
-			try {
-				input_ = ioio_.openAnalogInput(40);
-				pwmOutput_ = ioio_.openPwmOutput(12, 100);
-				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
-				enableUi(true);
-			} catch (ConnectionLostException e) {
-				enableUi(false);
-				throw e;
-			}
+			led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
+			input_ = ioio_.openAnalogInput(40);
+			pwmOutput_ = ioio_.openPwmOutput(12, 100);
+			enableUi(true);
 		}
-		
+
 		@Override
-		public void loop() throws ConnectionLostException {
-			try {
-				final float reading = input_.read();
-				setText(Float.toString(reading));
-				pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
-				led_.write(!toggleButton_.isChecked());
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				ioio_.disconnect();
-			} catch (ConnectionLostException e) {
-				enableUi(false);
-				throw e;
-			}
+		public void loop() throws ConnectionLostException, InterruptedException {
+			setNumber(input_.read());
+			pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
+			led_.write(!toggleButton_.isChecked());
+			Thread.sleep(10);
+		}
+
+		@Override
+		public void disconnected() {
+			enableUi(false);
 		}
 	}
 
@@ -80,8 +71,9 @@ public class IOIOSimpleApp extends IOIOActivity {
 			}
 		});
 	}
-	
-	private void setText(final String str) {
+
+	private void setNumber(float f) {
+		final String str = String.format("%.2f", f);
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {

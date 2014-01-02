@@ -1,6 +1,6 @@
 /******************************************************************************
 
-    USB Hardware Abstraction Layer (HAL)  (Header File)
+    USB Hardware Abstraction Layer (HAL)
 
 Summary:
     This file abstracts the hardware interface.  The USB stack firmware can be
@@ -21,9 +21,6 @@ Description:
     Make sure to include the correct version of the usb_hal_picxx.h file for 
     the microcontroller family which will be used.
 
-    This file is located in the "\<Install Directory\>\\Microchip\\Include\\USB"
-    directory.
-    
     When including this file in a new project, this file can either be
     referenced from the directory in which it was installed or copied
     directly into the user application folder. If the first method is
@@ -36,7 +33,7 @@ Description:
     
     .
 
-    ..\\..\\MicrochipInclude
+    ..\\..\\Microchip\\Include
         
     If a different directory structure is used, modify the paths as
     required. An example using absolute paths instead of relative paths
@@ -55,23 +52,18 @@ Description:
 
  This file defines the interface to the USB hardware abstraction layer.
 
- Filename:        usb_hal.h
+ Filename:        usb_hal_pic24.h
  Dependancies:    none
- Processor:       PIC18, PIC24, or PIC32 USB Microcontrollers
- Hardware:        The code is natively intended to be used on the following
-     				hardware platforms: PICDEM™ FS USB Demo Board, 
-     				PIC18F87J50 FS USB Plug-In Module, or
-     				Explorer 16 + PIC24 USB PIM.  The firmware may be
-     				modified for use on other USB platforms by editing the
-     				HardwareProfile.h file.
- Compiler:        Microchip C18 (for PIC18) or C30 (for PIC24)
+ Processor:       PIC24F USB Microcontrollers
+ Hardware:        PIC24F USB Microcontrollers
+ Compiler:        Microchip C30 (for PIC24)
  Company:         Microchip Technology, Inc.
 
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the “Company”) for its PICmicro® Microcontroller is intended and
- supplied to you, the Company’s customer, for use solely and
+ (the "Company") for its PICmicro(R) Microcontroller is intended and
+ supplied to you, the Company's customer, for use solely and
  exclusively on Microchip PICmicro Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
  protected under applicable copyright laws. All rights are reserved.
@@ -80,7 +72,7 @@ Description:
  civil liability for the breach of the terms and conditions of this
  license.
 
- THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
+ THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
  WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -393,6 +385,33 @@ typedef union _POINTER
                                         } 
 
 
+/********************************************************************
+Function:
+    BOOL USBSleepOnSuspend(void)
+    
+Summary:
+    Places the PIC24F core into sleep and sets up the USB module
+    to wake up the device on USB activity.
+    
+PreCondition:
+    IPL (in the SR register) must be non-zero.
+    
+Parameters:
+    None
+    
+Return Values:
+    TRUE  - if entered sleep successfully
+    FALSE - if there was an error entering sleep
+    
+Remarks:
+    Please note that before calling this function that it is the
+    responsibility of the application to place all of the other
+    peripherals or board features into a lower power state if
+    required.
+
+*******************************************************************/
+BOOL USBSleepOnSuspend(void);
+
 /****************************************************************
     Function:
         void USBPowerModule(void)
@@ -528,33 +547,6 @@ typedef union _POINTER
 #define DisableNonZeroEndpoints(last_ep_num) memset((void*)&U1EP1,0x00,(last_ep_num * 2));                                          
 
 
-/********************************************************************
-Function:
-    BOOL USBSleepOnSuspend(void)
-    
-Summary:
-    Places the PIC24F core into sleep and sets up the USB module
-    to wake up the device on USB activity.
-    
-PreCondition:
-    IPL (in the SR register) must be non-zero.
-    
-Parameters:
-    None
-    
-Return Values:
-    TRUE  - if entered sleep successfully
-    FALSE - if there was an error entering sleep
-    
-Remarks:
-    Please note that before calling this function that it is the
-    responsibility of the application to place all of the other
-    peripherals or board features into a lower power state if
-    required.
-
-*******************************************************************/
-BOOL USBSleepOnSuspend(void);
-
 /*****************************************************************************/
 /****** Compiler checks ******************************************************/
 /*****************************************************************************/
@@ -568,7 +560,7 @@ BOOL USBSleepOnSuspend(void);
 /****** Extern variable definitions ******************************************/
 /*****************************************************************************/
 
-#if defined(USB_SUPPORT_DEVICE) | defined(USB_SUPPORT_OTG)
+#if defined(USB_SUPPORT_DEVICE)
     #if !defined(USBDEVICE_C)
         //extern USB_VOLATILE USB_DEVICE_STATE USBDeviceState;
         extern USB_VOLATILE BYTE USBActiveConfiguration;

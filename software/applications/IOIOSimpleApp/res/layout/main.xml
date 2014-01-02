@@ -17,24 +17,18 @@
 		android:progress="500"
 		/>
 
-	<LinearLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingTop="20px">
-		<TextView
-			android:text="@string/analog_label"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:paddingRight="5px"
-			/>
-		<TextView
-			android:id="@+id/TextView"
-			android:text="0"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			/>
-	</LinearLayout>
+	<TextView
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:paddingRight="5px"
+	    android:text="@string/analog_label" />
+
+	<TextView
+	    android:id="@+id/TextView"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="0.00"
+	    android:textSize="72sp" />
 
 	<ToggleButton
 		android:id="@+id/ToggleButton"

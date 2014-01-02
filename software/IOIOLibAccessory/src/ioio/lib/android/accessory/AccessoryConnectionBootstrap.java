@@ -216,6 +216,11 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		}
 
 		@Override
+		public boolean canClose() {
+			return false;
+		}
+
+		@Override
 		public void waitForConnect() throws ConnectionLostException {
 			synchronized (AccessoryConnectionBootstrap.this) {
 				if (instanceState_ != InstanceState.INIT) {

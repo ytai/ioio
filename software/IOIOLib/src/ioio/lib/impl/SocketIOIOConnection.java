@@ -30,6 +30,7 @@ package ioio.lib.impl;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +38,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
-import android.util.Log;
 
 public class SocketIOIOConnection implements IOIOConnection {
 	private static final String TAG = "SocketIOIOConnection";
@@ -137,5 +136,10 @@ public class SocketIOIOConnection implements IOIOConnection {
 		} catch (IOException e) {
 			throw new ConnectionLostException(e);
 		}
+	}
+
+	@Override
+	public boolean canClose() {
+		return true;
 	}
 }

@@ -116,7 +116,7 @@ Description:
 #include "USB/usb_ch9.h"            // USB device framework definitions
 
 #if defined( USB_SUPPORT_DEVICE )
-    #include "usb/usb_device.h"     // USB Device abstraction layer interface
+    #include "USB/usb_device.h"     // USB Device abstraction layer interface
 #endif
 
 #if defined( USB_SUPPORT_HOST )
@@ -124,7 +124,7 @@ Description:
 #endif
 
 #if defined ( USB_SUPPORT_OTG )
-    #include "usb/usb_otg.h" 
+    #include "USB/usb_otg.h"
 #endif
 
 #include "USB/usb_hal.h"            // Hardware Abstraction Layer interface

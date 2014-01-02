@@ -5,17 +5,17 @@
  *********************************************************************
  * FileName:        Compiler.h
  * Dependencies:    None
- * Processor:       PIC18, PIC24F, PIC24H, PIC24E, dsPIC30F, dsPIC33F, 
- *					dsPIC33E, PIC32
+ * Processor:       PIC10, PIC12, PIC16, PIC18, PIC24, dsPIC, PIC32
  * Compiler:        Microchip C32 v1.00 or higher
  *					Microchip C30 v3.01 or higher
  *					Microchip C18 v3.13 or higher
  *					HI-TECH PICC-18 PRO 9.63 or higher
+ * 					HI-TECH PICC PRO V9.80 or higher
  * Company:         Microchip Technology, Inc.
  *
  * Software License Agreement
  *
- * Copyright (C) 2002-2010 Microchip Technology Inc.  All rights 
+ * Copyright (C) 2011 Microchip Technology Inc.  All rights 
  * reserved.
  *
  * Microchip licenses to you the right to use, modify, copy, and 
@@ -51,6 +51,7 @@
  * 11/07/2007	Reorganized and simplified
  * 03/31/2010	Removed dependency on WORD and DWORD typedefs
  * 04/14/2010   Added defines to uniquely identify each compiler
+ * 10/13/2010   Added support for PIC10, PIC12, and PIC16 with PICC compiler
  ********************************************************************/
 #ifndef __COMPILER_H
 #define __COMPILER_H
@@ -67,6 +68,10 @@
 	#endif
     #define COMPILER_HITECH_PICC18
 	#include <htc.h>
+#elif (defined(_PIC12) || defined(_PIC14) || defined(_PIC14E)) && defined(HI_TECH_C)
+	// PIC10/12/16 processor with (Microchip) HI-TECH PICC compiler
+    #define COMPILER_HITECH_PICC
+    #include <htc.h>
 #elif (defined(__PIC24F__) || defined(__PIC24FK__)) && defined(__C30__)	// Microchip C30 compiler
 	// PIC24F processor
     #define COMPILER_MPLAB_C30
@@ -149,8 +154,8 @@
 
 
 // Definitions that apply to all 8-bit products
-// (PIC18)
-#if defined(__18CXX)
+// (PIC10, PIC12, PIC16, PIC18)
+#if defined(__18CXX) || defined(COMPILER_HITECH_PICC)
 	#define	__attribute__(a)
 
     #define FAR                         far
@@ -160,8 +165,8 @@
 	    #define ROM                 	rom
 	#endif
 	
-	// HI TECH PICC-18 specific defines
-	#if defined(COMPILER_HITECH_PICC18)
+	// HI TECH specific defines
+	#if defined(COMPILER_HITECH_PICC18) || defined(COMPILER_HITECH_PICC)
 	    #define ROM                 	const
 		#define rom
 	    #define Nop()               	asm("NOP");
@@ -182,7 +187,9 @@
 
 	// 32-bit specific defines (PIC32)
 	#if defined(__PIC32MX__)
+        #if (__C32_VERSION__ < 200)
 		#define persistent
+        #endif
 		#define far
         #define FAR
 		#define Reset()				SoftReset()

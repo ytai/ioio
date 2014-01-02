@@ -31,8 +31,8 @@ USB_INTERRUPT_T1MSECIF equals 0x40.
 Software License Agreement
 
 The software supplied herewith by Microchip Technology Incorporated
-(the ‚ÄúCompany‚Äù) for its PICmicro¬Æ Microcontroller is intended and
-supplied to you, the Company‚Äôs customer, for use solely and
+(the ìCompanyî) for its PICmicroÆ Microcontroller is intended and
+supplied to you, the Companyís customer, for use solely and
 exclusively on Microchip PICmicro Microcontroller products. The
 software is owned by the Company and/or its supplier, and is
 protected under applicable copyright laws. All rights are reserved.
@@ -41,7 +41,7 @@ user to criminal sanctions under applicable laws, as well as to
 civil liability for the breach of the terms and conditions of this
 license.
 
-THIS SOFTWARE IS PROVIDED IN AN ‚ÄúAS IS‚Äù CONDITION. NO WARRANTIES,
+THIS SOFTWARE IS PROVIDED IN AN ìAS ISî CONDITION. NO WARRANTIES,
 WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -200,20 +200,20 @@ void _debug_free(const char *file, int line, void *ptr) {
 #endif
 
 #if (USB_PING_PONG_MODE == USB_PING_PONG__NO_PING_PONG) || (USB_PING_PONG_MODE == USB_PING_PONG__ALL_BUT_EP0)
-    #if !defined(USB_SUPPORT_OTG) && !defined(USB_SUPPORT_DEVICE)
+    #if /*!defined(USB_SUPPORT_OTG) &&*/ !defined(USB_SUPPORT_DEVICE)
     static BDT_ENTRY __attribute__ ((aligned(512)))    BDT[2];
     #endif
     #define BDT_IN                                  (&BDT[0])           // EP0 IN Buffer Descriptor
     #define BDT_OUT                                 (&BDT[1])           // EP0 OUT Buffer Descriptor
 #elif (USB_PING_PONG_MODE == USB_PING_PONG__EP0_OUT_ONLY)
-    #if !defined(USB_SUPPORT_OTG) && !defined(USB_SUPPORT_DEVICE)
+    #if /*!defined(USB_SUPPORT_OTG) &&*/ !defined(USB_SUPPORT_DEVICE)
     static BDT_ENTRY __attribute__ ((aligned(512)))    BDT[3];
     #endif
     #define BDT_IN                                  (&BDT[0])           // EP0 IN Buffer Descriptor
     #define BDT_OUT                                 (&BDT[1])           // EP0 OUT Even Buffer Descriptor
     #define BDT_OUT_ODD                             (&BDT[2])           // EP0 OUT Odd Buffer Descriptor
 #elif (USB_PING_PONG_MODE == USB_PING_PONG__FULL_PING_PONG)
-    #if !defined(USB_SUPPORT_OTG) && !defined(USB_SUPPORT_DEVICE)
+    #if /*!defined(USB_SUPPORT_OTG) &&*/ !defined(USB_SUPPORT_DEVICE)
     static BDT_ENTRY __attribute__ ((aligned(512)))    BDT[4];
     #endif
     #define BDT_IN                                  (&BDT[0])           // EP0 IN Even Buffer Descriptor
@@ -222,7 +222,7 @@ void _debug_free(const char *file, int line, void *ptr) {
     #define BDT_OUT_ODD                             (&BDT[3])           // EP0 OUT Odd Buffer Descriptor
 #endif
 
-#if defined(USB_SUPPORT_OTG) || defined(USB_SUPPORT_DEVICE)
+#if /*defined(USB_SUPPORT_OTG) ||*/ defined(USB_SUPPORT_DEVICE)
     extern BDT_ENTRY BDT[] __attribute__ ((aligned (512)));
 #endif
 
@@ -241,7 +241,6 @@ volatile WORD                 usbOverrideHostState;                       // Nex
     static WORD prevHostState;
 #endif
 
-
 static USB_BUS_INFO                  usbBusInfo;                                 // Information about the USB bus.
 static USB_DEVICE_INFO               usbDeviceInfo;                              // A collection of information about the attached device.
 #if defined( USB_ENABLE_TRANSFER_EVENT )
@@ -253,8 +252,10 @@ static volatile WORD msec_count = 0;                                            
 
 USB_DEVICE_INFO* USBHostGetDeviceInfo() { return &usbDeviceInfo; }
 
+#ifndef DISABLE_ACCESSORY
 extern const char* accessoryDescs[6];
 static int currentDesc;
+#endif
 
 
 // *****************************************************************************
@@ -658,11 +659,9 @@ void USBHostIsochronousBuffersReset( ISOCHRONOUS_DATA * isocData, BYTE numberOfB
     This function does no special processing in regards to the request except
     for three requests.  If SET INTERFACE is sent, then DTS is reset for all
     endpoints.  If CLEAR FEATURE (ENDPOINT HALT) is sent, then DTS is reset
-    for that endpoint.
-
-    If the application wishes to change the device configuration, it should
-    use the function USBHostSetDeviceConfiguration() rather than this function
-    with the SET CONFIGURATION request, since endpoint definitions may
+    for that endpoint.  If SET CONFIGURATION is sent, the request is aborted
+    with a failure.  The function USBHostSetDeviceConfiguration() must be
+    called to change the device configuration, since endpoint definitions may
     change.
 
   Precondition:

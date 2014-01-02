@@ -82,6 +82,9 @@ static void PinsInit() {
 void SetPinDigitalOut(int pin, int value, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
   SAVE_PIN_FOR_LOG(pin);
+  // Protect from the user trying to use push-pull, later pulling low using the
+  // bootloader pin.
+  if (pin == 0) open_drain = 1;
   ADCSetScan(pin, 0);
   PinSetAnsel(pin, 0);
   PinSetRpor(pin, 0);

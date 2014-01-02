@@ -71,8 +71,9 @@ typedef int ADB_FILE_HANDLE;
 #define ADB_FILE_MAX_PATH_LENGTH 64
 
 // The signature of a channel incoming data callback.
-// The h argument is useful in case the same function is used for several
-// channels, but can be safely ignored otherwise.
+// The arg argument is useful in case the same function is used for several
+// channels, but can be safely ignored otherwise. It is the same one passed to
+// ADBFileRead.
 // The data buffer is normally valid until the callback exits. If the client
 // needs this data to persist longer, ADBBufferRef() can be used.
 // ADBBufferUnref() MUST be called shortly after, since until this happens, no
@@ -80,12 +81,14 @@ typedef int ADB_FILE_HANDLE;
 // When the data argument is NULL, check data_len:
 // - When 0, the EOF has been reached.
 // - When 1, an error has occured.
-typedef void (*ADBFileRecvFunc)(ADB_FILE_HANDLE h, const void* data, UINT32 data_len);
+typedef void (*ADBFileRecvFunc)(const void* data, UINT32 data_len,
+                                int_or_ptr_t arg);
 
 // Opens a file for reading.
 // The contents of the file will be streamed to the callback function.
 // See documentation of the callback function for more information.
-ADB_FILE_HANDLE ADBFileRead(const char* path, ADBFileRecvFunc recv_func);
+ADB_FILE_HANDLE ADBFileRead(const char* path, ADBFileRecvFunc recv_func,
+                            int_or_ptr_t arg);
 
 // Prematurely close a file being read.
 // After calling this function, the callback function will no longer be called.

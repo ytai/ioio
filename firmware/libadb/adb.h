@@ -102,15 +102,16 @@ typedef int ADB_CHANNEL_HANDLE;
 #define ADB_CHANNEL_NAME_MAX_LENGTH 64
 
 // The signature of a channel incoming data callback.
-// The h argument is useful in case the same function is used for several
-// channels, but can be safely ignored otherwise.
+// The arg argument is useful in case the same function is used for several
+// channels, but can be safely ignored otherwise. It is the same arg passed on
+// openning of the channel.
 // The data buffer is normally valid only until the callback exist.
 // If the client needs to hang on to the buffer for a longer period, please see
 // the ADBBufferRef() function documentation.
 // When a channel is closed by the remote end (or its open is rejected), this
 // function will be called with NULL data and 0 length.
-typedef void (*ADBChannelRecvFunc)(ADB_CHANNEL_HANDLE h, const void* data,
-                                   UINT32 data_len);
+typedef void (*ADBChannelRecvFunc)(const void* data, UINT32 data_len,
+                                   int_or_ptr_t arg);
 
 // Checks whether ADB-capable device is attached. If this returns FALSE, none
 // of the other functions may be used. This does not mean that an ADB connection
@@ -129,7 +130,8 @@ BOOL ADBConnected();
 // a close indication if refused by the remote end.
 // An ADB_INVALID_CHANNEL_HANDLE value will be returned if the maximum number of
 // concurrent channels is exceeded.
-ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func);
+ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func,
+                           int_or_ptr_t arg);
 
 // Client may call this function from within the recieve callback in order to
 // keep the data buffer alive after the return of the callback.

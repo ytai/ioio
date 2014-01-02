@@ -52,6 +52,7 @@
 #define PLATFORM_IOIO0021 PLATFORM_IOIO_BASE + 21
 #define PLATFORM_IOIO0022 PLATFORM_IOIO_BASE + 22
 #define PLATFORM_IOIO0023 PLATFORM_IOIO_BASE + 23
+#define PLATFORM_IOIO0030 PLATFORM_IOIO_BASE + 30
 // add more platforms here!
 
 #define HARDWARE_IOIO_BASE 1000  // base hardware interface version number for 'official' IOIO platforms
@@ -59,6 +60,7 @@
 #define HARDWARE_IOIO0001 HARDWARE_IOIO_BASE + 1
 #define HARDWARE_IOIO0002 HARDWARE_IOIO_BASE + 2
 #define HARDWARE_IOIO0003 HARDWARE_IOIO_BASE + 3
+#define HARDWARE_IOIO0004 HARDWARE_IOIO_BASE + 4
 
 #ifndef PLATFORM
 #error Must define PLATFORM
@@ -73,6 +75,8 @@
 #define HARDWARE HARDWARE_IOIO0002
 #elif PLATFORM == PLATFORM_IOIO0003 || PLATFORM == PLATFORM_IOIO0023
 #define HARDWARE HARDWARE_IOIO0003
+#elif PLATFORM == PLATFORM_IOIO0030
+#define HARDWARE HARDWARE_IOIO0004
 #else
 #error Unknown hardware for PLATFORM
 #endif
@@ -95,20 +99,39 @@
   #ifndef __PIC24FJ256DA206__
     #error Platform and MCU mismatch - expecting PIC24FJ256DA206
   #endif
+#elif HARDWARE == HARDWARE_IOIO0004
+  #ifndef __PIC24FJ256GB206__
+    #error Platform and MCU mismatch - expecting PIC24FJ256GB206
+  #endif
 #else
   #error Unknown platform
 #endif
 
-// number of pins of each platform
+// number of pins of each platform (including the on-board LED)
 #if HARDWARE == HARDWARE_IOIO0000
   #define NUM_PINS 50
 #elif HARDWARE >= HARDWARE_IOIO0001 && HARDWARE <= HARDWARE_IOIO0003
   #define NUM_PINS 49
+#elif HARDWARE == HARDWARE_IOIO0004
+  #define NUM_PINS 47
 #else
   #error Unknown hardware
 #endif
 
-#if defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
+// on-board LED of each platform
+#if HARDWARE >= HARDWARE_IOIO0000 && HARDWARE <= HARDWARE_IOIO0003
+#define led_init() do { _ODF3 = 1; _LATF3 = 1; _TRISF3 = 0; } while (0)
+#define led_on()   do { _LATF3 = 0; } while (0)
+#define led_off()  do { _LATF3 = 1; } while (0)
+#elif HARDWARE == HARDWARE_IOIO0004
+#define led_init() do { _ODC12 = 1; _LATC12 = 1; _TRISC12 = 0; } while (0)
+#define led_on()   do { _LATC12 = 0; } while (0)
+#define led_off()  do { _LATC12 = 1; } while (0)
+#else
+  #error Unknown hardware
+#endif
+
+#if defined(__PIC24FJ256GB206__) || defined(__PIC24FJ256DA206__) || defined(__PIC24FJ128DA106__) || defined(__PIC24FJ128DA206__)
   #define NUM_PWM_MODULES 9
   #define NUM_UART_MODULES 4
   #define NUM_SPI_MODULES 3

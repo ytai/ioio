@@ -138,4 +138,9 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 			throw new ConnectionLostException(e);
 		}
 	}
+
+	@Override
+	public boolean canClose() {
+		return true;
+	}
 }

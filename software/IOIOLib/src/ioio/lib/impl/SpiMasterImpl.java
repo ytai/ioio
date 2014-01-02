@@ -33,14 +33,13 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledPacketSender.Packet;
 import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import android.util.Log;
 
 class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		DataModuleListener, Sender {

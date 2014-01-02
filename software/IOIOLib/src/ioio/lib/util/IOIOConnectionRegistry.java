@@ -32,12 +32,11 @@ import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 import ioio.lib.spi.NoRuntimeSupportException;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import android.util.Log;
 
 /**
  * A utility class for managing available connection types to IOIO.
@@ -105,8 +104,6 @@ public class IOIOConnectionRegistry {
 
 	static {
 		bootstraps_ = new LinkedList<IOIOConnectionBootstrap>();
-		String[] classNames = new String[] { "ioio.lib.impl.SocketIOIOConnectionBootstrap" };
-		addBootstraps(classNames);
 	}
 
 	private static void addBootstrap(String className) {
@@ -123,7 +120,7 @@ public class IOIOConnectionRegistry {
 			Log.d(TAG, "No runtime support for: " + className + ". Not adding.");
 		} catch (Throwable e) {
 			Log.e(TAG,
-					"Exception caught while attempting to initialize accessory connection factory",
+					"Exception caught while attempting to initialize connection factory",
 					e);
 		}
 	}

@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if test $# -ne 1; then
+  echo "Usage: $0 <out_zip>"
+  exit 1
+fi
+
 if [ $(uname -o) = Cygwin ]; then
   ANDROID='cmd /C android'
 else
@@ -7,54 +13,101 @@ fi
 
 ZIP=zip
 TMPOUT=$(mktemp -ut ioio.XXXXXX.zip)
-PROJECTS="IOIOLib \
-          IOIOLibBT \
-          IOIOLibAccessory \
-          applications/HelloIOIO \
-          applications/HelloIOIOService \
-          applications/IOIOSimpleApp"
 
-TARGETS=(android-3 \
-         android-10 \
-         'Google Inc.:Google APIs:10' \
-         android-7 \
-         android-7 \
-         android-7)
+LIBPROJECTS="IOIOLib/target/android \
+             IOIOLibBT \
+             IOIOLibAccessory"
+
+LIBTARGETS=(android-3 \
+            android-10 \
+            'Google Inc.:Google APIs:10')
+
+APPPROJECTS="applications/HelloIOIO \
+             applications/HelloIOIOService \
+             applications/IOIOSimpleApp"
+
+APPTARGETS=(android-7 \
+            android-7 \
+            android-7)
+
+APPNAMES=(HelloIOIO HelloIOIOService IOIOSimpleApp)
 
 APKS="applications/HelloIOIO \
       applications/HelloIOIOService \
       applications/IOIOSimpleApp"
 
-if test $# -ne 1; then
-  echo "Usage: $0 <out_zip>"
-  exit 1
-fi
+SOURCEDIRS="IOIOLib \
+            IOIOLibBT \
+            IOIOLibAccessory \
+            applications/HelloIOIO \
+            applications/HelloIOIOService \
+            applications/IOIOSimpleApp \
+            applications/pc/HelloIOIOConsole \
+            applications/pc/HelloIOIOSwing"
+
+APPJARS="applications/pc/HelloIOIOConsole/bin/HelloIOIOConsole.jar \
+         applications/pc/HelloIOIOSwing/bin/HelloIOIOSwing.jar"
 
 cd software
 
+echo =================================
+echo Updating Android library projects
+echo =================================
 i=0
-for PROJECT in $PROJECTS; do
-  (cd $PROJECT && $ANDROID -s update project --name $(basename $PROJECT) --path . --target "${TARGETS[i]}")
+for PROJECT in $LIBPROJECTS; do
+  $ANDROID update lib-project -p $PROJECT -t "${LIBTARGETS[i]}"  || exit 1
+  ant -f $PROJECT/build.xml clean || exit 1
   let "i++"
 done
 
-echo Generating Javadoc for IOIOLib
-ant -q -f IOIOLib/javadoc.xml
-
-for PROJECT in $PROJECTS; do
-  echo SOURCE: $PROJECT
-  $ZIP -q -r $TMPOUT $PROJECT -x "$PROJECT/bin/*" "$PROJECT/gen/*"
+echo =====================================
+echo Updating Android application projects
+echo =====================================
+i=0
+for PROJECT in $APPPROJECTS; do
+  $ANDROID update project -p $PROJECT -t "${APPTARGETS[i]}" -n "${APPNAMES[i]}" || exit 1
+  ant -f $PROJECT/build.xml clean || exit 1
+  let "i++"
 done
 
-for APK in $APKS; do
-  echo BINARY: $APK
-  (cd $APK && ant -q debug >/dev/null)
-  BASENAME=$(basename $APK)
-  APK_DEBUG="$APK/bin/$BASENAME-debug.apk"
-  APK="$APK/bin/$BASENAME.apk"
-  mv $APK_DEBUG $APK
-  $ZIP -q -j $TMPOUT $APK
+
+echo ==============================
+echo Generating Javadoc for IOIOLib
+echo ==============================
+ant -q -f IOIOLib/javadoc.xml || exit 1
+
+echo =================
+echo Packaging sources
+echo =================
+for DIR in $SOURCEDIRS; do
+  echo SOURCE: $DIR
+  $ZIP -q -r $TMPOUT $DIR -x bin local.properties || exit 1
+done
+
+echo =================================
+echo Building Android library projects
+echo =================================
+read -p "Buiding libraries is broken. Build manually now and press Enter..."
+
+echo ============================================================
+echo Building Android application projects and packaging binaries
+echo ============================================================
+read -p "Buiding applications is broken. Build manually now and press Enter..."
+i=0
+for PROJECT in $APPPROJECTS; do
+  # ant -f $PROJECT/build.xml debug || exit 1
+  # mv $PROJECT/bin/${APPNAMES[i]}{-debug,}.apk || exit 1
+  $ZIP -q -j $TMPOUT $PROJECT/bin/${APPNAMES[i]}.apk || exit 1
+  let "i++"
+done
+
+echo =============================
+echo Packaging PC application JARs
+echo =============================
+read -p "Please build jars now and press Enter..."
+for JAR in $APPJARS; do
+  $ZIP -q -j $TMPOUT $JAR || exit 1
 done
 
 cd -
-mv $TMPOUT $1
+mv $TMPOUT $1 || exit 1

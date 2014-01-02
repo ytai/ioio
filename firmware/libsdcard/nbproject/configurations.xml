@@ -38,10 +38,10 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="PIC24FJ256DA206" type="3">
+    <conf name="PIC24FJ256GB206" type="3">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256DA206</targetDevice>
+        <targetDevice>PIC24FJ256GB206</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
@@ -63,7 +63,7 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="code-model" value="default"/>
+        <property key="code-model" value="large-code"/>
         <property key="const-model" value="default"/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="false"/>
@@ -145,7 +145,6 @@
         <property key="CRC" value="true"/>
         <property key="CTMU" value="true"/>
         <property key="Freeze All Other Peripherals" value="true"/>
-        <property key="GRAPHICS" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="I2C2" value="true"/>
         <property key="I2C3" value="true"/>
@@ -167,6 +166,7 @@
         <property key="OUTPUT COMPARE 7" value="true"/>
         <property key="OUTPUT COMPARE 8" value="true"/>
         <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
         <property key="RTCC" value="true"/>
         <property key="SPI 1" value="true"/>
         <property key="SPI 2" value="true"/>

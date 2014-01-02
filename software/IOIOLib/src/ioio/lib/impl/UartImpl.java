@@ -33,12 +33,11 @@ import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledOutputStream.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import android.util.Log;
 
 class UartImpl extends AbstractResource implements DataModuleListener, Sender, Uart {
 	private static final int MAX_PACKET = 64;

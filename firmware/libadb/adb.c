@@ -91,6 +91,7 @@ typedef struct {
   UINT32 remote_id;
   BOOL pending_ack;
   ADBChannelRecvFunc recv_func;
+  int_or_ptr_t callback_arg;
 } ADB_CHANNEL;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ static void ADBReset() {
   ADB_CHANNEL_HANDLE h;
   for (h = 0; h < ADB_MAX_CHANNELS; ++h) {
     if (adb_channels[h].state != ADB_CHAN_STATE_FREE) {
-      adb_channels[h].recv_func(h, NULL, 0);
+      adb_channels[h].recv_func(NULL, 1, adb_channels[h].callback_arg);
     }
   }
   memset(adb_channels, 0, sizeof adb_channels);
@@ -213,11 +214,12 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
     if (h >= 0 && h < ADB_MAX_CHANNELS && adb_channels[h].local_id == arg1) {
       if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_OPEN) {
         log_printf("Channel %d open failed. Name: %s", h, adb_channels[h].name);
-        adb_channels[h].recv_func(h, NULL, 0);
+        adb_channels[h].recv_func(NULL, 0, adb_channels[h].callback_arg);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if (adb_channels[h].state == ADB_CHAN_STATE_WAIT_CLOSE
           || adb_channels[h].state == ADB_CHAN_STATE_CLOSE_REQUESTED) {
         log_printf("Channel %d closed. Name: %s", h, adb_channels[h].name);
+        adb_channels[h].recv_func(NULL, 0, adb_channels[h].callback_arg);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       } else if ((adb_channels[h].state == ADB_CHAN_STATE_WAIT_READY
                   || adb_channels[h].state == ADB_CHAN_STATE_IDLE)
@@ -228,7 +230,7 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         // legitimate closure on the server-side, so this check is disabled.
                  /*&& adb_channels[arg1].remote_id == arg0*/) {
         log_printf("Channel %d closed by remote side. Name: %s", h, adb_channels[h].name);
-        adb_channels[h].recv_func(h, NULL, 0);
+        adb_channels[h].recv_func(NULL, 0, adb_channels[h].callback_arg);
         CHANGE_CHANNEL_STATE(h, ADB_CHAN_STATE_FREE);
       }
     } else {
@@ -241,7 +243,8 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
         && adb_channels[h].remote_id == arg0) {
       if (adb_channels[h].state < ADB_CHAN_STATE_CLOSE_REQUESTED
           && data_len > 0) {
-        adb_channels[h].recv_func(h, recv_data, data_len);
+        adb_channels[h].recv_func(recv_data, data_len,
+                                  adb_channels[h].callback_arg);
       }
       adb_channels[h].pending_ack = TRUE;
     } else {
@@ -254,7 +257,8 @@ static void ADBHandlePacket(UINT32 cmd, UINT32 arg0, UINT32 arg1, const void* re
   }
 }
 
-ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
+ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func,
+                           int_or_ptr_t arg) {
   assert(name != NULL);
   assert(strlen(name) < ADB_CHANNEL_NAME_MAX_LENGTH);
   assert(recv_func != NULL);
@@ -267,6 +271,7 @@ ADB_CHANNEL_HANDLE ADBOpen(const char* name, ADBChannelRecvFunc recv_func) {
       adb_channels[h].pending_ack = FALSE;
       adb_channels[h].data = NULL;
       adb_channels[h].recv_func = recv_func;
+      adb_channels[h].callback_arg = arg;
       adb_channels[h].local_id = (local_id_counter++) << 8 | h;
       log_printf("Trying to open channel %d with local ID 0x%lx, name: %s", h,
                   adb_channels[h].local_id, name);
