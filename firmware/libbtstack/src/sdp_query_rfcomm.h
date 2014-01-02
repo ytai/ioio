@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 by Matthias Ringwald
+ * Copyright (C) 2009-2013 by Matthias Ringwald
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,32 +35,46 @@
  */
 
 /*
- *  hci_dump.h
- *
- *  Dump HCI trace as BlueZ's hcidump format, Apple's PacketLogger, or stdout
- * 
- *  Created by Matthias Ringwald on 5/26/09.
+ *  sdp_rfcomm_query.h
  */
 
 #pragma once
 
-#include <stdint.h>
+#include <btstack/utils.h>
+#include "sdp_parser.h"
+#include "sdp_query_util.h"
+
+#define SDP_SERVICE_NAME_LEN 20
 
 #if defined __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    HCI_DUMP_BLUEZ = 0,
-    HCI_DUMP_PACKETLOGGER,
-    HCI_DUMP_STDOUT
-} hci_dump_format_t;
+/* SDP Queries */
 
-void hci_dump_open(char *filename, hci_dump_format_t format);
-void hci_dump_set_max_packets(int packets); // -1 for unlimited
-void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t len);
-void hci_dump_log(const char * format, ...);
-void hci_dump_close(void);
+/* SDP Query for RFCOMM */
+
+// SDP Query RFCOMM event to deliver channel number and service name
+// byte by byte.
+typedef struct sdp_query_rfcomm_service_event {
+    uint8_t type;
+    uint8_t channel_nr;
+    uint8_t * service_name;
+} sdp_query_rfcomm_service_event_t;
+
+
+void sdp_query_rfcomm_init(void);
+
+// Searches SDP records on a remote device for RFCOMM services with
+// a given UUID.
+void sdp_query_rfcomm_channel_and_name_for_uuid(bd_addr_t remote, uint16_t uuid);
+
+// Searches SDP records on a remote device for RFCOMM services with
+// a given service search pattern.
+void sdp_query_rfcomm_channel_and_name_for_search_pattern(bd_addr_t remote, uint8_t * des_serviceSearchPattern);
+
+// Registers a callback to receive RFCOMM service and query complete event. 
+void sdp_query_rfcomm_register_callback(void(*sdp_app_callback)(sdp_query_event_t * event, void * context), void * context);
 
 #if defined __cplusplus
 }

@@ -66,7 +66,11 @@ extern "C" {
 
 // Security Manager protocol data
 #define SM_DATA_PACKET          0x09
-    
+
+// SDP query result
+// format: type (8), record_id (16), attribute_id (16), attribute_length (16), attribute_value (max 1k)
+#define SDP_CLIENT_PACKET       0x0a
+
 // debug log messages
 #define LOG_MESSAGE_PACKET      0xfc
 
@@ -108,6 +112,12 @@ extern "C" {
 #define HCI_EVENT_PACKET_TYPE_CHANGED                      0x1D
 #define HCI_EVENT_INQUIRY_RESULT_WITH_RSSI		      	   0x22
 #define HCI_EVENT_EXTENDED_INQUIRY_RESPONSE                0x2F
+#define HCI_EVENT_IO_CAPABILITY_REQUEST                    0x31
+#define HCI_EVENT_IO_CAPABILITY_RESPONSE                   0x32
+#define HCI_EVENT_USER_CONFIRMATION_REQUEST				   0x33
+#define HCI_EVENT_USER_PASSKEY_REQUEST             		   0x34
+#define HCI_EVENT_REMOTE_OOB_DATA_REQUEST				   0x35
+#define HCI_EVENT_SIMPLE_PAIRING_COMPLETE				   0x36
 #define HCI_EVENT_LE_META                                  0x3E
 #define HCI_EVENT_VENDOR_SPECIFIC				           0xFF
 
@@ -192,7 +202,35 @@ extern "C" {
 // data: event(8), len(8), status(8), service_record_handle(32)
 #define SDP_SERVICE_REGISTERED                             0x90
 
-	
+// data: event(8), len(8), status(8)
+#define SDP_QUERY_COMPLETE                                 0x91 
+
+// data: event(8), len(8), rfcomm channel(8), name(var)
+#define SDP_QUERY_RFCOMM_SERVICE                           0x92
+
+// data: event(8), len(8), record nr(16), attribute id(16), attribute value(var)
+#define SDP_QUERY_ATTRIBUTE_VALUE                          0x93
+
+// not provided by daemon, only used for internal testing
+#define SDP_QUERY_SERVICE_RECORD_HANDLE                    0x94
+
+// data: event(8), gatt subevent(8), address_type(8), address(6x8), rssi(8), len(8), data(len*8)
+#define GATT_ADVERTISEMENT								   0xA0
+
+#define GATT_CONNECTION_COMPLETE	 					   0xA1
+#define GATT_SERVICE_QUERY_RESULT     					   0xA2
+#define GATT_SERVICE_QUERY_COMPLETE    					   0xA3
+#define GATT_CHARACTERISTIC_QUERY_RESULT				   0xA4
+#define GATT_CHARACTERISTIC_QUERY_COMPLETE    			   0xA5
+
+// data: event(8), address_type(8), address (48), [number(32)]
+#define SM_JUST_WORKS_REQUEST							   0xb0
+#define SM_JUST_WORKS_CANCEL							   0xb1 
+#define SM_PASSKEY_DISPLAY_NUMBER						   0xb2
+#define SM_PASSKEY_DISPLAY_CANCEL  						   0xb3
+#define SM_PASSKEY_INPUT_NUMBER							   0xb4
+#define SM_PASSKEY_INPUT_CANCEL      					   0xb5
+
 // last error code in 2.1 is 0x38 - we start with 0x50 for BTstack errors
 
 #define BTSTACK_CONNECTION_TO_BTDAEMON_FAILED              0x50
@@ -226,11 +264,26 @@ extern "C" {
 #define RFCOMM_NO_OUTGOING_CREDITS                         0x72
 
 #define SDP_HANDLE_ALREADY_REGISTERED                      0x80
+#define SDP_QUERY_INCOMPLETE                               0x81
  
 /**
  * Default INQ Mode
  */
 #define HCI_INQUIRY_LAP 0x9E8B33L  // 0x9E8B33: General/Unlimited Inquiry Access Code (GIAC)
+
+/**
+ * SSP IO Capabilities - if capability is set, BTstack answers IO Capability Requests
+ */
+#define SSP_IO_CAPABILITY_DISPLAY_ONLY   0
+#define SSP_IO_CAPABILITY_DISPLAY_YES_NO 1
+#define SSP_IO_CAPABILITY_KEYBOARD_ONLY  2
+#define SSP_IO_CAPABILITY_NO_INPUT_NO_OUTPUT 3
+#define SSP_IO_CAPABILITY_UNKNOWN 0xff
+
+/**
+ * SSP Authentication Requirements, see IO Capability Request Reply Commmand 
+ */
+
 /**
  *  Hardware state of Bluetooth controller 
  */
@@ -274,12 +327,15 @@ extern const hci_cmd_t btstack_set_bluetooth_enabled;    // only used by btstack
 extern const hci_cmd_t hci_accept_connection_request;
 extern const hci_cmd_t hci_authentication_requested;
 extern const hci_cmd_t hci_change_connection_link_key;
+extern const hci_cmd_t hci_change_connection_packet_type;
 extern const hci_cmd_t hci_create_connection;
 extern const hci_cmd_t hci_create_connection_cancel;
 extern const hci_cmd_t hci_delete_stored_link_key;
 extern const hci_cmd_t hci_disconnect;
 extern const hci_cmd_t hci_host_buffer_size;
 extern const hci_cmd_t hci_inquiry;
+extern const hci_cmd_t hci_io_capability_request_reply;
+extern const hci_cmd_t hci_io_capability_request_negative_reply;
 extern const hci_cmd_t hci_inquiry_cancel;
 extern const hci_cmd_t hci_link_key_request_negative_reply;
 extern const hci_cmd_t hci_link_key_request_reply;
@@ -296,12 +352,17 @@ extern const hci_cmd_t hci_read_num_broadcast_retransmissions;
 extern const hci_cmd_t hci_reject_connection_request;
 extern const hci_cmd_t hci_remote_name_request;
 extern const hci_cmd_t hci_remote_name_request_cancel;
+extern const hci_cmd_t hci_remote_oob_data_request_negative_reply;
 extern const hci_cmd_t hci_reset;
 extern const hci_cmd_t hci_role_discovery;
 extern const hci_cmd_t hci_set_event_mask;
 extern const hci_cmd_t hci_set_connection_encryption;
 extern const hci_cmd_t hci_sniff_mode;
 extern const hci_cmd_t hci_switch_role_command;
+extern const hci_cmd_t hci_user_confirmation_request_negative_reply;
+extern const hci_cmd_t hci_user_confirmation_request_reply;
+extern const hci_cmd_t hci_user_passkey_request_negative_reply;
+extern const hci_cmd_t hci_user_passkey_request_reply;
 extern const hci_cmd_t hci_write_authentication_enable;
 extern const hci_cmd_t hci_write_class_of_device;
 extern const hci_cmd_t hci_write_extended_inquiry_response;
@@ -356,6 +417,9 @@ extern const hci_cmd_t l2cap_unregister_service;
 
 extern const hci_cmd_t sdp_register_service_record;
 extern const hci_cmd_t sdp_unregister_service_record;
+extern const hci_cmd_t sdp_client_query_rfcomm_services;
+extern const hci_cmd_t sdp_client_query_services;
+
 
 // accept connection @param bd_addr(48), rfcomm_cid (16)
 extern const hci_cmd_t rfcomm_accept_connection;

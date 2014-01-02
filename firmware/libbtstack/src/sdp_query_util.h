@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 by Matthias Ringwald
+ * Copyright (C) 2009-2013 by Matthias Ringwald
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,32 +35,23 @@
  */
 
 /*
- *  hci_dump.h
- *
- *  Dump HCI trace as BlueZ's hcidump format, Apple's PacketLogger, or stdout
- * 
- *  Created by Matthias Ringwald on 5/26/09.
+ *  sdp_query_util.h
  */
 
 #pragma once
 
-#include <stdint.h>
 
 #if defined __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    HCI_DUMP_BLUEZ = 0,
-    HCI_DUMP_PACKETLOGGER,
-    HCI_DUMP_STDOUT
-} hci_dump_format_t;
 
-void hci_dump_open(char *filename, hci_dump_format_t format);
-void hci_dump_set_max_packets(int packets); // -1 for unlimited
-void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t len);
-void hci_dump_log(const char * format, ...);
-void hci_dump_close(void);
+// Returns service search pattern for given UUID
+uint8_t* create_service_search_pattern_for_uuid(uint16_t uuid);
+
+// Searches SDP records on a remote device for all services with
+// a given UUID.
+void sdp_general_query_for_uuid(bd_addr_t remote, uint16_t uuid);
 
 #if defined __cplusplus
 }

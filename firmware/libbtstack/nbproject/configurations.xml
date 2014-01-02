@@ -26,6 +26,10 @@
       <itemPath>src/sdp.h</itemPath>
       <itemPath>include/btstack/sdp_util.h</itemPath>
       <itemPath>include/btstack/utils.h</itemPath>
+      <itemPath>src/sdp_client.h</itemPath>
+      <itemPath>src/sdp_parser.h</itemPath>
+      <itemPath>src/sdp_query_rfcomm.h</itemPath>
+      <itemPath>src/sdp_query_util.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -57,6 +61,10 @@
       <itemPath>src/sdp_util.c</itemPath>
       <itemPath>src/utils.c</itemPath>
       <itemPath>src/remote_device_db_memory.c</itemPath>
+      <itemPath>src/sdp_client.c</itemPath>
+      <itemPath>src/sdp_parser.c</itemPath>
+      <itemPath>src/sdp_query_util.c</itemPath>
+      <itemPath>src/sdp_query_rfcomm.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 by Matthias Ringwald
+ * Copyright (C) 2009-2013 by Matthias Ringwald
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,39 +35,83 @@
  */
 
 /*
- *  l2cap_signaling.h
- *
- *  Created by Matthias Ringwald on 7/23/09.
+ *  sdp_parser.h
  */
 
 #pragma once
 
+#include "config.h"
+ 
 #include <stdint.h>
-#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <btstack/sdp_util.h>
 #include <btstack/utils.h>
-#include <btstack/hci_cmds.h>
 
 #if defined __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    COMMAND_REJECT = 1,
-    CONNECTION_REQUEST,
-    CONNECTION_RESPONSE,
-    CONFIGURE_REQUEST,
-    CONFIGURE_RESPONSE,
-    DISCONNECTION_REQUEST,
-    DISCONNECTION_RESPONSE,
-    ECHO_REQUEST,
-    ECHO_RESPONSE,
-    INFORMATION_REQUEST,
-    INFORMATION_RESPONSE
-} L2CAP_SIGNALING_COMMANDS;
+/* SDP Parser */
 
-uint16_t l2cap_create_signaling_internal(uint8_t * acl_buffer,hci_con_handle_t handle, L2CAP_SIGNALING_COMMANDS cmd, uint8_t identifier, va_list argptr);
-uint8_t  l2cap_next_sig_id(void);
-uint16_t l2cap_next_local_cid(void);
+// Data Element stream parser helper
+typedef struct de_state {
+    uint8_t  in_state_GET_DE_HEADER_LENGTH ;
+    uint32_t addon_header_bytes;
+    uint32_t de_size;
+    uint32_t de_offset;
+} de_state_t;
+void de_state_init(de_state_t * state);
+int  de_state_size(uint8_t eventByte, de_state_t *de_state);
+
+// SDP Parser
+// Basic SDP Query event type
+typedef struct sdp_query_event {
+    uint8_t type;
+} sdp_query_event_t;
+
+// SDP Query event to indicate that query/parser is complete.
+typedef struct sdp_query_complete_event {
+    uint8_t type;
+    uint8_t status; // 0 == OK
+} sdp_query_complete_event_t;
+
+// SDP Parser event to deliver an attribute value byte by byte
+typedef struct sdp_query_attribute_value_event {
+    uint8_t type;
+    int record_id;
+    uint16_t attribute_id;
+    uint32_t attribute_length;
+    int data_offset;
+    uint8_t data;
+} sdp_query_attribute_value_event_t;
+
+
+#ifdef HAVE_SDP_EXTRA_QUERIES
+typedef struct sdp_query_service_record_handle_event {
+    uint8_t type;
+    uint16_t total_count;
+    uint16_t current_count;
+    uint32_t record_handle;
+} sdp_query_service_record_handle_event_t;
+#endif
+
+void sdp_parser_init(void);
+void sdp_parser_handle_chunk(uint8_t * data, uint16_t size);
+
+#ifdef HAVE_SDP_EXTRA_QUERIES
+void sdp_parser_init_service_attribute_search(void);
+void sdp_parser_init_service_search(void);
+void sdp_parser_handle_service_search(uint8_t * data, uint16_t total_count, uint16_t record_handle_count);
+#endif
+
+void sdp_parser_handle_done(uint8_t status);
+
+// Registers a callback to receive attribute value data and parse complete event.
+void sdp_parser_register_callback(void (*sdp_callback)(sdp_query_event_t * event));
+
 
 #if defined __cplusplus
 }

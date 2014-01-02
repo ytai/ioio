@@ -83,7 +83,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
         case HCI_EVENT_COMMAND_COMPLETE:
           if (COMMAND_COMPLETE_EVENT(packet, hci_read_bd_addr)) {
             bt_flip_addr(event_addr, &packet[6]);
-            log_printf("BD-ADDR: %s\n\r", bd_addr_to_str(event_addr));
+            log_printf("BD-ADDR: %s", bd_addr_to_str(event_addr));
             sprintf(local_name, "IOIO (%02X:%02X)", event_addr[4], event_addr[5]);
             break;
           }
@@ -95,14 +95,14 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
 
         case HCI_EVENT_LINK_KEY_REQUEST:
           // deny link key request
-          log_printf("Link key request\n\r");
+          log_printf("Link key request - deny");
           bt_flip_addr(event_addr, &packet[2]);
           hci_send_cmd(&hci_link_key_request_negative_reply, &event_addr);
           break;
 
         case HCI_EVENT_PIN_CODE_REQUEST:
           // inform about pin code request
-          log_printf("Pin code request - using '4545'\n\r");
+          log_printf("Pin code request - using '4545'");
           bt_flip_addr(event_addr, &packet[2]);
           hci_send_cmd(&hci_pin_code_request_reply, &event_addr, 4, "4545");
           break;
@@ -112,19 +112,19 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
           bt_flip_addr(event_addr, &packet[2]);
           rfcomm_channel_nr = packet[8];
           rfcomm_channel_id = READ_BT_16(packet, 9);
-          log_printf("RFCOMM channel %u requested for %s\n\r", rfcomm_channel_nr, bd_addr_to_str(event_addr));
+          log_printf("RFCOMM channel %u requested for %s", rfcomm_channel_nr, bd_addr_to_str(event_addr));
           rfcomm_accept_connection_internal(rfcomm_channel_id);
           break;
 
         case RFCOMM_EVENT_OPEN_CHANNEL_COMPLETE:
           // data: event(8), len(8), status (8), address (48), server channel(8), rfcomm_cid(16), max frame size(16)
           if (packet[2]) {
-            log_printf("RFCOMM channel open failed, status %u\n\r", packet[2]);
+            log_printf("RFCOMM channel open failed, status %u", packet[2]);
           } else {
             rfcomm_channel_id = READ_BT_16(packet, 12);
             rfcomm_send_credit = 1;
             mtu = READ_BT_16(packet, 14);
-            log_printf("\n\rRFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n\r", rfcomm_channel_id, mtu);
+            log_printf("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u", rfcomm_channel_id, mtu);
           }
           break;
 
@@ -164,6 +164,7 @@ static void BTAttached() {
   hci_uart_config_t * config = NULL;
   const remote_device_db_t * remote_db = &remote_device_db_memory;
   hci_init(transport, config, control, remote_db);
+  hci_ssp_set_enable(0);
 
   // init L2CAP
   l2cap_init();

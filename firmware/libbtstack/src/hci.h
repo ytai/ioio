@@ -90,10 +90,12 @@ extern "C" {
     
 // size of hci buffers, big enough for command, event, or acl packet without H4 packet type
 // @note cmd buffer is bigger than event buffer
+#ifndef HCI_PACKET_BUFFER_SIZE
 #if HCI_ACL_BUFFER_SIZE > HCI_CMD_BUFFER_SIZE
 #define HCI_PACKET_BUFFER_SIZE HCI_ACL_BUFFER_SIZE
 #else
 #define HCI_PACKET_BUFFER_SIZE HCI_CMD_BUFFER_SIZE
+#endif
 #endif
     
 // OGFs
@@ -157,6 +159,12 @@ extern "C" {
 // unregister SDP Service Record
 #define SDP_UNREGISTER_SERVICE_RECORD                      0x31
 
+// Get remote RFCOMM services
+#define SDP_CLIENT_QUERY_RFCOMM_SERVICES                   0x32
+
+// Get remote SDP services
+#define SDP_CLIENT_QUERY_SERVICES                          0x33
+
 // RFCOMM "HCI" Commands
 #define RFCOMM_CREATE_CHANNEL       0x40
 #define RFCOMM_DISCONNECT			0x41
@@ -191,15 +199,22 @@ extern "C" {
  * Connection State 
  */
 typedef enum {
-    AUTH_FLAGS_NONE                = 0x00,
-    RECV_LINK_KEY_REQUEST          = 0x01,
-    HANDLE_LINK_KEY_REQUEST        = 0x02,
-    SENT_LINK_KEY_REPLY            = 0x04,
-    SENT_LINK_KEY_NEGATIVE_REQUEST = 0x08,
-    RECV_LINK_KEY_NOTIFICATION     = 0x10,
-    RECV_PIN_CODE_REQUEST          = 0x20,
-    SENT_PIN_CODE_REPLY            = 0x40, 
-    SENT_PIN_CODE_NEGATIVE_REPLY   = 0x80 
+    AUTH_FLAGS_NONE                = 0x0000,
+    RECV_LINK_KEY_REQUEST          = 0x0001,
+    HANDLE_LINK_KEY_REQUEST        = 0x0002,
+    SENT_LINK_KEY_REPLY            = 0x0004,
+    SENT_LINK_KEY_NEGATIVE_REQUEST = 0x0008,
+    RECV_LINK_KEY_NOTIFICATION     = 0x0010,
+    RECV_PIN_CODE_REQUEST          = 0x0020,
+    SENT_PIN_CODE_REPLY            = 0x0040, 
+    SENT_PIN_CODE_NEGATIVE_REPLY   = 0x0080,
+    // SSP
+    RECV_IO_CAPABILITIES_REQUEST   = 0x0100,
+    SEND_IO_CAPABILITIES_REPLY     = 0x0200,
+    RECV_USER_CONFIRM_REQUEST      = 0x0400,
+    SEND_USER_CONFIRM_REPLY        = 0x0800,
+    RECV_USER_PASSKEY_REQUEST      = 0x1000,
+    SEND_USER_PASSKEY_REPLY        = 0x2000,
 } hci_authentication_flags_t;
 
 typedef enum {
@@ -261,6 +276,15 @@ typedef struct {
     hci_transport_t  * hci_transport;
     void             * config;
     
+    // bsic configuration
+    char             * local_name;
+    uint32_t           class_of_device;
+    bd_addr_t          local_bd_addr;
+    uint8_t            ssp_enable;
+    uint8_t            ssp_io_capability;
+    uint8_t            ssp_authentication_requirement;
+    uint8_t            ssp_auto_accept;
+
     // hardware power controller
     bt_control_t     * control;
     
@@ -275,6 +299,11 @@ typedef struct {
     // uint8_t  total_num_cmd_packets;
     uint8_t  total_num_acl_packets;
     uint16_t acl_data_packet_length;
+    uint8_t  total_num_le_packets;
+    uint16_t le_data_packet_length;
+
+    /* local supported features */
+    uint8_t local_supported_features[8];
 
     // usable packet types given acl_data_packet_length and HCI_ACL_BUFFER_SIZE
     uint16_t packet_types;
@@ -299,30 +328,20 @@ typedef struct {
     // buffer for single connection decline
     uint8_t   decline_reason;
     bd_addr_t decline_addr;
-    
+
 } hci_stack_t;
 
 // create and send hci command packets based on a template and a list of parameters
 uint16_t hci_create_cmd(uint8_t *hci_cmd_buffer, hci_cmd_t *cmd, ...);
 uint16_t hci_create_cmd_internal(uint8_t *hci_cmd_buffer, const hci_cmd_t *cmd, va_list argptr);
 
-// set up HCI
-void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t const* remote_device_db);
-void hci_register_packet_handler(void (*handler)(uint8_t packet_type, uint8_t *packet, uint16_t size));
-void hci_close(void);
-
-// power and inquriy scan control
-int hci_power_control(HCI_POWER_MODE mode);
-void hci_discoverable_control(uint8_t enable);
 void hci_connectable_control(uint8_t enable);
+void hci_close(void);
 
 /**
  * run the hci control loop once
  */
 void hci_run(void);
-
-// create and send hci command packets based on a template and a list of parameters
-int hci_send_cmd(const hci_cmd_t *cmd, ...);
 
 // send complete CMD packet
 int hci_send_cmd_packet(uint8_t *packet, int size);
@@ -333,11 +352,11 @@ int hci_send_acl_packet(uint8_t *packet, int size);
 // non-blocking UART driver needs
 int hci_can_send_packet_now(uint8_t packet_type);
     
-hci_connection_t * connection_for_handle(hci_con_handle_t con_handle);
+bd_addr_t * hci_local_bd_addr(void);
+hci_connection_t * hci_connection_for_handle(hci_con_handle_t con_handle);
 uint8_t  hci_number_outgoing_packets(hci_con_handle_t handle);
 uint8_t  hci_number_free_acl_slots(void);
 int      hci_authentication_active_for_handle(hci_con_handle_t handle);
-void     hci_drop_link_key_for_bd_addr(bd_addr_t *addr);
 uint16_t hci_max_acl_data_packet_length(void);
 uint16_t hci_usable_acl_packet_types(void);
 uint8_t* hci_get_outgoing_acl_packet_buffer(void);
@@ -353,6 +372,41 @@ void hci_emit_btstack_version(void);
 void hci_emit_system_bluetooth_enabled(uint8_t enabled);
 void hci_emit_remote_name_cached(bd_addr_t *addr, device_name_t *name);
 void hci_emit_discoverable_enabled(uint8_t enabled);
+
+
+/** Embedded API **/
+
+// Set up HCI.
+void hci_init(hci_transport_t *transport, void *config, bt_control_t *control, remote_device_db_t const* remote_device_db);
+
+// Registers a packet handler. Used if L2CAP is not used (rarely). 
+void hci_register_packet_handler(void (*handler)(uint8_t packet_type, uint8_t *packet, uint16_t size));
+
+// Requests the change of BTstack power mode.
+int  hci_power_control(HCI_POWER_MODE mode);
+
+// Allows to control if device is discoverable. OFF by default.
+void hci_discoverable_control(uint8_t enable);
+
+// Creates and sends HCI command packets based on a template and 
+// a list of parameters. Will return error if outgoing data buffer 
+// is occupied. 
+int hci_send_cmd(const hci_cmd_t *cmd, ...);
+
+// Deletes link key for remote device with baseband address.
+void hci_drop_link_key_for_bd_addr(bd_addr_t *addr);
+
+// Configure Secure Simple Pairing
+
+// enable will enable SSP during init
+void hci_ssp_set_enable(int enable);
+
+// if set, BTstack will respond to io capability request using authentication requirement
+void hci_ssp_set_io_capability(int ssp_io_capability);
+void hci_ssp_set_authentication_requirement(int authentication_requirement);
+
+// if set, BTstack will confirm a numberic comparion and enter '000000' if requested
+void hci_ssp_set_auto_accept(int auto_accept);
 
 #if defined __cplusplus
 }

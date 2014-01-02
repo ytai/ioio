@@ -75,39 +75,14 @@ extern "C" {
 #define L2CAP_CID_ATTRIBUTE_PROTOCOL        0x0004
 #define L2CAP_CID_SIGNALING_LE              0x0005
 #define L2CAP_CID_SECURITY_MANAGER_PROTOCOL 0x0006
+
+// L2CAP Configuration Result Codes
+#define L2CAP_CONF_RESULT_UNKNOWN_OPTIONS   0x0003
+
+// L2CAP Reject Result Codes
+#define L2CAP_REJ_CMD_UNKNOWN               0x0000
     
-void l2cap_init(void);
-void l2cap_register_packet_handler(void (*handler)(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size));
-void l2cap_create_channel_internal(void * connection, btstack_packet_handler_t packet_handler, bd_addr_t address, uint16_t psm, uint16_t mtu);
-void l2cap_disconnect_internal(uint16_t local_cid, uint8_t reason);
-uint16_t l2cap_get_remote_mtu_for_local_cid(uint16_t local_cid);
-uint16_t l2cap_max_mtu(void);
-
-void l2cap_block_new_credits(uint8_t blocked);
-int  l2cap_can_send_packet_now(uint16_t local_cid);    // non-blocking UART write
-
-// get outgoing buffer and prepare data
-uint8_t *l2cap_get_outgoing_buffer(void);
-
-int  l2cap_send_prepared(uint16_t local_cid, uint16_t len);
-int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len);
-
-int  l2cap_send_prepared_connectionless(uint16_t handle, uint16_t cid, uint16_t len);
-int  l2cap_send_connectionless(uint16_t handle, uint16_t cid, uint8_t *data, uint16_t len);
-    
-void l2cap_close_connection(void *connection);
-
-void l2cap_register_service_internal(void *connection, btstack_packet_handler_t packet_handler, uint16_t psm, uint16_t mtu);
-void l2cap_unregister_service_internal(void *connection, uint16_t psm);
-
-void l2cap_accept_connection_internal(uint16_t local_cid);
-void l2cap_decline_connection_internal(uint16_t local_cid, uint8_t reason);
-
-// Bluetooth 4.0 - allows to register handler for Attribute Protocol and Security Manager Protocol
-void l2cap_register_fixed_channel(btstack_packet_handler_t packet_handler, uint16_t channel_id);
-
-
-// private structs
+    // private structs
 typedef enum {
     L2CAP_STATE_CLOSED = 1,           // no baseband
     L2CAP_STATE_WILL_SEND_CREATE_CONNECTION,
@@ -125,13 +100,17 @@ typedef enum {
 } L2CAP_STATE;
 
 typedef enum {
-    L2CAP_CHANNEL_STATE_VAR_NONE          = 0,
-    L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_REQ = 1 << 0,
-    L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_RSP = 1 << 1,
-    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ = 1 << 2,
-    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP = 1 << 3,
-    L2CAP_CHANNEL_STATE_VAR_SENT_CONF_REQ = 1 << 4,
-    L2CAP_CHANNEL_STATE_VAR_SENT_CONF_RSP = 1 << 5,
+    L2CAP_CHANNEL_STATE_VAR_NONE                  = 0,
+    L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_REQ         = 1 << 0,
+    L2CAP_CHANNEL_STATE_VAR_RCVD_CONF_RSP         = 1 << 1,
+    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_REQ         = 1 << 2,
+    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP         = 1 << 3,
+    L2CAP_CHANNEL_STATE_VAR_SENT_CONF_REQ         = 1 << 4,
+    L2CAP_CHANNEL_STATE_VAR_SENT_CONF_RSP         = 1 << 5,
+    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP_MTU     = 1 << 6,  // in CONF RSP, add MTU field
+    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP_CONT    = 1 << 7,  // in CONF RSP, set CONTINUE flag
+    L2CAP_CHANNEL_STATE_VAR_SEND_CONF_RSP_INVALID = 1 << 8,  // in CONF RSP, send UNKNOWN OPTIONS
+    L2CAP_CHANNEL_STATE_VAR_SEND_CMD_REJ_UNKNOWN  = 1 << 9,  // send CMD_REJ with reason unknown
 } L2CAP_CHANNEL_STATE_VAR;
 
 // info regarding an actual coneection
@@ -192,10 +171,61 @@ typedef struct l2cap_signaling_response {
     hci_con_handle_t handle;
     uint8_t  sig_id;
     uint8_t  code;
-    uint16_t data; // infoType for INFORMATION REQUEST, result for CONNECTION request
+    uint16_t data; // infoType for INFORMATION REQUEST, result for CONNECTION request and command unknown
 } l2cap_signaling_response_t;
     
-    
+
+void l2cap_block_new_credits(uint8_t blocked);
+int  l2cap_can_send_packet_now(uint16_t local_cid);    // non-blocking UART write
+
+// get outgoing buffer and prepare data
+uint8_t *l2cap_get_outgoing_buffer(void);
+
+int l2cap_send_prepared(uint16_t local_cid, uint16_t len);
+
+int l2cap_send_prepared_connectionless(uint16_t handle, uint16_t cid, uint16_t len);
+
+// Bluetooth 4.0 - allows to register handler for Attribute Protocol and Security Manager Protocol
+void l2cap_register_fixed_channel(btstack_packet_handler_t packet_handler, uint16_t channel_id);
+
+uint16_t l2cap_max_mtu(void);
+
+int  l2cap_send_connectionless(uint16_t handle, uint16_t cid, uint8_t *data, uint16_t len);
+
+void l2cap_close_connection(void *connection);
+
+
+/** Embedded API **/
+
+// Set up L2CAP and register L2CAP with HCI layer.
+void l2cap_init(void);
+
+// Registers a packet handler that handles HCI and general BTstack events.
+void l2cap_register_packet_handler(void (*handler)(void * connection, uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size));
+
+// Creates L2CAP channel to the PSM of a remote device with baseband address. A new baseband connection will be initiated if necessary.
+void l2cap_create_channel_internal(void * connection, btstack_packet_handler_t packet_handler, bd_addr_t address, uint16_t psm, uint16_t mtu);
+
+// Disconencts L2CAP channel with given identifier. 
+void l2cap_disconnect_internal(uint16_t local_cid, uint8_t reason);
+
+// Queries the maximal transfer unit (MTU) for L2CAP channel with given identifier. 
+uint16_t l2cap_get_remote_mtu_for_local_cid(uint16_t local_cid);
+
+// Sends L2CAP data packet to the channel with given identifier.
+int l2cap_send_internal(uint16_t local_cid, uint8_t *data, uint16_t len);
+
+// Registers L2CAP service with given PSM and MTU, and assigns a packet handler. On embedded systems, use NULL for connection parameter.
+void l2cap_register_service_internal(void *connection, btstack_packet_handler_t packet_handler, uint16_t psm, uint16_t mtu);
+
+// Unregisters L2CAP service with given PSM.  On embedded systems, use NULL for connection parameter.
+void l2cap_unregister_service_internal(void *connection, uint16_t psm);
+
+// Accepts/Deny incoming L2CAP connection.
+void l2cap_accept_connection_internal(uint16_t local_cid);
+void l2cap_decline_connection_internal(uint16_t local_cid, uint8_t reason);
+
+
 #if defined __cplusplus
 }
 #endif
