@@ -48,7 +48,7 @@
 #include "protocol_defs.h"
 
 // Human-readable string describing app firmware version.
-#define FW_IMPL_VER "PIXL0001"
+#define FW_IMPL_VER "PIXL0003"
 
 // Initialize this module.
 // This function completely resets the module's state and can be called even

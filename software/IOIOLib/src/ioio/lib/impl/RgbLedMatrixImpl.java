@@ -43,6 +43,41 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 		kind_ = kind;
 		frame_ = new byte[getFrameSize(kind)];
 	}
+	
+	synchronized public void beginFrame() throws ConnectionLostException {
+		try {
+			//ioio_.protocol_.rgbLedMatrixWriteFile();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	synchronized public void writeFile(float fps) throws ConnectionLostException {
+		try {
+			ioio_.protocol_.rgbLedMatrixWriteFile(fps, getShifterLen(kind_));
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+	}
+	
+	@Override
+	synchronized public void interactive() throws ConnectionLostException {
+		try {
+			ioio_.protocol_.rgbLedMatrixEnable(getShifterLen(kind_));
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+	}
+	
+	@Override
+	synchronized public void playFile() throws ConnectionLostException {
+		try {
+			ioio_.protocol_.rgbLedMatrixEnable(0);
+		} catch (IOException e) {
+			throw new ConnectionLostException(e);
+		}
+	}
 
 	@Override
 	synchronized public void frame(short[] rgb565)

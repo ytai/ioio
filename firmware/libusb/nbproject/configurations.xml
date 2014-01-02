@@ -508,7 +508,7 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="code-model" value="default"/>
+        <property key="code-model" value="large-code"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>

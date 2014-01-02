@@ -65,10 +65,11 @@ static void PinsInit() {
   // reset pin states
   SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
   for (i = 1; i < NUM_PINS; ++i) {
-    if (!PinIsMatrix(i)) {
+    //if (!PinIsMatrix(i)) {
       SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
-    }
+    //}
   }
+
   for (i = 0; i < NUM_UART_MODULES; ++i) {
     SetPinUart(0, i, 0, 0);  // UART RX disabled
   }
@@ -240,6 +241,8 @@ void SoftReset() {
   SPIInit();
   I2CInit();
   InCapInit();
+  PixelInit();
+
 
   // TODO: reset all peripherals!
   SRbits.IPL = ipl_backup;  // enable interrupts

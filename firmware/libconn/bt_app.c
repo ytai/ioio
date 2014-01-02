@@ -91,9 +91,9 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
 
         case HCI_EVENT_PIN_CODE_REQUEST:
           // inform about pin code request
-          log_printf("Pin code request - using '4545'\n\r");
+          log_printf("Pin code request - using '0000'\n\r");
           bt_flip_addr(event_addr, &packet[2]);
-          hci_send_cmd(&hci_pin_code_request_reply, &event_addr, 4, "4545");
+          hci_send_cmd(&hci_pin_code_request_reply, &event_addr, 4, "0000");
           break;
 
         case RFCOMM_EVENT_INCOMING_CONNECTION:

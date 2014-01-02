@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECTS="libusb libconn libbtstack libadb bootloader app_layer_v1 blink latency_tester"
+PROJECTS="libusb libconn libbtstack libadb libsdcard bootloader app_layer_v1 blink latency_tester"
 
 if [[ -z "$MAKE" ]] && which colormake > /dev/null 2>&1 ; then
    MAKE=colormake

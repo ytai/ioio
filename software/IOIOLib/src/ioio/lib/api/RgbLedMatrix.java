@@ -103,4 +103,8 @@ public interface RgbLedMatrix extends Closeable {
 	 *             method.
 	 */
 	void frame(short rgb565[]) throws ConnectionLostException;
+	public void interactive() throws ConnectionLostException;
+	public void playFile() throws ConnectionLostException;
+	public void writeFile(float fps) throws ConnectionLostException;
+	
 }

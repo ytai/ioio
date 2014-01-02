@@ -95,8 +95,11 @@ class IOIOProtocol {
 	static final int SOFT_CLOSE                          = 0x1D;
 	static final int RGB_LED_MATRIX_ENABLE               = 0x1E;
 	static final int RGB_LED_MATRIX_FRAME                = 0x1F;
+	static final int RGB_LED_MATRIX_WRITE_FILE           = 0x20;
 
 	static final int[] SCALE_DIV = new int[] {
+		0x21,
+		0x20,
 		0x1F,  // 31.25
 		0x1E,  // 35.714
 		0x1D,  // 41.667
@@ -504,7 +507,22 @@ class IOIOProtocol {
 		writeByte(shifterLen32 & 0x07);
 		endBatch();
 	}
-
+	
+	
+	//ADDED BY MANJU
+	synchronized public void rgbLedMatrixWriteFile(float fps, int shifterLen32) throws IOException {
+		int delay = Math.round(62500 / fps) - 1;
+		
+		beginBatch();
+		writeByte(RGB_LED_MATRIX_WRITE_FILE);
+		writeByte(delay & 0xFF);
+		writeByte((delay >> 8) & 0xFF);
+		writeByte(shifterLen32 & 0x07);
+		endBatch();
+	}
+	
+	//Ends Here
+	
 	synchronized public void rgbLedMatrixFrame(byte[] data) throws IOException {
 		beginBatch();
 		writeByte(RGB_LED_MATRIX_FRAME);
