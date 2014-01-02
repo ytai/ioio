@@ -15,7 +15,7 @@ MEMORY
 {
   data  (a!xr)   : ORIGIN = 0x800,         LENGTH = 0x6000
   app_ivt        : ORIGIN = 0x5000,        LENGTH = 0x110
-  program (xr)   : ORIGIN = 0x5110,        LENGTH = 0x101F0
+  program (xr)   : ORIGIN = 0x5110,        LENGTH = 0xFEF0
 }
 
 INCLUDE ../blapi/app_BLAPI_3.gld
