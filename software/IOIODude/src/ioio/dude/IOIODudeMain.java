@@ -143,6 +143,7 @@ public class IOIODudeMain {
 
 	private static void hardReset() throws IOException {
 		out_.write(new byte[] { 0x00, 'I', 'O', 'I', 'O' });
+		out_.flush();
 	}
 
 	private static void writeCommand() throws IOException, ProtocolException,
@@ -197,6 +198,8 @@ public class IOIODudeMain {
 		out_.write((int) ((length >> 16) & 0xff));
 		out_.write((int) (length >> 24) & 0xff);
 
+		out_.flush();
+
 		short checksum = 0;
 		int written = 0;
 		int progress = -1;
@@ -207,6 +210,7 @@ public class IOIODudeMain {
 				checksum += ((int) buffer[j]) & 0xFF;
 			}
 			out_.write(buffer, 0, i);
+			out_.flush();
 			written += i;
 			if (written * PROGRESS_SIZE / length != progress) {
 				progress = written * PROGRESS_SIZE / length;
@@ -255,6 +259,7 @@ public class IOIODudeMain {
 		assert fingerprint.length == 16;
 		out_.write(WRITE_FINGERPRINT);
 		out_.write(fingerprint);
+		out_.flush();
 	}
 
 	private static void fingerprintCommand() throws IOException,
@@ -271,6 +276,7 @@ public class IOIODudeMain {
 	private static byte[] readFingerprint() throws ProtocolException,
 			IOException {
 		out_.write(READ_FINGERPRINT);
+		out_.flush();
 		if (in_.read() != FINGERPRINT) {
 			throw new ProtocolException("Unexpected response.");
 		}
@@ -295,6 +301,7 @@ public class IOIODudeMain {
 		}
 		out_.write(CHECK_INTERFACE);
 		out_.write("BOOT0001".getBytes());
+		out_.flush();
 		readExactly(2);
 		if (buffer_[0] != CHECK_INTERFACE_RESPONSE) {
 			throw new ProtocolException("Unexpected response.");

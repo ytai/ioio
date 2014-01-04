@@ -196,6 +196,7 @@ class IOIOProtocol {
 	private void flush() throws IOException {
 		try {
 			out_.write(outbuf_, 0, pos_);
+			out_.flush();
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
