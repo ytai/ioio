@@ -29,6 +29,7 @@
 
 package ioio.lib.android.accessory;
 
+import ioio.lib.android.accessory.Adapter.UsbAccessoryInterface;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
@@ -54,9 +55,6 @@ import android.content.IntentFilter;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
-
 public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		ContextWrapperDependent, IOIOConnectionBootstrap, IOIOConnectionFactory {
 	private static final String ACTION_USB_PERMISSION = "ioio.lib.accessory.action.USB_PERMISSION";
@@ -71,8 +69,9 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	};
 
 	private ContextWrapper activity_;
-	private UsbManager usbManager_;
-	private UsbAccessory accessory_;
+	private Adapter adapter_;
+	private Adapter.AbstractUsbManager usbManager_;
+	private Adapter.UsbAccessoryInterface accessory_;
 	private State state_ = State.CLOSED;
 	private PendingIntent pendingIntent_;
 	private ParcelFileDescriptor fileDescriptor_;
@@ -80,18 +79,13 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private OutputStream outputStream_;
 
 	public AccessoryConnectionBootstrap() throws NoRuntimeSupportException {
-		try {
-			Class.forName("com.android.future.usb.UsbManager");
-		} catch (ClassNotFoundException e) {
-			throw new NoRuntimeSupportException(
-					"Accessory is not supported on this device.");
-		}
+		adapter_ = new Adapter();
 	}
 
 	@Override
 	public void onCreate(ContextWrapper wrapper) {
 		activity_ = wrapper;
-		usbManager_ = UsbManager.getInstance(wrapper);
+		usbManager_ = adapter_.getManager(wrapper);
 		registerReceiver();
 	}
 
@@ -105,7 +99,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		if (state_ != State.CLOSED) {
 			return;
 		}
-		UsbAccessory[] accessories = usbManager_.getAccessoryList();
+		UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
 		accessory_ = (accessories == null ? null : accessories[0]);
 		if (accessory_ != null) {
 			if (usbManager_.hasPermission(accessory_)) {
@@ -120,7 +114,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 			Log.d(TAG, "No accessory found.");
 		}
 	}
-	
+
 	@Override
 	public void reopen() {
 		open();
@@ -143,7 +137,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	private void registerReceiver() {
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+		filter.addAction(usbManager_.ACTION_USB_ACCESSORY_DETACHED);
 		// filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
 		activity_.registerReceiver(this, filter);
 	}
@@ -180,13 +174,13 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	@Override
 	public synchronized void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+		if (usbManager_.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
 			close();
 			// } else if
 			// (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
 			// open();
 		} else if (ACTION_USB_PERMISSION.equals(action)) {
-			if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
+			if (intent.getBooleanExtra(usbManager_.EXTRA_PERMISSION_GRANTED,
 					false)) {
 				openStreams();
 			} else {
