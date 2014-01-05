@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -36,6 +36,7 @@ import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
 import ioio.lib.util.android.ContextWrapperDependent;
 
+import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -75,8 +76,8 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	private State state_ = State.CLOSED;
 	private PendingIntent pendingIntent_;
 	private ParcelFileDescriptor fileDescriptor_;
-	private FileInputStream inputStream_;
-	private FileOutputStream outputStream_;
+	private InputStream inputStream_;
+	private OutputStream outputStream_;
 
 	public AccessoryConnectionBootstrap() throws NoRuntimeSupportException {
 		try {
@@ -238,7 +239,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					throw new ConnectionLostException();
 				}
 				localInputStream_ = inputStream_;
-				localOutputStream_ = outputStream_;
+				localOutputStream_ =  new BufferedOutputStream(outputStream_, 1024);
 			}
 			try {
 				while (instanceState_ != InstanceState.CONNECTED) {
@@ -248,6 +249,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					}
 					// Soft-open the connection
 					localOutputStream_.write(0x00);
+					localOutputStream_.flush();
 					// We're going to block now. We're counting on the IOIO to
 					// write back a byte, or otherwise we're locked until
 					// physical disconnection. This is a known OpenAccessory

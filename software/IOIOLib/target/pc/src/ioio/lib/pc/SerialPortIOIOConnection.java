@@ -31,6 +31,7 @@ package ioio.lib.pc;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -66,7 +67,7 @@ class SerialPortIOIOConnection implements IOIOConnection {
 
 						inputStream_ = new GracefullyClosingInputStream(
 								serialPort_.getInputStream());
-						outputStream_ = serialPort_.getOutputStream();
+						outputStream_ = new BufferedOutputStream(serialPort_.getOutputStream(), 256);
 
 						// This is only required on Windows, but otherwise harmless.
 						serialPort_.setDTR(true);

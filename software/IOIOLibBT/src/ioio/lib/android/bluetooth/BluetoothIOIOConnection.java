@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -31,6 +31,7 @@ package ioio.lib.android.bluetooth;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,6 +49,8 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	private final BluetoothDevice device_;
 	private final String name_;
 	private final String address_;
+	private InputStream inputStream_;
+	private OutputStream outputStream_;
 
 	public BluetoothIOIOConnection(BluetoothDevice device) {
 		device_ = device;
@@ -71,6 +74,8 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		while (true) {
 			try {
 				Log.v(TAG, "Attempting to connect to Bluetooth device: " + name_);
+				inputStream_ = socket_.getInputStream();
+				outputStream_ = socket_.getOutputStream();
 				socket_.connect();
 				Log.v(TAG, "Established connection to device " + name_
 						+ " address: " + address_);
@@ -85,6 +90,8 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 				}
 			}
 		}
+		// Success! Wrap the output stream with a properly sized buffer.
+		outputStream_ = new BufferedOutputStream(outputStream_, 1024);
 	}
 
 	public static BluetoothSocket createSocket(final BluetoothDevice device)
@@ -118,20 +125,12 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 
 	@Override
 	public InputStream getInputStream() throws ConnectionLostException {
-		try {
-			return socket_.getInputStream();
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
-		}
+		return inputStream_;
 	}
 
 	@Override
 	public OutputStream getOutputStream() throws ConnectionLostException {
-		try {
-			return socket_.getOutputStream();
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
-		}
+		return outputStream_;
 	}
 
 	@Override

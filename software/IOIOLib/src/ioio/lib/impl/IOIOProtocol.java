@@ -163,18 +163,12 @@ class IOIOProtocol {
 		}
 	}
 
-	private byte[] outbuf_ = new byte[256];
-	private int pos_ = 0;
 	private int batchCounter_ = 0;
 
 	private void writeByte(int b) throws IOException {
 		assert (b >= 0 && b < 256);
-		if (pos_ == outbuf_.length) {
-			// buffer is full
-			flush();
-		}
 		// Log.v(TAG, "sending: 0x" + Integer.toHexString(b));
-		outbuf_[pos_++] = (byte) b;
+		out_.write(b);
 	}
 
 	private void writeBytes(byte[] buf, int offset, int size) throws IOException {
@@ -189,20 +183,7 @@ class IOIOProtocol {
 
 	public synchronized void endBatch() throws IOException {
 		if (--batchCounter_ == 0) {
-			flush();
-		}
-	}
-
-	private void flush() throws IOException {
-		try {
-			out_.write(outbuf_, 0, pos_);
 			out_.flush();
-		} catch (IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e.getMessage());
-		} finally {
-			pos_ = 0;
 		}
 	}
 

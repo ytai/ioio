@@ -1,17 +1,17 @@
 /*
  * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -36,6 +36,7 @@ import ioio.lib.spi.NoRuntimeSupportException;
 import ioio.lib.util.android.ContextWrapperDependent;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -59,7 +60,7 @@ import android.util.Log;
 /**
  * A bootstrap class which allows connecting to a IOIO as a USB device from Android. Requires API-12
  * or higher to build and run. Will fail gracefully if runtime API is smaller.
- * 
+ *
  * @author Misha Seltzer
  * @author Nadir Izrael
  * @author Ytai Ben-Tsvi
@@ -186,7 +187,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Re-evaluate state.
-	 * 
+	 *
 	 * This is the main state machine governing the connection process with IOIO device. This is the
 	 * only place where the {@link #state_} field may be changed. External events may update the
 	 * control signals, then call {@link #updateState()} to act upon them. Those signals include:
@@ -207,7 +208,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 	 * skip steps, but rather goes through every step, but will keep checking whether we should stay
 	 * there within the same call. When there is nothing more to do, we set {@code done} to
 	 * {@code true} and thus exit the loop.
-	 * 
+	 *
 	 * The same is true for closing the connection - we will go backwards in several steps until
 	 * reaching the desired target state.
 	 */
@@ -309,11 +310,11 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Open a connection to the IOIO device.
-	 * 
+	 *
 	 * If the call succeeds it returns {@code true} and the caller is responsible to call
 	 * {@link #closeDevice()}. If the call fails, it returns (@code false} and no clean-up is
 	 * required from the caller.
-	 * 
+	 *
 	 * @precondition The device is attached and permission has been granted to connect to it.
 	 */
 	private boolean openDevice() {
@@ -346,7 +347,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Validate the device descriptor and extract the interface and endpoint descriptors.
-	 * 
+	 *
 	 * @return {@code true} if successful.
 	 */
 	private boolean processDescriptor() {
@@ -390,11 +391,11 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Claim interfaces and create the I/O streams.
-	 * 
+	 *
 	 * If the call succeeds it returns {@code true} and the caller is responsible to call
 	 * {@link #closeStreams()}. If the call fails, it returns (@code false} and no clean-up is
 	 * required from the caller.
-	 * 
+	 *
 	 * @precondition The device is attached, permission has been granted to connect to it, and the
 	 *               descriptor has been processed.
 	 */
@@ -404,12 +405,11 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 			if (connection_.claimInterface(dataInterface_, true)) {
 				// Raise DTR.
 				if (setDTR(true)) {
-					// Create streams. We have to buffer the input stream, or else out bandwitdh
-					// will be very limited.
+					// Create streams. Buffer them with a reasonable buffer sizes.
 					inputStream_ = new BufferedInputStream(new Streams.DeviceInputStream(
 							connection_, epIn_), 1024);
-					// The output stream doesn't need buffering, the IOIOProtocol class handles it.
-					outputStream_ = new Streams.DeviceOutputStream(connection_, epOut_);
+					outputStream_ = new BufferedOutputStream(new Streams.DeviceOutputStream(
+							connection_, epOut_), 1024);
 					return true;
 				} else {
 					Log.e(TAG, "Failed to set DTR to true");
@@ -439,9 +439,9 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Sends a DTR signal to the IOIO.
-	 * 
+	 *
 	 * The IOIO uses this signal to indicate whether a client is currently connected to it.
-	 * 
+	 *
 	 * @param {@code true} means start a session, {@code false} means end a session.
 	 * @return {@code true} if the transfer succeeded.
 	 */
@@ -452,9 +452,9 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Check whether the IOIO is attached.
-	 * 
+	 *
 	 * Returns fast if has previously returned positively.
-	 * 
+	 *
 	 * @return {@code true} If attached. In this case the {@link #device_} field will contain the
 	 *         {@link UsbDevice}.
 	 */
@@ -475,7 +475,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * Check the status of the permission to connect to the IOIO.
-	 * 
+	 *
 	 * If it is yet unknown whether we have permission or not, will issue an permission request.
 	 * Updates the {@link #permission_} field.
 	 */
@@ -509,7 +509,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	/**
 	 * The actual {@link IOIOConnection} implementation.
-	 * 
+	 *
 	 * Doesn't do much, except signal the external state machine whether or not we're interested in
 	 * an open connection, and waits for the external state machine to reach the desired states.
 	 */
