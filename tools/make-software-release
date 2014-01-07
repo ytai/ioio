@@ -16,21 +16,12 @@ TMPOUT=$(mktemp -ut ioio.XXXXXX.zip)
 
 LIBPROJECTS="IOIOLib/target/android \
              IOIOLibBT \
-             IOIOLibAccessory"
-
-LIBTARGETS=(android-3 \
-            android-10 \
-            'Google Inc.:Google APIs:10')
+             IOIOLibAccessory \
+             IOIOLibAndroidDevice"
 
 APPPROJECTS="applications/HelloIOIO \
              applications/HelloIOIOService \
              applications/IOIOSimpleApp"
-
-APPTARGETS=(android-7 \
-            android-7 \
-            android-7)
-
-APPNAMES=(HelloIOIO HelloIOIOService IOIOSimpleApp)
 
 APKS="applications/HelloIOIO \
       applications/HelloIOIOService \
@@ -46,17 +37,32 @@ SOURCEDIRS="IOIOLib \
             applications/pc/HelloIOIOSwing \
             applications/pc/HelloSequencer"
 
-APPJARS="applications/pc/HelloIOIOConsole/bin/HelloIOIOConsole.jar \
-         applications/pc/HelloIOIOSwing/bin/HelloIOIOSwing.jar"
+PCAPPS="applications/pc/HelloIOIOConsole \
+        applications/pc/HelloIOIOSwing"
 
 cd software
+
+echo =====================================================
+echo WARNING: THE FOLLOWING FILES ARE ABOUT TO BE DELETED:
+echo =====================================================
+git clean -xdn
+read -p "Enter to confirm, or ^c to abort..."
+git clean -xdf
+
+echo =================
+echo Packaging sources
+echo =================
+for DIR in $SOURCEDIRS; do
+  echo SOURCE: $DIR
+  $ZIP -q -r $TMPOUT $DIR || exit 1
+done
 
 echo =================================
 echo Updating Android library projects
 echo =================================
 i=0
 for PROJECT in $LIBPROJECTS; do
-  $ANDROID update lib-project -p $PROJECT -t "${LIBTARGETS[i]}"  || exit 1
+  $ANDROID update lib-project -p $PROJECT  || exit 1
   ant -f $PROJECT/build.xml clean || exit 1
   let "i++"
 done
@@ -66,7 +72,7 @@ echo Updating Android application projects
 echo =====================================
 i=0
 for PROJECT in $APPPROJECTS; do
-  $ANDROID update project -p $PROJECT -t "${APPTARGETS[i]}" -n "${APPNAMES[i]}" || exit 1
+  $ANDROID update project -p $PROJECT || exit 1
   ant -f $PROJECT/build.xml clean || exit 1
   let "i++"
 done
@@ -77,37 +83,25 @@ echo Generating Javadoc for IOIOLib
 echo ==============================
 ant -q -f IOIOLib/javadoc.xml || exit 1
 
-echo =================
-echo Packaging sources
-echo =================
-for DIR in $SOURCEDIRS; do
-  echo SOURCE: $DIR
-  $ZIP -q -r $TMPOUT $DIR -x bin local.properties || exit 1
-done
-
-echo =================================
-echo Building Android library projects
-echo =================================
-read -p "Buiding libraries is broken. Build manually now and press Enter..."
-
 echo ============================================================
 echo Building Android application projects and packaging binaries
 echo ============================================================
-read -p "Buiding applications is broken. Build manually now and press Enter..."
 i=0
 for PROJECT in $APPPROJECTS; do
-  # ant -f $PROJECT/build.xml debug || exit 1
-  # mv $PROJECT/bin/${APPNAMES[i]}{-debug,}.apk || exit 1
-  $ZIP -q -j $TMPOUT $PROJECT/bin/${APPNAMES[i]}.apk || exit 1
+  APPNAME=$(basename $PROJECT)
+  ant -f $PROJECT/build.xml debug || exit 1
+  mv $PROJECT/bin/$APPNAME{-debug,}.apk || exit 1
+  $ZIP -q -j $TMPOUT $PROJECT/bin/$APPNAME.apk || exit 1
   let "i++"
 done
 
 echo =============================
 echo Packaging PC application JARs
 echo =============================
-read -p "Please build jars now and press Enter..."
-for JAR in $APPJARS; do
-  $ZIP -q -j $TMPOUT $JAR || exit 1
+for APP in $PCAPPS; do
+  NAME=$(basename $APP)
+  ant -f $APP/build.xml jar
+  $ZIP -q -j $TMPOUT $APP/jar/$NAME.jar || exit 1
 done
 
 cd -

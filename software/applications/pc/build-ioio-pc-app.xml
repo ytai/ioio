@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="IOIOPCApp">
+    <property environment="env"/>
+    <property name="src_common.link" value="../../src"/>
+  	<dirname property="IOIOPCApp.basedir" file="${ant.file.IOIOPCApp}"/>
+    <property name="IOIOLibPC.location" value="${IOIOPCApp.basedir}/../../IOIOLib/target/pc"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="IOIOLibPC.classpath">
+        <pathelement location="${IOIOLibPC.location}/bin"/>
+        <pathelement location="${IOIOLibPC.location}/lib/jna-4.0.0.jar"/>
+        <pathelement location="${IOIOLibPC.location}/lib/purejavacomm-0.0.21.jar"/>
+    </path>
+    <path id="app.classpath">
+        <pathelement location="bin"/>
+        <path refid="IOIOLibPC.classpath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="jar"/>
+        </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="build.xml" dir="${IOIOLibPC.location}" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="build.xml" dir="${IOIOLibPC.location}" inheritAll="false" target="build-project"/>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="app.classpath"/>
+        </javac>
+    </target>
+    <target name="jar" depends="build">
+        <jar destfile="jar/${appName}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="${appMainClass}"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ jna-4.0.0.jar purejavacomm-0.0.21.jar"/>
+            </manifest>
+            <zipfileset src="${IOIOPCApp.basedir}/jar-in-jar-loader.zip"/>
+            <fileset dir="bin"/>
+            <fileset dir="${IOIOLibPC.location}/bin"/>
+            <zipfileset dir="${IOIOLibPC.location}/lib" includes="jna-4.0.0.jar"/>
+            <zipfileset dir="${IOIOLibPC.location}/lib" includes="purejavacomm-0.0.21.jar"/>
+        </jar>
+    </target>
+</project>

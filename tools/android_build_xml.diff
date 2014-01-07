@@ -1,0 +1,16 @@
+This is a patch for fixing a bug in the Android build system, thus allowing command-line building of projects with multiple source files.
+Apply using:
+patch -p 1 -d /path/to/android_sdk_root < android_build_xml.diff
+
+
+--- a/tools/ant/build.xml
++++ b/tools/ant/build.xml
+@@ -126,7 +126,7 @@
+ 
+     <!-- Input directories -->
+     <property name="source.dir" value="src" />
+-    <property name="source.absolute.dir" location="${source.dir}" />
++    <property name="source.absolute.dir" value="${source.dir}" />
+     <property name="gen.absolute.dir" location="gen" />
+     <property name="resource.absolute.dir" location="res" />
+     <property name="asset.dir" value="assets" />
