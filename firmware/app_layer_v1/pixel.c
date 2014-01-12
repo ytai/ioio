@@ -11,9 +11,9 @@
 #include "pixel.h"
 #include <stdio.h>
 
-#define ANIMATION_FILENAME "bubbles.bin"
-#define METADATA_FILENAME "metadata.bin"
-#define SHIFTER_LENGTH_FILENAME "shift_len.bin"
+#define ANIMATION_FILENAME "artdata.bin"
+#define METADATA_FILENAME "fps.bin"
+#define SHIFTER_LENGTH_FILENAME "matrixtp.bin"
 
 typedef enum {
   STATE_NONE,
