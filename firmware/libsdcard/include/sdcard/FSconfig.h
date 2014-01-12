@@ -67,7 +67,7 @@
 // Summary: A macro to enable/disable file search functions.
 // Description: The ALLOW_FILESEARCH definition can be commented out to disable file search functions in the library.  This will
 //              prevent the use of the FindFirst and FindNext functions and reduce code size.
-#define ALLOW_FILESEARCH
+//#define ALLOW_FILESEARCH
 
 // Summary: A macro to enable/disable write functionality
 // Description: The ALLOW_WRITES definition can be commented out to disable all operations that write to the device.  This will
@@ -78,13 +78,13 @@
 // Summary: A macro to enable/disable format functionality
 // Description: The ALLOW_FORMATS definition can be commented out to disable formatting functionality.  This will prevent the use of
 //              the FSformat function.  If formats are enabled, write operations must also be enabled by uncommenting ALLOW_WRITES.
-#define ALLOW_FORMATS
+//#define ALLOW_FORMATS
 
 // Summary: A macro to enable/disable directory operations.
 // Description: The ALLOW_DIRS definition can be commented out to disable all directory functionality.  This will reduce code size.
 //              If directories are enabled, write operations must also be enabled by uncommenting ALLOW_WRITES in order to use
 //              the FSmkdir or FSrmdir functions.
-#define ALLOW_DIRS
+//#define ALLOW_DIRS
 
 // Summary: A macro to enable/disable PIC18 ROM functions.
 // Description: The ALLOW_PGMFUNCTIONS definition can be commented out to disable all PIC18 functions that allow the user to pass string
