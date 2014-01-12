@@ -41,7 +41,7 @@ typedef struct {
   int capacity;
   int read_cursor;
   int write_cursor;
-  int size;
+  volatile int size;
 } BYTE_QUEUE;
 
 #define DEFINE_STATIC_BYTE_QUEUE(name, size)              \

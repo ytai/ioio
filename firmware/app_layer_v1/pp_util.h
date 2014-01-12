@@ -73,27 +73,4 @@
 #define _REPEAT_0B(macro, times, ...) _REPEAT_0B_##times##(macro, __VA_ARGS__)
 #define REPEAT_0B(macro, times, ...) _REPEAT_0B(macro, times, __VA_ARGS__)
 
-typedef void (*SetterFunc) (int value);
-
-#define _SETTER_NAME(num, prefix, suffix) _Set##prefix##num##suffix
-
-#define _DEFINE_SETTER(num, prefix, suffix)                   \
-  static void _SETTER_NAME(num, prefix, suffix)(int value) {  \
-    prefix##num##suffix = value;                              \
-  }
-
-#define _SETTER_REF_COMMA(num, prefix, suffix) &_SETTER_NAME(num, prefix, suffix),
-
-#define _DEFINE_ALL_SETTERS_1B(count, prefix, suffix) _REPEAT_1B(_DEFINE_SETTER, count, prefix, suffix)
-
-#define _DEFINE_SETTER_TABLE_1B(count, prefix, suffix)    \
-  static SetterFunc Set##prefix##suffix[count] = {        \
-    _REPEAT_1B(_SETTER_REF_COMMA, count, prefix, suffix)  \
-  };
-
-#define DEFINE_REG_SETTERS_1B(count, prefix, suffix)  \
-  _DEFINE_ALL_SETTERS_1B(count, prefix, suffix)       \
-  _DEFINE_SETTER_TABLE_1B(count, prefix, suffix)
-
-
 #endif  // __REGMACROS_H__

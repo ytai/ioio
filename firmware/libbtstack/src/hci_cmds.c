@@ -108,6 +108,11 @@ uint16_t hci_create_cmd_internal(uint8_t *hci_cmd_buffer, const hci_cmd_t *cmd, 
                 hci_cmd_buffer[pos++] = ptr[1];
                 hci_cmd_buffer[pos++] = ptr[0];
                 break;
+            case 'D': // 8 byte data block
+                ptr = va_arg(argptr, uint8_t *);
+                memcpy(&hci_cmd_buffer[pos], ptr, 8);
+                pos += 8;
+                break;
             case 'E': // Extended Inquiry Information 240 octets
                 ptr = va_arg(argptr, uint8_t *);
                 memcpy(&hci_cmd_buffer[pos], ptr, 240);
@@ -219,6 +224,10 @@ const hci_cmd_t hci_pin_code_request_negative_reply = {
 OPCODE(OGF_LINK_CONTROL, 0x0e), "B"
 // BD_ADDR
 };
+const hci_cmd_t hci_change_connection_packet_type = {
+OPCODE(OGF_LINK_CONTROL, 0x0f), "H2"
+// Handle
+};
 const hci_cmd_t hci_authentication_requested = {
 OPCODE(OGF_LINK_CONTROL, 0x11), "H"
 // Handle
@@ -239,6 +248,35 @@ const hci_cmd_t hci_remote_name_request_cancel = {
 OPCODE(OGF_LINK_CONTROL, 0x1A), "B"
 // BD_ADDR
 };
+const hci_cmd_t hci_io_capability_request_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x2b), "B111"
+// BD_ADDR, IO_Capability, OOB_Data_Present, Authentication_ Requirements
+};
+const hci_cmd_t hci_user_confirmation_request_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x2c), "B"
+// BD_ADDR
+};
+const hci_cmd_t hci_user_confirmation_request_negative_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x2d), "B"
+// BD_ADDR
+};
+const hci_cmd_t hci_user_passkey_request_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x2e), "B4"
+// BD_ADDR, Numeric value (passkey) entered by user (decimal 000000 - 999999).
+};
+const hci_cmd_t hci_user_passkey_request_negative_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x2f), "B"
+// BD_ADDR
+};
+const hci_cmd_t hci_remote_oob_data_request_negative_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x33), "B"
+// BD_ADDR
+};
+const hci_cmd_t hci_io_capability_request_negative_reply = {
+OPCODE(OGF_LINK_CONTROL, 0x34), "B1"
+// BD_ADDR, Reason - Part D, Error codes
+};
+
 
 /**
  *  Link Policy Commands 
@@ -623,12 +661,23 @@ const hci_cmd_t l2cap_decline_connection = {
 OPCODE(OGF_BTSTACK, L2CAP_DECLINE_CONNECTION), "21"
 // @param source cid (16), reason(8)
 };
+
 const hci_cmd_t sdp_register_service_record = {
 OPCODE(OGF_BTSTACK, SDP_REGISTER_SERVICE_RECORD), "S"
 // @param service record handle (DES)
 };
 const hci_cmd_t sdp_unregister_service_record = {
 OPCODE(OGF_BTSTACK, SDP_UNREGISTER_SERVICE_RECORD), "4"
+// @param service record handle (32)
+};
+
+const hci_cmd_t sdp_client_query_rfcomm_services = {
+OPCODE(OGF_BTSTACK, SDP_CLIENT_QUERY_RFCOMM_SERVICES), "BS"
+// @param service record handle (32)
+};
+
+const hci_cmd_t sdp_client_query_services = {
+OPCODE(OGF_BTSTACK, SDP_CLIENT_QUERY_SERVICES), "BSS"
 // @param service record handle (32)
 };
 

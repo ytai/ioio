@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -75,7 +75,7 @@ public class IOIODudeMain {
 	private static boolean force_ = false;
 
 	private static void printUsage() {
-		System.err.println("IOIODude V1.0");
+		System.err.println("IOIODude V1.1");
 		System.err.println();
 		System.err.println("Usage:");
 		System.err.println("ioiodude <options> versions");
@@ -143,6 +143,7 @@ public class IOIODudeMain {
 
 	private static void hardReset() throws IOException {
 		out_.write(new byte[] { 0x00, 'I', 'O', 'I', 'O' });
+		out_.flush();
 	}
 
 	private static void writeCommand() throws IOException, ProtocolException,
@@ -197,6 +198,8 @@ public class IOIODudeMain {
 		out_.write((int) ((length >> 16) & 0xff));
 		out_.write((int) (length >> 24) & 0xff);
 
+		out_.flush();
+
 		short checksum = 0;
 		int written = 0;
 		int progress = -1;
@@ -207,6 +210,7 @@ public class IOIODudeMain {
 				checksum += ((int) buffer[j]) & 0xFF;
 			}
 			out_.write(buffer, 0, i);
+			out_.flush();
 			written += i;
 			if (written * PROGRESS_SIZE / length != progress) {
 				progress = written * PROGRESS_SIZE / length;
@@ -232,7 +236,7 @@ public class IOIODudeMain {
 
 	private static short readChecksum() throws IOException, ProtocolException {
 		if (in_.read() != CHECKSUM) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		readExactly(2);
 		final int b0 = ((int) buffer_[0]) & 0xff;
@@ -255,6 +259,7 @@ public class IOIODudeMain {
 		assert fingerprint.length == 16;
 		out_.write(WRITE_FINGERPRINT);
 		out_.write(fingerprint);
+		out_.flush();
 	}
 
 	private static void fingerprintCommand() throws IOException,
@@ -271,8 +276,9 @@ public class IOIODudeMain {
 	private static byte[] readFingerprint() throws ProtocolException,
 			IOException {
 		out_.write(READ_FINGERPRINT);
+		out_.flush();
 		if (in_.read() != FINGERPRINT) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		readExactly(16);
 		byte[] fingerprint = new byte[16];
@@ -295,9 +301,10 @@ public class IOIODudeMain {
 		}
 		out_.write(CHECK_INTERFACE);
 		out_.write("BOOT0001".getBytes());
+		out_.flush();
 		readExactly(2);
 		if (buffer_[0] != CHECK_INTERFACE_RESPONSE) {
-			throw new ProtocolException("Unexpected resposne.");
+			throw new ProtocolException("Unexpected response.");
 		}
 		if ((buffer_[1] & 0x01) == 0) {
 			throw new ProtocolException(

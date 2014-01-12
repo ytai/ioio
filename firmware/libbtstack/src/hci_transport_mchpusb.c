@@ -127,13 +127,14 @@ BOOL USBHostBluetoothCallback(BLUETOOTH_EVENT event,
         USB_EVENT status,
         void *data,
         DWORD size) {
-  uint8_t e;
   switch (event) {
     case BLUETOOTH_EVENT_WRITE_BULK_DONE:
     case BLUETOOTH_EVENT_WRITE_CONTROL_DONE:
-      e = DAEMON_EVENT_HCI_PACKET_SENT;
-      packet_handler(HCI_EVENT_PACKET, &e, 1);
+    {
+      uint8_t e[] = { DAEMON_EVENT_HCI_PACKET_SENT, 0 };
+      packet_handler(HCI_EVENT_PACKET, &e[0], sizeof(e));
       return TRUE;
+    }
 
     case BLUETOOTH_EVENT_DETACHED:
       hci_close();

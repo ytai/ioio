@@ -209,28 +209,28 @@ void AppProtocolInit(CHANNEL_HANDLE h) {
 
 void AppProtocolSendMessage(const OUTGOING_MESSAGE* msg) {
   if (state != STATE_OPEN) return;
-  BYTE prev = SyncInterruptLevel(1);
-  ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  SyncInterruptLevel(prev);
+  PRIORITY(1) {
+    ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
+  }
 }
 
 void AppProtocolSendMessageWithVarArg(const OUTGOING_MESSAGE* msg, const void* data, int size) {
   if (state != STATE_OPEN) return;
-  BYTE prev = SyncInterruptLevel(1);
-  ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  ByteQueuePushBuffer(&tx_queue, data, size);
-  SyncInterruptLevel(prev);
+  PRIORITY(1) {
+    ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
+    ByteQueuePushBuffer(&tx_queue, data, size);
+  }
 }
 
 void AppProtocolSendMessageWithVarArgSplit(const OUTGOING_MESSAGE* msg,
                                            const void* data1, int size1,
                                            const void* data2, int size2) {
   if (state != STATE_OPEN) return;
-  BYTE prev = SyncInterruptLevel(1);
-  ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
-  ByteQueuePushBuffer(&tx_queue, data1, size1);
-  ByteQueuePushBuffer(&tx_queue, data2, size2);
-  SyncInterruptLevel(prev);
+  PRIORITY(1) {
+    ByteQueuePushBuffer(&tx_queue, (const BYTE*) msg, OutgoingMessageLength(msg));
+    ByteQueuePushBuffer(&tx_queue, data1, size1);
+    ByteQueuePushBuffer(&tx_queue, data2, size2);
+  }
 }
 
 void AppProtocolTasks(CHANNEL_HANDLE h) {
@@ -245,10 +245,8 @@ void AppProtocolTasks(CHANNEL_HANDLE h) {
   SPITasks();
   I2CTasks();
   ICSPTasks();
-  //PixelTasks();
 
   if (ConnectionCanSend(h)) {
-    BYTE prev = SyncInterruptLevel(1);
     const BYTE* data;
     if (bytes_out) {
       ByteQueuePull(&tx_queue, bytes_out);
@@ -259,7 +257,6 @@ void AppProtocolTasks(CHANNEL_HANDLE h) {
       if (bytes_out > max_packet) bytes_out = max_packet;
       ConnectionSend(h, data, bytes_out);
     }
-    SyncInterruptLevel(prev);
   }
 }
 
@@ -277,8 +274,6 @@ static BOOL MessageDone() {
 
     case SOFT_RESET:
       SoftReset();
-      //PixelInit(60);
-      //PixelTasks();
       Echo();
       break;
 

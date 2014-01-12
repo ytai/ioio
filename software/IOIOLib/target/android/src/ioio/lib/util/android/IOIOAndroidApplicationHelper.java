@@ -26,7 +26,6 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-
 package ioio.lib.util.android;
 
 import ioio.lib.util.IOIOBaseApplicationHelper;
@@ -72,7 +71,8 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
 				.addBootstraps(new String[] {
 						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
 						"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
-						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap" });
+						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
+						"ioio.lib.android.device.DeviceConnectionBootstrap"});
 	}
 
 	public void create() {

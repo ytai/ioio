@@ -30,27 +30,23 @@ package ioio.lib.impl;
 
 import ioio.lib.api.RgbLedMatrix;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.ResourceManager.Resource;
 
 import java.io.IOException;
 
 class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 	final Matrix kind_;
 	byte[] frame_;
+	private final Resource matrix_;
+	private final Resource[] pins_;
 
-	public RgbLedMatrixImpl(IOIOImpl ioio, Matrix kind)
+	public RgbLedMatrixImpl(IOIOImpl ioio, Matrix kind, Resource matrix, Resource[] pins)
 			throws ConnectionLostException {
 		super(ioio);
 		kind_ = kind;
 		frame_ = new byte[getFrameSize(kind)];
-	}
-
-	synchronized public void beginFrame() throws ConnectionLostException {
-		try {
-			//ioio_.protocol_.rgbLedMatrixWriteFile();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		matrix_ = matrix;
+		pins_ = pins;
 	}
 
 	@Override
@@ -118,8 +114,19 @@ class RgbLedMatrixImpl extends AbstractResource implements RgbLedMatrix {
 
 	@Override
 	synchronized public void close() {
+		checkClose();
+		try {
+			ioio_.protocol_.rgbLedMatrixEnable(0);
+		} catch (IOException e) {
+		}
+		for (Resource pin : pins_) {
+			ioio_.closePin(pin);
+		}
+		for (Resource pin : pins_) {
+			ioio_.closePin(pin);
+		}
+		ioio_.resourceManager_.free(matrix_);
 		super.close();
-		ioio_.closeRgbLedMatrix();
 	}
 
 	private static void convertAdafruit32x16(short[] rgb565, byte[] dest) {

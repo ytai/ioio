@@ -244,7 +244,7 @@ firmware design flexibility.
 #include "./USB/usb.h"
 #include "HardwareProfile.h"
 
-#include "../USB/usb_device_local.h"
+#include "../usb/usb_device_local.h"
 
 #ifdef DEBUG_MODE
 #include "../uart2.h"

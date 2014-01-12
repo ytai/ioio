@@ -33,4 +33,4 @@ struct {
   const char hardware[8];
   const char bootloader[8];
 } _version __attribute__((section("version.sec"), space(psv)))
-    = { HW_IMPL_VER, "IOIO0310" };
+    = { HW_IMPL_VER, "IOIO0312" };

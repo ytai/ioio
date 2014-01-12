@@ -1,8 +1,7 @@
 bin
 gen
 doc
-*.settings
-build.xml
-!IOIODude/build.xml
+jar
+
 local.properties
 proguard-project.txt

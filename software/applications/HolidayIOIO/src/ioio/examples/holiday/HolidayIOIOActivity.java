@@ -6,15 +6,18 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
+import java.io.IOException;
 import java.util.List;
 
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager.LayoutParams;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -41,11 +44,13 @@ public class HolidayIOIOActivity extends IOIOActivity {
 	private RGB tempRGB_ = new RGB();
 	byte[] buffer1_ = new byte[48];
 	byte[] buffer2_ = new byte[48];
+	private SurfaceTexture texture_;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		getWindow().setFlags(LayoutParams.FLAG_KEEP_SCREEN_ON, LayoutParams.FLAG_KEEP_SCREEN_ON);
 		// The first seekbar controls the blink frequency.
 		final SeekBar freqSeekBar = (SeekBar) findViewById(R.id.frequencySeekBar);
 		updateFrequency(freqSeekBar, freqSeekBar.getProgress());
@@ -110,7 +115,14 @@ public class HolidayIOIOActivity extends IOIOActivity {
 				}
 			}
 		});
+		texture_ = new SurfaceTexture(0);
+		try {
+			camera_.setPreviewTexture(texture_);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		camera_.startPreview();
+
 		super.onStart();
 	}
 

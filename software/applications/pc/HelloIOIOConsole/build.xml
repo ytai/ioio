@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="HelloIOIOSwing">
+    <property name="appName" value="HelloIOIOConsole"/>
+    <property name="appMainClass" value="ioio.examples.hello_console.HelloIOIOConsole"/>
+	<import file="../build-ioio-pc-app.xml"/>
+</project>

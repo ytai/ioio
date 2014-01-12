@@ -2,7 +2,6 @@ package ioio.tests.torture;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
-import ioio.lib.api.exception.ConnectionLostException;
 import ioio.tests.torture.ResourceAllocator.PeripheralType;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class UartTest implements Test<Boolean> {
 	}
 
 	@Override
-	public Boolean run() throws ConnectionLostException, InterruptedException {
+	public Boolean run() throws Exception {
 		Log.i("IOIOTortureTest", "Starting UartTest on pins: " + pin1_ + ", "
 				+ pin2_);
 		try {
@@ -49,7 +48,7 @@ public class UartTest implements Test<Boolean> {
 	}
 
 	private boolean runTest(int inPin, int outPin)
-			throws ConnectionLostException, InterruptedException {
+			throws Exception {
 		if (outPin == 9) {
 			// pin 9 doesn't support peripheral output
 			return true;
@@ -78,7 +77,7 @@ public class UartTest implements Test<Boolean> {
 			}
 			reader.interrupt();
 			reader.join();
-			throw new ConnectionLostException(e);
+			throw e;
 		} finally {
 			uart.close();
 		}

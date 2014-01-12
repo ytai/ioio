@@ -26,12 +26,12 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-
 package ioio.lib.android.bluetooth;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,13 +50,13 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 	private final BluetoothDevice device_;
 	private final String name_;
 	private final String address_;
-	private final BluetoothAdapter adapter_;
+	private InputStream inputStream_;
+	private OutputStream outputStream_;
 
 	public BluetoothIOIOConnection(BluetoothDevice device, BluetoothAdapter adapter) {
 		device_ = device;
 		name_ = device.getName();
 		address_ = device.getAddress();
-		adapter_ = adapter;
 	}
 
 	@Override
@@ -74,8 +74,9 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		// keep trying to connect as long as we're not aborting
 		while (true) {
 			try {
-				//adapter_.cancelDiscovery();    //having this here stopped bluetooth from connecting
 				Log.v(TAG, "Attempting to connect to Bluetooth device: " + name_);
+				inputStream_ = socket_.getInputStream();
+				outputStream_ = socket_.getOutputStream();
 				socket_.connect();
 				Log.v(TAG, "Established connection to device " + name_
 						+ " address: " + address_);
@@ -90,6 +91,8 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 				}
 			}
 		}
+		// Success! Wrap the output stream with a properly sized buffer.
+		outputStream_ = new BufferedOutputStream(outputStream_, 1024);
 	}
 
 	public static BluetoothSocket createSocket(final BluetoothDevice device)
@@ -123,20 +126,12 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 
 	@Override
 	public InputStream getInputStream() throws ConnectionLostException {
-		try {
-			return socket_.getInputStream();
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
-		}
+		return inputStream_;
 	}
 
 	@Override
 	public OutputStream getOutputStream() throws ConnectionLostException {
-		try {
-			return socket_.getOutputStream();
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
-		}
+		return outputStream_;
 	}
 
 	@Override

@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -29,6 +29,7 @@
 
 package ioio.lib.android.accessory;
 
+import ioio.lib.android.accessory.Adapter.UsbAccessoryInterface;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.spi.IOIOConnectionBootstrap;
@@ -36,6 +37,7 @@ import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
 import ioio.lib.util.android.ContextWrapperDependent;
 
+import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -53,9 +55,6 @@ import android.content.IntentFilter;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
-
 public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		ContextWrapperDependent, IOIOConnectionBootstrap, IOIOConnectionFactory {
 	private static final String ACTION_USB_PERMISSION = "ioio.lib.accessory.action.USB_PERMISSION";
@@ -70,27 +69,23 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	};
 
 	private ContextWrapper activity_;
-	private UsbManager usbManager_;
-	private UsbAccessory accessory_;
+	private Adapter adapter_;
+	private Adapter.AbstractUsbManager usbManager_;
+	private Adapter.UsbAccessoryInterface accessory_;
 	private State state_ = State.CLOSED;
 	private PendingIntent pendingIntent_;
 	private ParcelFileDescriptor fileDescriptor_;
-	private FileInputStream inputStream_;
-	private FileOutputStream outputStream_;
+	private InputStream inputStream_;
+	private OutputStream outputStream_;
 
 	public AccessoryConnectionBootstrap() throws NoRuntimeSupportException {
-		try {
-			Class.forName("com.android.future.usb.UsbManager");
-		} catch (ClassNotFoundException e) {
-			throw new NoRuntimeSupportException(
-					"Accessory is not supported on this device.");
-		}
+		adapter_ = new Adapter();
 	}
 
 	@Override
 	public void onCreate(ContextWrapper wrapper) {
 		activity_ = wrapper;
-		usbManager_ = UsbManager.getInstance(wrapper);
+		usbManager_ = adapter_.getManager(wrapper);
 		registerReceiver();
 	}
 
@@ -104,7 +99,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		if (state_ != State.CLOSED) {
 			return;
 		}
-		UsbAccessory[] accessories = usbManager_.getAccessoryList();
+		UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
 		accessory_ = (accessories == null ? null : accessories[0]);
 		if (accessory_ != null) {
 			if (usbManager_.hasPermission(accessory_)) {
@@ -119,7 +114,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 			Log.d(TAG, "No accessory found.");
 		}
 	}
-	
+
 	@Override
 	public void reopen() {
 		open();
@@ -142,7 +137,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	private void registerReceiver() {
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+		filter.addAction(usbManager_.ACTION_USB_ACCESSORY_DETACHED);
 		// filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
 		activity_.registerReceiver(this, filter);
 	}
@@ -179,13 +174,13 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 	@Override
 	public synchronized void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+		if (usbManager_.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
 			close();
 			// } else if
 			// (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
 			// open();
 		} else if (ACTION_USB_PERMISSION.equals(action)) {
-			if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
+			if (intent.getBooleanExtra(usbManager_.EXTRA_PERMISSION_GRANTED,
 					false)) {
 				openStreams();
 			} else {
@@ -238,7 +233,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					throw new ConnectionLostException();
 				}
 				localInputStream_ = inputStream_;
-				localOutputStream_ = outputStream_;
+				localOutputStream_ =  new BufferedOutputStream(outputStream_, 1024);
 			}
 			try {
 				while (instanceState_ != InstanceState.CONNECTED) {
@@ -248,6 +243,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 					}
 					// Soft-open the connection
 					localOutputStream_.write(0x00);
+					localOutputStream_.flush();
 					// We're going to block now. We're counting on the IOIO to
 					// write back a byte, or otherwise we're locked until
 					// physical disconnection. This is a known OpenAccessory

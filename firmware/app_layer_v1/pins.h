@@ -77,4 +77,6 @@ int PinFromPortG(int bit);
 int PinToAnalogChannel(int pin);
 int PinFromAnalogChannel(int ch);
 
+void PinToPortBit(int pin, PORT *port, int *nbit);
+
 #endif  // __PINS_H__

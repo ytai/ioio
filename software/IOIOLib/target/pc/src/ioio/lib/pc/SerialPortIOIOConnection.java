@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -31,6 +31,7 @@ package ioio.lib.pc;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,20 +57,21 @@ class SerialPortIOIOConnection implements IOIOConnection {
 	public void waitForConnect() throws ConnectionLostException {
 		while (!abort_) {
 			try {
-				CommPortIdentifier identifier = CommPortIdentifier
-						.getPortIdentifier(name_);
-				CommPort commPort = identifier.open(this.getClass().getName(),
-						1000);
+				CommPortIdentifier identifier = CommPortIdentifier.getPortIdentifier(name_);
+				CommPort commPort = identifier.open(this.getClass().getName(), 1000);
 				synchronized (this) {
 					if (!abort_) {
 						serialPort_ = (SerialPort) commPort;
 						serialPort_.enableReceiveThreshold(1);
 						serialPort_.enableReceiveTimeout(500);
-						serialPort_.setDTR(true);
-						Thread.sleep(100);
+
 						inputStream_ = new GracefullyClosingInputStream(
 								serialPort_.getInputStream());
-						outputStream_ = serialPort_.getOutputStream();
+						outputStream_ = new BufferedOutputStream(serialPort_.getOutputStream(), 256);
+
+						// This is only required on Windows, but otherwise harmless.
+						serialPort_.setDTR(true);
+						Thread.sleep(100);
 						return;
 					}
 				}
@@ -115,14 +117,13 @@ class SerialPortIOIOConnection implements IOIOConnection {
 	}
 
 	// This is a hack:
-	// On Linux and OSX, PJC will not unblock a blocked read() on an input
-	// stream when closed from another thread.
-	// The workaround is to set a timeout on the InputStream and to read in a
-	// loop until something is actually read.
-	// Since a timeout is indistinguishable from an end-of-stream when using 
-	// the no-argument read(), we set a flag to designate that this is a real
-	// close, prior to actually closing, causing the read loop to exit upon the
-	// next timeout.
+	// On Windows, PJC will sometimes block a read until its timeout (which is ideally infinite in
+	// our case) despite the fact that data is available.
+	// The workaround is to set a timeout on the InputStream and to read in a loop until something
+	// is actually read.
+	// Since a timeout is indistinguishable from an end-of-stream when using the no-argument read(),
+	// we set a flag to designate that this is a real
+	// close, prior to actually closing, causing the read loop to exit upon the next timeout.
 	private static class GracefullyClosingInputStream extends InputStream {
 		private final InputStream underlying_;
 		private boolean closed_ = false;
@@ -139,7 +140,6 @@ class SerialPortIOIOConnection implements IOIOConnection {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 
@@ -151,7 +151,6 @@ class SerialPortIOIOConnection implements IOIOConnection {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 
@@ -194,7 +193,6 @@ class SerialPortIOIOConnection implements IOIOConnection {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 	}

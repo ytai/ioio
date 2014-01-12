@@ -30,9 +30,9 @@
 // Implements A/D-related functions of the protocol.
 // Usage:
 // ADCInit();
-// ADCSetScan(pin_num);
+// ADCSetScan(pin_num, 1);
 // ...from now on will send periodic samples of pin_num...
-// ADCClrScan(pin_num);
+// ADCSetScan(pin_num, 0);
 // ...will no longer send samples...
 
 
@@ -45,15 +45,9 @@
 // Will stop sampling on all pins.
 void ADCInit();
 
-// Set / un-set a pin to be periodically samples.
-// Call will be ignored if pin does not sopprt analog input, or is already set
+// Set / un-set a pin to be periodically sampled.
+// Call will be ignored if pin does not support analog input, or is already set
 // for sampling.
 void ADCSetScan(int pin, int enable);
-
-// Stop sampling a pin.
-// Call will be ignored if pin does not support analog input, or is not being
-// sampled.
-void ADCClrScan(int pin);
-
 
 #endif  // __ADC_H__

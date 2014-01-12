@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -33,31 +33,37 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledPacketSender.Packet;
 import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
+import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class SpiMasterImpl extends AbstractResource implements SpiMaster,
-		DataModuleListener, Sender {
-	public class SpiResult implements Result {
-		boolean ready_;
-		final byte[] data_;
-		
+class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleListener, Sender {
+	public class SpiResult extends ResourceLifeCycle implements Result {
+		private boolean ready_ = false;
+		private final byte[] data_;
+
 		SpiResult(byte[] data) {
 			data_ = data;
 		}
 
 		@Override
-		public synchronized void waitReady() throws ConnectionLostException,
-				InterruptedException {
-			while (!ready_ && state_ != State.DISCONNECTED) {
-				wait();
-			}
+		public synchronized void waitReady() throws ConnectionLostException, InterruptedException {
 			checkState();
+			while (!ready_) {
+				safeWait();
+			}
+		}
+
+		public synchronized void ready() {
+			ready_ = true;
+			notifyAll();
+		}
+
+		public byte[] getData() {
+			return data_;
 		}
 	}
 
@@ -75,54 +81,43 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<SpiMasterImpl.SpiResult>();
-	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
-			this);
+	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
 
-	private final int spiNum_;
-	private final Map<Integer, Integer> ssPinToIndex_;
-	private final int[] indexToSsPin_;
-	private final int mosiPinNum_;
-	private final int misoPinNum_;
-	private final int clkPinNum_;
+	private final Resource spi_;
+	private final Resource[] indexToSsPin_;
+	private final Resource mosiPin_;
+	private final Resource misoPin_;
+	private final Resource clkPin_;
 
-	SpiMasterImpl(IOIOImpl ioio, int spiNum, int mosiPinNum, int misoPinNum,
-			int clkPinNum, int[] ssPins) throws ConnectionLostException {
+	SpiMasterImpl(IOIOImpl ioio, Resource spi, Resource mosiPin, Resource misoPin, Resource clkPin,
+			Resource[] ssPins) throws ConnectionLostException {
 		super(ioio);
-		spiNum_ = spiNum;
-		mosiPinNum_ = mosiPinNum;
-		misoPinNum_ = misoPinNum;
-		clkPinNum_ = clkPinNum;
+		spi_ = spi;
+		mosiPin_ = mosiPin;
+		misoPin_ = misoPin;
+		clkPin_ = clkPin;
 		indexToSsPin_ = ssPins.clone();
-		ssPinToIndex_ = new HashMap<Integer, Integer>(ssPins.length);
-		for (int i = 0; i < ssPins.length; ++i) {
-			ssPinToIndex_.put(ssPins[i], i);
-		}
 	}
 
 	@Override
 	synchronized public void disconnected() {
-		super.disconnected();
 		outgoing_.kill();
-		for (SpiResult tr : pendingRequests_) {
-			synchronized (tr) {
-				tr.notify();
-			}
+		for (SpiResult result : pendingRequests_) {
+			result.disconnected();
 		}
+		super.disconnected();
 	}
 
 	@Override
-	public void writeRead(int slave, byte[] writeData, int writeSize,
-			int totalSize, byte[] readData, int readSize)
-			throws ConnectionLostException, InterruptedException {
-		Result result = writeReadAsync(slave, writeData, writeSize,
-				totalSize, readData, readSize);
+	public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize,
+			byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
+		Result result = writeReadAsync(slave, writeData, writeSize, totalSize, readData, readSize);
 		result.waitReady();
 	}
 
 	@Override
-	public SpiResult writeReadAsync(int slave, byte[] writeData,
-			int writeSize, int totalSize, byte[] readData, int readSize)
-			throws ConnectionLostException {
+	public SpiResult writeReadAsync(int slave, byte[] writeData, int writeSize, int totalSize,
+			byte[] readData, int readSize) throws ConnectionLostException {
 		checkState();
 		SpiResult result = new SpiResult(readData);
 
@@ -130,7 +125,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 		p.writeSize_ = writeSize;
 		p.writeData_ = writeData;
 		p.readSize_ = readSize;
-		p.ssPin_ = indexToSsPin_[slave];
+		p.ssPin_ = indexToSsPin_[slave].id;
 		p.totalSize_ = totalSize;
 
 		if (p.readSize_ > 0) {
@@ -149,9 +144,8 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	}
 
 	@Override
-	public void writeRead(byte[] writeData, int writeSize, int totalSize,
-			byte[] readData, int readSize) throws ConnectionLostException,
-			InterruptedException {
+	public void writeRead(byte[] writeData, int writeSize, int totalSize, byte[] readData,
+			int readSize) throws ConnectionLostException, InterruptedException {
 		writeRead(0, writeData, writeSize, totalSize, readData, readSize);
 	}
 
@@ -159,8 +153,8 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 	public void dataReceived(byte[] data, int size) {
 		SpiResult result = pendingRequests_.remove();
 		synchronized (result) {
-			result.ready_ = true;
-			System.arraycopy(data, 0, result.data_, 0, size);
+			System.arraycopy(data, 0, result.getData(), 0, size);
+			result.ready();
 			result.notify();
 		}
 	}
@@ -172,23 +166,32 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster,
 
 	@Override
 	synchronized public void close() {
-		super.close();
+		checkClose();
 		outgoing_.close();
-		ioio_.closeSpi(spiNum_);
-		ioio_.closePin(mosiPinNum_);
-		ioio_.closePin(misoPinNum_);
-		ioio_.closePin(clkPinNum_);
-		for (int pin : indexToSsPin_) {
+		for (SpiResult result : pendingRequests_) {
+			result.close();
+		}
+
+		try {
+			ioio_.protocol_.spiClose(spi_.id);
+			ioio_.resourceManager_.free(spi_);
+		} catch (IOException e) {
+		}
+		ioio_.closePin(mosiPin_);
+		ioio_.closePin(misoPin_);
+		ioio_.closePin(clkPin_);
+		for (Resource pin : indexToSsPin_) {
 			ioio_.closePin(pin);
 		}
+		super.close();
 	}
 
 	@Override
 	public void send(Packet packet) {
 		OutgoingPacket p = (OutgoingPacket) packet;
 		try {
-			ioio_.protocol_.spiMasterRequest(spiNum_, p.ssPin_, p.writeData_,
-					p.writeSize_, p.totalSize_, p.readSize_);
+			ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_,
+					p.totalSize_, p.readSize_);
 		} catch (IOException e) {
 			Log.e("SpiImpl", "Caught exception", e);
 		}
