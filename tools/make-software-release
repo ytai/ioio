@@ -30,6 +30,7 @@ APKS="applications/HelloIOIO \
 SOURCEDIRS="IOIOLib \
             IOIOLibBT \
             IOIOLibAccessory \
+            IOIOLibAndroidDevice \
             applications/HelloIOIO \
             applications/HelloIOIOService \
             applications/IOIOSimpleApp \
