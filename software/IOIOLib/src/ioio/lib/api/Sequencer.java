@@ -261,7 +261,7 @@ public interface Sequencer extends Closeable {
 	 * A marker interface for channel configurations. A concrete instance of this describes the
 	 * configuration of a single channel.
 	 */
-	public static class ChannelConfig {
+	public static interface ChannelConfig {
 	}
 
 	/**
@@ -272,7 +272,7 @@ public interface Sequencer extends Closeable {
 	 * difference from a PWM speed channel is that the position channel will retain its pulse width
 	 * during a stall event.
 	 */
-	public static class ChannelConfigPwmPosition extends ChannelConfig {
+	public static class ChannelConfigPwmPosition implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -332,7 +332,7 @@ public interface Sequencer extends Closeable {
 	 * PWM position channel is that the position channel will go back to its initial pulse width
 	 * during a stall event.
 	 */
-	public static class ChannelConfigPwmSpeed extends ChannelConfig {
+	public static class ChannelConfigPwmSpeed implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -393,7 +393,7 @@ public interface Sequencer extends Closeable {
 	 * {@link ChannelConfigSteps}). An FM speed channel will idle (not produce any pulses) during a
 	 * stall event.
 	 */
-	public static class ChannelConfigFmSpeed extends ChannelConfig {
+	public static class ChannelConfigFmSpeed implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -441,7 +441,7 @@ public interface Sequencer extends Closeable {
 	 * every cue. See {@link ChannelCueSteps} for a discussion on number of steps calculation. A
 	 * steps channel will idle (not produce any pulses) during a stall event.
 	 */
-	public static class ChannelConfigSteps extends ChannelConfig {
+	public static class ChannelConfigSteps implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -467,7 +467,7 @@ public interface Sequencer extends Closeable {
 	 * actuators that can be controlled by a binary channel. During a stall event, the channel can
 	 * be configured to either retain its last state, or go to its initial state.
 	 */
-	public static class ChannelConfigBinary extends ChannelConfig {
+	public static class ChannelConfigBinary implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
