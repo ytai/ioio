@@ -133,6 +133,7 @@ public class ResourceManager {
 			while (i-- > 0) {
 				free(iter.next());
 			}
+			throw e;
 		}
 	}
 
