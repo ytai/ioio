@@ -81,14 +81,16 @@ public class ResourceManager {
 		int i = 0;
 		try {
 			for (; i < args.length; ++i) {
-				if (args[i] instanceof Resource) {
-					alloc((Resource) args[i]);
-				} else if (args[i] instanceof Resource[]) {
-					alloc(Arrays.asList((Resource[]) args[i]));
-				} else if (args[i] instanceof Collection<?>) {
-					alloc((Collection<Resource>) args[i]);
-				} else {
-					throw new IllegalArgumentException();
+				if (args[i] != null) {
+					if (args[i] instanceof Resource) {
+						alloc((Resource) args[i]);
+					} else if (args[i] instanceof Resource[]) {
+						alloc(Arrays.asList((Resource[]) args[i]));
+					} else if (args[i] instanceof Collection<?>) {
+						alloc((Collection<Resource>) args[i]);
+					} else {
+						throw new IllegalArgumentException();
+					}
 				}
 			}
 		} catch (RuntimeException e) {
