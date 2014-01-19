@@ -366,7 +366,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throws ConnectionLostException {
 		checkState();
 		hardware_.checkSupportsCapSense(pinNum);
-		Resource pin = new Resource(ResourceType.PIN);
+		Resource pin = new Resource(ResourceType.PIN, pinNum);
 		resourceManager_.alloc(pin);
 		CapSenseImpl result = new CapSenseImpl(this, pin, filterCoef);
 		addDisconnectListener(result);
