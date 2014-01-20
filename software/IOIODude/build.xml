@@ -44,8 +44,8 @@
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<zip destfile="bin/ioiodude.zip">
 			<zipfileset dir="bin" includes="ioiodude.jar" />
-			<zipfileset dir="bin" includes="ioiodude" />
-			<zipfileset dir="bin" includes="ioiodude.bat" />
+			<zipfileset dir="bin" filemode="755" includes="ioiodude" />
+			<zipfileset dir="bin" filemode="755" includes="ioiodude.bat" />
 		</zip>
 	</target>
 
