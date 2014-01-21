@@ -398,9 +398,6 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 		public ChannelPwmPosition(ChannelConfigPwmPosition cfg) {
 			super(cfg.pinSpec);
 			cfg_ = cfg;
-			for (DigitalOutput.Spec spec : cfg.pinSpec) {
-				pins_.add(new Resource(ResourceType.PIN, spec.pin));
-			}
 		}
 
 		@Override
