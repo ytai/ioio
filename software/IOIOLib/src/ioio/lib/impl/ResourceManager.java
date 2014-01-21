@@ -53,6 +53,15 @@ public class ResourceManager {
 			type = t;
 			id = i;
 		}
+
+		@Override
+		public String toString() {
+			if (id == -1) {
+				return type.toString();
+			} else {
+				return type.toString() + "(" + id + ")";
+			}
+		}
 	}
 
 	public ResourceManager(Board.Hardware hardware) {
