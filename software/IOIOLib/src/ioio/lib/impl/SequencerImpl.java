@@ -137,8 +137,8 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 	@Override
 	public synchronized void manualStart(ChannelCue[] cues) throws ConnectionLostException {
 		checkState();
-		if (localState_ != LocalState.IDLE) {
-			throw new IllegalStateException("manualStart() may only be called when idle.");
+		if (localState_ == LocalState.RUNNING) {
+			throw new IllegalStateException("manualStart() may not be called when running.");
 		}
 		try {
 			final int size = serializeCues(cues, serializedBuf_);
@@ -152,15 +152,16 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 	@Override
 	public synchronized void manualStop() throws ConnectionLostException {
 		checkState();
-		if (localState_ != LocalState.MANUAL) {
-			throw new IllegalStateException(
-					"manualStop() may only be called during manual operation.");
+		if (localState_ == LocalState.RUNNING) {
+			throw new IllegalStateException("manualStop() may not be called when running.");
 		}
-		try {
-			ioio_.protocol_.sequencerManualStop();
-			localState_ = LocalState.IDLE;
-		} catch (IOException e) {
-			throw new ConnectionLostException(e);
+		if (localState_ == LocalState.MANUAL) {
+			try {
+				ioio_.protocol_.sequencerManualStop();
+				localState_ = LocalState.IDLE;
+			} catch (IOException e) {
+				throw new ConnectionLostException(e);
+			}
 		}
 	}
 
@@ -344,6 +345,8 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 				} catch (InvocationTargetException e) {
 					try {
 						throw e.getCause();
+					} catch (RuntimeException cause) {
+						throw cause;
 					} catch (ConnectionLostException cause) {
 						throw cause;
 					} catch (Throwable cause) {
@@ -375,6 +378,7 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 			oc_ = new Resource(ResourceType.OUTCOMPARE);
 			ocs_.add(oc_);
 			for (DigitalOutput.Spec spec : specs) {
+				ioio_.hardware_.checkSupportsPeripheralOutput(spec.pin);
 				pins_.add(new Resource(ResourceType.PIN, spec.pin));
 			}
 		}

@@ -104,7 +104,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <th>Next State</th>
  * </tr>
  * <tr>
- * <td rowspan="3">Idle</td>
+ * <td rowspan="4">Idle</td>
  * <td>{@link #start()}</td>
  * <td>Running</td>
  * </tr>
@@ -117,6 +117,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <td>Idle (and clear the queue)</td>
  * </tr>
  * <tr>
+ * <td>{@link #manualStop()}</td>
+ * <td>Idle (no-op)</td>
+ * </tr>
+ * <tr>
  * <td rowspan="2">Running</td>
  * <td>{@link #pause()}</td>
  * <td>Idle</td>
@@ -126,13 +130,17 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <td>Idle (and clear the queue)</td>
  * </tr>
  * <tr>
- * <td rowspan="2">Manual</td>
+ * <td rowspan="3">Manual</td>
  * <td>{@link #manualStop()}</td>
  * <td>Idle</td>
  * </tr>
  * <tr>
  * <td>{@link #stop()}</td>
  * <td>Idle (and clear the queue)</td>
+ * </tr>
+ * <tr>
+ * <td>{@link #manualStart()}</td>
+ * <td>Manual (new cue)</td>
  * </tr>
  * </table>
  *
@@ -648,9 +656,11 @@ public interface Sequencer extends Closeable {
 	/**
 	 * Execute a cue until further notice.
 	 * <p>
-	 * This method may only be called when the sequencer is not running. It will not affect the
-	 * queue of pending timed-cues previously filled via {@link #push(ChannelCue[], int)} calls. The
-	 * cue will be executed until explicitly stopped via {@link #manualStop()}.
+	 * This method may only be called when the sequencer is not in the Running state. It will not
+	 * affect the queue of pending timed-cues previously filled via {@link #push(ChannelCue[], int)}
+	 * calls. The cue will be executed until explicitly stopped via {@link #manualStop()}. A
+	 * subsequent call to {@link #manualStart(ChannelCue[])} can be used to immediately have a new
+	 * cue take into effect.
 	 *
 	 * @param cues
 	 *            An array of channel cues to execute. See the description of the same argument in
@@ -663,10 +673,11 @@ public interface Sequencer extends Closeable {
 	/**
 	 * Stop a manual cue currently running.
 	 * <p>
-	 * This should be called only when a manual cue is executing, as result of
-	 * {@link #manualStart(ChannelCue[])}. This causes the execution to stop immediately and the
-	 * sequencer is now back in paused mode, ready for another manual cue or for resuming execution
-	 * of its previously queued sequence.
+	 * This may be called only when a the sequencer is not in the Running state, typically in the
+	 * Manual state, as result of a previous {@link #manualStart(ChannelCue[])}. This causes the
+	 * execution to stop immediately and the sequencer is now back in paused mode, ready for another
+	 * manual cue or for resuming execution of its previously queued sequence. Calling while in the
+	 * Idle state is legal, but does nothing.
 	 *
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.

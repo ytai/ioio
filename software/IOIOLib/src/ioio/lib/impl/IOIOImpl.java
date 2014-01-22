@@ -92,7 +92,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	IOIOProtocol protocol_;
 	ResourceManager resourceManager_;
 	IncomingState incomingState_ = new IncomingState();
-	private Board.Hardware hardware_;
+	Board.Hardware hardware_;
 	private IOIOConnection connection_;
 	private State state_ = State.INIT;
 
