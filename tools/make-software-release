@@ -83,6 +83,7 @@ echo ==============================
 echo Generating Javadoc for IOIOLib
 echo ==============================
 ant -q -f IOIOLib/javadoc.xml || exit 1
+$ZIP -q -r $TMPOUT IOIOLib/doc || exit 1
 
 echo ============================================================
 echo Building Android application projects and packaging binaries
