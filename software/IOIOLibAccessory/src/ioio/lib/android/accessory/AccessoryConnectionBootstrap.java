@@ -32,6 +32,7 @@ package ioio.lib.android.accessory;
 import ioio.lib.android.accessory.Adapter.UsbAccessoryInterface;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.FixedReadBufferedInputStream;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
@@ -105,8 +106,8 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 			if (usbManager_.hasPermission(accessory_)) {
 				openStreams();
 			} else {
-				pendingIntent_ = PendingIntent.getBroadcast(activity_, 0,
-						new Intent(ACTION_USB_PERMISSION), 0);
+				pendingIntent_ = PendingIntent.getBroadcast(activity_, 0, new Intent(
+						ACTION_USB_PERMISSION), 0);
 				usbManager_.requestPermission(accessory_, pendingIntent_);
 				setState(State.WAIT_PERMISSION);
 			}
@@ -180,8 +181,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 			// (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
 			// open();
 		} else if (ACTION_USB_PERMISSION.equals(action)) {
-			if (intent.getBooleanExtra(usbManager_.EXTRA_PERMISSION_GRANTED,
-					false)) {
+			if (intent.getBooleanExtra(usbManager_.EXTRA_PERMISSION_GRANTED, false)) {
 				openStreams();
 			} else {
 				Log.e(TAG, "Permission denied");
@@ -219,11 +219,9 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		public void waitForConnect() throws ConnectionLostException {
 			synchronized (AccessoryConnectionBootstrap.this) {
 				if (instanceState_ != InstanceState.INIT) {
-					throw new IllegalStateException(
-							"waitForConnect() may only be called once");
+					throw new IllegalStateException("waitForConnect() may only be called once");
 				}
-				while (instanceState_ != InstanceState.DEAD
-						&& state_ != State.OPEN) {
+				while (instanceState_ != InstanceState.DEAD && state_ != State.OPEN) {
 					try {
 						AccessoryConnectionBootstrap.this.wait();
 					} catch (InterruptedException e) {
@@ -232,13 +230,14 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 				if (instanceState_ == InstanceState.DEAD) {
 					throw new ConnectionLostException();
 				}
-				localInputStream_ = inputStream_;
-				localOutputStream_ =  new BufferedOutputStream(outputStream_, 1024);
+				// Apparently, some Android devices (e.g. Nexus 5) only support read operations of
+				// multiples of the endpoint buffer size. So there you have it!
+				localInputStream_ = new FixedReadBufferedInputStream(inputStream_, 1024);
+				localOutputStream_ = new BufferedOutputStream(outputStream_, 1024);
 			}
 			try {
 				while (instanceState_ != InstanceState.CONNECTED) {
-					if (instanceState_ == InstanceState.DEAD
-							|| state_ != State.OPEN) {
+					if (instanceState_ == InstanceState.DEAD || state_ != State.OPEN) {
 						throw new ConnectionLostException();
 					}
 					// Soft-open the connection
