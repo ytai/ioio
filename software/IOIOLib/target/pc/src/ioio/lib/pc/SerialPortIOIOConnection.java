@@ -30,6 +30,7 @@ package ioio.lib.pc;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.FixedReadBufferedInputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -65,8 +66,9 @@ class SerialPortIOIOConnection implements IOIOConnection {
 						serialPort_.enableReceiveThreshold(1);
 						serialPort_.enableReceiveTimeout(500);
 
-						inputStream_ = new GracefullyClosingInputStream(
-								serialPort_.getInputStream());
+						inputStream_ = new FixedReadBufferedInputStream(
+								new GracefullyClosingInputStream(serialPort_.getInputStream()),
+								1024);
 						outputStream_ = new BufferedOutputStream(serialPort_.getOutputStream(), 256);
 
 						// This is only required on Windows, but otherwise harmless.

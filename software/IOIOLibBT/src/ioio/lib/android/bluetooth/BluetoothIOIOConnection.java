@@ -30,6 +30,7 @@ package ioio.lib.android.bluetooth;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.FixedReadBufferedInputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -90,7 +91,8 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 				}
 			}
 		}
-		// Success! Wrap the output stream with a properly sized buffer.
+		// Success! Wrap the streams with a properly sized buffers.
+		inputStream_ = new FixedReadBufferedInputStream(inputStream_, 64);
 		outputStream_ = new BufferedOutputStream(outputStream_, 1024);
 	}
 

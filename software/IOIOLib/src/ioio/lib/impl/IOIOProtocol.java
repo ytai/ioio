@@ -652,10 +652,6 @@ class IOIOProtocol {
 	}
 
 	class IncomingThread extends Thread {
-		private int readOffset_ = 0;
-		private int validBytes_ = 0;
-		private byte[] inbuf_ = new byte[64];
-
 		private List<Integer> analogPinValues_ = new ArrayList<Integer>();
 		private List<Integer> analogFramePins_ = new ArrayList<Integer>();
 		private List<Integer> newFramePins_ = new ArrayList<Integer>();
@@ -681,28 +677,19 @@ class IOIOProtocol {
 			newFramePins_ = temp;
 		}
 
-		private void fillBuf() throws IOException {
+		private int readByte() throws IOException {
 			try {
-				validBytes_ = in_.read(inbuf_, 0, inbuf_.length);
-				if (validBytes_ <= 0) {
+				int b = in_.read();
+				if (b < 0) {
 					throw new IOException("Unexpected stream closure");
 				}
-				// Log.v(TAG, "received " + validBytes_ + " bytes");
-				readOffset_ = 0;
+
+				// Log.v(TAG, "received: 0x" + Integer.toHexString(b));
+				return b;
 			} catch (IOException e) {
 				Log.i(TAG, "IOIO disconnected");
 				throw e;
 			}
-		}
-
-		private int readByte() throws IOException {
-			if (readOffset_ == validBytes_) {
-				fillBuf();
-			}
-			int b = inbuf_[readOffset_++];
-			b &= 0xFF; // make unsigned
-			// Log.v(TAG, "received: 0x" + Integer.toHexString(b));
-			return b;
 		}
 
 		private void readBytes(int size, byte[] buffer) throws IOException {

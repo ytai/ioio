@@ -69,7 +69,7 @@ public class SocketIOIOConnection implements IOIOConnection {
 			Log.v(TAG, "Waiting for TCP connection");
 			socket_ = server_.accept();
 			Log.v(TAG, "TCP connected");
-			inputStream_ = socket_.getInputStream();
+			inputStream_ = new FixedReadBufferedInputStream(socket_.getInputStream(), 64);
 			outputStream_ = new BufferedOutputStream(socket_.getOutputStream(), 1024);
 			synchronized (this) {
 				if (disconnect_) {

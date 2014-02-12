@@ -30,12 +30,12 @@ package ioio.lib.android.device;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.impl.FixedReadBufferedInputStream;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
 import ioio.lib.util.android.ContextWrapperDependent;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -406,7 +406,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 				// Raise DTR.
 				if (setDTR(true)) {
 					// Create streams. Buffer them with a reasonable buffer sizes.
-					inputStream_ = new BufferedInputStream(new Streams.DeviceInputStream(
+					inputStream_ = new FixedReadBufferedInputStream(new Streams.DeviceInputStream(
 							connection_, epIn_), 1024);
 					outputStream_ = new BufferedOutputStream(new Streams.DeviceOutputStream(
 							connection_, epOut_), 1024);
