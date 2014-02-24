@@ -668,17 +668,25 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
 	@Override
 	public void sync() throws ConnectionLostException, InterruptedException {
+		boolean added = false;
 		SyncListener listener = new SyncListener();
-		synchronized (this) {
-			checkState();
-			incomingState_.addSyncListener(listener);
-			incomingState_.addDisconnectListener(listener);
-			try {
-				protocol_.sync();
-			} catch (IOException e) {
-				throw new ConnectionLostException(e);
+		try {
+			synchronized (this) {
+				checkState();
+				incomingState_.addSyncListener(listener);
+				addDisconnectListener(listener);
+				added = true;
+				try {
+					protocol_.sync();
+				} catch (IOException e) {
+					throw new ConnectionLostException(e);
+				}
+			}
+			listener.waitSync();
+		} finally {
+			if (added) {
+				removeDisconnectListener(listener);
 			}
 		}
-		listener.waitSync();
 	}
 }
