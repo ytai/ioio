@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project basedir="." default="jar" name="IOIOBridge">
+	<property environment="env" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<property name="libdir" value="../IOIOLib/target/pc/lib"/>
+    <path id="IOIOBridge.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="${libdir}/jna-4.0.0.jar"/>
+        <pathelement location="${libdir}/purejavacomm-0.0.21.jar"/>
+    </path>
+		<target name="init">
+		<mkdir dir="bin" />
+		<mkdir dir="bin/classes" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="." includes="ioiobridge" />
+			<fileset dir="." includes="ioiobridge.bat" />
+		</copy>
+	</target>
+	<target name="clean">
+		<delete dir="bin" />
+	</target>
+	<target depends="clean" name="cleanall" />
+	<target depends="init" name="build">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="off" destdir="bin/classes" source="${source}" target="${target}"
+			includeantruntime="false">
+			<src path="src" />
+			<classpath refid="IOIOBridge.classpath" />
+		</javac>
+	</target>
+	<target depends="build" name="jar">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<jar destfile="bin/ioiobridge.jar" basedir="bin/classes">
+			<manifest>
+				<attribute name="Main-Class" value="ioio.bridge.Main" />
+				<attribute name="Class-Path" value="./ jna-4.0.0.jar purejavacomm-0.0.21.jar" />
+			</manifest>
+			<zipgroupfileset dir="../IOIOLib/target/pc/lib" includes="jna-4.0.0.jar" />
+			<zipgroupfileset dir="../IOIOLib/target/pc/lib" includes="purejavacomm-0.0.21.jar" />
+		</jar>
+	</target>
+	<target depends="jar" name="zip">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<zip destfile="bin/ioiobridge.zip">
+			<zipfileset dir="bin" includes="ioiobridge.jar" />
+			<zipfileset dir="bin" includes="ioiobridge" />
+			<zipfileset dir="bin" includes="ioiobridge.bat" />
+		</zip>
+	</target>
+
+</project>

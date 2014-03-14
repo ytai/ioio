@@ -22,7 +22,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws InterruptedException,
 			IOException {
-		System.out.println("IOIO Emulator Bridge, V1.00");
+		System.out.println("IOIO Emulator Bridge, V1.01");
 		if (args.length != 1) {
 			System.err.println("Usage: java -jar bridge.jar <serial_port>");
 			System.err.println("Don't forget to first run:");
@@ -165,14 +165,13 @@ public class Main {
 	}
 
 	// This is a hack:
-	// On Linux and OSX, PJC will not unblock a blocked read() on an input
-	// stream when closed from another thread.
-	// The workaround is to set a timeout on the InputStream and to read in a
-	// loop until something is actually read.
-	// Since a timeout is indistinguishable from an end-of-stream when using
-	// the no-argument read(), we set a flag to designate that this is a real
-	// close, prior to actually closing, causing the read loop to exit upon the
-	// next timeout.
+	// On Windows, PJC will sometimes block a read until its timeout (which is ideally infinite in
+	// our case) despite the fact that data is available.
+	// The workaround is to set a timeout on the InputStream and to read in a loop until something
+	// is actually read.
+	// Since a timeout is indistinguishable from an end-of-stream when using the no-argument read(),
+	// we set a flag to designate that this is a real
+	// close, prior to actually closing, causing the read loop to exit upon the next timeout.
 	private static class GracefullyClosingInputStream extends InputStream {
 		private final InputStream underlying_;
 		private boolean closed_ = false;
@@ -189,7 +188,6 @@ public class Main {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 
@@ -201,7 +199,6 @@ public class Main {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 
@@ -244,7 +241,6 @@ public class Main {
 					return i;
 				}
 			}
-			;
 			return -1;
 		}
 	}
