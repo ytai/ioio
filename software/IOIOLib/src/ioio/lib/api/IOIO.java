@@ -204,10 +204,8 @@ public interface IOIO {
 	 * @param v
 	 *            The component whose version we query.
 	 * @return An 8-character implementation version ID.
-	 * @throws ConnectionLostException
-	 *             Connection was lost before or during the execution of this method.
 	 */
-	public String getImplVersion(VersionType v) throws ConnectionLostException;
+	public String getImplVersion(VersionType v);
 
 	/**
 	 * Open a pin for digital input.

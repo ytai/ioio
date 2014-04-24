@@ -249,7 +249,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public String getImplVersion(VersionType v) throws ConnectionLostException {
+	public String getImplVersion(VersionType v) {
 		if (state_ == State.INIT) {
 			throw new IllegalStateException(
 					"Connection has not yet been established");
