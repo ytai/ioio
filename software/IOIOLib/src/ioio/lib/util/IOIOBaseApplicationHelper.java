@@ -34,7 +34,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ioio.lib.util.IOIOConnectionThread#run()
 		 */
 		@Override
@@ -66,7 +66,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 					ioio_.disconnect();
 				} catch (IncompatibilityException e) {
 					Log.e(TAG, "Incompatible IOIO firmware", e);
-					looper_.incompatible();
+					looper_.incompatible(ioio_);
 					// nothing to do - just wait until physical
 					// disconnection
 				} catch (Exception e) {
@@ -92,7 +92,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ioio.lib.util.IOIOConnectionThread#abort()
 		 */
 		@Override

@@ -14,7 +14,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * incompatible firmware is encountered, {@link #incompatible()} will be called
  * instead of {@link #setup(IOIO)}, and the IOIO instance is entirely useless,
  * until eventually {@link #disconnected()} gets called.
- * 
+ *
  */
 public interface IOIOLooper {
 	/**
@@ -50,7 +50,18 @@ public interface IOIOLooper {
 	 * passed to {@link #setup(IOIO)} must not be used from within this method -
 	 * it is invalid. This method will only be called once, until a compatible
 	 * IOIO is connected (i.e. {@link #setup(IOIO)} gets called).
+	 *
+	 * @deprecated Please use {@link #incompatible(IOIO)} instead.
 	 */
 	public abstract void incompatible();
+
+
+	/**
+	 * Subclasses should override this method for performing operations to be
+	 * done if an incompatible IOIO firmware is detected. The ioio argument can
+	 * only be used for querying the version strings and disconnecting. It is
+	 * otherwise unusable.
+	 */
+	public abstract void incompatible(IOIO ioio);
 
 }

@@ -5,10 +5,10 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 /**
  * A convenience implementation of {@link IOIOLooper}.
- * 
+ *
  * This base class provides no-op implementations for all methods and provides
  * the {@link #ioio_} field for subclasses.
- * 
+ *
  */
 public class BaseIOIOLooper implements IOIOLooper {
 	protected IOIO ioio_;
@@ -24,7 +24,7 @@ public class BaseIOIOLooper implements IOIOLooper {
 	 * This method will be called as soon as connection to the IOIO has been
 	 * established. Typically, this will include opening pins and modules using
 	 * the openXXX() methods of the {@link #ioio_} field.
-	 * 
+	 *
 	 * @throws ConnectionLostException
 	 *             The connection to the IOIO has been lost.
 	 * @throws InterruptedException
@@ -44,5 +44,11 @@ public class BaseIOIOLooper implements IOIOLooper {
 
 	@Override
 	public void incompatible() {
+	}
+
+	@Override
+	public final void incompatible(IOIO ioio) {
+		ioio_ = ioio;
+		incompatible();
 	}
 }
