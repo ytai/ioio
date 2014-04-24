@@ -9,5 +9,5 @@
     android:layout_height="wrap_content" 
     android:text="@string/hello"
     android:id="@+id/title"/>
-<ToggleButton android:text="ToggleButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button"></ToggleButton>
+<ToggleButton android:text="ToggleButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button" android:enabled="false"></ToggleButton>
 </LinearLayout>
