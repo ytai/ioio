@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="bottom|fill" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ToggleButton android:id="@+id/enableButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_margin="20px" android:layout_weight="1" android:enabled="false" android:textOff="OFF" android:textOn="ON"/>
+        <Button android:id="@+id/setButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_weight="1" android:text="Set" android:enabled="false"/>
+        <Button android:id="@+id/driveButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_weight="1" android:text="Drive" android:enabled="false"/>
+    </LinearLayout>
+	<ImageView android:layout_height="wrap_content" android:id="@+id/imageView1" android:layout_width="wrap_content" android:src="@drawable/ioio_down"></ImageView>
+	<TableLayout android:id="@+id/tableLayout1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom">
+		<TableRow android:id="@+id/tableRow1" android:layout_width="match_parent" android:layout_height="wrap_content">
+			<TextView android:id="@+id/p" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:text="P" android:textAppearance="?android:attr/textAppearanceSmall"/>
+			<TextView android:id="@+id/i" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="I" android:textAppearance="?android:attr/textAppearanceSmall"/>
+			<TextView android:id="@+id/d" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="D" android:textAppearance="?android:attr/textAppearanceSmall"/>
+			<TextView android:id="@+id/s" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="S" android:textAppearance="?android:attr/textAppearanceSmall"/>
+		</TableRow>
+		<TableRow android:id="@+id/tableRow2" android:layout_width="match_parent" android:layout_height="wrap_content">
+			<TextView android:id="@+id/e" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="E" android:textAppearance="?android:attr/textAppearanceSmall"/>
+			<TextView android:id="@+id/t" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="T" android:textAppearance="?android:attr/textAppearanceSmall"/>
+		</TableRow>
+	</TableLayout>
+</LinearLayout>
