@@ -190,10 +190,12 @@ public class HolidayIOIOActivity extends IOIOActivity {
 			// will finish being sent to the IOIO before the first half
 			// finished transmission.
 			try {
+				ioio_.beginBatch();
 				spi_.writeReadAsync(0, buffer1_, buffer1_.length,
 						buffer1_.length, null, 0);
 				spi_.writeRead(buffer2_, buffer2_.length, buffer2_.length,
 						null, 0);
+				ioio_.endBatch();
 				Thread.sleep(50);
 			} catch (InterruptedException e1) {
 			}
