@@ -131,13 +131,15 @@ class IOIOProtocol {
 
     private static final String TAG = "IOIOProtocol";
     private final InputStream in_;
+    private final boolean canClose_;
     private final OutputStream out_;
     private final IncomingHandler handler_;
     private final IncomingThread thread_ = new IncomingThread();
     private int batchCounter_ = 0;
 
-    public IOIOProtocol(InputStream in, OutputStream out, IncomingHandler handler) {
+    public IOIOProtocol(InputStream in, boolean canClose, OutputStream out, IncomingHandler handler) {
         in_ = in;
+        canClose_ = canClose;
         out_ = out;
         handler_ = handler;
         thread_.start();
@@ -949,7 +951,8 @@ class IOIOProtocol {
                 Log.e(TAG, "Protocol error: ", new ProtocolError(e));
             } finally {
                 try {
-                    in_.close();
+                    if (canClose_)
+                        in_.close();
                 } catch (IOException e) {
                 }
                 handler_.handleConnectionLost();
