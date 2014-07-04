@@ -120,6 +120,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 						throw new ConnectionLostException();
 					}
 					protocol_ = new IOIOProtocol(connection_.getInputStream(),
+								     connection_.canClose(),
 							connection_.getOutputStream(), incomingState_);
 					// Once this block exits, a disconnect will also involve
 					// softClose().
