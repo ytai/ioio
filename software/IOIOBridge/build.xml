@@ -7,8 +7,8 @@
 	<property name="libdir" value="../IOIOLib/target/pc/lib"/>
     <path id="IOIOBridge.classpath">
         <pathelement location="bin"/>
-        <pathelement location="${libdir}/jna-4.0.0.jar"/>
-        <pathelement location="${libdir}/purejavacomm-0.0.21.jar"/>
+        <pathelement location="${libdir}/jna-4.1.0.jar"/>
+        <pathelement location="${libdir}/purejavacomm-0.0.22.jar"/>
     </path>
 		<target name="init">
 		<mkdir dir="bin" />
@@ -35,10 +35,10 @@
 		<jar destfile="bin/ioiobridge.jar" basedir="bin/classes">
 			<manifest>
 				<attribute name="Main-Class" value="ioio.bridge.Main" />
-				<attribute name="Class-Path" value="./ jna-4.0.0.jar purejavacomm-0.0.21.jar" />
+				<attribute name="Class-Path" value="./ jna-4.1.0.jar purejavacomm-0.0.22.jar" />
 			</manifest>
-			<zipgroupfileset dir="../IOIOLib/target/pc/lib" includes="jna-4.0.0.jar" />
-			<zipgroupfileset dir="../IOIOLib/target/pc/lib" includes="purejavacomm-0.0.21.jar" />
+			<zipgroupfileset dir="${libdir}" includes="jna-4.1.0.jar" />
+			<zipgroupfileset dir="${libdir}" includes="purejavacomm-0.0.22.jar" />
 		</jar>
 	</target>
 	<target depends="jar" name="zip">
