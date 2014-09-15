@@ -22,7 +22,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws InterruptedException,
 			IOException {
-		System.out.println("IOIO Emulator Bridge, V1.01");
+		System.out.println("IOIO Emulator Bridge, V1.02");
 		if (args.length != 1) {
 			System.err.println("Usage: java -jar bridge.jar <serial_port>");
 			System.err.println("Don't forget to first run:");
