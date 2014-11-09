@@ -49,7 +49,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Typical usage:
  * 
  * <pre>
- * DigitalOutput led = ioio.openDigitalInput(2);  // LED anode on pin 2.
+ * DigitalOutput led = ioio.openDigitalOutput(2);  // LED anode on pin 2.
  * led.write(true);  // turn LED on.
  * ...
  * led.close();  // pin 2 can now be used for something else.
