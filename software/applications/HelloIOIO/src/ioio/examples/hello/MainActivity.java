@@ -4,8 +4,11 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.spi.Logger;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.IOIOLooperAlt;
+import ioio.lib.util.IOIOConnectionManager.Thread;
 import ioio.lib.util.android.IOIOActivity;
 import android.content.Context;
 import android.os.Bundle;
@@ -32,6 +35,7 @@ public class MainActivity extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		button_ = (ToggleButton) findViewById(R.id.button);
+		Logger.log.i("ANDROID","CHECK THIS OUT NOW I CAN LOG ON BOTH DESKTOP APPS AND ANDROIDS USING THIS CLASS");
 	}
 
 	/**
@@ -54,8 +58,10 @@ public class MainActivity extends IOIOActivity {
 		 *
 		 * @see ioio.lib.util.IOIOLooper#setup()
 		 */
+
 		@Override
-		protected void setup() throws ConnectionLostException {
+		protected void setup() throws ConnectionLostException,
+				InterruptedException {
 			showVersions(ioio_, "IOIO connected!");
 			led_ = ioio_.openDigitalOutput(0, true);
 			enableUi(true);
@@ -67,7 +73,7 @@ public class MainActivity extends IOIOActivity {
 		 * @throws ConnectionLostException
 		 *             When IOIO connection is lost.
 		 * @throws InterruptedException
-		 * 				When the IOIO thread has been interrupted.
+		 *             When the IOIO thread has been interrupted.
 		 *
 		 * @see ioio.lib.util.IOIOLooper#loop()
 		 */
@@ -89,7 +95,8 @@ public class MainActivity extends IOIOActivity {
 		}
 
 		/**
-		 * Called when the IOIO is connected, but has an incompatible firmware version.
+		 * Called when the IOIO is connected, but has an incompatible firmware
+		 * version.
 		 *
 		 * @see ioio.lib.util.IOIOLooper#incompatible(IOIO)
 		 */
@@ -97,7 +104,39 @@ public class MainActivity extends IOIOActivity {
 		public void incompatible() {
 			showVersions(ioio_, "Incompatible firmware version!");
 		}
-}
+	}
+
+	//alternative ioio Looper class use whatever you like
+	class Looper2 extends IOIOLooperAlt {
+		private DigitalOutput led_;
+
+		@Override
+		public void setup(IOIO ioio) throws ConnectionLostException,
+				InterruptedException {
+			showVersions(ioio, "IOIO connected!");
+			led_ = ioio.openDigitalOutput(0, true);
+			enableUi(true);
+		}
+
+		@Override
+		protected void loop(IOIO ioio) throws ConnectionLostException,
+				InterruptedException {
+			led_.write(!button_.isChecked());
+			Thread.sleep(100);
+		}
+
+		@Override
+		protected void disconnected(IOIO ioio) {
+			enableUi(false);
+			toast("IOIO disconnected");
+		}
+
+		@Override
+		public void incompatible(IOIO ioio) {
+			showVersions(ioio, "Incompatible firmware version!");
+		}
+
+	}
 
 	/**
 	 * A method to create our IOIO thread.
@@ -106,16 +145,14 @@ public class MainActivity extends IOIOActivity {
 	 */
 	@Override
 	protected IOIOLooper createIOIOLooper() {
-		return new Looper();
+		//use either the Looper or Looper2
+		return new Looper2();
 	}
 
 	private void showVersions(IOIO ioio, String title) {
-		toast(String.format("%s\n" +
-				"IOIOLib: %s\n" +
-				"Application firmware: %s\n" +
-				"Bootloader firmware: %s\n" +
-				"Hardware: %s",
-				title,
+		toast(String.format("%s\n" + "IOIOLib: %s\n"
+				+ "Application firmware: %s\n" + "Bootloader firmware: %s\n"
+				+ "Hardware: %s", title,
 				ioio.getImplVersion(VersionType.IOIOLIB_VER),
 				ioio.getImplVersion(VersionType.APP_FIRMWARE_VER),
 				ioio.getImplVersion(VersionType.BOOTLOADER_VER),
@@ -135,7 +172,8 @@ public class MainActivity extends IOIOActivity {
 	private int numConnected_ = 0;
 
 	private void enableUi(final boolean enable) {
-		// This is slightly trickier than expected to support a multi-IOIO use-case.
+		// This is slightly trickier than expected to support a multi-IOIO
+		// use-case.
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {

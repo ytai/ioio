@@ -3,6 +3,7 @@ package ioio.examples.hello_swing;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.spi.Logger;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.pc.IOIOSwingApp;
@@ -32,6 +33,7 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener {
 	@Override
 	protected Window createMainWindow(String args[]) {
 		// Use native look and feel.
+		Logger.log.i("DESKTOP", "CHECK THIS OUT NOW I CAN LOG ON BOTH DESKTOP APPS AND ANDROIDS USING THIS CLASS");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -65,7 +67,7 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener {
 			private DigitalOutput led_;
 
 			@Override
-			protected void setup() throws ConnectionLostException,
+			public void setup() throws ConnectionLostException,
 					InterruptedException {
 				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
 			}
