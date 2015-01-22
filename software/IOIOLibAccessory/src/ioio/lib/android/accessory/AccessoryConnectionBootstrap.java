@@ -269,7 +269,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		public void disconnect() {
 			synchronized (AccessoryConnectionBootstrap.this) {
 				instanceState_ = InstanceState.DEAD;
-				AccessoryConnectionBootstrap.this.notifyAll();
+				AccessoryConnectionBootstrap.this.close();
 			}
 		}
 
