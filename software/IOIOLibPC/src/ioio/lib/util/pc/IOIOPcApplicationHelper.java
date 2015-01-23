@@ -59,10 +59,10 @@ import ioio.lib.util.IOIOLooperProvider;
 public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implements Logger.ILogger {
 	protected int logLevel = Logger.LOG_INFO;
 
-	/*static {
+	static {
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] { "ioio.lib.pc.SerialPortIOIOConnectionBootstrap" });
-	}*/
+	}
 
 	private final IOIOConnectionManager manager_ = new IOIOConnectionManager(
 			this);
@@ -70,8 +70,6 @@ public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implement
 	public IOIOPcApplicationHelper(IOIOLooperProvider provider) {
 		super(provider);
 		Logger.log = this;
-		IOIOConnectionRegistry
-		.addBootstraps(new String[] { "ioio.lib.pc.SerialPortIOIOConnectionBootstrap" });
 	}
 
 	public void start() {

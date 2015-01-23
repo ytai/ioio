@@ -69,15 +69,9 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper impl
 		super(provider);
 		Logger.log = this;
 		manager_ = new AndroidIOIOConnectionManager(wrapper, this);
-		IOIOConnectionRegistry
-		.addBootstraps(new String[] {
-				"ioio.lib.impl.SocketIOIOConnectionBootstrap",
-				"ioio.lib.android.accessory.AccessoryConnectionBootstrap",
-				"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
-				"ioio.lib.android.device.DeviceConnectionBootstrap"});
 	}
 
-/*	static {
+	static {
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] {
 						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
@@ -85,7 +79,7 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper impl
 						"ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
 						"ioio.lib.android.device.DeviceConnectionBootstrap"});
 	}
-*/
+
 	public void create() {
 		manager_.create();
 	}
