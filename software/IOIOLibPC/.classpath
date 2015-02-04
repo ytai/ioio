@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/purejavacomm-0.0.22.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/IOIOCoreLib"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/IOIOLibCore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
