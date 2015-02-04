@@ -30,7 +30,6 @@
 package ioio.lib.util.pc;
 
 import ioio.lib.spi.Logger;
-import ioio.lib.spi.Logger.ApplicationType;
 import ioio.lib.util.IOIOBaseApplicationHelper;
 import ioio.lib.util.IOIOConnectionManager;
 import ioio.lib.util.IOIOConnectionRegistry;
@@ -165,10 +164,4 @@ public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implement
 	public int getLogLevel() {
 		return this.logLevel;
 	}
-
-	@Override
-	public ApplicationType getType() {
-		return ApplicationType.Desktop;
-	}
-
 }

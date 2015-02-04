@@ -1,9 +1,6 @@
 package ioio.lib.spi;
 
 public class Logger {
-	public enum ApplicationType {
-		Android, Desktop
-	}
 
 	public static final int LOG_VERBOSE = 5;
 	public static final int LOG_WARN = 4;
@@ -54,12 +51,6 @@ public class Logger {
 
 		/** Gets the log level. */
 		public int getLogLevel();
-
-		/**
-		 * @return what {@link ApplicationType} this application has, e.g.
-		 *         Android or Desktop
-		 */
-		public ApplicationType getType();
 
 	}
 

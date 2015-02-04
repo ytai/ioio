@@ -29,7 +29,6 @@
 package ioio.lib.util.android;
 
 import ioio.lib.spi.Logger;
-import ioio.lib.spi.Logger.ApplicationType;
 import ioio.lib.util.IOIOBaseApplicationHelper;
 import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.IOIOLooper;
@@ -179,11 +178,6 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper impl
 	@Override
 	public int getLogLevel() {
 		return this.logLevel;
-	}
-
-	@Override
-	public ApplicationType getType() {
-		return ApplicationType.Android;
 	}
 
 }
