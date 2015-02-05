@@ -34,7 +34,6 @@ import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
 import android.content.ContextWrapper;
-import android.util.Log;
 
 /**
  * A helper class for creating different kinds of IOIO based applications on
@@ -59,18 +58,17 @@ import android.util.Log;
  * <li>{@link #stop()} will make sure proper cleanup and disconnection is done.</li>
  * </ul>
  */
-public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper implements Logger.ILogger {
+public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
 	private final AndroidIOIOConnectionManager manager_;
-	protected int logLevel = Logger.LOG_INFO;
 
 	public IOIOAndroidApplicationHelper(ContextWrapper wrapper,
 			IOIOLooperProvider provider) {
 		super(provider);
-		Logger.log = this;
 		manager_ = new AndroidIOIOConnectionManager(wrapper, this);
 	}
 
 	static {
+		Logger.log = Logger.addLogBootstrap("ioio.lib.util.android.ConcreteLog");
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] {
 						"ioio.lib.impl.SocketIOIOConnectionBootstrap",
@@ -98,86 +96,4 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper impl
 	public void restart() {
 		manager_.restart();
 	}
-	
-	@Override
-	public void i(String tag, String message) {
-		if (logLevel >= Logger.LOG_INFO) {
-			Log.i(tag, message);
-		}
-	}
-
-	@Override
-	public void i(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_INFO) {
-			Log.i(tag, message, exception );
-		}	
-	}
-
-	@Override
-	public void e(String tag, String message) {
-		if (logLevel >= Logger.LOG_ERROR) {
-			Log.e(tag, message);
-		}	
-	}
-
-	@Override
-	public void e(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_ERROR) {
-			Log.e(tag, message, exception );
-		}	
-	}
-
-	@Override
-	public void d(String tag, String message) {
-		if (logLevel >= Logger.LOG_DEBUG) {
-			Log.d(tag, message);
-		}
-		
-	}
-
-	@Override
-	public void d(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_DEBUG) {
-			Log.d(tag, message, exception);
-		}
-	}
-
-	@Override
-	public void w(String tag, String message) {
-		if (logLevel >= Logger.LOG_WARN) {
-			Log.w(tag, message);
-		}
-	}
-
-	@Override
-	public void w(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_WARN) {
-			Log.w(tag, message, exception);
-		}
-	}
-
-	@Override
-	public void v(String tag, String message) {
-		if (logLevel >= Logger.LOG_VERBOSE) {
-			Log.v(tag, message);
-		}
-	}
-
-	@Override
-	public void v(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_VERBOSE) {
-			Log.v(tag, message, exception);
-		}
-	}
-
-	@Override
-	public void setLogLevel(int logLevel) {
-		this.logLevel = logLevel;
-	}
-
-	@Override
-	public int getLogLevel() {
-		return this.logLevel;
-	}
-
 }

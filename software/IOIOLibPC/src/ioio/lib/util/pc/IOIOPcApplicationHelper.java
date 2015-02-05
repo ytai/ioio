@@ -55,10 +55,10 @@ import ioio.lib.util.IOIOLooperProvider;
  * <li>When the application exits, call {@link #stop()}, which will disconnect
  * all open connections and will abort and join all the threads.</li>
  */
-public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implements Logger.ILogger {
-	protected int logLevel = Logger.LOG_INFO;
+public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper {
 
 	static {
+		Logger.log = Logger.addLogBootstrap("ioio.lib.util.pc.ConcreteLog");
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] { "ioio.lib.pc.SerialPortIOIOConnectionBootstrap" });
 	}
@@ -68,7 +68,6 @@ public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implement
 
 	public IOIOPcApplicationHelper(IOIOLooperProvider provider) {
 		super(provider);
-		Logger.log = this;
 	}
 
 	public void start() {
@@ -77,91 +76,5 @@ public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper implement
 
 	public void stop() {
 		manager_.stop();
-	}
-
-	@Override
-	public void i(String tag, String message) {
-		if (logLevel >= Logger.LOG_INFO) {
-			System.out.println(tag + ": " + message);
-		}
-	}
-
-	@Override
-	public void i(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_INFO) {
-			System.out.println(tag + ": " + message);
-			exception.printStackTrace(System.out);
-		}
-	}
-
-	@Override
-	public void e(String tag, String message) {
-		if (logLevel >= Logger.LOG_ERROR) {
-			System.err.println(tag + ": " + message);
-		}
-	}
-
-	@Override
-	public void e(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_ERROR) {
-			System.err.println(tag + ": " + message);
-			exception.printStackTrace(System.err);
-		}
-	}
-
-	@Override
-	public void d(String tag, String message) {
-		if (logLevel >= Logger.LOG_DEBUG) {
-			System.out.println(tag + ": " + message);
-		}
-
-	}
-
-	@Override
-	public void d(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_DEBUG) {
-			System.out.println(tag + ": " + message);
-			exception.printStackTrace(System.out);
-		}
-	}
-
-	@Override
-	public void w(String tag, String message) {
-		if (logLevel >= Logger.LOG_WARN) {
-			System.out.println(tag + ": " + message);
-		}
-	}
-
-	@Override
-	public void w(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_WARN) {
-			System.out.println(tag + ": " + message);
-			exception.printStackTrace(System.out);
-		}
-	}
-
-	@Override
-	public void v(String tag, String message) {
-		if (logLevel >= Logger.LOG_VERBOSE) {
-			System.out.println(tag + ": " + message);
-		}
-	}
-
-	@Override
-	public void v(String tag, String message, Throwable exception) {
-		if (logLevel >= Logger.LOG_VERBOSE) {
-			System.out.println(tag + ": " + message);
-			exception.printStackTrace(System.out);
-		}
-	}
-
-	@Override
-	public void setLogLevel(int logLevel) {
-		this.logLevel = logLevel;
-	}
-
-	@Override
-	public int getLogLevel() {
-		return this.logLevel;
 	}
 }

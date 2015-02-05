@@ -55,4 +55,18 @@ public class Logger {
 	}
 
 	public static ILogger log;
+	
+	public static ILogger addLogBootstrap(String classPath)
+	{
+		try {
+			Logger.log = (ILogger) Class.forName(classPath).newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return Logger.log;
+	}
 }
