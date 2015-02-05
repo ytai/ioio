@@ -67,7 +67,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
 	private enum InstanceState {
 		INIT, CONNECTED, DEAD
-	};
+	}
 
 	private ContextWrapper activity_;
 	private Adapter adapter_;
