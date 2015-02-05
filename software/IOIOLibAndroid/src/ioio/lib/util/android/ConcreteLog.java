@@ -1,4 +1,4 @@
-package ioio.lib.util;
+package ioio.lib.util.android;
 
 import android.util.Log;
 import ioio.lib.spi.Logger;
