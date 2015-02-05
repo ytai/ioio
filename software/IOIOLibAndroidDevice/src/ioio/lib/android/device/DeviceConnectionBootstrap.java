@@ -505,7 +505,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	private enum InstanceState {
 		INIT, CONNECTED, DEAD
-	};
+	}
 
 	/**
 	 * The actual {@link IOIOConnection} implementation.

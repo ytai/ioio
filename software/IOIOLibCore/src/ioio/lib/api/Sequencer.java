@@ -731,7 +731,7 @@ public interface Sequencer extends Closeable {
 	 *
 	 * @return The number of available slots in the cue FIFO.
 	 */
-	public int available() throws ConnectionLostException;;
+	public int available() throws ConnectionLostException;
 
 	/**
 	 * Get the most recent execution event.

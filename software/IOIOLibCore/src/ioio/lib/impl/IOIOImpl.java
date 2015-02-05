@@ -58,7 +58,7 @@ import java.io.IOException;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
 	private static class SyncListener implements IncomingState.SyncListener, DisconnectListener {
-		enum State { WAITING, SIGNALED, DISCONNECTED };
+		enum State { WAITING, SIGNALED, DISCONNECTED }
 		private State state_ = State.WAITING;
 
 		@Override
