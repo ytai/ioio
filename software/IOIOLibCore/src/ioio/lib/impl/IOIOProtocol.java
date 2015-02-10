@@ -33,7 +33,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.Uart;
 import ioio.lib.api.TwiMaster.Rate;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -687,7 +687,7 @@ class IOIOProtocol {
 				// Log.v(TAG, "received: 0x" + Integer.toHexString(b));
 				return b;
 			} catch (IOException e) {
-				Logger.log.i(TAG, "IOIO disconnected");
+				Log.i(TAG, "IOIO disconnected");
 				throw e;
 			}
 		}
@@ -891,7 +891,7 @@ class IOIOProtocol {
 						break;
 
 					case SOFT_CLOSE:
-						Logger.log.d(TAG, "Received soft close.");
+						Log.d(TAG, "Received soft close.");
 						throw new IOException("Soft close");
 
 					case CAPSENSE_REPORT:
@@ -934,11 +934,11 @@ class IOIOProtocol {
 				// This is the proper way to close -- nothing's wrong.
 			} catch (ProtocolError e) {
 				// This indicates invalid data coming in -- report the error.
-				Logger.log.e(TAG, "Protocol error: ", e);
+				Log.e(TAG, "Protocol error: ", e);
 			} catch (Exception e) {
 				// This also probably indicates invalid data coming in, which has been detected by
 				// the command handler -- report the error.
-				Logger.log.e(TAG, "Protocol error: ", new ProtocolError(e));
+				Log.e(TAG, "Protocol error: ", new ProtocolError(e));
 			} finally {
 				try {
 					in_.close();

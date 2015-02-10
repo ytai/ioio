@@ -28,7 +28,6 @@
  */
 package ioio.lib.util.android;
 
-import ioio.lib.spi.Logger;
 import ioio.lib.util.IOIOBaseApplicationHelper;
 import ioio.lib.util.IOIOConnectionRegistry;
 import ioio.lib.util.IOIOLooper;
@@ -68,7 +67,6 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
 	}
 
 	static {
-		Logger.log = Logger.addLogBootstrap("ioio.lib.util.android.ConcreteLog");
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] {
 						"ioio.lib.impl.SocketIOIOConnectionBootstrap",

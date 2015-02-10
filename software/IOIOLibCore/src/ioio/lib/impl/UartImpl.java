@@ -33,7 +33,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledOutputStream.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +65,7 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
 		try {
 			ioio_.protocol_.uartData(uart_.id, size, data);
 		} catch (IOException e) {
-			Logger.log.e("UartImpl", e.getMessage());
+			Log.e("UartImpl", e.getMessage());
 		}
 	}
 

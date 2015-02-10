@@ -34,7 +34,7 @@ import ioio.lib.impl.FlowControlledPacketSender.Packet;
 import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -138,7 +138,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 		try {
 			outgoing_.write(p);
 		} catch (IOException e) {
-			Logger.log.e("SpiMasterImpl", "Exception caught", e);
+			Log.e("SpiMasterImpl", "Exception caught", e);
 		}
 		return result;
 	}
@@ -193,7 +193,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
 			ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_,
 					p.totalSize_, p.readSize_);
 		} catch (IOException e) {
-			Logger.log.e("SpiImpl", "Caught exception", e);
+			Log.e("SpiImpl", "Caught exception", e);
 		}
 	}
 

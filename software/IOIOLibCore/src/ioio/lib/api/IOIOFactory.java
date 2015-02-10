@@ -30,7 +30,7 @@ package ioio.lib.api;
 
 import ioio.lib.impl.IOIOImpl;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 import ioio.lib.util.IOIOConnectionRegistry;
 
 import java.util.Collection;
@@ -71,7 +71,7 @@ public class IOIOFactory {
 		try {
 			return create(factories.iterator().next().createConnection());
 		} catch (NoSuchElementException e) {
-			Logger.log.e(TAG, "No connection is available. This shouldn't happen.");
+			Log.e(TAG, "No connection is available. This shouldn't happen.");
 			throw e;
 		}
 	}

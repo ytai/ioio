@@ -5,7 +5,7 @@ import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.api.exception.IncompatibilityException;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 import ioio.lib.util.IOIOConnectionManager.IOIOConnectionThreadProvider;
 import ioio.lib.util.IOIOConnectionManager.Thread;
 
@@ -50,7 +50,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 								.createConnection());
 					}
 				} catch (Exception e) {
-					Logger.log.e(TAG, "Failed to create IOIO, aborting IOIOThread!");
+					Log.e(TAG, "Failed to create IOIO, aborting IOIOThread!");
 					return;
 				}
 				// if we got here, we have a ioio_!
@@ -65,12 +65,12 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
 				} catch (IncompatibilityException e) {
-					Logger.log.e(TAG, "Incompatible IOIO firmware", e);
+					Log.e(TAG, "Incompatible IOIO firmware", e);
 					looper_.incompatible(ioio_);
 					// nothing to do - just wait until physical
 					// disconnection
 				} catch (Exception e) {
-					Logger.log.e(TAG, "Unexpected exception caught", e);
+					Log.e(TAG, "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -87,7 +87,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 					}
 				}
 			}
-			Logger.log.d(TAG, "IOIOThread is exiting");
+			Log.d(TAG, "IOIOThread is exiting");
 		}
 
 		/*

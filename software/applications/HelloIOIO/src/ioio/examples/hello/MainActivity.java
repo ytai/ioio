@@ -4,7 +4,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperAlt;
@@ -35,7 +35,7 @@ public class MainActivity extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		button_ = (ToggleButton) findViewById(R.id.button);
-		Logger.log.i("ANDROID","CHECK THIS OUT NOW I CAN LOG ON BOTH DESKTOP APPS AND ANDROIDS USING THIS CLASS");
+		Log.i("ANDROID","CHECK THIS OUT NOW I CAN LOG ON BOTH DESKTOP APPS AND ANDROIDS USING THIS CLASS");
 	}
 
 	/**

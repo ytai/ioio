@@ -34,7 +34,7 @@ import ioio.lib.impl.FlowControlledPacketSender.Packet;
 import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -135,7 +135,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
 			try {
 				outgoing_.write(p);
 			} catch (IOException e) {
-				Logger.log.e("SpiMasterImpl", "Exception caught", e);
+				Log.e("SpiMasterImpl", "Exception caught", e);
 			}
 		}
 		return result;
@@ -180,7 +180,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
 			ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_,
 					p.writeSize_, p.readSize_, p.writeData_);
 		} catch (IOException e) {
-			Logger.log.e("TwiImpl", "Caught exception", e);
+			Log.e("TwiImpl", "Caught exception", e);
 		}
 	}
 }

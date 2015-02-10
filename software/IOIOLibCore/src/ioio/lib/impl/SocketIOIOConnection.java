@@ -30,7 +30,7 @@ package ioio.lib.impl;
 
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -62,13 +62,13 @@ public class SocketIOIOConnection implements IOIOConnection {
 				if (disconnect_) {
 					throw new ConnectionLostException();
 				}
-				Logger.log.v(TAG, "Creating server socket");
+				Log.v(TAG, "Creating server socket");
 				server_ = new ServerSocket(port_);
 				server_owned_by_connect_ = false;
 			}
-			Logger.log.v(TAG, "Waiting for TCP connection");
+			Log.v(TAG, "Waiting for TCP connection");
 			socket_ = server_.accept();
-			Logger.log.v(TAG, "TCP connected");
+			Log.v(TAG, "TCP connected");
 			inputStream_ = new FixedReadBufferedInputStream(socket_.getInputStream(), 64);
 			outputStream_ = new BufferedOutputStream(socket_.getOutputStream(), 1024);
 			synchronized (this) {
@@ -85,18 +85,18 @@ public class SocketIOIOConnection implements IOIOConnection {
 					try {
 						server_.close();
 					} catch (IOException e1) {
-						Logger.log.e(TAG, "Unexpected exception", e1);
+						Log.e(TAG, "Unexpected exception", e1);
 					}
 				}
 				if (socket_owned_by_connect_ && socket_ != null) {
 					try {
 						socket_.close();
 					} catch (IOException e1) {
-						Logger.log.e(TAG, "Unexpected exception", e1);
+						Log.e(TAG, "Unexpected exception", e1);
 					}
 				}
 				if (e instanceof SocketException && e.getMessage().equals("Permission denied")) {
-					Logger.log.e(TAG, "Did you forget to declare uses-permission of android.permission.INTERNET?");
+					Log.e(TAG, "Did you forget to declare uses-permission of android.permission.INTERNET?");
 				}
 				throw new ConnectionLostException(e);
 			}
@@ -108,13 +108,13 @@ public class SocketIOIOConnection implements IOIOConnection {
 		if (disconnect_) {
 			return;
 		}
-		Logger.log.v(TAG, "Client initiated disconnect");
+		Log.v(TAG, "Client initiated disconnect");
 		disconnect_ = true;
 		if (!server_owned_by_connect_) {
 			try {
 				server_.close();
 			} catch (IOException e1) {
-				Logger.log.e(TAG, "Unexpected exception", e1);
+				Log.e(TAG, "Unexpected exception", e1);
 			}
 		}
 		if (!socket_owned_by_connect_) {

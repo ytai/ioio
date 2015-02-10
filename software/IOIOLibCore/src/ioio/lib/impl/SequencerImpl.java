@@ -36,7 +36,7 @@ import ioio.lib.impl.IncomingState.SequencerEventListener;
 import ioio.lib.impl.InterruptibleQueue.Nudged;
 import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.impl.ResourceManager.ResourceType;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -350,10 +350,10 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 					} catch (ConnectionLostException cause) {
 						throw cause;
 					} catch (Throwable cause) {
-						Logger.log.e(TAG, "Unexpected exception caught.", e);
+						Log.e(TAG, "Unexpected exception caught.", e);
 					}
 				} catch (Exception e) {
-					Logger.log.e(TAG, "Unexpected exception caught.", e);
+					Log.e(TAG, "Unexpected exception caught.", e);
 				}
 			}
 		}

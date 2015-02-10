@@ -52,7 +52,7 @@ import ioio.lib.impl.IOIOProtocol.PwmScale;
 import ioio.lib.impl.IncomingState.DisconnectListener;
 import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.impl.ResourceManager.ResourceType;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.io.IOException;
 
@@ -110,10 +110,10 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 			throw new ConnectionLostException();
 		}
 		addDisconnectListener(this);
-		Logger.log.d(TAG, "Waiting for IOIO connection");
+		Log.d(TAG, "Waiting for IOIO connection");
 		try {
 			try {
-				Logger.log.v(TAG, "Waiting for underlying connection");
+				Log.v(TAG, "Waiting for underlying connection");
 				connection_.waitForConnect();
 				synchronized (this) {
 					if (disconnect_) {
@@ -128,28 +128,28 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				incomingState_.handleConnectionLost();
 				throw e;
 			}
-			Logger.log.v(TAG, "Waiting for handshake");
+			Log.v(TAG, "Waiting for handshake");
 			incomingState_.waitConnectionEstablished();
 			initBoard();
-			Logger.log.v(TAG, "Querying for required interface ID");
+			Log.v(TAG, "Querying for required interface ID");
 			checkInterfaceVersion();
-			Logger.log.v(TAG, "Required interface ID is supported");
+			Log.v(TAG, "Required interface ID is supported");
 			state_ = State.CONNECTED;
-			Logger.log.i(TAG, "IOIO connection established");
+			Log.i(TAG, "IOIO connection established");
 		} catch (ConnectionLostException e) {
-			Logger.log.d(TAG, "Connection lost / aborted");
+			Log.d(TAG, "Connection lost / aborted");
 			state_ = State.DEAD;
 			throw e;
 		} catch (IncompatibilityException e) {
 			throw e;
 		} catch (InterruptedException e) {
-			Logger.log.e(TAG, "Unexpected exception", e);
+			Log.e(TAG, "Unexpected exception", e);
 		}
 	}
 
 	@Override
 	public synchronized void disconnect() {
-		Logger.log.d(TAG, "Client requested disconnect.");
+		Log.d(TAG, "Client requested disconnect.");
 		if (disconnect_) {
 			return;
 		}
@@ -159,7 +159,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 				protocol_.softClose();
 			}
 		} catch (IOException e) {
-			Logger.log.e(TAG, "Soft close failed", e);
+			Log.e(TAG, "Soft close failed", e);
 		}
 		connection_.disconnect();
 	}
@@ -170,7 +170,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		if (disconnect_) {
 			return;
 		}
-		Logger.log.d(TAG, "Physical disconnect.");
+		Log.d(TAG, "Physical disconnect.");
 		disconnect_ = true;
 		// The IOIOConnection doesn't necessarily know about the disconnect
 		connection_.disconnect();
@@ -204,7 +204,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		}
 		if (!incomingState_.waitForInterfaceSupport()) {
 			state_ = State.INCOMPATIBLE;
-			Logger.log.e(TAG, "Required interface ID is not supported");
+			Log.e(TAG, "Required interface ID is not supported");
 			throw new IncompatibilityException(
 					"IOIO firmware does not support required firmware: "
 							+ new String(REQUIRED_INTERFACE_ID));

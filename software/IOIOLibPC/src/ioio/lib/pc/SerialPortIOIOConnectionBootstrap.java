@@ -32,7 +32,7 @@ package ioio.lib.pc;
 import ioio.lib.api.IOIOConnection;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -51,7 +51,7 @@ public class SerialPortIOIOConnectionBootstrap implements
 	public void getFactories(Collection<IOIOConnectionFactory> result) {
 		Collection<String> ports = getExplicitPorts();
 		if (ports == null) {
-			Logger.log.w(TAG, "ioio.SerialPorts not defined.\n"
+			Log.w(TAG, "ioio.SerialPorts not defined.\n"
 					+ "Will attempt to enumerate all possible ports (slow) "
 					+ "and connect to a IOIO over each one.\n"
 					+ "To fix, add the -Dioio.SerialPorts=xyz argument to "
@@ -60,7 +60,7 @@ public class SerialPortIOIOConnectionBootstrap implements
 			ports = getAllOpenablePorts();
 		}
 		for (final String port : ports) {
-			Logger.log.d(TAG, "Adding serial port " + port);
+			Log.d(TAG, "Adding serial port " + port);
 			result.add(new IOIOConnectionFactory() {
 				@Override
 				public String getType() {
@@ -89,10 +89,10 @@ public class SerialPortIOIOConnectionBootstrap implements
 			final CommPortIdentifier identifier = identifiers.nextElement();
 			if (identifier.getPortType() == CommPortIdentifier.PORT_SERIAL) {
 				if (checkIdentifier(identifier)) {
-					Logger.log.d(TAG, "Adding serial port " + identifier.getName());
+					Log.d(TAG, "Adding serial port " + identifier.getName());
 					result.add(identifier.getName());
 				} else {
-					Logger.log.w(TAG, "Serial port " + identifier.getName()
+					Log.w(TAG, "Serial port " + identifier.getName()
 							+ " cannot be opened. Not adding.");
 				}
 			}

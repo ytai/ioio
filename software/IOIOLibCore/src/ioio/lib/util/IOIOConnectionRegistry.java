@@ -32,7 +32,7 @@ import ioio.lib.api.IOIOConnection;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 import ioio.lib.spi.NoRuntimeSupportException;
 
 import java.util.Collection;
@@ -107,19 +107,18 @@ public class IOIOConnectionRegistry {
 	}
 
 	private static void addBootstrap(String className) {
-		Logger.log.setLogLevel(Logger.LOG_DEBUG);
 		try {
 			Class<? extends IOIOConnectionBootstrap> bootstrapClass = Class
 					.forName(className).asSubclass(
 							IOIOConnectionBootstrap.class);
 			bootstraps_.add(bootstrapClass.newInstance());
-			Logger.log.d(TAG, "Successfully added bootstrap class: " + className);
+			Log.d(TAG, "Successfully added bootstrap class: " + className);
 		} catch (ClassNotFoundException e) {
-			Logger.log.d(TAG, "Bootstrap class not found: " + className + ". Not adding");
+			Log.d(TAG, "Bootstrap class not found: " + className + ". Not adding");
 		} catch (NoRuntimeSupportException e) {
-			Logger.log.d(TAG, "No runtime support for: " + className + ". Not adding.");
+			Log.d(TAG, "No runtime support for: " + className + ". Not adding.");
 		} catch (Throwable e) {
-			Logger.log.d(TAG, "Exception caught while attempting to initialize connection factory " + e.toString());			
+			Log.d(TAG, "Exception caught while attempting to initialize connection factory " + e.toString());			
 		}
 	}
 

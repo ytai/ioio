@@ -32,7 +32,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.Board.Hardware;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
 import ioio.lib.impl.IOIOProtocol.SequencerEvent;
-import ioio.lib.spi.Logger;
+import ioio.lib.spi.Log;
 
 import java.util.HashSet;
 import java.util.List;
@@ -352,13 +352,13 @@ class IncomingState implements IncomingHandler {
 		bootloaderId_ = new String(bootloaderId);
 		firmwareId_ = new String(firmwareId);
 
-		Logger.log.i(TAG, "IOIO Connection established. Hardware ID: " + hardwareId_
+		Log.i(TAG, "IOIO Connection established. Hardware ID: " + hardwareId_
 				+ " Bootloader ID: " + bootloaderId_ + " Firmware ID: "
 				+ firmwareId_);
 		try {
 			board_ = Board.valueOf(hardwareId_);
 		} catch (IllegalArgumentException e) {
-			Logger.log.e(TAG, "Unknown board: " + hardwareId_);
+			Log.e(TAG, "Unknown board: " + hardwareId_);
 		}
 		if (board_ != null) {
 			final Hardware hw = board_.hardware;

@@ -29,7 +29,6 @@
 
 package ioio.lib.util.pc;
 
-import ioio.lib.spi.Logger;
 import ioio.lib.util.IOIOBaseApplicationHelper;
 import ioio.lib.util.IOIOConnectionManager;
 import ioio.lib.util.IOIOConnectionRegistry;
@@ -58,7 +57,6 @@ import ioio.lib.util.IOIOLooperProvider;
 public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper {
 
 	static {
-		Logger.log = Logger.addLogBootstrap("ioio.lib.util.pc.ConcreteLog");
 		IOIOConnectionRegistry
 				.addBootstraps(new String[] { "ioio.lib.pc.SerialPortIOIOConnectionBootstrap" });
 	}
