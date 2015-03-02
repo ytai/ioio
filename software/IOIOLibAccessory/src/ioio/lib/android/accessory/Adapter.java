@@ -50,7 +50,6 @@ import android.os.ParcelFileDescriptor;
  */
 class Adapter {
 	static abstract class AbstractUsbManager {
-		final String ACTION_USB_ACCESSORY_DETACHED;
 		final String EXTRA_PERMISSION_GRANTED;
 
 		abstract UsbAccessoryInterface[] getAccessoryList();
@@ -63,7 +62,6 @@ class Adapter {
 
 		protected AbstractUsbManager(String action_usb_accessory_detached,
 				String extra_permission_granted) {
-			ACTION_USB_ACCESSORY_DETACHED = action_usb_accessory_detached;
 			EXTRA_PERMISSION_GRANTED = extra_permission_granted;
 		}
 	}
