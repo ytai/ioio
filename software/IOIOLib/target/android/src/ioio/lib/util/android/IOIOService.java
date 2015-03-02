@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -36,7 +36,7 @@ import android.content.Intent;
 
 /**
  * A convenience class for easy creation of IOIO-based services.
- * 
+ *
  * It is used by creating a concrete {@link Service} in your application, which
  * extends this class. This class then takes care of proper creation and
  * abortion of the IOIO connection and of a dedicated thread for IOIO
@@ -99,9 +99,7 @@ public abstract class IOIOService extends Service implements
 			helper_.start();
 			started_ = true;
 		} else {
-			if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
-				helper_.restart();
-			}
+			helper_.restart();
 		}
 	}
 
@@ -147,7 +145,7 @@ public abstract class IOIOService extends Service implements
 	 * IOIO. In multi-IOIO scenarios, where you want to identify which IOIO the
 	 * thread is for, consider overriding
 	 * {@link #createIOIOLooper(String, Object)} instead.
-	 * 
+	 *
 	 * @return An implementation of {@link IOIOLooper}, or <code>null</code> to
 	 *         skip.
 	 */
