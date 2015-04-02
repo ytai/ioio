@@ -13,7 +13,7 @@ And this is [the blog of Ytai](http://ytai-mer.blogspot.com), the inventor of IO
 
 You can purchase a IOIO-OTG board online from:
 - [SeeedStudio](http://www.seeedstudio.com/depot/ioio-otg-for-android-p-1615.html) (**primary manufacturer** - manufacturing, testing and service standards have been inspected).
-- [Sparkfun Electronics](https://www.sparkfun.com/products/11343) (**primary manufacturer** - manufacturing, testing and service standards have been inspected).
+- [Sparkfun Electronics](https://www.sparkfun.com/products/12633) (**primary manufacturer** - manufacturing, testing and service standards have been inspected).
 - [Jaycon Systems](http://www.jayconsystems.com/ioio-otg.html).
 - [LinkSprite](http://linksprite.com/wiki/index.php5?title=IOIO-OTG).
 - [CuteDigi](http://www.cutedigi.com/development-tools/pic/ioio-otg-for-android.html).
