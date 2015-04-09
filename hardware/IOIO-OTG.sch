@@ -15543,7 +15543,7 @@ Standard decoupling cap</description>
 <part name="U1" library="SparkFun-DigitalIC" deviceset="PIC24FXXXDAX06" device="" value="PIC24FJ256GB206"/>
 <part name="C1" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
 <part name="C2" library="SparkFun" deviceset="CAP" device="0402-CAP" value="0.1uF"/>
-<part name="C3" library="SparkFun" deviceset="CAP" device="0402-CAP" value="0.1uF"/>
+<part name="C3" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
 <part name="C4" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
 <part name="C7" library="SparkFun" deviceset="CAP_POL" device="1206" value="10uF"/>
 <part name="P+1" library="SparkFun" deviceset="3.3V" device=""/>
