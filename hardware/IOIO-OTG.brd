@@ -24,7 +24,7 @@
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="3" fill="6" visible="no" active="yes"/>
-<layer number="31" name="tCream" color="7" fill="4" visible="yes" active="yes"/>
+<layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="3" fill="5" visible="no" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
 <layer number="34" name="bFinish" color="3" fill="6" visible="no" active="yes"/>
@@ -243,7 +243,7 @@
 <circle x="48.26" y="29.21" radius="1.1039" width="0.508" layer="22"/>
 <circle x="55.88" y="29.21" radius="1.1039" width="0.508" layer="22"/>
 <circle x="53.34" y="29.21" radius="1.1039" width="0.508" layer="22"/>
-<text x="67.9958" y="7.4676" size="1.016" layer="16" font="vector" ratio="20" rot="SMR270">v21</text>
+<text x="67.9958" y="7.4676" size="1.016" layer="16" font="vector" ratio="20" rot="SMR270">v22</text>
 <wire x1="57.15" y1="30.48" x2="59.69" y2="30.48" width="0.3048" layer="21"/>
 <wire x1="59.69" y1="27.94" x2="59.69" y2="30.48" width="0.3048" layer="21"/>
 <wire x1="59.69" y1="27.94" x2="57.15" y2="27.94" width="0.3048" layer="21"/>
@@ -29303,6 +29303,9 @@
 <text x="5.334" y="26.416" size="1.4224" layer="22" ratio="18" rot="SMR270">www.seeedstudio.com</text>
 <dimension x1="0" y1="30.48" x2="0" y2="0" x3="-4.572" y3="15.24" textsize="0.889" textratio="11" layer="47" unit="inch"/>
 <dimension x1="0" y1="30.48" x2="68.58" y2="30.48" x3="34.29" y3="35.433" textsize="0.889" textratio="11" layer="47" unit="inch"/>
+<text x="35.56" y="-11.43" size="1.778" layer="51" font="vector">Ytai Ben-tsvi</text>
+<text x="16.51" y="-14.224" size="1.778" layer="51" font="vector">Revised by:</text>
+<text x="34.29" y="-14.224" size="1.778" layer="51" font="vector">Aaron Weiss, Pete Lewis</text>
 </plain>
 <libraries>
 <library name="SparkFun">
@@ -29853,11 +29856,6 @@ We've spent an enormous amount of time creating and checking these footprints an
 &lt;br&gt;&lt;br&gt;
 &lt;b&gt;Licensing:&lt;/b&gt; CC v3.0 Share-Alike You are welcome to use this library for commercial purposes. For attribution, we ask that when you begin to sell your device using our footprint, you email us with a link to the product being sold. We want bragging rights that we helped (in a very small part) to create your 8th world wonder. We would like the opportunity to feature your device on our homepage.</description>
 <packages>
-<package name="CREATIVE_COMMONS">
-<text x="-20.32" y="5.08" size="1.778" layer="27">Released under the Creative Commons Attribution Share-Alike 3.0 License</text>
-<text x="0" y="2.54" size="1.778" layer="27">http://creativecommons.org/licenses/by-sa/3.0</text>
-<text x="11.43" y="0" size="1.778" layer="27">Designed by:</text>
-</package>
 <package name="IOIO-OTG-COPPER-EXPOSED">
 <description>IOIO-OTG label with exposed copper</description>
 <rectangle x1="3.715071875" y1="-0.07383125" x2="4.279896875" y2="-0.05618125" layer="1"/>
@@ -33180,6 +33178,11 @@ We've spent an enormous amount of time creating and checking these footprints an
 <vertex x="0.1794" y="-0.4331"/>
 </polygon>
 </package>
+<package name="CREATIVE_COMMONS">
+<text x="-20.32" y="5.08" size="1.778" layer="51" font="vector">Released under the Creative Commons Attribution Share-Alike 4.0 License</text>
+<text x="0" y="2.54" size="1.778" layer="51" font="vector"> https://creativecommons.org/licenses/by-sa/4.0/</text>
+<text x="11.43" y="0" size="1.778" layer="51" font="vector">Designed by:</text>
+</package>
 </packages>
 </library>
 <library name="SparkFun-DigitalIC">
@@ -35082,20 +35085,17 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <class number="0" name="default" width="0" drill="0">
 </class>
 </classes>
-<designrules name="OSHPark *">
-<description language="de">&lt;b&gt;EAGLE Design Rules&lt;/b&gt;
+<designrules name="SparkFun-2-layer *">
+<description language="en">&lt;b&gt;EAGLE Design Rules&lt;/b&gt;
 &lt;p&gt;
-Die Standard-Design-Rules sind so gewählt, dass sie für 
-die meisten Anwendungen passen. Sollte ihre Platine 
-besondere Anforderungen haben, treffen Sie die erforderlichen
-Einstellungen hier und speichern die Design Rules unter 
-einem neuen Namen ab.</description>
-<description language="en">&lt;b&gt;Laen's PCB Order Design Rules&lt;/b&gt;
-&lt;p&gt;
-Please make sure your boards conform to these design rules.</description>
+The default Design Rules have been set to cover
+a wide range of applications. Your particular design
+may have different requirements, so please make the
+necessary adjustments and save your customized
+design rules under a new name.</description>
 <param name="layerSetup" value="(1*16)"/>
-<param name="mtCopper" value="0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm"/>
-<param name="mtIsolate" value="1.5011mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm"/>
+<param name="mtCopper" value="0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm"/>
+<param name="mtIsolate" value="1.5mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm"/>
 <param name="mdWireWire" value="6mil"/>
 <param name="mdWirePad" value="6mil"/>
 <param name="mdWireVia" value="6mil"/>
@@ -35107,12 +35107,12 @@ Please make sure your boards conform to these design rules.</description>
 <param name="mdSmdSmd" value="6mil"/>
 <param name="mdViaViaSameLayer" value="8mil"/>
 <param name="mnLayersViaInSmd" value="2"/>
-<param name="mdCopperDimension" value="15mil"/>
-<param name="mdDrill" value="6mil"/>
+<param name="mdCopperDimension" value="8mil"/>
+<param name="mdDrill" value="8mil"/>
 <param name="mdSmdStop" value="0mil"/>
-<param name="msWidth" value="6mil"/>
-<param name="msDrill" value="10mil"/>
-<param name="msMicroVia" value="10mil"/>
+<param name="msWidth" value="7mil"/>
+<param name="msDrill" value="12mil"/>
+<param name="msMicroVia" value="9.99mm"/>
 <param name="msBlindViaRatio" value="0.5"/>
 <param name="rvPadTop" value="0.25"/>
 <param name="rvPadInner" value="0.25"/>
@@ -35121,15 +35121,15 @@ Please make sure your boards conform to these design rules.</description>
 <param name="rvViaInner" value="0.25"/>
 <param name="rvMicroViaOuter" value="0.25"/>
 <param name="rvMicroViaInner" value="0.25"/>
-<param name="rlMinPadTop" value="7mil"/>
+<param name="rlMinPadTop" value="12mil"/>
 <param name="rlMaxPadTop" value="20mil"/>
-<param name="rlMinPadInner" value="7mil"/>
+<param name="rlMinPadInner" value="10mil"/>
 <param name="rlMaxPadInner" value="20mil"/>
-<param name="rlMinPadBottom" value="7mil"/>
+<param name="rlMinPadBottom" value="12mil"/>
 <param name="rlMaxPadBottom" value="20mil"/>
-<param name="rlMinViaOuter" value="7mil"/>
+<param name="rlMinViaOuter" value="10mil"/>
 <param name="rlMaxViaOuter" value="20mil"/>
-<param name="rlMinViaInner" value="7mil"/>
+<param name="rlMinViaInner" value="10mil"/>
 <param name="rlMaxViaInner" value="20mil"/>
 <param name="rlMinMicroViaOuter" value="4mil"/>
 <param name="rlMaxMicroViaOuter" value="20mil"/>
@@ -35142,11 +35142,11 @@ Please make sure your boards conform to these design rules.</description>
 <param name="psElongationOffset" value="100"/>
 <param name="mvStopFrame" value="1"/>
 <param name="mvCreamFrame" value="0"/>
-<param name="mlMinStopFrame" value="3mil"/>
-<param name="mlMaxStopFrame" value="3mil"/>
+<param name="mlMinStopFrame" value="4mil"/>
+<param name="mlMaxStopFrame" value="4mil"/>
 <param name="mlMinCreamFrame" value="0mil"/>
 <param name="mlMaxCreamFrame" value="0mil"/>
-<param name="mlViaStopLimit" value="12mil"/>
+<param name="mlViaStopLimit" value="20mil"/>
 <param name="srRoundness" value="0"/>
 <param name="srMinRoundness" value="0mil"/>
 <param name="srMaxRoundness" value="0mil"/>
@@ -35418,7 +35418,6 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="14.351" y="8.9662" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="13.97" y="3.175" size="1.27" layer="27"/>
 </element>
-<element name="U$1" library="SparkFun-Aesthetics" package="CREATIVE_COMMONS" value="CREATIVE_COMMONS" x="4.318" y="-9.7536" smashed="yes"/>
 <element name="JP8" library="SparkFun" package="MICRO-FIDUCIAL" value="FIDUCIALUFIDUCIAL" x="5.334" y="1.27" smashed="yes"/>
 <element name="JP16" library="SparkFun" package="MICRO-FIDUCIAL" value="FIDUCIALUFIDUCIAL" x="63.754" y="29.718" smashed="yes"/>
 <element name="TP1" library="SparkFun-Passives" package="PAD.03X.03" value="TEST-POINT3" x="65.659" y="12.573" rot="MR0"/>
@@ -35448,6 +35447,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="PROD_ID" value="CONN-11752" x="66.548" y="10.16" size="1.778" layer="27" font="vector" ratio="15" rot="R180" display="off"/>
 </element>
 <element name="LOGO1" library="SparkFun-Aesthetics" package="OSHW-LOGO-S" value="OSHW-LOGOS" x="66.421" y="15.24" rot="MR270"/>
+<element name="FRAME2" library="SparkFun-Aesthetics" package="CREATIVE_COMMONS" value="FRAME-LEDGER" x="5.08" y="-11.43"/>
 </elements>
 <signals>
 <signal name="N$5">
@@ -35756,15 +35756,15 @@ Please make sure your boards conform to these design rules.</description>
 <via x="13.4366" y="10.3886" extent="1-16" drill="0.3048" diameter="0.635"/>
 <via x="33.8328" y="22.0726" extent="1-16" drill="0.3048" diameter="0.635"/>
 <polygon width="0.2032" layer="1" isolate="0.3048" thermals="no" rank="6">
-<vertex x="6.9088" y="30.988"/>
-<vertex x="69.088" y="30.988"/>
-<vertex x="69.088" y="-0.4064"/>
-<vertex x="6.9088" y="-0.4064"/>
+<vertex x="6.9088" y="30.48"/>
+<vertex x="68.58" y="30.48"/>
+<vertex x="68.58" y="0"/>
+<vertex x="6.9088" y="0"/>
 </polygon>
 <polygon width="0.2032" layer="16" isolate="0.3048" thermals="no" rank="6">
-<vertex x="6.9088" y="31.3944"/>
-<vertex x="69.088" y="31.3944"/>
-<vertex x="69.088" y="0"/>
+<vertex x="6.9088" y="30.48"/>
+<vertex x="68.58" y="30.48"/>
+<vertex x="68.58" y="0"/>
 <vertex x="6.9088" y="0"/>
 </polygon>
 <wire x1="19.25235625" y1="10.99735625" x2="19.8628" y2="11.6078" width="0.2032" layer="1"/>
@@ -36467,7 +36467,8 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="57.15" y1="18.542" x2="57.658" y2="18.542" width="0.2032" layer="1"/>
 <wire x1="55.8038" y1="17.7418" x2="56.0706" y2="18.0086" width="0.2032" layer="1"/>
 <wire x1="56.0706" y1="18.0086" x2="56.7436" y2="18.0086" width="0.2032" layer="1"/>
-<wire x1="55.753" y1="20.193" x2="55.7276" y2="20.6366" width="0" layer="19" extent="1-1"/>
+<wire x1="55.753" y1="20.193" x2="55.753" y2="20.6112" width="0.254" layer="1"/>
+<wire x1="55.753" y1="20.6112" x2="55.7276" y2="20.6366" width="0.254" layer="1"/>
 </signal>
 <signal name="N$4">
 <contactref element="F1" pad="2"/>
