@@ -14537,21 +14537,41 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </device>
 </devices>
 </deviceset>
-<deviceset name="330OHM1/10W1%(0603)" prefix="R" uservalue="yes">
-<description>RES-00818</description>
+<deviceset name="1.6KOHM-1/10W-1%(0603)" prefix="R" uservalue="yes">
+<description>RES-08361</description>
 <gates>
 <gate name="G$1" symbol="RESISTOR" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="0603-RES">
+<device name="0603" package="0603-RES">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="PROD_ID" value="RES-00818"/>
-<attribute name="VALUE" value="330" constant="no"/>
+<attribute name="PROD_ID" value="RES-08361" constant="no"/>
+<attribute name="VALUE" value="1.6K" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="750OHM1/10W1%(0603)" prefix="R" uservalue="yes">
+<description>RES-07824</description>
+<gates>
+<gate name="G$1" symbol="RESISTOR" x="0" y="0"/>
+</gates>
+<devices>
+<device name="0603" package="0603-RES">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="RES-07824" constant="no"/>
+<attribute name="VALUE" value="750" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -14748,7 +14768,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <deviceset name="LED-YELLOW" prefix="D" uservalue="yes">
 <description>Yellow SMD LEDs&lt;br&gt;
 LilyPad 1206- DIO-09909&lt;br&gt;
-0603- DIO-09003</description>
+0603- DIO-09003&lt;br&gt;
+"SMART" means more efficient and expensive</description>
 <gates>
 <gate name="G$1" symbol="LED" x="0" y="0"/>
 </gates>
@@ -14789,13 +14810,26 @@ LilyPad 1206- DIO-09909&lt;br&gt;
 </technology>
 </technologies>
 </device>
+<device name="0603-SMART" package="LED-0603">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="DIO-11230" constant="no"/>
+<attribute name="VALUE" value="Yellow" constant="no"/>
+</technology>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="LED-RED" prefix="D" uservalue="yes">
 <description>Assorted Red LEDs&lt;br&gt;
 LilyPad 1206- DIO-09912&lt;br&gt;
 1206- DIO-00809&lt;br&gt;
-0603- DIO-00819</description>
+0603- DIO-00819&lt;br&gt;
+"SMART" means more efficient and expensive</description>
 <gates>
 <gate name="G$1" symbol="LED" x="0" y="0"/>
 </gates>
@@ -14833,6 +14867,18 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <technology name="">
 <attribute name="PROD_ID" value="DIO-09912"/>
 <attribute name="VALUE" value="RED" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="0603-SMART" package="LED-0603">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="DIO-11154" constant="no"/>
+<attribute name="VALUE" value="Red" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -14876,17 +14922,17 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <part name="P+10" library="SparkFun" deviceset="3.3V" device=""/>
 <part name="U$5" library="SparkFun" deviceset="5V" device=""/>
 <part name="JP4" library="SparkFun" deviceset="M03" device="PTH" value="5V"/>
-<part name="R7" library="SparkFun-Resistors" deviceset="330OHM1/10W1%(0603)" device="" value="330"/>
+<part name="R7" library="SparkFun-Resistors" deviceset="750OHM1/10W1%(0603)" device="0603" value="750"/>
 <part name="P+11" library="SparkFun" deviceset="3.3V" device=""/>
 <part name="R8" library="SparkFun-Resistors" deviceset="470OHM1/10W1%(0603)" device="" value="470"/>
 <part name="JP10" library="SparkFun" deviceset="STAND-OFF" device=""/>
 <part name="JP11" library="SparkFun" deviceset="STAND-OFF" device=""/>
 <part name="JP12" library="SparkFun" deviceset="STAND-OFF" device=""/>
 <part name="JP13" library="SparkFun" deviceset="STAND-OFF" device=""/>
-<part name="LED1" library="SparkFun-LED" deviceset="LED-YELLOW" device="0603" value="Yellow"/>
+<part name="LED1" library="SparkFun-LED" deviceset="LED-YELLOW" device="0603-SMART" value="Yellow"/>
 <part name="JP5" library="SparkFun" deviceset="M03" device="PTH"/>
-<part name="R9" library="SparkFun-Resistors" deviceset="330OHM1/10W1%(0603)" device="" value="330"/>
-<part name="LED2" library="SparkFun-LED" deviceset="LED-RED" device="0603" value="RED"/>
+<part name="R9" library="SparkFun-Resistors" deviceset="1.6KOHM-1/10W-1%(0603)" device="0603" value="1.6K"/>
+<part name="LED2" library="SparkFun-LED" deviceset="LED-RED" device="0603-SMART" value="Red"/>
 <part name="GND6" library="SparkFun" deviceset="GND" device=""/>
 <part name="JP15" library="SparkFun" deviceset="M01" device="PTH"/>
 <part name="JP17" library="SparkFun" deviceset="M03" device="PTH"/>
