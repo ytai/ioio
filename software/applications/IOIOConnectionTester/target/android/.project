@@ -32,9 +32,19 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>AndroidManifest.xml</name>
+			<type>1</type>
+			<locationURI>PROJECT_LOC/src/main/AndroidManifest.xml</locationURI>
+		</link>
+		<link>
 			<name>lib_common</name>
 			<type>2</type>
 			<locationURI>$%7BROOT%7D/lib</locationURI>
+		</link>
+		<link>
+			<name>res</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/src/main/res</locationURI>
 		</link>
 		<link>
 			<name>src_common</name>
