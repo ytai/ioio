@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">IOIO Hackathon app</string>
-    <string name="seekbar_label">Move to control the range:</string>
-    <string name="analog_label">Analog reading:</string>
-</resources>
