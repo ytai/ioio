@@ -18,7 +18,7 @@
 		<link>
 			<name>lib</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/IOIOLIB/target/pc/lib</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/IOIOLibPC/lib</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
