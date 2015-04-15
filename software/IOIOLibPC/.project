@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>IOIODude</name>
+	<name>IOIOLibPC</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -14,11 +14,10 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>lib</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/IOIOLibPC/lib</locationURI>
-		</link>
-	</linkedResources>
+	<variableList>
+		<variable>
+			<name>IOIOLIB</name>
+			<value>$%7BPARENT-2-PROJECT_LOC%7D</value>
+		</variable>
+	</variableList>
 </projectDescription>
