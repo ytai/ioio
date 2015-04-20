@@ -14076,8 +14076,10 @@ We've spent an enormous amount of time creating and checking these footprints an
 </symbols>
 <devicesets>
 <deviceset name="PIC24FXXXDAX06" prefix="U">
-<description>&lt;b&gt;PIC24FXXXDAX06&lt;/b&gt;
-PIC24FXXXDA106 / PIC24FXXXDA206</description>
+<description>&lt;b&gt;PIC24FXXXDAX06&lt;/b&gt;&lt;br&gt;
+PIC24FXXXDA106 / PIC24FXXXDA206&lt;br&gt;
+PIC24FJ256DA206-I/PT for IOIO&lt;br&gt;
+IC-10386</description>
 <gates>
 <gate name="G$1" symbol="PIC24FJXXXDAX06" x="0" y="0"/>
 </gates>
@@ -14150,7 +14152,9 @@ PIC24FXXXDA106 / PIC24FXXXDA206</description>
 <connect gate="G$1" pin="VUSB" pad="35"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="PROD_ID" value="IC-10386"/>
+</technology>
 </technologies>
 </device>
 </devices>
