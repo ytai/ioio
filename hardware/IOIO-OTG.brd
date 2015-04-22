@@ -34782,7 +34782,7 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="0.1uF" x="31.9727" y="17.122853125" size="0.4064" layer="27" rot="R45"/>
 <attribute name="PROD_ID" value="CAP-00810" x="31.9278" y="18.6944" size="1.778" layer="27" rot="R45" display="off"/>
 </element>
-<element name="JP2" library="SparkFun" package="1X03" value="" x="50.8" y="6.35" smashed="yes" rot="R270">
+<element name="JP2" library="SparkFun" package="1X03" value="3.3V" x="50.8" y="6.35" smashed="yes" rot="R270">
 <attribute name="NAME" x="52.6288" y="7.6962" size="1.27" layer="25" ratio="10" rot="R270"/>
 <attribute name="VALUE" x="47.625" y="7.62" size="1.27" layer="27" rot="R270"/>
 </element>
@@ -34808,7 +34808,7 @@ design rules under a new name.</description>
 <element name="JP11" library="SparkFun" package="STAND-OFF" value="STAND-OFF" x="66.04" y="2.54" smashed="yes"/>
 <element name="JP12" library="SparkFun" package="STAND-OFF" value="STAND-OFF" x="2.54" y="27.94" smashed="yes"/>
 <element name="JP13" library="SparkFun" package="STAND-OFF" value="STAND-OFF" x="2.54" y="2.54" smashed="yes"/>
-<element name="LED1" library="SparkFun-LED" package="LED-0603" value="Yellow" x="32.004" y="15.24" smashed="yes" rot="R180">
+<element name="D3" library="SparkFun-LED" package="LED-0603" value="Yellow" x="32.004" y="15.24" smashed="yes" rot="R180">
 <attribute name="NAME" x="32.7025" y="16.129" size="0.4064" layer="25" rot="R270"/>
 <attribute name="PROD_ID" value="DIO-11230" x="32.004" y="15.24" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" value="Yellow" x="32.004" y="15.24" size="1.778" layer="27" rot="R180" display="off"/>
@@ -34822,12 +34822,12 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="1.6K" x="62.5475" y="29.083" size="0.4064" layer="27" rot="R180"/>
 <attribute name="PROD_ID" value="RES-08361" x="61.468" y="27.94" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="LED2" library="SparkFun-LED" package="LED-0603" value="Red" x="61.468" y="29.21" smashed="yes" rot="R90">
+<element name="D5" library="SparkFun-LED" package="LED-0603" value="Red" x="61.468" y="29.21" smashed="yes" rot="R90">
 <attribute name="NAME" x="62.357" y="30.1625" size="0.4064" layer="25" rot="R180"/>
 <attribute name="PROD_ID" value="DIO-11154" x="61.468" y="29.21" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" value="Red" x="61.468" y="29.21" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
-<element name="JP15" library="SparkFun" package="1X01" value="M01PTH" x="12.7" y="6.35" smashed="yes">
+<element name="JP15" library="SparkFun" package="1X01" value="" x="12.7" y="6.35" smashed="yes">
 <attribute name="NAME" x="11.9888" y="8.8392" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="11.43" y="3.175" size="1.27" layer="27"/>
 </element>
@@ -34890,11 +34890,11 @@ design rules under a new name.</description>
 <attribute name="NAME" x="44.577" y="24.257" size="0.4064" layer="25" rot="R270"/>
 <attribute name="VALUE" x="39.497" y="24.257" size="0.4064" layer="27" rot="R270"/>
 </element>
-<element name="JP7" library="SparkFun-Connectors" package="1X16_NO_SILK" value="M161X16_NO_SILK" x="45.72" y="1.27" smashed="yes" rot="R180">
+<element name="JP7" library="SparkFun-Connectors" package="1X16_NO_SILK" value="" x="45.72" y="1.27" smashed="yes" rot="R180">
 <attribute name="NAME" x="46.4312" y="1.9812" size="1.27" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="46.99" y="4.445" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="U$2" library="SparkFun-Connectors" package="1X19_NO_SILK" value="M191X19_NO_SILK" x="55.88" y="29.21" smashed="yes" rot="R180">
+<element name="JP20" library="SparkFun-Connectors" package="1X19_NO_SILK" value="" x="55.88" y="29.21" smashed="yes" rot="R180">
 <attribute name="NAME" x="56.7182" y="30.0482" size="1.27" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="57.15" y="32.385" size="1.27" layer="27" rot="R180"/>
 </element>
@@ -34902,7 +34902,7 @@ design rules under a new name.</description>
 <attribute name="NAME" x="59.1312" y="-0.0762" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="64.135" y="0" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="JP3" library="SparkFun" package="1X01" value="M01PTH" x="58.42" y="29.21" smashed="yes">
+<element name="JP3" library="SparkFun" package="1X01" value="" x="58.42" y="29.21" smashed="yes">
 <attribute name="NAME" x="60.1472" y="30.0482" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="57.15" y="26.035" size="1.27" layer="27"/>
 </element>
@@ -34917,15 +34917,15 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="26.30096875" y="7.7231375" size="0.4064" layer="27" rot="R315"/>
 <attribute name="PROD_ID" value="RES-07859" x="27.872515625" y="7.768040625" size="1.778" layer="27" rot="R315" display="off"/>
 </element>
-<element name="U14" library="SparkFun-Electromechanical" package="KPS-1290" value="SWITCH_SPDT" x="57.023" y="12.6365" smashed="yes" rot="R180">
+<element name="S1" library="SparkFun-Electromechanical" package="KPS-1290" value="" x="57.023" y="12.6365" smashed="yes" rot="R180">
 <attribute name="NAME" x="54.523" y="15.1285" size="0.4064" layer="25" rot="R180"/>
 <attribute name="VALUE" x="54.523" y="15.8665" size="0.4064" layer="27" rot="R180"/>
 </element>
-<element name="JP9" library="SparkFun-Connectors" package="1X11_NO_SILK" value="M111X11_NO_SILK" x="7.62" y="3.81" smashed="yes" rot="R90">
+<element name="JP9" library="SparkFun-Connectors" package="1X11_NO_SILK" value="" x="7.62" y="3.81" smashed="yes" rot="R90">
 <attribute name="NAME" x="6.4262" y="3.2258" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="10.795" y="2.54" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="JP14" library="SparkFun" package="1X01" value="M01PTH" x="15.24" y="6.35" smashed="yes">
+<element name="JP14" library="SparkFun" package="1X01" value="" x="15.24" y="6.35" smashed="yes">
 <attribute name="NAME" x="14.351" y="8.9662" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="13.97" y="3.175" size="1.27" layer="27"/>
 </element>
@@ -35096,7 +35096,7 @@ design rules under a new name.</description>
 <contactref element="U1" pad="25"/>
 <contactref element="U1" pad="41"/>
 <contactref element="C7" pad="C"/>
-<contactref element="LED2" pad="C"/>
+<contactref element="D5" pad="C"/>
 <contactref element="JP19" pad="1"/>
 <contactref element="JP17" pad="3"/>
 <contactref element="JP17" pad="2"/>
@@ -35204,7 +35204,7 @@ design rules under a new name.</description>
 <via x="52.6796" y="16.4084" extent="1-16" drill="0.3048" diameter="0.635"/>
 <via x="56.2864" y="14.7574" extent="1-16" drill="0.3048" diameter="0.635"/>
 <via x="62.484" y="13.081" extent="1-16" drill="0.3048" diameter="0.635"/>
-<contactref element="U14" pad="S"/>
+<contactref element="S1" pad="S"/>
 <via x="57.277" y="10.287" extent="1-16" drill="0.3048" diameter="0.635"/>
 <via x="23.5458" y="18.1356" extent="1-16" drill="0.3048" diameter="0.635"/>
 <contactref element="C9" pad="2"/>
@@ -35361,7 +35361,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN2">
 <contactref element="U1" pad="32"/>
-<contactref element="U$2" pad="2"/>
+<contactref element="JP20" pad="2"/>
 <wire x1="53.34" y1="29.21" x2="51.816" y2="27.686" width="0.2032" layer="16"/>
 <wire x1="51.816" y1="27.686" x2="34.7726" y2="27.686" width="0.2032" layer="16"/>
 <via x="26.8224" y="14.7066" extent="1-16" drill="0.3048" diameter="0.635"/>
@@ -35376,7 +35376,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN1">
 <contactref element="U1" pad="31"/>
-<contactref element="U$2" pad="1"/>
+<contactref element="JP20" pad="1"/>
 <wire x1="55.88" y1="29.21" x2="55.753" y2="29.21" width="0.2032" layer="16"/>
 <wire x1="55.753" y1="29.21" x2="53.848" y2="27.305" width="0.2032" layer="16"/>
 <wire x1="53.848" y1="27.305" x2="35.0266" y2="27.305" width="0.2032" layer="16"/>
@@ -35454,7 +35454,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN13">
 <contactref element="U1" pad="52"/>
-<contactref element="U$2" pad="13"/>
+<contactref element="JP20" pad="13"/>
 <wire x1="20.639125" y1="20.896853125" x2="19.939" y2="21.59698125" width="0.2032" layer="1"/>
 <wire x1="19.939" y1="21.59698125" x2="19.939" y2="25.582325" width="0.2032" layer="1"/>
 <wire x1="19.939" y1="25.582325" x2="21.687075" y2="27.3304" width="0.2032" layer="1"/>
@@ -35564,7 +35564,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN9">
 <contactref element="U1" pad="48"/>
-<contactref element="U$2" pad="9"/>
+<contactref element="JP20" pad="9"/>
 <wire x1="35.56" y1="29.21" x2="35.56" y2="27.6352" width="0.2032" layer="1"/>
 <wire x1="28.0723" y1="25.5016" x2="24.5282125" y2="21.9575125" width="0.2032" layer="1"/>
 <wire x1="35.56" y1="27.6352" x2="33.4264" y2="25.5016" width="0.2032" layer="1"/>
@@ -35677,7 +35677,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN8">
 <contactref element="U1" pad="47"/>
-<contactref element="U$2" pad="8"/>
+<contactref element="JP20" pad="8"/>
 <wire x1="24.892" y1="21.614190625" x2="24.881765625" y2="21.603959375" width="0.2032" layer="1"/>
 <wire x1="38.1" y1="29.21" x2="38.1" y2="28.2448" width="0.2032" layer="1"/>
 <wire x1="38.1" y1="28.2448" x2="37.7952" y2="27.94" width="0.2032" layer="1"/>
@@ -35690,7 +35690,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN18">
 <contactref element="U1" pad="59"/>
-<contactref element="U$2" pad="18"/>
+<contactref element="JP20" pad="18"/>
 <wire x1="18.16425" y1="18.421978125" x2="17.180628125" y2="19.4056" width="0.2032" layer="1"/>
 <wire x1="13.0048" y1="27.7368" x2="13.5089" y2="27.7368" width="0.2032" layer="1"/>
 <wire x1="13.5089" y1="27.7368" x2="14.8336" y2="26.4121" width="0.2032" layer="1"/>
@@ -35702,7 +35702,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN17">
 <contactref element="U1" pad="58"/>
-<contactref element="U$2" pad="17"/>
+<contactref element="JP20" pad="17"/>
 <wire x1="18.517803125" y1="18.77553125" x2="17.481334375" y2="19.812" width="0.2032" layer="1"/>
 <wire x1="17.481334375" y1="19.812" x2="16.3576" y2="19.812" width="0.2032" layer="1"/>
 <wire x1="16.3576" y1="19.812" x2="16.2052" y2="19.9644" width="0.2032" layer="1"/>
@@ -35783,7 +35783,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN19">
 <contactref element="U1" pad="60"/>
-<contactref element="U$2" pad="19"/>
+<contactref element="JP20" pad="19"/>
 <wire x1="17.810696875" y1="18.068425" x2="16.879921875" y2="18.9992" width="0.2032" layer="1"/>
 <wire x1="16.879921875" y1="18.9992" x2="16.007725" y2="18.9992" width="0.2032" layer="1"/>
 <wire x1="16.007725" y1="18.9992" x2="14.4272" y2="20.579725" width="0.2032" layer="1"/>
@@ -35795,7 +35795,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN6">
 <contactref element="U1" pad="45"/>
-<contactref element="U$2" pad="6"/>
+<contactref element="JP20" pad="6"/>
 <wire x1="43.18" y1="29.21" x2="41.783" y2="27.813" width="0.2032" layer="1"/>
 <wire x1="41.783" y1="27.813" x2="40.2082" y2="27.813" width="0.2032" layer="1"/>
 <wire x1="40.2082" y1="27.813" x2="39.5224" y2="27.1272" width="0.2032" layer="1"/>
@@ -35808,7 +35808,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN5">
 <contactref element="U1" pad="44"/>
-<contactref element="U$2" pad="5"/>
+<contactref element="JP20" pad="5"/>
 <wire x1="45.72" y1="29.21" x2="43.942" y2="27.432" width="0.2032" layer="1"/>
 <wire x1="43.942" y1="27.432" x2="40.4368" y2="27.432" width="0.2032" layer="1"/>
 <wire x1="28.513128125" y1="23.114" x2="25.942425" y2="20.5433" width="0.2032" layer="1"/>
@@ -35820,7 +35820,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN4">
 <contactref element="U1" pad="43"/>
-<contactref element="U$2" pad="4"/>
+<contactref element="JP20" pad="4"/>
 <wire x1="48.26" y1="29.21" x2="46.101" y2="27.051" width="0.2032" layer="1"/>
 <wire x1="46.101" y1="27.051" x2="40.6654" y2="27.051" width="0.2032" layer="1"/>
 <wire x1="28.839234375" y1="22.733" x2="26.295978125" y2="20.189746875" width="0.2032" layer="1"/>
@@ -35834,7 +35834,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN3">
 <contactref element="U1" pad="42"/>
-<contactref element="U$2" pad="3"/>
+<contactref element="JP20" pad="3"/>
 <wire x1="50.8" y1="29.21" x2="48.26" y2="26.67" width="0.2032" layer="1"/>
 <wire x1="48.26" y1="26.67" x2="40.894" y2="26.67" width="0.2032" layer="1"/>
 <wire x1="29.165340625" y1="22.352" x2="26.64953125" y2="19.83619375" width="0.2032" layer="1"/>
@@ -35848,14 +35848,14 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN16">
 <contactref element="U1" pad="55"/>
-<contactref element="U$2" pad="16"/>
+<contactref element="JP20" pad="16"/>
 <wire x1="19.578465625" y1="19.83619375" x2="18.796" y2="20.6186625" width="0.2032" layer="1"/>
 <wire x1="18.796" y1="28.194" x2="17.78" y2="29.21" width="0.2032" layer="1"/>
 <wire x1="18.796" y1="20.6186625" x2="18.796" y2="28.194" width="0.2032" layer="1"/>
 </signal>
 <signal name="PIN15">
 <contactref element="U1" pad="54"/>
-<contactref element="U$2" pad="15"/>
+<contactref element="JP20" pad="15"/>
 <wire x1="19.93201875" y1="20.189746875" x2="19.177" y2="20.94476875" width="0.2032" layer="1"/>
 <wire x1="19.5834" y1="28.4734" x2="20.32" y2="29.21" width="0.2032" layer="1"/>
 <wire x1="19.177" y1="20.94476875" x2="19.177" y2="28.067" width="0.2032" layer="1"/>
@@ -35863,7 +35863,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN14">
 <contactref element="U1" pad="53"/>
-<contactref element="U$2" pad="14"/>
+<contactref element="JP20" pad="14"/>
 <wire x1="20.285571875" y1="20.5433" x2="19.558" y2="21.270875" width="0.2032" layer="1"/>
 <wire x1="21.4971625" y1="27.7368" x2="19.558" y2="25.7976375" width="0.2032" layer="1"/>
 <wire x1="19.558" y1="25.7976375" x2="19.558" y2="21.270875" width="0.2032" layer="1"/>
@@ -35873,7 +35873,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN12">
 <contactref element="U1" pad="51"/>
-<contactref element="U$2" pad="12"/>
+<contactref element="JP20" pad="12"/>
 <wire x1="20.992678125" y1="21.25040625" x2="20.32" y2="21.9230875" width="0.2032" layer="1"/>
 <wire x1="21.866303125" y1="26.924" x2="20.32" y2="25.377696875" width="0.2032" layer="1"/>
 <wire x1="20.32" y1="25.377696875" x2="20.32" y2="21.9230875" width="0.2032" layer="1"/>
@@ -35884,7 +35884,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN11">
 <contactref element="U1" pad="50"/>
-<contactref element="U$2" pad="11"/>
+<contactref element="JP20" pad="11"/>
 <wire x1="21.34623125" y1="21.603959375" x2="20.701" y2="22.24919375" width="0.2032" layer="1"/>
 <wire x1="20.701" y1="22.24919375" x2="20.701" y2="25.1714" width="0.2032" layer="1"/>
 <wire x1="20.701" y1="25.1714" x2="22.0472" y2="26.5176" width="0.2032" layer="1"/>
@@ -35895,7 +35895,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN10">
 <contactref element="U1" pad="49"/>
-<contactref element="U$2" pad="10"/>
+<contactref element="JP20" pad="10"/>
 <wire x1="21.699784375" y1="21.9575125" x2="21.082" y2="22.5753" width="0.2032" layer="1"/>
 <wire x1="21.082" y1="22.5753" x2="21.082" y2="24.952115625" width="0.2032" layer="1"/>
 <wire x1="21.082" y1="24.952115625" x2="21.631484375" y2="25.5016" width="0.2032" layer="1"/>
@@ -35908,7 +35908,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PIN7">
 <contactref element="U1" pad="46"/>
-<contactref element="U$2" pad="7"/>
+<contactref element="JP20" pad="7"/>
 <wire x1="40.64" y1="29.21" x2="38.9636" y2="27.5336" width="0.2032" layer="1"/>
 <wire x1="38.9636" y1="27.5336" x2="36.6776" y2="27.5336" width="0.2032" layer="1"/>
 <wire x1="28.6737125" y1="24.6888" x2="25.23531875" y2="21.25040625" width="0.2032" layer="1"/>
@@ -35923,14 +35923,14 @@ design rules under a new name.</description>
 </signal>
 <signal name="N$2">
 <contactref element="R7" pad="1"/>
-<contactref element="LED1" pad="A"/>
+<contactref element="D3" pad="A"/>
 <wire x1="33.174" y1="15.99" x2="33.274" y2="16.09" width="0.6096" layer="1"/>
 <wire x1="32.004" y1="16.117" x2="33.247" y2="16.117" width="0.2032" layer="1"/>
 <wire x1="33.247" y1="16.117" x2="33.274" y2="16.09" width="0.2032" layer="1"/>
 </signal>
 <signal name="N$3">
 <contactref element="R9" pad="1"/>
-<contactref element="LED2" pad="A"/>
+<contactref element="D5" pad="A"/>
 <wire x1="62.318" y1="27.94" x2="63.119" y2="27.94" width="0.2032" layer="1"/>
 <wire x1="63.119" y1="27.94" x2="63.373" y2="28.194" width="0.2032" layer="1"/>
 <wire x1="63.373" y1="28.194" x2="63.373" y2="28.9306" width="0.2032" layer="1"/>
@@ -36108,7 +36108,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="USBID">
 <contactref element="U1" pad="33"/>
-<contactref element="U14" pad="P"/>
+<contactref element="S1" pad="P"/>
 <contactref element="TP1" pad="P$1"/>
 <wire x1="62.723" y1="10.81" x2="62.357" y2="11.176" width="0.2032" layer="1"/>
 <via x="62.357" y="11.176" extent="1-16" drill="0.3048" diameter="0.635"/>
@@ -36179,7 +36179,7 @@ design rules under a new name.</description>
 <signal name="BOOT">
 <contactref element="JP14" pad="1"/>
 <contactref element="U1" pad="39"/>
-<contactref element="LED1" pad="C"/>
+<contactref element="D3" pad="C"/>
 <wire x1="27.71019375" y1="18.77553125" x2="27.1272" y2="18.1925375" width="0.2032" layer="1"/>
 <wire x1="27.1272" y1="18.1925375" x2="27.1272" y2="17.3736" width="0.2032" layer="1"/>
 <wire x1="27.1272" y1="17.3736" x2="28.7528" y2="15.748" width="0.2032" layer="1"/>
