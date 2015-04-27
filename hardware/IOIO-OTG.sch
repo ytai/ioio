@@ -1046,6 +1046,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 <smd name="EXT" x="-0.009271875" y="0.00761875" dx="1.68" dy="1.68" layer="1" rot="R180" cream="no"/>
 <text x="-2.54" y="2.159" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-2.54" y="-2.54" size="0.4064" layer="27">&gt;VALUE</text>
+<circle x="-2.0574" y="1.3462" radius="0.104725" width="0.4064" layer="21"/>
 </package>
 <package name="QFN16-3X3MM">
 <description>3mm x 3mm QFN 16 pin</description>
@@ -1151,7 +1152,6 @@ MSOP&lt;br&gt;
 <wire x1="-1.22" y1="1.48" x2="1.24" y2="1.48" width="0.1524" layer="21"/>
 <wire x1="-1.48" y1="1.23" x2="-1.48" y2="-1.23" width="0.1524" layer="21"/>
 <wire x1="1.48" y1="-1.24" x2="1.48" y2="1.23" width="0.1524" layer="21"/>
-<circle x="-0.65" y="-0.65" radius="0.325" width="0.254" layer="21"/>
 <smd name="1" x="-0.975" y="-2.25" dx="0.4" dy="1.1" layer="1"/>
 <smd name="2" x="-0.325" y="-2.25" dx="0.4" dy="1.1" layer="1"/>
 <smd name="3" x="0.325" y="-2.25" dx="0.4" dy="1.1" layer="1"/>
@@ -1170,6 +1170,7 @@ MSOP&lt;br&gt;
 <rectangle x1="0.125" y1="1.55" x2="0.525" y2="2.45" layer="51"/>
 <rectangle x1="-0.525" y1="1.55" x2="-0.125" y2="2.45" layer="51"/>
 <rectangle x1="-1.175" y1="1.55" x2="-0.775" y2="2.45" layer="51"/>
+<circle x="-1.6256" y="-2.0574" radius="0.091578125" width="0.4064" layer="21"/>
 </package>
 <package name="QFN16-3X3MM_1:1_V02">
 <smd name="5" x="-0.765240625" y="-1.5131" dx="0.85" dy="0.28" layer="1" roundness="100" rot="R90" cream="no"/>
@@ -24925,10 +24926,10 @@ We've spent an enormous amount of time creating and checking these footprints an
 <text x="-2.159" y="0" size="0.4064" layer="27">&gt;VALUE</text>
 </package>
 <package name="KPS-1290">
-<wire x1="-3.35" y1="1.3" x2="-3.35" y2="-1.3" width="0.127" layer="21"/>
-<wire x1="-3.35" y1="-1.3" x2="3.35" y2="-1.3" width="0.127" layer="21"/>
-<wire x1="3.35" y1="-1.3" x2="3.35" y2="1.3" width="0.127" layer="21"/>
-<wire x1="3.35" y1="1.3" x2="-3.35" y2="1.3" width="0.127" layer="21"/>
+<wire x1="-3.35" y1="1.3" x2="-3.35" y2="-1.3" width="0.2032" layer="21"/>
+<wire x1="-3.35" y1="-1.3" x2="3.35" y2="-1.3" width="0.2032" layer="21"/>
+<wire x1="3.35" y1="-1.3" x2="3.35" y2="1.3" width="0.2032" layer="21"/>
+<wire x1="3.35" y1="1.3" x2="-3.35" y2="1.3" width="0.2032" layer="21"/>
 <wire x1="1.4" y1="-1.5" x2="1.4" y2="-2.8" width="0.127" layer="51"/>
 <wire x1="1.4" y1="-2.8" x2="-1.4" y2="-2.8" width="0.127" layer="51"/>
 <wire x1="-1.4" y1="-2.8" x2="-1.4" y2="-1.5" width="0.127" layer="51"/>
@@ -24961,30 +24962,6 @@ We've spent an enormous amount of time creating and checking these footprints an
 <smd name="3" x="0.91" y="-1.45" dx="1.1" dy="0.9" layer="1"/>
 <text x="2" y="1" size="1.016" layer="27">&gt;Value</text>
 <text x="2" y="-2" size="1.016" layer="25">&gt;Name</text>
-</package>
-<package name="3386U">
-<description>&lt;h3&gt;TSR-3386U Trimpot&lt;/h3&gt;
-Trimpot with a knob&lt;br&gt;
-For COM-09806 in the SparkFun catalog&lt;br&gt;</description>
-<circle x="0" y="0.575" radius="4" width="0.127" layer="51"/>
-<wire x1="-4.765" y1="-4.765" x2="-4" y2="-4.765" width="0.2032" layer="21"/>
-<wire x1="4" y1="-4.765" x2="4.765" y2="-4.765" width="0.2032" layer="21"/>
-<wire x1="4.765" y1="-4.765" x2="4.765" y2="4.765" width="0.2032" layer="21"/>
-<wire x1="4.765" y1="4.765" x2="-4.765" y2="4.765" width="0.2032" layer="21"/>
-<wire x1="-4.765" y1="4.765" x2="-4.765" y2="-4.765" width="0.2032" layer="21"/>
-<wire x1="-1.5" y1="2.2" x2="-0.5" y2="2.2" width="0.127" layer="51"/>
-<wire x1="-0.5" y1="2.2" x2="-0.5" y2="-1.8" width="0.127" layer="51"/>
-<wire x1="-0.5" y1="-1.8" x2="0.5" y2="-1.8" width="0.127" layer="51"/>
-<wire x1="0.5" y1="-1.8" x2="0.5" y2="2.2" width="0.127" layer="51"/>
-<wire x1="0.5" y1="2.2" x2="1.5" y2="2.2" width="0.127" layer="51"/>
-<wire x1="0" y1="3.7" x2="-1.5" y2="2.2" width="0.127" layer="51"/>
-<wire x1="1.5" y1="2.2" x2="0" y2="3.7" width="0.127" layer="51"/>
-<wire x1="-4" y1="-4.765" x2="-4" y2="-4.365" width="0.2032" layer="21"/>
-<wire x1="-4" y1="-4.365" x2="4" y2="-4.365" width="0.2032" layer="21"/>
-<wire x1="4" y1="-4.365" x2="4" y2="-4.765" width="0.2032" layer="21"/>
-<pad name="1" x="-2.54" y="-0.015" drill="1.016" diameter="1.8796" shape="square"/>
-<pad name="2" x="0" y="-0.015" drill="1.016" diameter="1.8796"/>
-<pad name="3" x="2.54" y="-0.015" drill="1.016" diameter="1.8796"/>
 </package>
 <package name="TRIMPOT-3MM-2">
 <wire x1="-1.1016" y1="1.6" x2="-2.0064" y2="1.6" width="0.2032" layer="21"/>
@@ -25055,38 +25032,64 @@ For COM-09806 in the SparkFun catalog&lt;br&gt;</description>
 <pad name="2" x="0" y="-0.3048" drill="0.7366" diameter="1.6764"/>
 <pad name="3" x="2.6924" y="-0.3048" drill="0.7366" diameter="1.6764"/>
 </package>
-<package name="TRIMPOT-5MM-V2">
+<package name="TRIMPOT_5MM">
 <wire x1="-2.5" y1="-2.14" x2="-2.5" y2="2.86" width="0.127" layer="51"/>
 <wire x1="-2.5" y1="2.86" x2="2.5" y2="2.86" width="0.127" layer="51"/>
 <wire x1="2.5" y1="2.86" x2="2.5" y2="-2.14" width="0.127" layer="51"/>
 <wire x1="2.5" y1="-2.14" x2="-2.5" y2="-2.14" width="0.127" layer="51"/>
-<wire x1="-1.4" y1="2.96" x2="-2.6" y2="2.96" width="0.127" layer="21"/>
-<wire x1="-2.6" y1="2.96" x2="-2.6" y2="1.56" width="0.127" layer="21"/>
-<wire x1="1.409221875" y1="2.96" x2="2.6" y2="2.96" width="0.127" layer="21"/>
-<wire x1="2.6" y1="2.96" x2="2.6" y2="1.56" width="0.127" layer="21"/>
-<wire x1="-2.09398125" y1="-2.24" x2="-2.6" y2="-2.24" width="0.127" layer="21"/>
-<wire x1="-2.6" y1="-2.24" x2="-2.6" y2="-1.54" width="0.127" layer="21"/>
-<wire x1="2.1" y1="-2.24" x2="2.6" y2="-2.24" width="0.127" layer="21"/>
-<wire x1="2.6" y1="-2.24" x2="2.6" y2="-1.54" width="0.127" layer="21"/>
+<wire x1="-1.4" y1="2.96" x2="-2.6" y2="2.96" width="0.2032" layer="21"/>
+<wire x1="-2.6" y1="2.96" x2="-2.6" y2="1.56" width="0.2032" layer="21"/>
+<wire x1="1.409221875" y1="2.96" x2="2.6" y2="2.96" width="0.2032" layer="21"/>
+<wire x1="2.6" y1="2.96" x2="2.6" y2="1.56" width="0.2032" layer="21"/>
+<wire x1="-2.09398125" y1="-2.24" x2="-2.6" y2="-2.24" width="0.2032" layer="21"/>
+<wire x1="-2.6" y1="-2.24" x2="-2.6" y2="-1.54" width="0.2032" layer="21"/>
+<wire x1="2.1" y1="-2.24" x2="2.6" y2="-2.24" width="0.2032" layer="21"/>
+<wire x1="2.6" y1="-2.24" x2="2.6" y2="-1.54" width="0.2032" layer="21"/>
 <smd name="A" x="1.15" y="-2.54" dx="1.3" dy="1.3" layer="1"/>
 <smd name="B" x="0" y="3.2385" dx="2" dy="1.4016" layer="1" rot="R270"/>
 <smd name="C" x="-1.15" y="-2.54" dx="1.3" dy="1.3" layer="1"/>
 <text x="-2.159" y="1.27" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-2.159" y="0" size="0.4064" layer="27">&gt;VALUE</text>
 </package>
-<package name="TRIMPOT_5MM">
+<package name="3386U">
+<description>&lt;h3&gt;TSR-3386U Trimpot&lt;/h3&gt;
+Trimpot with a knob&lt;br&gt;
+For COM-09806 in the SparkFun catalog&lt;br&gt;</description>
+<circle x="0" y="0.575" radius="4" width="0.127" layer="51"/>
+<wire x1="-4.765" y1="-4.765" x2="-4" y2="-4.765" width="0.2032" layer="21"/>
+<wire x1="4" y1="-4.765" x2="4.765" y2="-4.765" width="0.2032" layer="21"/>
+<wire x1="4.765" y1="-4.765" x2="4.765" y2="4.765" width="0.2032" layer="21"/>
+<wire x1="4.765" y1="4.765" x2="-4.765" y2="4.765" width="0.2032" layer="21"/>
+<wire x1="-4.765" y1="4.765" x2="-4.765" y2="-4.765" width="0.2032" layer="21"/>
+<wire x1="-1.5" y1="2.2" x2="-0.5" y2="2.2" width="0.127" layer="51"/>
+<wire x1="-0.5" y1="2.2" x2="-0.5" y2="-1.8" width="0.127" layer="51"/>
+<wire x1="-0.5" y1="-1.8" x2="0.5" y2="-1.8" width="0.127" layer="51"/>
+<wire x1="0.5" y1="-1.8" x2="0.5" y2="2.2" width="0.127" layer="51"/>
+<wire x1="0.5" y1="2.2" x2="1.5" y2="2.2" width="0.127" layer="51"/>
+<wire x1="0" y1="3.7" x2="-1.5" y2="2.2" width="0.127" layer="51"/>
+<wire x1="1.5" y1="2.2" x2="0" y2="3.7" width="0.127" layer="51"/>
+<wire x1="-4" y1="-4.765" x2="-4" y2="-4.365" width="0.2032" layer="21"/>
+<wire x1="-4" y1="-4.365" x2="4" y2="-4.365" width="0.2032" layer="21"/>
+<wire x1="4" y1="-4.365" x2="4" y2="-4.765" width="0.2032" layer="21"/>
+<pad name="1" x="-2.54" y="-0.015" drill="1.016" diameter="1.8796" shape="square"/>
+<pad name="2" x="0" y="-0.015" drill="1.016" diameter="1.8796"/>
+<pad name="3" x="2.54" y="-0.015" drill="1.016" diameter="1.8796"/>
+<text x="-5.08" y="5.08" size="1.27" layer="27">&gt;Value</text>
+<text x="-5.08" y="-6.35" size="1.27" layer="25">&gt;Name</text>
+</package>
+<package name="TRIMPOT-5MM-V2">
 <wire x1="-2.5" y1="-2.14" x2="-2.5" y2="2.86" width="0.127" layer="51"/>
 <wire x1="-2.5" y1="2.86" x2="2.5" y2="2.86" width="0.127" layer="51"/>
 <wire x1="2.5" y1="2.86" x2="2.5" y2="-2.14" width="0.127" layer="51"/>
 <wire x1="2.5" y1="-2.14" x2="-2.5" y2="-2.14" width="0.127" layer="51"/>
-<wire x1="-1.4" y1="2.96" x2="-2.6" y2="2.96" width="0.127" layer="21"/>
-<wire x1="-2.6" y1="2.96" x2="-2.6" y2="1.56" width="0.127" layer="21"/>
-<wire x1="1.409221875" y1="2.96" x2="2.6" y2="2.96" width="0.127" layer="21"/>
-<wire x1="2.6" y1="2.96" x2="2.6" y2="1.56" width="0.127" layer="21"/>
-<wire x1="-2.09398125" y1="-2.24" x2="-2.6" y2="-2.24" width="0.127" layer="21"/>
-<wire x1="-2.6" y1="-2.24" x2="-2.6" y2="-1.54" width="0.127" layer="21"/>
-<wire x1="2.1" y1="-2.24" x2="2.6" y2="-2.24" width="0.127" layer="21"/>
-<wire x1="2.6" y1="-2.24" x2="2.6" y2="-1.54" width="0.127" layer="21"/>
+<wire x1="-1.4" y1="2.96" x2="-2.6" y2="2.96" width="0.2032" layer="21"/>
+<wire x1="-2.6" y1="2.96" x2="-2.6" y2="1.56" width="0.2032" layer="21"/>
+<wire x1="1.409221875" y1="2.96" x2="2.6" y2="2.96" width="0.2032" layer="21"/>
+<wire x1="2.6" y1="2.96" x2="2.6" y2="1.56" width="0.2032" layer="21"/>
+<wire x1="-2.09398125" y1="-2.24" x2="-2.6" y2="-2.24" width="0.2032" layer="21"/>
+<wire x1="-2.6" y1="-2.24" x2="-2.6" y2="-1.54" width="0.2032" layer="21"/>
+<wire x1="2.1" y1="-2.24" x2="2.6" y2="-2.24" width="0.2032" layer="21"/>
+<wire x1="2.6" y1="-2.24" x2="2.6" y2="-1.54" width="0.2032" layer="21"/>
 <smd name="A" x="1.15" y="-2.54" dx="1.3" dy="1.3" layer="1"/>
 <smd name="B" x="0" y="3.2385" dx="2" dy="1.4016" layer="1" rot="R270"/>
 <smd name="C" x="-1.15" y="-2.54" dx="1.3" dy="1.3" layer="1"/>
@@ -25129,7 +25132,7 @@ For COM-09806 in the SparkFun catalog&lt;br&gt;</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="TRIMPOT" prefix="R">
+<deviceset name="TRIMPOT" prefix="R" uservalue="yes">
 <description>Various small potentiometers for "set-and-forget" applications</description>
 <gates>
 <gate name="R?" symbol="TRIMPOT-1" x="0" y="0"/>
@@ -25152,7 +25155,10 @@ For COM-09806 in the SparkFun catalog&lt;br&gt;</description>
 <connect gate="R?" pin="WIPER" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="PROD_ID" value="RES-09730" constant="no"/>
+<attribute name="VALUE" value="TSR-3386" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="3MM-2" package="TRIMPOT-3MM-2">
@@ -25365,6 +25371,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 <smd name="64" x="-5.75" y="-3.75" dx="0.22" dy="1" layer="1" rot="R270"/>
 <text x="-3" y="3" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-3" y="-3" size="0.4064" layer="27">&gt;VALUE</text>
+<circle x="-4.318" y="-5.7404" radius="0.1016" width="0.4064" layer="21"/>
 </package>
 </packages>
 <symbols>
