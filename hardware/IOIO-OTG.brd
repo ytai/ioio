@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="mm" style="lines" multiple="2" display="yes" altdistance="0.001" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="2" display="yes" altdistance="0.005" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -24,7 +24,7 @@
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="3" fill="6" visible="no" active="yes"/>
-<layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
+<layer number="31" name="tCream" color="11" fill="4" visible="yes" active="yes"/>
 <layer number="32" name="bCream" color="3" fill="5" visible="no" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
 <layer number="34" name="bFinish" color="3" fill="6" visible="no" active="yes"/>
@@ -42,7 +42,7 @@
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
-<layer number="49" name="Reference" color="13" fill="1" visible="yes" active="yes"/>
+<layer number="49" name="Reference" color="13" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="yes"/>
 <layer number="51" name="tDocu" color="6" fill="1" visible="yes" active="yes"/>
 <layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
@@ -243,7 +243,7 @@
 <circle x="48.26" y="29.21" radius="1.1039" width="0.508" layer="22"/>
 <circle x="55.88" y="29.21" radius="1.1039" width="0.508" layer="22"/>
 <circle x="53.34" y="29.21" radius="1.1039" width="0.508" layer="22"/>
-<text x="67.9958" y="7.4676" size="1.016" layer="16" font="vector" ratio="20" rot="SMR270">v22b</text>
+<text x="68.1228" y="25.7556" size="1.016" layer="16" font="vector" ratio="20" rot="SMR270">v22b</text>
 <wire x1="57.15" y1="30.48" x2="59.69" y2="30.48" width="0.3048" layer="21"/>
 <wire x1="59.712859375" y1="27.988259375" x2="59.69" y2="30.48" width="0.3048" layer="21"/>
 <wire x1="59.712859375" y1="27.988259375" x2="57.172859375" y2="27.988259375" width="0.3048" layer="21"/>
@@ -21897,7 +21897,7 @@ design rules under a new name.</description>
 <element name="JP8" library="SparkFun" package="MICRO-FIDUCIAL" value="FIDUCIALUFIDUCIAL" x="5.334" y="1.27" smashed="yes"/>
 <element name="JP16" library="SparkFun" package="MICRO-FIDUCIAL" value="FIDUCIALUFIDUCIAL" x="63.754" y="29.718" smashed="yes"/>
 <element name="TP1" library="SparkFun-Passives" package="PAD.03X.03" value="TEST-POINT3" x="65.659" y="12.573" rot="MR0"/>
-<element name="TP2" library="SparkFun-Passives" package="PAD.03X.03" value="TEST-POINT3" x="65.659" y="10.287" rot="MR0"/>
+<element name="TP2" library="SparkFun-Passives" package="PAD.03X.03" value="TEST-POINT3" x="65.405" y="10.287" rot="MR0"/>
 <element name="TP3" library="SparkFun-Passives" package="PAD.03X.03" value="TEST-POINT3" x="65.659" y="8.001" rot="MR0"/>
 <element name="U$6" library="SparkFun-Aesthetics" package="IOIO-OTG-COPPER-EXPOSED" value="IOIO-OTG" x="4.826" y="5.715" rot="R90"/>
 <element name="Q3" library="SparkFun-DiscreteSemi" package="SOT23-3" value="MOSFET-NCHANNELAO3404A" x="58.625740625" y="17.018" smashed="yes">
@@ -22937,7 +22937,7 @@ design rules under a new name.</description>
 <wire x1="28.4173" y1="18.068425" x2="29.017878125" y2="18.669" width="0.2032" layer="1"/>
 <wire x1="29.017878125" y1="18.669" x2="29.972" y2="18.669" width="0.2032" layer="1"/>
 <wire x1="29.972" y1="18.669" x2="32.3342" y2="21.0312" width="0.2032" layer="1"/>
-<wire x1="65.659" y1="10.287" x2="62.484" y2="10.287" width="0.2032" layer="16"/>
+<wire x1="65.405" y1="10.287" x2="62.484" y2="10.287" width="0.2032" layer="16"/>
 <wire x1="62.484" y1="10.287" x2="62.23" y2="10.033" width="0.2032" layer="16"/>
 <wire x1="39.252784375" y1="8.89" x2="34.9504" y2="13.192384375" width="0.2032" layer="1"/>
 <wire x1="34.9504" y1="13.192384375" x2="34.9504" y2="18.1102" width="0.2032" layer="1"/>
@@ -23194,6 +23194,9 @@ design rules under a new name.</description>
 <contactref element="U4" pad="SHIELD1"/>
 <contactref element="U4" pad="SHIELD3"/>
 <contactref element="U4" pad="SHIELD2"/>
+<via x="66.548" y="10.16" extent="1-16" drill="0.381"/>
+<via x="66.548" y="13.843" extent="1-16" drill="0.381"/>
+<via x="66.548" y="6.477" extent="1-16" drill="0.381"/>
 </signal>
 </signals>
 <errors>
