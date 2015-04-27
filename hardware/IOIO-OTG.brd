@@ -6,25 +6,25 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="2" display="yes" altdistance="0.0001" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="2" display="yes" altdistance="0.005" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="no" active="yes"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="yes"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="yes"/>
-<layer number="21" name="tPlace" color="16" fill="1" visible="no" active="yes"/>
-<layer number="22" name="bPlace" color="14" fill="1" visible="no" active="yes"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="21" name="tPlace" color="16" fill="1" visible="yes" active="yes"/>
+<layer number="22" name="bPlace" color="14" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="3" fill="1" visible="no" active="yes"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="3" fill="6" visible="no" active="yes"/>
-<layer number="31" name="tCream" color="11" fill="4" visible="yes" active="yes"/>
+<layer number="31" name="tCream" color="11" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="3" fill="5" visible="no" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
 <layer number="34" name="bFinish" color="3" fill="6" visible="no" active="yes"/>
@@ -38,9 +38,9 @@
 <layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
-<layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
+<layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="13" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="yes"/>
@@ -18071,8 +18071,7 @@
 <wire x1="11.43" y1="3.429" x2="11.43" y2="3.048" width="0.254" layer="22"/>
 <wire x1="9.398" y1="7.62" x2="8.89" y2="7.62" width="0.254" layer="22"/>
 <rectangle x1="47.725325" y1="19.907253125" x2="48.487325" y2="26.828753125" layer="41" rot="R90"/>
-<dimension x1="0" y1="30.48" x2="0" y2="0" x3="-4.572" y3="15.24" textsize="0.889" textratio="11" layer="47" unit="inch"/>
-<dimension x1="0" y1="30.48" x2="68.58" y2="30.48" x3="34.29" y3="35.433" textsize="0.889" textratio="11" layer="47" unit="inch"/>
+<dimension x1="0" y1="30.48" x2="0" y2="0" x3="-2.54" y3="15.24" textsize="0.889" textratio="11" layer="47" unit="inch"/>
 <text x="35.56" y="-11.43" size="1.778" layer="51" font="vector">Ytai Ben-tsvi</text>
 <text x="16.51" y="-14.224" size="1.778" layer="51" font="vector">Revised by:</text>
 <text x="34.29" y="-14.224" size="1.778" layer="51" font="vector">Aaron Weiss, Pete Lewis</text>
@@ -18890,6 +18889,12 @@
 <rectangle x1="52.334159375" y1="22.829521875" x2="52.593234375" y2="23.027640625" layer="41"/>
 <rectangle x1="52.8447" y1="22.829521875" x2="53.103775" y2="23.027640625" layer="41"/>
 <rectangle x1="53.33491875" y1="22.829521875" x2="53.59399375" y2="23.027640625" layer="41"/>
+<text x="22.479" y="42.291" size="1.778" layer="47" font="vector">Units are in inches</text>
+<dimension x1="2.54" y1="27.94" x2="2.54" y2="0" x3="-5.08" y3="13.97" textsize="1.016" layer="47" unit="inch"/>
+<dimension x1="2.54" y1="2.54" x2="2.54" y2="0" x3="-7.62" y3="1.27" textsize="1.016" layer="47" unit="inch"/>
+<dimension x1="2.54" y1="2.54" x2="0" y2="2.54" x3="1.27" y3="33.02" textsize="1.016" layer="47" unit="inch"/>
+<dimension x1="66.04" y1="2.54" x2="0" y2="2.54" x3="33.02" y3="35.56" textsize="1.016" layer="47" unit="inch"/>
+<dimension x1="68.58" y1="30.48" x2="0" y2="30.48" x3="34.29" y3="38.1" textsize="1.016" layer="47" unit="inch"/>
 </plain>
 <libraries>
 <library name="SparkFun">
