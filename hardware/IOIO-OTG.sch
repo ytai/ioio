@@ -26131,7 +26131,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <part name="D1" library="SparkFun-DiscreteSemi" deviceset="DIODE-SCHOTTKY" device="-B340A" value="B340A">
 <attribute name="PART#" value="B340A"/>
 </part>
-<part name="F1" library="SparkFun-PowerIC" deviceset="PTC" device="SMD" value="PTCSMD">
+<part name="F1" library="SparkFun-PowerIC" deviceset="PTC" device="SMD" value="0.75A">
 <attribute name="PART#" value="0ZCA0075FF2G"/>
 </part>
 <part name="R2" library="SparkFun-Resistors" deviceset="100KOHM-1/10W-1%(0603)" device="" value="100k"/>
@@ -26193,7 +26193,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <part name="FRAME2" library="SparkFun-Aesthetics" deviceset="FRAME-LEDGER" device=""/>
 <part name="LOGO2" library="SparkFun-Aesthetics" deviceset="SFE_LOGO_FLAME" device=".1_INCH"/>
 <part name="LOGO4" library="SparkFun-Aesthetics" deviceset="SFE_LOGO_NAME_FLAME" device=".1_INCH"/>
-<part name="U4" library="SparkFun-Connectors" deviceset="USB-AB" device="CONN-11794"/>
+<part name="JP21" library="SparkFun-Connectors" deviceset="USB-AB" device="CONN-11794" value="AB MICRO USB"/>
 <part name="JP19" library="SparkFun-Connectors" deviceset="JST_2MM_MALE" device="" value="JST"/>
 </parts>
 <sheets>
@@ -26402,7 +26402,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <instance part="FRAME2" gate="G$2" x="330.2" y="0"/>
 <instance part="LOGO2" gate="G$1" x="309.88" y="22.86"/>
 <instance part="LOGO4" gate="G$1" x="231.14" y="0"/>
-<instance part="U4" gate="G$1" x="241.3" y="55.88" rot="MR180"/>
+<instance part="JP21" gate="G$1" x="241.3" y="55.88" rot="MR180"/>
 <instance part="JP19" gate="G$1" x="48.26" y="233.68" smashed="yes" rot="R90">
 <attribute name="NAME" x="49.022" y="241.3" size="1.778" layer="95" font="vector" rot="R180"/>
 </instance>
@@ -26685,7 +26685,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="236.22" y1="50.8" x2="233.68" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="233.68" y1="50.8" x2="233.68" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="GND18" gate="1" pin="GND"/>
-<pinref part="U4" gate="G$1" pin="GND"/>
+<pinref part="JP21" gate="G$1" pin="GND"/>
 </segment>
 <segment>
 <pinref part="GND10" gate="1" pin="GND"/>
@@ -27358,7 +27358,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="236.22" y1="58.42" x2="185.42" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D-/CN84/RG3"/>
 <label x="190.5" y="58.42" size="1.778" layer="95" font="vector"/>
-<pinref part="U4" gate="G$1" pin="D-"/>
+<pinref part="JP21" gate="G$1" pin="D-"/>
 </segment>
 <segment>
 <pinref part="TP3" gate="G$1" pin="1"/>
@@ -27371,7 +27371,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="185.42" y1="55.88" x2="236.22" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D+/CN83/RG2"/>
 <label x="190.5" y="55.88" size="1.778" layer="95" font="vector"/>
-<pinref part="U4" gate="G$1" pin="D+"/>
+<pinref part="JP21" gate="G$1" pin="D+"/>
 </segment>
 <segment>
 <pinref part="TP2" gate="G$1" pin="1"/>
@@ -27494,7 +27494,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="226.06" y1="53.34" x2="226.06" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="S1" gate="G$1" pin="P"/>
 <wire x1="226.06" y1="50.8" x2="223.52" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="U4" gate="G$1" pin="USBID"/>
+<pinref part="JP21" gate="G$1" pin="USBID"/>
 </segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="RP16/USBID/CN71/RF3"/>
@@ -27515,7 +27515,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="205.74" y1="50.8" x2="205.74" y2="60.96" width="0.1524" layer="91"/>
 <label x="205.74" y="60.96" size="1.778" layer="95" font="vector"/>
 <label x="190.5" y="50.8" size="1.778" layer="95" font="vector"/>
-<pinref part="U4" gate="G$1" pin="VBUS"/>
+<pinref part="JP21" gate="G$1" pin="VBUS"/>
 </segment>
 <segment>
 <pinref part="F1" gate="G$1" pin="1"/>
@@ -27574,7 +27574,7 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 </net>
 <net name="ANCHOR1" class="0">
 <segment>
-<pinref part="U4" gate="G$1" pin="SHIELD"/>
+<pinref part="JP21" gate="G$1" pin="SHIELD"/>
 <wire x1="236.22" y1="63.5" x2="226.06" y2="63.5" width="0.1524" layer="91"/>
 <label x="226.06" y="63.5" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 </segment>
