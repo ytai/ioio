@@ -38,11 +38,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Build;
 import android.util.Log;
 
+@TargetApi(5)
 public class BluetoothIOIOConnection implements IOIOConnection {
 	private static final String TAG = "BluetoothIOIOConnection";
 	private BluetoothSocket socket_ = null;
