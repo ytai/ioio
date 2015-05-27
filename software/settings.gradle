@@ -1,0 +1,27 @@
+// Core library.
+include 'IOIOLibCore'
+
+// PC library.
+include 'IOIOLibPC'
+
+// Android libraries.
+include 'IOIOLibAndroid', 'IOIOLibAndroidBluetooth', 'IOIOLibAndroidAccessory',
+        'IOIOLibAndroidDevice'
+
+// Application support libraries.
+include 'applications/IOIOConnectionTester'
+
+// PC applications.
+include 'applications/pc/HelloIOIOSwing', 'applications/pc/HelloIOIOConsole',
+        'applications/pc/HelloSequencer', 'applications/pc/IOIOServoSwing',
+        'applications/pc/SeeedTestbed', 'applications/pc/IOIOConnectionTesterPC'
+
+// PC tools.
+include 'IOIODude', 'IOIOBridge'
+
+// Android applications.
+include 'applications/HelloIOIO', 'applications/HelloIOIOService', 'applications/HolidayIOIO',
+        'applications/IOIOManager', 'applications/IOIOSimpleApp', 'applications/IOIOTestBed',
+        'applications/IOIOTortureTest', 'applications/ShoeBot',
+        'applications/IOIOConnectionTesterAndroid'
+

@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.version = '5.05'
+      pom.artifactId = 'IOIOLibCore'
+      pom.groupId = 'ioio'
+    }
+  }
+}
+
+javadoc {
+  source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
+}
