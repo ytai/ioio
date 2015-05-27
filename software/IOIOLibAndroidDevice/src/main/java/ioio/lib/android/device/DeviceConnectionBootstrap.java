@@ -42,6 +42,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -65,6 +66,7 @@ import android.util.Log;
  * @author Nadir Izrael
  * @author Ytai Ben-Tsvi
  */
+@TargetApi(12)
 public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 		ContextWrapperDependent, IOIOConnectionBootstrap {
 	private static final String TAG = "DeviceConnectionBootstrap";
