@@ -1,4 +1,4 @@
-package ioio.examples.hello_swing;
+package ioio.examples.servo_swing;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
@@ -23,12 +23,12 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener, ChangeListener {
+public class IOIOServoSwing extends IOIOSwingApp implements ActionListener, ChangeListener {
 	private static final String BUTTON_PRESSED = "bp";
 
 	// Boilerplate main(). Copy-paste this code into any IOIOapplication.
 	public static void main(String[] args) throws Exception {
-		new HelloIOIOSwing().go(args);
+		new IOIOServoSwing().go(args);
 	}
 
 	protected boolean ledOn_;
