@@ -1,4 +1,4 @@
-package mobi.ioio.seed.testbed;
+package mobi.ioio.seeed.testbed;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
