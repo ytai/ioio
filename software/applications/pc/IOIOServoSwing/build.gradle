@@ -1,0 +1,21 @@
+apply plugin: 'gradle-one-jar'
+
+task distJar(type: OneJar) {
+  mainClass = 'ioio.examples.servo_swing.IOIOServoSwing'
+  archiveName = 'IOIOServoSwing.jar'
+}
+
+tasks.build.dependsOn distJar
+
+dependencies {
+  compile 'ioio:IOIOLibPC:5.05'
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+  }
+}

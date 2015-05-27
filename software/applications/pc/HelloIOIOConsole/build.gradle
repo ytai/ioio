@@ -1,0 +1,21 @@
+apply plugin: 'gradle-one-jar'
+
+task distJar(type: OneJar) {
+  mainClass = 'ioio.examples.hello_console.HelloIOIOConsole'
+  archiveName = 'HelloIOIOConsole.jar'
+}
+
+tasks.build.dependsOn distJar
+
+dependencies {
+  compile 'ioio:IOIOLibPC:5.05'
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+  }
+}
