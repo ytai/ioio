@@ -14,18 +14,6 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>lib_common</name>
-			<type>2</type>
-			<locationURI>$%7BROOT%7D/lib</locationURI>
-		</link>
-		<link>
-			<name>src_common</name>
-			<type>2</type>
-			<locationURI>$%7BROOT%7D/src</locationURI>
-		</link>
-	</linkedResources>
 	<variableList>
 		<variable>
 			<name>ROOT</name>

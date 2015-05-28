@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src_common/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/guava-12.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/IOIOLibPC"/>
-	<classpathentry kind="lib" path="lib_common/guava-12.0.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/IOIOLibCore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
