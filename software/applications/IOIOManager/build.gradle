@@ -13,6 +13,13 @@ buildscript {
 android {
   buildToolsVersion "22.0.1"
   compileSdkVersion 19
+
+  buildTypes {
+    release {
+      minifyEnabled true
+      proguardFile 'proguard-ioio.txt'
+    }
+  }
 }
 
 dependencies {

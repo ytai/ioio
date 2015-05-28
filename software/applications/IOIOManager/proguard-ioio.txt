@@ -1,0 +1,4 @@
+-dontwarn com.android.future.usb.*
+
+-keep class * implements ioio.lib.spi.IOIOConnectionBootstrap
+-keep class ioio.lib.spi.LogImpl
