@@ -14,10 +14,20 @@ android {
   buildToolsVersion "22.0.1"
   compileSdkVersion 19
 
+  signingConfigs {
+    release {
+      storeFile file(RELEASE_STORE_FILE)
+      storePassword RELEASE_STORE_PASSWORD
+      keyAlias RELEASE_KEY_ALIAS
+      keyPassword RELEASE_KEY_PASSWORD
+    }
+  }
+
   buildTypes {
     release {
       minifyEnabled true
       proguardFile 'proguard-ioio.txt'
+      signingConfig signingConfigs.release
     }
   }
 }
