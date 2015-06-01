@@ -1,3 +1,5 @@
+version = 'IOIO0505'
+
 subprojects {
   apply plugin: 'maven'
 
@@ -27,6 +29,53 @@ subprojects {
         dependencies.add(config.name, dependencies.project(path: ":$it.name"))
       }
     }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Release bundle packaging.
+
+evaluationDependsOnChildren()
+
+def bundleOutputs = [
+  'IOIOLibCore': ['jar'],
+  'IOIOLibPC': ['jar'],
+  'IOIOLibAndroid': ['bundleRelease', 'bundleDebug'],
+  'IOIOLibAndroidBluetooth': ['bundleRelease', 'bundleDebug'],
+  'IOIOLibAndroidAccessory': ['bundleRelease', 'bundleDebug'],
+  'IOIOLibAndroidDevice': ['bundleRelease', 'bundleDebug'],
+  'applications/HelloIOIO': ['packageDebug'],
+  'applications/HelloIOIOService': ['packageDebug'],
+  'applications/IOIOSimpleApp': ['packageDebug'],
+  'applications/pc/HelloIOIOConsole': ['distJar'],
+  'applications/pc/HelloIOIOSwing': ['distJar'],
+  'applications/pc/HelloSequencer': ['distJar']
+]
+
+def gitFiles(dirs) {
+  ('git ls-files -- ' + dirs.join(' ')).execute().text.readLines()
+}
+
+
+task bundle(type: Zip) {
+  baseName = 'App'
+  version = project.version
+  destinationDir = file('../release/software')
+
+  into('src') {
+    from fileTree('.').include(gitFiles(bundleOutputs.keySet())).exclude('.git*')
+  }
+
+  bundleOutputs.each { entry ->
+    entry.value.each { value ->
+      into('dist') {
+        from project(entry.key).tasks[value]
+      }
+    }
+  }
+
+  into('doc') {
+    from project('IOIOLibCore').tasks.getByName('javadoc')
   }
 }
 
