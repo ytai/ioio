@@ -1,4 +1,10 @@
-version = 'IOIO0505'
+version = 5.05
+
+project.ext.versionNamespace = "IOIO"
+project.ext.versionString = sprintf("%s%02d%02d",
+                                    versionNamespace,
+                                    (int) version,
+                                    ((int) (version * 100)) % 100)
 
 subprojects {
   apply plugin: 'maven'
@@ -62,7 +68,7 @@ def gitFiles(dirs) {
 
 task bundle(type: Zip) {
   baseName = 'App'
-  version = project.version
+  version = versionString
   destinationDir = file('../release/software')
 
   into('src') {

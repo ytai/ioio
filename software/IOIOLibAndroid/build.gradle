@@ -16,5 +16,5 @@ android {
 }
 
 dependencies {
-  compile 'ioio:IOIOLibCore:5.05'
+  compile project(":IOIOLibCore")
 }

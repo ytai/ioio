@@ -3,14 +3,12 @@ apply plugin: 'java'
 uploadArchives {
   repositories {
     mavenDeployer {
-      pom.version = '5.05'
       pom.artifactId = 'IOIOLibPC'
-      pom.groupId = 'ioio'
     }
   }
 }
 
 dependencies {
   compile 'com.sparetimelabs:purejavacomm:0.0.22'
-  compile 'ioio:IOIOLibCore:5.05'
+  compile project(":IOIOLibCore")
 }

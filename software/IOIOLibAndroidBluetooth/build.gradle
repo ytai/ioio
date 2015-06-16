@@ -16,5 +16,5 @@ android {
 }
 
 dependencies {
-  compile 'ioio:IOIOLibAndroid:5.05'
+  compile project(":IOIOLibAndroid")
 }

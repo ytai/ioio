@@ -3,13 +3,34 @@ apply plugin: 'java'
 uploadArchives {
   repositories {
     mavenDeployer {
-      pom.version = '5.05'
       pom.artifactId = 'IOIOLibCore'
-      pom.groupId = 'ioio'
     }
   }
 }
 
+task generateVersionFile(type: GenerateVersion) {
+  version = versionString
+  outputFile = file("$project.buildDir/classes/main/version.properties")
+}
+
+tasks.classes.dependsOn generateVersionFile
+
 javadoc {
   source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
+}
+
+class GenerateVersion extends DefaultTask {
+    @Input
+    String version
+
+    @OutputFile
+    File outputFile
+
+    @TaskAction
+    void generate() {
+        def file = getOutputFile()
+        def properties = new Properties()
+        properties.setProperty("version", version)
+        properties.store(file.newWriter(), null)
+    }
 }
