@@ -15,6 +15,18 @@ android {
   compileSdkVersion 10
 }
 
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name = 'IOIOLibAndroidBluetooth'
+        description = 'IOIO library for Android - Bluetooth extenstion'
+        packaging = 'aar'
+      }
+    }
+  }
+}
+
 dependencies {
   compile project(":IOIOLibAndroid")
 }

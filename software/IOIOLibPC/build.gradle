@@ -3,9 +3,30 @@ apply plugin: 'java'
 uploadArchives {
   repositories {
     mavenDeployer {
-      pom.artifactId = 'IOIOLibPC'
+      pom.project {
+        name = 'IOIOLibPC'
+        description = 'IOIO Library for PC applications'
+      }
     }
   }
+}
+
+javadoc {
+  source = fileTree(dir: 'src/main/java')
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
 }
 
 dependencies {

@@ -3,7 +3,10 @@ apply plugin: 'java'
 uploadArchives {
   repositories {
     mavenDeployer {
-      pom.artifactId = 'IOIOLibCore'
+      pom.project {
+        name = 'IOIOLibCore'
+        description = 'Common core of the IOIO library'
+      }
     }
   }
 }
@@ -17,6 +20,20 @@ tasks.classes.dependsOn generateVersionFile
 
 javadoc {
   source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
 }
 
 class GenerateVersion extends DefaultTask {

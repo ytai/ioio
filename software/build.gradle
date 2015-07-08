@@ -1,38 +1,80 @@
-version = 5.05
-
-project.ext.versionNamespace = "IOIO"
-project.ext.versionString = sprintf("%s%02d%02d",
-                                    versionNamespace,
-                                    (int) version,
-                                    ((int) (version * 100)) % 100)
+allprojects {
+  group = 'com.github.ytai.ioio'
+  version = 5.05
+  ext.versionNamespace = 'IOIO'
+  ext.versionString = sprintf("%s%02d%02d",
+                              versionNamespace,
+                              (int) version,
+                              ((int) (version * 100)) % 100)
+}
 
 subprojects {
   apply plugin: 'maven'
+  apply plugin: 'signing'
 
   repositories {
-    mavenLocal()
     mavenCentral()
     maven {
       url "http://www.sparetimelabs.com/maven2"
     }
-  }
-
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        repository(url: "file://localhost/tmp/myRepo/")
-      }
+    maven {
+      url 'https://oss.sonatype.org/content/groups/staging'
     }
   }
 
-  // Replace dependendices on modules from the ioio group with local project
-  // dependencies.
-  afterEvaluate { 
-    configurations.each { config-> 
-      def ioioDeps = config.dependencies.findAll { it.group == 'ioio' }
-      config.dependencies.removeAll { it.group == 'ioio' }
+  afterEvaluate {
+    // Replace dependendices on modules from the ioio group with local project
+    // dependencies.
+    configurations.each { config->
+      def ioioDeps = config.dependencies.findAll { it.group == group }
+      config.dependencies.removeAll(ioioDeps)
       ioioDeps.each {
         dependencies.add(config.name, dependencies.project(path: ":$it.name"))
+      }
+    }
+
+    // Common handling for uploading archives to Maven central.
+    if (tasks.findByName('uploadArchives')?.repositories?.findByName('mavenDeployer')) {
+      signing {
+        sign configurations.archives
+      }
+
+      uploadArchives {
+        repositories {
+          mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: OSSRH_USER, password: OSSRH_PASSWORD)
+            }
+
+            pom.project {
+              packaging 'jar'
+              url 'https://github.com/ytai/ioio/wiki'
+
+              scm {
+                connection 'scm:git@github.com:ytai/ioio.git'
+                developerConnection 'scm:git@github.com:ytai/ioio.git'
+                url 'https://www.github.com/ytai/ioio'
+              }
+
+              licenses {
+                license {
+                  name 'The BSD 2-Clause License'
+                  url 'http://opensource.org/licenses/bsd-license.php'
+                }
+              }
+
+              developers {
+                developer {
+                  id 'ytai'
+                  name 'Ytai Ben-Tsvi'
+                  email 'ytaibt@gmail.com'
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

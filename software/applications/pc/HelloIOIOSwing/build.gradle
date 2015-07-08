@@ -7,7 +7,12 @@ task distJar(type: OneJar) {
 tasks.build.dependsOn distJar
 
 dependencies {
-  compile 'ioio:IOIOLibPC:5.05'
+  compile 'com.github.ytai.ioio:IOIOLibPC:5.05'
+}
+
+repositories {
+  mavenCentral()
+  maven { url "http://www.sparetimelabs.com/maven2" }
 }
 
 buildscript {
