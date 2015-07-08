@@ -93,7 +93,7 @@ class PwmImpl extends AbstractPin implements PwmOutput {
 			fraction = 0;
 		} else {
 			pw = (int) p;
-			fraction = ((int) p * 4) & 0x03;
+			fraction = (int)(p * 4) & 0x03;
 		}
 		try {
 			ioio_.protocol_.setPwmDutyCycle(pwm_.id, pw, fraction);
