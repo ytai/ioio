@@ -529,12 +529,12 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 				throw new IllegalArgumentException(
 						"Pulse width must be 0 or between [0..floor(period/2)]");
 			}
-			if (steps.period < 3 || steps.period > (1 << 16)) {
+			if (steps.pulseWidth > 0 && (steps.period < 3 || steps.period > (1 << 16))) {
 				throw new IllegalArgumentException("Period must be between [3..65536]");
 			}
 
 			final int pwEnc = steps.pulseWidth; // No -1 here on purpose!
-			final int periodEnd = steps.period - 1;
+			final int periodEnd = steps.pulseWidth > 0 ? steps.period - 1 : 0;
 
 			buf[offset++] = (byte) convertClock(steps.clk);
 			buf[offset++] = (byte) ((pwEnc >> 0) & 0xFF);
