@@ -101,7 +101,7 @@ public interface DigitalOutput extends Closeable {
 		/**
 		 * Shorthand for Spec(pin, Mode.NORMAL).
 		 * 
-		 * @see DigitalOutput.Spec#Spec(int, DigitalOutput.Spec.Mode)
+		 * @see #Spec(int, Mode)
 		 */
 		public Spec(int pin) {
 			this(pin, Mode.NORMAL);

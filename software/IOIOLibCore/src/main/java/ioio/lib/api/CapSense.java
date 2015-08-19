@@ -66,6 +66,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Typical usage:
  *
  * <pre>
+ * {@code
  * CapSense touchSensor = ioio.openCapSense(40);
  * if (touchSensor.read() > 50) {
  *   // Clicked!
@@ -74,7 +75,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  *
  * ...
  * touchSensor.close();  // optional. pin 40 can now be used for something else.
- * </pre>
+ * }</pre>
  *
  * @see IOIO#openCapSense(int)
  * @see IOIO#openCapSense(int, float)
@@ -145,17 +146,18 @@ public interface CapSense extends Closeable {
 	public void waitOver(float threshold) throws ConnectionLostException, InterruptedException;
 
 	/**
-	 * This is very similar to {@link #waitOver()}, but will wait for a new sample to arrive before
+	 * This is very similar to {@link #waitOver(float)}, but will wait for a new sample to arrive before
 	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
 	 * guarantee the we are looking at a sample that has been captured strictly after certain other
 	 * commands have been executed.
 	 *
-	 * @return The capacitance, in pico-Farade units.
+	 * @param threshold
+     *            The threshold value, in pF units.
 	 * @throws InterruptedException
 	 *             The calling thread has been interrupted.
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO is lost.
-	 * @see #waitOver()
+	 * @see #waitOver(float)
 	 */
 	public void waitOverSync(float threshold) throws ConnectionLostException, InterruptedException;
 
@@ -175,17 +177,18 @@ public interface CapSense extends Closeable {
 	public void waitUnder(float threshold) throws ConnectionLostException, InterruptedException;
 
 	/**
-	 * This is very similar to {@link #waitUnder()}, but will wait for a new sample to arrive before
+	 * This is very similar to {@link #waitUnder(float)}, but will wait for a new sample to arrive before
 	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
 	 * guarantee the we are looking at a sample that has been captured strictly after certain other
 	 * commands have been executed.
 	 *
-	 * @return The capacitance, in pico-Farade units.
+     * @param threshold
+     *            The threshold value, in pF units.
 	 * @throws InterruptedException
 	 *             The calling thread has been interrupted.
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO is lost.
-	 * @see #waitUnder()
+	 * @see #waitUnder(float)
 	 */
 	public void waitUnderSync(float threshold) throws ConnectionLostException, InterruptedException;
 }

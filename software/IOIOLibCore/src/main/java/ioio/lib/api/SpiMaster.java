@@ -149,7 +149,7 @@ public interface SpiMaster extends Closeable {
 		 * Constructor with common defaults. Equivalent to Config(rate, false,
 		 * false)
 		 * 
-		 * @see SpiMaster.Config#Config(SpiMaster.Config.Rate, boolean, boolean)
+		 * @see #Config(Rate, boolean, boolean)
 		 */
 		public Config(Rate rate) {
 			this(rate, false, false);

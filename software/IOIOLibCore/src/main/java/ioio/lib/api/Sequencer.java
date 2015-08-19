@@ -64,15 +64,14 @@ import ioio.lib.api.exception.ConnectionLostException;
  * execution never needs to stall. During execution, {@link #pause()} will suspend execution as soon
  * as the currently executed cue is done, without clearing the queue of pending cues. Operation can
  * then be resumed by calling {@link #start()} again. Calling {@link #stop()} will immediately stop
- * execution and clear the queue. Execution progress can be tracked at any time by calling
- * {@link #numCuesStarted()}, which will increment every time actual execution of a cue has begun.
- * It will be reset back to 0 following a {@link #stop()}.
+ * execution and clear the queue.
  *
  * <h4>Pre-fill</h4>
  * In order to avoid stalls immediately after {@link #start()}, it is recommended to pre-fill the
  * cue FIFO priorly. The recommended sequence of operations is:
  *
  * <pre>
+ * {@code
  * // Open the sequencer.
  * Sequencer s = ioio_.openSequencer(...);
  * // At this point, the FIFO might still be at zero capacity, wait until opening is complete.
@@ -83,7 +82,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * }
  * // Now we can start!
  * s.start();
- * </pre>
+ * }</pre>
  *
  * <h4>Manual Operation</h4>
  * In some cases it is useful to be able to execute some cues while the {@link Sequencer} is paused
@@ -139,7 +138,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * <td>Idle (and clear the queue)</td>
  * </tr>
  * <tr>
- * <td>{@link #manualStart()}</td>
+ * <td>{@link #manualStart(ChannelCue[])}</td>
  * <td>Manual (new cue)</td>
  * </tr>
  * </table>
@@ -190,7 +189,9 @@ import ioio.lib.api.exception.ConnectionLostException;
  * is constantly blocking on {@link #waitEvent()}</dd>
  * </dl>
  * <p>
- *
+ * Execution progress can be tracked at any time by examining the {@link Event#numCuesStarted}
+ * field, which will increment every time actual execution of a cue has begun.
+ * It will be reset back to 0 following a {@link #stop()}.
  */
 public interface Sequencer extends Closeable {
 	/**
@@ -630,7 +631,7 @@ public interface Sequencer extends Closeable {
 	 * Push a timed cue to the sequencer.
 	 * <p>
 	 * This method will block until there is at least one free space in the FIFO (which may be
-	 * forever if the sequencer is not running -- use {@link Sequencer.available()} first in this
+	 * forever if the sequencer is not running -- use {@link Sequencer#available()} first in this
 	 * case). Then, it will queue the cue for execution.
 	 *
 	 * @param cues
@@ -638,7 +639,7 @@ public interface Sequencer extends Closeable {
 	 *            {@link ChannelConfig} array that was used to configure the sequencer. Each
 	 *            element's type should be the counterpart of the corresponding configuration type.
 	 *            For example, it element number 5 in the configuration array was of type
-	 *            {@link Sequencer.ChannleConfigBinary}, then cues[5] needs to be of type
+	 *            {@link Sequencer.ChannelConfigBinary}, then cues[5] needs to be of type
 	 *            {@link Sequencer.ChannelCueBinary}
 	 * @param duration
 	 *            The time duration for which this cue is to be executed, before moving to the next
@@ -738,8 +739,8 @@ public interface Sequencer extends Closeable {
 	 * <p>
 	 * This includes the event type and the number of cues that started executing, since opening the
 	 * sequencer or the last call to {@link #stop()}. Immediately after opening the sequencer, the
-	 * event type may be {@link Event.Type.CLOSED}, and as soon as the sequencer finished opening an
-	 * {@link Event.Type.STOPPED} will be sent.
+	 * event type may be {@link Event.Type#CLOSED}, and as soon as the sequencer finished opening an
+	 * {@link Event.Type#STOPPED} will be sent.
 	 *
 	 * @return The last event.
 	 *

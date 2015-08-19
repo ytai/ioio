@@ -75,6 +75,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Typical usage:
  *
  * <pre>
+ * {@code
  * AnalogInput potentiometer = ioio.openAnalogInput(40);
  * potentiometer.setBuffer(256);
  * for (int i = 0; i < 1024; ++i) {
@@ -84,7 +85,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * }
  * ...
  * potentiometer.close();  // pin 40 can now be used for something else.
- * </pre>
+ * }</pre>
  *
  * @see IOIO#openAnalogInput(int)
  */
@@ -113,7 +114,7 @@ public interface AnalogInput extends Closeable {
 	 * want to guarantee the we are looking at a sample that has been captured strictly after
 	 * certain other commands have been executed.
 	 *
-	 * @return
+     * @return The voltage, in Volt units.
 	 * @throws InterruptedException
 	 *             The calling thread has been interrupted.
 	 * @throws ConnectionLostException
