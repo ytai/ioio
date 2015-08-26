@@ -37,6 +37,8 @@
 #include "USB/usb.h"
 #include "USB/usb_function_cdc.h"
 
+#define __MIN(a,b) ((a) < (b) ? (a) : (b))
+
 typedef enum {
   CHANNEL_DETACHED,
   CHANNEL_WAIT_DTE,
@@ -55,7 +57,7 @@ static CHANNEL_STATE channel_state;
 
 static void CDCInit(void *buf, int size) {
   rx_buf = buf;
-  rx_buf_size = min(size, 0xFF);
+  rx_buf_size = __MIN(size, 0xFF);
   channel_state = CHANNEL_DETACHED;
 }
 

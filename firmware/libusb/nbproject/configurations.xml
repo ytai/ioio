@@ -75,13 +75,22 @@
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
         <archiverTool>
         </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -95,6 +104,8 @@
       <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -107,6 +118,8 @@
             overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -117,6 +130,8 @@
       <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -127,6 +142,8 @@
       <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -137,6 +154,8 @@
       <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -147,6 +166,8 @@
       <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -157,6 +178,8 @@
       <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -167,6 +190,8 @@
       <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -178,6 +203,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -191,12 +217,32 @@
         <property key="extra-include-directories"
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
@@ -216,6 +262,7 @@
         <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-ram" value="no_ram"/>
@@ -226,13 +273,27 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
@@ -246,15 +307,103 @@
         <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="GRAPHICS" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x157f7"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
       <item path="usb_descriptors.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -265,6 +414,8 @@
       <item path="usb_device_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -280,13 +431,22 @@
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
         <archiverTool>
         </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -300,6 +460,8 @@
       <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -312,6 +474,8 @@
             overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -322,6 +486,8 @@
       <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -332,6 +498,8 @@
       <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -342,6 +510,8 @@
       <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -352,6 +522,8 @@
       <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -362,6 +534,8 @@
       <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -372,6 +546,8 @@
       <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -383,6 +559,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -396,13 +573,33 @@
         <property key="extra-include-directories"
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros"
                   value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
@@ -422,6 +619,7 @@
         <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-ram" value="no_ram"/>
@@ -432,13 +630,27 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
@@ -452,15 +664,103 @@
         <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="GRAPHICS" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x157f7"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
       <item path="usb_descriptors.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -471,6 +771,8 @@
       <item path="usb_device_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -481,6 +783,8 @@
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -496,13 +800,22 @@
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
         <archiverTool>
         </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -516,6 +829,8 @@
       <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -528,6 +843,8 @@
             overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -538,6 +855,8 @@
       <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -548,6 +867,8 @@
       <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -558,6 +879,8 @@
       <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -568,6 +891,8 @@
       <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -578,6 +903,8 @@
       <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -588,6 +915,8 @@
       <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -599,6 +928,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -612,12 +942,32 @@
         <property key="extra-include-directories"
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
@@ -637,6 +987,7 @@
         <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-ram" value="no_ram"/>
@@ -647,13 +998,27 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
@@ -667,9 +1032,15 @@
         <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
         <property key="ADC 1" value="true"/>
@@ -678,7 +1049,6 @@
         <property key="COMPARATOR" value="true"/>
         <property key="CRC" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="GRAPHICS" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="I2C2" value="true"/>
@@ -720,24 +1090,45 @@
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="false"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
       <item path="usb_descriptors.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -748,6 +1139,8 @@
       <item path="usb_device_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -763,13 +1156,22 @@
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
         <archiverTool>
         </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -783,6 +1185,8 @@
       <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -795,6 +1199,8 @@
             overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -805,6 +1211,8 @@
       <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -815,6 +1223,8 @@
       <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -825,6 +1235,8 @@
       <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -835,6 +1247,8 @@
       <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -845,6 +1259,8 @@
       <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -855,6 +1271,8 @@
       <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -866,6 +1284,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -879,13 +1298,33 @@
         <property key="extra-include-directories"
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros"
                   value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
@@ -905,6 +1344,7 @@
         <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-ram" value="no_ram"/>
@@ -915,13 +1355,27 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
@@ -935,9 +1389,15 @@
         <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
         <property key="ADC 1" value="true"/>
@@ -946,7 +1406,6 @@
         <property key="COMPARATOR" value="true"/>
         <property key="CRC" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="GRAPHICS" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="I2C2" value="true"/>
@@ -988,24 +1447,45 @@
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="false"/>
+        <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="false"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveprogramrange.end" value="0xff"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
       <item path="usb_descriptors.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1016,6 +1496,8 @@
       <item path="usb_device_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1026,6 +1508,8 @@
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1041,13 +1525,22 @@
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
         <archiverTool>
         </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -1061,6 +1554,8 @@
       <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1073,6 +1568,8 @@
             overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1083,6 +1580,8 @@
       <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1093,6 +1592,8 @@
       <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1103,6 +1604,8 @@
       <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1113,6 +1616,8 @@
       <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1123,6 +1628,8 @@
       <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1133,6 +1640,8 @@
       <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -1144,6 +1653,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="const-in-data"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -1157,12 +1667,32 @@
         <property key="extra-include-directories"
                   value=".;../microchip/include;../microchip/include/USB;../common"/>
         <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
         <property key="optimization-level" value="s"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="NDEBUG;USB_SUPPORT_HOST"/>
         <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
@@ -1182,6 +1712,7 @@
         <property key="warning-level" value="emit-warnings"/>
       </C30-AS>
       <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
         <property key="boot-flash" value="no_flash"/>
         <property key="boot-ram" value="no_ram"/>
@@ -1192,13 +1723,27 @@
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
         <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
@@ -1212,795 +1757,15 @@
         <property key="warn-section-align" value="false"/>
       </C30-LD>
       <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
-      </C30Global>
-      <PICkit3PlatformTool>
-      </PICkit3PlatformTool>
-      <item path="usb_descriptors.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_device_cdc.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-    </conf>
-    <conf name="PIC24FJ256DA206_ADB" type="3">
-      <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256DA206</targetDevice>
-        <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
-      </toolsSet>
-      <compileType>
-        <archiverTool>
-        </archiverTool>
-      </compileType>
-      <makeCustomizationType>
-        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
-        <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
-        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
-        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
-      </makeCustomizationType>
-      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/include/USB/usb_function_cdc.h"
-            ex="true"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <C30>
-        <property key="code-model" value="default"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-large-arrays" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-short-double" value="false"/>
-        <property key="enable-symbols" value="true"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories"
-                  value=".;../microchip/include;../microchip/include/USB;../common"/>
-        <property key="isolate-each-function" value="true"/>
-        <property key="optimization-level" value="s"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros"
-                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_HOST"/>
-        <property key="scalar-model" value="default"/>
-      </C30>
-      <C30-AS>
-        <property key="assembler-symbols" value=""/>
-        <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="false-conditionals" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="list-file" value=""/>
-        <property key="list-section-info" value="false"/>
-        <property key="list-source" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
-      </C30-AS>
-      <C30-LD>
-        <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-ram" value="no_ram"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-pack-data" value="true"/>
-        <property key="extra-lib-directories" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="input-libraries" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="stack-size" value=""/>
-        <property key="symbol-stripping" value="keep-all"/>
-        <property key="trace-symbols" value=""/>
-        <property key="warn-section-align" value="false"/>
-      </C30-LD>
-      <C30Global>
-        <property key="fast-math" value="false"/>
-        <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
-      </C30Global>
-      <PICkit3PlatformTool>
-      </PICkit3PlatformTool>
-      <item path="usb_descriptors.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_device_cdc.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_host_bluetooth.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-    </conf>
-    <conf name="PIC24FJ256GB206_OTG" type="3">
-      <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256GB206</targetDevice>
-        <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
-      </toolsSet>
-      <compileType>
-        <archiverTool>
-        </archiverTool>
-      </compileType>
-      <makeCustomizationType>
-        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
-        <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
-        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
-        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
-      </makeCustomizationType>
-      <item path="../microchip/include/USB/usb_device.h"
-            ex="false"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/include/USB/usb_function_cdc.h"
-            ex="false"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_function_cdc.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <C30>
-        <property key="code-model" value="default"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-large-arrays" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-short-double" value="false"/>
-        <property key="enable-symbols" value="true"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories"
-                  value=".;../microchip/include;../microchip/include/USB;../common"/>
-        <property key="isolate-each-function" value="true"/>
-        <property key="optimization-level" value="s"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros"
-                  value="NDEBUG;ENABLE_OTG;USB_SUPPORT_DEVICE;USB_SUPPORT_HOST"/>
-        <property key="scalar-model" value="default"/>
-      </C30>
-      <C30-AS>
-        <property key="assembler-symbols" value=""/>
-        <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="false-conditionals" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="list-file" value=""/>
-        <property key="list-section-info" value="false"/>
-        <property key="list-source" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
-      </C30-AS>
-      <C30-LD>
-        <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-ram" value="no_ram"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-pack-data" value="true"/>
-        <property key="extra-lib-directories" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="input-libraries" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="stack-size" value=""/>
-        <property key="symbol-stripping" value="keep-all"/>
-        <property key="trace-symbols" value=""/>
-        <property key="warn-section-align" value="false"/>
-      </C30-LD>
-      <C30Global>
-        <property key="fast-math" value="false"/>
-        <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
-      </C30Global>
-      <PICkit3PlatformTool>
-      </PICkit3PlatformTool>
-      <item path="usb_device_dummy.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-    </conf>
-    <conf name="PIC24FJ256GB206_OTG_ADB" type="3">
-      <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256GB206</targetDevice>
-        <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
-      </toolsSet>
-      <compileType>
-        <archiverTool>
-        </archiverTool>
-      </compileType>
-      <makeCustomizationType>
-        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
-        <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
-        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
-        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
-      </makeCustomizationType>
-      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/include/USB/usb_function_cdc.h"
-            ex="true"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <C30>
-        <property key="code-model" value="default"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-large-arrays" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-short-double" value="false"/>
-        <property key="enable-symbols" value="true"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories"
-                  value=".;../microchip/include;../microchip/include/USB;../common"/>
-        <property key="isolate-each-function" value="true"/>
-        <property key="optimization-level" value="s"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros"
-                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;ENABLE_OTG;USB_SUPPORT_HOST"/>
-        <property key="scalar-model" value="default"/>
-      </C30>
-      <C30-AS>
-        <property key="assembler-symbols" value=""/>
-        <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="false-conditionals" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="list-file" value=""/>
-        <property key="list-section-info" value="false"/>
-        <property key="list-source" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
-      </C30-AS>
-      <C30-LD>
-        <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-ram" value="no_ram"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-pack-data" value="true"/>
-        <property key="extra-lib-directories" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="input-libraries" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="stack-size" value=""/>
-        <property key="symbol-stripping" value="keep-all"/>
-        <property key="trace-symbols" value=""/>
-        <property key="warn-section-align" value="false"/>
-      </C30-LD>
-      <C30Global>
-        <property key="fast-math" value="false"/>
-        <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
-      </C30Global>
-      <PICkit3PlatformTool>
-      </PICkit3PlatformTool>
-      <item path="usb_descriptors.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_device_cdc.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_device_dummy.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="usb_host_bluetooth.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-    </conf>
-    <conf name="PIC24FJ256GB206_CDC" type="3">
-      <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC24FJ256GB206</targetDevice>
-        <targetHeader></targetHeader>
-        <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
-        <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
-        <platform>3</platform>
-      </toolsSet>
-      <compileType>
-        <archiverTool>
-        </archiverTool>
-      </compileType>
-      <makeCustomizationType>
-        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
-        <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
-        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
-        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
-      </makeCustomizationType>
-      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/include/USB/usb_function_cdc.h"
-            ex="true"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_function_cdc.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_hal_pic24f.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_host.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <C30>
-        <property key="code-model" value="default"/>
-        <property key="const-model" value="const-in-data"/>
-        <property key="data-model" value="large-data"/>
-        <property key="enable-all-warnings" value="true"/>
-        <property key="enable-ansi-std" value="false"/>
-        <property key="enable-ansi-warnings" value="false"/>
-        <property key="enable-fatal-warnings" value="false"/>
-        <property key="enable-large-arrays" value="false"/>
-        <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-procedural-abstraction" value="false"/>
-        <property key="enable-short-double" value="false"/>
-        <property key="enable-symbols" value="true"/>
-        <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories"
-                  value=".;../microchip/include;../microchip/include/USB;../common"/>
-        <property key="isolate-each-function" value="true"/>
-        <property key="optimization-level" value="s"/>
-        <property key="post-instruction-scheduling" value="default"/>
-        <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros"
-                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;DISABLE_ADB;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_DEVICE"/>
-        <property key="scalar-model" value="default"/>
-      </C30>
-      <C30-AS>
-        <property key="assembler-symbols" value=""/>
-        <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="false-conditionals" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="list-file" value=""/>
-        <property key="list-section-info" value="false"/>
-        <property key="list-source" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="relax" value="false"/>
-        <property key="warning-level" value="emit-warnings"/>
-      </C30-AS>
-      <C30-LD>
-        <property key="boot-eeprom" value="no_eeprom"/>
-        <property key="boot-flash" value="no_flash"/>
-        <property key="boot-ram" value="no_ram"/>
-        <property key="boot-write-protect" value="no_write_protect"/>
-        <property key="enable-check-sections" value="false"/>
-        <property key="enable-data-init" value="true"/>
-        <property key="enable-default-isr" value="true"/>
-        <property key="enable-handles" value="true"/>
-        <property key="enable-pack-data" value="true"/>
-        <property key="extra-lib-directories" value=""/>
-        <property key="general-code-protect" value="no_code_protect"/>
-        <property key="general-write-protect" value="no_write_protect"/>
-        <property key="generate-cross-reference-file" value="false"/>
-        <property key="heap-size" value=""/>
-        <property key="input-libraries" value=""/>
-        <property key="linker-symbols" value=""/>
-        <property key="map-file" value=""/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="false"/>
-        <property key="report-memory-usage" value="false"/>
-        <property key="secure-eeprom" value="no_eeprom"/>
-        <property key="secure-flash" value="no_flash"/>
-        <property key="secure-ram" value="no_ram"/>
-        <property key="secure-write-protect" value="no_write_protect"/>
-        <property key="stack-size" value=""/>
-        <property key="symbol-stripping" value="keep-all"/>
-        <property key="trace-symbols" value=""/>
-        <property key="warn-section-align" value="false"/>
-      </C30-LD>
-      <C30Global>
-        <property key="fast-math" value="false"/>
-        <property key="legacy-libc" value="false"/>
-        <property key="output-file-format" value="coff"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
       </C30Global>
       <PICkit3PlatformTool>
         <property key="ADC 1" value="true"/>
@@ -2009,7 +1774,6 @@
         <property key="COMPARATOR" value="true"/>
         <property key="CRC" value="true"/>
         <property key="CTMU" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
         <property key="GRAPHICS" value="true"/>
         <property key="I2C1" value="true"/>
         <property key="I2C2" value="true"/>
@@ -2051,24 +1815,45 @@
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
-        <property key="memories.eeprom" value="false"/>
-        <property key="memories.id" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
         <property key="memories.programmemory" value="true"/>
-        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
         <property key="memories.programmemory.start" value="0x0"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x2abf7"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </PICkit3PlatformTool>
-      <item path="usb_config.c" ex="true" overriding="false">
+      <item path="usb_descriptors.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -2076,9 +1861,11 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="usb_descriptors.c" ex="false" overriding="false">
+      <item path="usb_device_cdc.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -2086,9 +1873,45 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="usb_device_cdc.c" ex="false" overriding="false">
+    </conf>
+    <conf name="PIC24FJ256DA206_ADB" type="3">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ256DA206</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>PICkit3PlatformTool</platformTool>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -2096,9 +1919,13 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="usb_device_dummy.c" ex="true" overriding="false">
+      <item path="../microchip/include/USB/usb_function_cdc.h"
+            ex="true"
+            overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -2106,9 +1933,296 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="usb_host_android.c" ex="true" overriding="false">
+      <item path="../microchip/include/USB/usb_otg.h" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories"
+                  value=".;../microchip/include;../microchip/include/USB;../common"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_HOST"/>
+        <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+      </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+      </C30Global>
+      <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="GRAPHICS" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x2abf7"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PICkit3PlatformTool>
+      <item path="usb_descriptors.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_cdc.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>
@@ -2119,6 +2233,1069 @@
       <item path="usb_host_bluetooth.c" ex="true" overriding="false">
         <C30>
         </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+    </conf>
+    <conf name="PIC24FJ256GB206_OTG" type="3">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ256GB206</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>PICkit3PlatformTool</platformTool>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <item path="../microchip/include/USB/usb_device.h"
+            ex="false"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/include/USB/usb_function_cdc.h"
+            ex="false"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_function_cdc.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories"
+                  value=".;../microchip/include;../microchip/include/USB;../common"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="NDEBUG;ENABLE_OTG;USB_SUPPORT_DEVICE;USB_SUPPORT_HOST"/>
+        <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+      </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+      </C30Global>
+      <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x2abf7"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PICkit3PlatformTool>
+      <item path="usb_device_dummy.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+    </conf>
+    <conf name="PIC24FJ256GB206_OTG_ADB" type="3">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ256GB206</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>PICkit3PlatformTool</platformTool>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/include/USB/usb_function_cdc.h"
+            ex="true"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_function_cdc.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_hal_pic24f.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories"
+                  value=".;../microchip/include;../microchip/include/USB;../common"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;ENABLE_OTG;USB_SUPPORT_HOST"/>
+        <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+      </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+      </C30Global>
+      <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x2abf7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x2abf7"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PICkit3PlatformTool>
+      <item path="usb_descriptors.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_cdc.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_dummy.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_host_bluetooth.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+    </conf>
+    <conf name="PIC24FJ256GB206_CDC" type="3">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ256GB206</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>PICkit3PlatformTool</platformTool>
+        <languageToolchain>XC16</languageToolchain>
+        <languageToolchainVersion>1.25</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <item path="../microchip/include/USB/usb_device.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/include/USB/usb_function_cdc.h"
+            ex="true"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_device_local.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_function_cdc.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_hal_pic24f.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_host.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="../microchip/usb/usb_otg.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="const-in-data"/>
+        <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories"
+                  value=".;../microchip/include;../microchip/include/USB;../common"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-align-arr" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
+        <property key="optimization-level" value="s"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="DISABLE_BLUETOOTH;DISABLE_ACCESSORY;DISABLE_ADB;CONFIGURE_UNKNOWN_DEVICE;NDEBUG;USB_SUPPORT_DEVICE"/>
+        <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+      </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-file" value=""/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value=""/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value="keep-all"/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="output-file-format" value="elf"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+      </C30Global>
+      <PICkit3PlatformTool>
+        <property key="ADC 1" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CLOCK CONTROL" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="CRC" value="true"/>
+        <property key="CTMU" value="true"/>
+        <property key="I2C1" value="true"/>
+        <property key="I2C2" value="true"/>
+        <property key="I2C3" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="RTCC" value="true"/>
+        <property key="SPI 1" value="true"/>
+        <property key="SPI 2" value="true"/>
+        <property key="SPI 3" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART 1" value="true"/>
+        <property key="UART 2" value="true"/>
+        <property key="UART 3" value="true"/>
+        <property key="UART 4" value="true"/>
+        <property key="UCNFG1" value="true"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="false"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="false"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x157f7"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PICkit3PlatformTool>
+      <item path="usb_config.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_descriptors.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_cdc.c" ex="false" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_device_dummy.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_host_android.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="usb_host_bluetooth.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
         <C30-AS>
         </C30-AS>
         <C30-LD>

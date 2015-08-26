@@ -9,6 +9,7 @@
             <cpp-extensions/>
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
+            <asminc-extensions/>
             <make-dep-projects/>
         </data>
     </configuration>
