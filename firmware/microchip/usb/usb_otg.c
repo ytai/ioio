@@ -301,6 +301,9 @@ void USBOTGInitialize()
 {
     VBUS_Init;
     #ifdef USB_MICRO_AB_OTG_CABLE
+        //Enable pull-up on USBID
+        _CN71PUE = 1;
+
         //Power Up Module
         U1PWRCbits.USBPWR = 1;
 
