@@ -42,6 +42,9 @@
 #endif
 
 void USBInitialize() {
+  //Enable pull-up on USBID
+  _CN71PUE = 1;
+
 #ifdef USB_SUPPORT_OTG
   USBOTGInitialize();
 #else
