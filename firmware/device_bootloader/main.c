@@ -138,7 +138,7 @@ static void OscCalibrate() {
 
   // Wait for a USB connection. Blink meanwhile.
   int led_counter = 0;
-  while (USBGetDeviceState() != POWERED_STATE) {
+  while (USBGetDeviceState() < POWERED_STATE) {
     USBTasks();
     if ((led_counter++ & 0x3FFF) == 0) led_toggle();
   }
