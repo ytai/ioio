@@ -174,11 +174,13 @@ static void RXInterrupt(int uart_num) {
   volatile UART* reg = uart_reg[uart_num];
   BYTE_QUEUE* q = &uarts[uart_num].rx_queue;
   while (reg->uxsta & 0x0001) {
+    // It is important to read the error bits BEFORE shifting out the data.
+    BOOL noerr = (reg->uxsta & 0x000C) == 0;
     BYTE b = reg->uxrxreg;
-    if ((reg->uxsta & 0x000C) == 0) {
+    if (noerr) {
       // there is no frame/parity err
       ByteQueuePushByte(q, b);
-    } // Otherwise, discard
+    } // Otherwise, silently discard
     // It is OK to clear the interrupt now, since we're just about to poll for
     // any remaining characters in the FIFO, so we'll never miss an interrupt.
     AssignUxRXIF(uart_num, 0);
