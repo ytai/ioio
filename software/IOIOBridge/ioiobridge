@@ -1,5 +1,5 @@
 #!/bin/bash
 
 DIR=$(dirname $0)
-adb forward tcp:4545 tcp:4545 && java -jar $DIR/ioiobridge.jar $*
+adb forward tcp:4545 tcp:4545 && java -Done-jar.silent=true  -jar $DIR/ioiobridge.jar $*
 

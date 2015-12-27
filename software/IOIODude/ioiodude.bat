@@ -1,1 +1,1 @@
-@java -jar %~dp0\ioiodude.jar %*
+@java -Done-jar.silent=true -jar %~dp0\ioiodude.jar %*
