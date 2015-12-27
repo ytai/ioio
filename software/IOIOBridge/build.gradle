@@ -16,7 +16,7 @@ task zip(type: Zip, dependsOn: distJar) {
 tasks.build.dependsOn zip
 
 dependencies {
-  compile 'com.sparetimelabs:purejavacomm:0.0.22'
+  compile 'com.sparetimelabs:purejavacomm:1.0.0'
 }
 
 buildscript {

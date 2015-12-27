@@ -30,6 +30,6 @@ artifacts {
 }
 
 dependencies {
-  compile 'com.sparetimelabs:purejavacomm:0.0.22'
+  compile 'com.sparetimelabs:purejavacomm:1.0.0'
   compile project(":IOIOLibCore")
 }
