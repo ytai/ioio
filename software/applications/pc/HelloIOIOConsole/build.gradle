@@ -7,7 +7,7 @@ task distJar(type: OneJar) {
 tasks.build.dependsOn distJar
 
 dependencies {
-  compile 'com.github.ytai.ioio:IOIOLibPC:5.05'
+  compile 'com.github.ytai.ioio:IOIOLibPC:5.07'
 }
 
 repositories {

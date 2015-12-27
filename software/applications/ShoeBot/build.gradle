@@ -16,7 +16,7 @@ android {
 }
 
 dependencies {
-  compile 'com.github.ytai.ioio:IOIOLibAndroid:5.05'
-  compile 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.05'
-  compile 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.05'
+  compile 'com.github.ytai.ioio:IOIOLibAndroid:5.07'
+  compile 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
+  compile 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
 }

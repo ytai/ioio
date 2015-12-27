@@ -1,6 +1,6 @@
 allprojects {
   group = 'com.github.ytai.ioio'
-  version = 5.05
+  version = 5.07
   ext.versionNamespace = 'IOIO'
   ext.versionString = sprintf("%s%02d%02d",
                               versionNamespace,
