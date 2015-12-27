@@ -63,7 +63,9 @@ class SerialPortIOIOConnection {
 								serialPort_.getInputStream());
 						outputStream_ = serialPort_.getOutputStream();
 
-						// This is only required on Windows, but otherwise harmless.
+						// This is only required on Windows and OSX El Capitan, but otherwise
+						// harmless.
+						serialPort_.setDTR(false);
 						serialPort_.setDTR(true);
 						Thread.sleep(100);
 						return;

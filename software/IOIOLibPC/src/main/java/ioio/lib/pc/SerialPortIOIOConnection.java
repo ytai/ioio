@@ -71,7 +71,9 @@ class SerialPortIOIOConnection implements IOIOConnection {
 								1024);
 						outputStream_ = new BufferedOutputStream(serialPort_.getOutputStream(), 256);
 
-						// This is only required on Windows, but otherwise harmless.
+						// This is only required on Windows and OSX El Capitan, but otherwise
+						// harmless.
+						serialPort_.setDTR(false);
 						serialPort_.setDTR(true);
 						Thread.sleep(100);
 						return;

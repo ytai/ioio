@@ -148,6 +148,7 @@ public class Main {
 				port = (SerialPort) commPort;
 				port.enableReceiveThreshold(1);
 				port.enableReceiveTimeout(500);
+				port.setDTR(false);
 				port.setDTR(true);
 				Thread.sleep(100);
 				return port;
