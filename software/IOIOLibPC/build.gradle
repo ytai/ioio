@@ -13,6 +13,7 @@ uploadArchives {
 
 javadoc {
   source = fileTree(dir: 'src/main/java')
+  failOnError = false
 }
 
 task javadocJar(type: Jar) {

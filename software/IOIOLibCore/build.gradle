@@ -20,6 +20,7 @@ tasks.classes.dependsOn generateVersionFile
 
 javadoc {
   source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
+  failOnError = false
 }
 
 task javadocJar(type: Jar) {
