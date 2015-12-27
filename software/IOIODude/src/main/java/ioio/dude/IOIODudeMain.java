@@ -75,7 +75,7 @@ public class IOIODudeMain {
 	private static boolean force_ = false;
 
 	private static void printUsage() {
-		System.err.println("IOIODude V1.2");
+		System.err.println("IOIODude V1.03");
 		System.err.println();
 		System.err.println("Usage:");
 		System.err.println("ioiodude <options> versions");

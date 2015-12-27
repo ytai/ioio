@@ -2,11 +2,12 @@ apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
   mainClass = 'ioio.bridge.Main'
+  version = null
 }
 
 task zip(type: Zip, dependsOn: distJar) {
   baseName = 'IOIOBridge'
-  version = '0102'
+  version = '0103'
 
   from distJar
   from('ioiobridge', 'ioiobridge.bat')

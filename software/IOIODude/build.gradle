@@ -2,11 +2,12 @@ apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
   mainClass = 'ioio.dude.IOIODudeMain'
+  version = null
 }
 
 task zip(type: Zip, dependsOn: distJar) {
   baseName = 'IOIODude'
-  version = '0102'
+  version = '0103'
 
   from distJar
   from('ioiodude', 'ioiodude.bat')
