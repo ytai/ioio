@@ -61,27 +61,6 @@ static bool capsense_sample = false;
 // should be enabled, otherwise, disabled.
 static volatile int t3_int_counter;
 
-// we need to generate a priority 1 interrupt in order to send a message
-// containing ADC-captured data.
-// this is the reasononing:
-// we need to protect the outgoing-message buffer from concurrent access. this
-// is achieved by making sure it is only written to by priority 1 code.
-// however, in the case of ADC, we must service the "done" interrupt quickly
-// to stop the ADC before our buffer gets overwritten, so this would be a
-// priority 6 interrupt. then, in order to write to the output buffer, it would
-// trigger the priority 1 interrupt using GFX1, that will read the ADC data and
-// write to the buffer.
-// we've "abused" CRC interrupt that is never used in order to generate the
-// interrupt - we just manually raise its IF flag whenever we need an interrupt
-// and service this interrupt.
-static inline void ScanDoneInterruptInit() {
-  _CRCIP = SLOW_INT_PRIORITY;
-}
-
-// call this function to generate the priority 1 interrupt.
-static inline void ScanDoneInterruptTrigger() {
-  _CRCIF = 1;
-}
 
 // timer 3 is clocked @2MHz
 // we set its period to 2000 so that a match occurs @1KHz
@@ -109,10 +88,8 @@ static inline void T3IntUnblock() {
 static inline void ADCStart() {
   // Clear any possibly remaining interrupts before enabling them.
   _AD1IF = 0;
-  _CRCIF = 0;
 
-  _CRCIE = 1;  // We can enable interrupts now, they won't fire.
-  _AD1IE = 1;
+  _AD1IE = 1;  // We can enable interrupts now, they won't fire.
 
   t3_int_counter = 0;
   // Reset counter and start triggering.
@@ -128,7 +105,6 @@ static inline void ADCStop() {
   // Disable interrupts. T3 must comes last, as the handlers of the others may
   // enable it.
   _AD1IE = 0;
-  _CRCIE = 0;
   _T3IE = 0;
   // No more interrupts at this point.
   _CTMUEN = 0;  // CTMU off.
@@ -137,7 +113,7 @@ static inline void ADCStop() {
 
 void ADCInit() {
   ADCStop();     // Just in case we were running. No interrupts after this point.
-  Timer3Init();  // initiliaze the timer. stopped if already running.
+  Timer3Init();  // initialize the timer. stopped if already running.
 
   // Now nothing will interrupt us
   AD1CON1 = 0x0000;  // ADC off.
@@ -154,8 +130,6 @@ void ADCInit() {
             | (0x3 << 2) // EDG1SEL
             | (1 << 4);  // EDG1POL;
   CTMUICON = 0x7F00; //89.1uA
-
-  ScanDoneInterruptInit();  // when triggered, generates an immediate interrupt to read ADC buffer
 
   analog_scan_bitmask = 0x0000;
   analog_scan_num_channels = 0;
@@ -392,7 +366,7 @@ void __attribute__((__interrupt__, auto_psv)) _T3Interrupt() {
   _T3IF = 0;  // clear
 }
 
-void __attribute__((__interrupt__, auto_psv)) _CRCInterrupt() {
+static inline void ScanDoneBottomHalf() {
   if (capsense_sample) {
     _CTMUEN = 0; // CTMU off.
     // Discharge circuit.
@@ -407,11 +381,30 @@ void __attribute__((__interrupt__, auto_psv)) _CRCInterrupt() {
       T3IntUnblock();  // ready for next trigger.
     }
   }
-  _CRCIF = 0;  // clear
 }
 
+// we need to generate a priority 1 interrupt in order to send a message
+// containing ADC-captured data.
+//
+// this is the reasoning:
+// we need to protect the outgoing-message buffer from concurrent access. this
+// is achieved by making sure it is only written to by priority 1 code.
+// however, in the case of ADC, we must service the "done" interrupt quickly
+// to stop the ADC before our buffer gets overwritten, so this would be a
+// priority 6 interrupt. then, in order to write to the output buffer, it would
+// trigger the priority 1 interrupt using GFX1, that will read the ADC data and
+// write to the buffer.
+//
+// Towards this end, we toggle the ADC interrupt priority based on whether or
+// not the ADC is running; we only clear the interrupt flag after both parts of
+// the handler have run.
 void __attribute__((__interrupt__, auto_psv)) _ADC1Interrupt() {
-  _ADON = 0;  // Turn the module off.
-  ScanDoneInterruptTrigger();
-  _AD1IF = 0;  // clear
+    if(_ADON) {
+        _ADON = 0;  // Turn the module off to stop an overrun.
+        _AD1IP = SLOW_INT_PRIORITY;
+    } else {
+        ScanDoneBottomHalf();
+        _AD1IF = 0;  // clear
+        _AD1IP = FAST_INT_PRIORITY;
+    }
 }
