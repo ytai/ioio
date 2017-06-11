@@ -11,7 +11,7 @@ buildscript {
 }
 
 android {
-  buildToolsVersion "23.0.2"
+  buildToolsVersion defaultBuildToolsVersion
   compileSdkVersion 19
 }
 
