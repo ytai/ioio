@@ -8,7 +8,7 @@ tasks.build.dependsOn distJar
 
 dependencies {
   compile 'com.github.ytai.ioio:IOIOLibPC:5.07'
-  compile project(':applications/IOIOConnectionTester')
+  compile project(':applications:IOIOConnectionTester')
 }
 
 buildscript {
