@@ -29,5 +29,5 @@ android {
 }
 
 dependencies {
-  compile project(":IOIOLibCore")
+  api project(":IOIOLibCore")
 }
