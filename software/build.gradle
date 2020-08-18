@@ -13,7 +13,8 @@ subprojects {
   apply plugin: 'signing'
 
   repositories {
-    mavenCentral()
+    google()
+    jcenter()
     maven {
       url "http://www.sparetimelabs.com/maven2"
     }
