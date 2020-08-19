@@ -35,49 +35,49 @@ subprojects {
     }
 
     // Common handling for uploading archives to Maven central.
-    if (tasks.findByName('uploadArchives')?.repositories?.findByName('mavenDeployer')) {
-      signing {
-        sign configurations.archives
-      }
-
-      uploadArchives {
-        repositories {
-          mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: OSSRH_USER, password: OSSRH_PASSWORD)
-            }
-
-            pom.project {
-              packaging 'jar'
-              url 'https://github.com/ytai/ioio/wiki'
-
-              scm {
-                connection 'scm:git@github.com:ytai/ioio.git'
-                developerConnection 'scm:git@github.com:ytai/ioio.git'
-                url 'https://www.github.com/ytai/ioio'
-              }
-
-              licenses {
-                license {
-                  name 'The BSD 2-Clause License'
-                  url 'http://opensource.org/licenses/bsd-license.php'
-                }
-              }
-
-              developers {
-                developer {
-                  id 'ytai'
-                  name 'Ytai Ben-Tsvi'
-                  email 'ytaibt@gmail.com'
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+//    if (tasks.findByName('uploadArchives')?.repositories?.findByName('mavenDeployer')) {
+//      signing {
+//        sign configurations.archives
+//      }
+//
+//      uploadArchives {
+//        repositories {
+//          mavenDeployer {
+////            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//              authentication(userName: OSSRH_USER, password: OSSRH_PASSWORD)
+//            }
+//
+//            pom.project {
+//              packaging 'jar'
+//              url 'https://github.com/ytai/ioio/wiki'
+//
+//              scm {
+//                connection 'scm:git@github.com:ytai/ioio.git'
+//                developerConnection 'scm:git@github.com:ytai/ioio.git'
+//                url 'https://www.github.com/ytai/ioio'
+//              }
+//
+//              licenses {
+//                license {
+//                  name 'The BSD 2-Clause License'
+//                  url 'http://opensource.org/licenses/bsd-license.php'
+//                }
+//              }
+//
+//              developers {
+//                developer {
+//                  id 'ytai'
+//                  name 'Ytai Ben-Tsvi'
+//                  email 'ytaibt@gmail.com'
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
   }
 }
 
