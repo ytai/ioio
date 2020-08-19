@@ -96,12 +96,12 @@ def libraries = [
 ]
 
 def applications = [
-  'applications/HelloIOIO': ['packageDebug'],
-  'applications/HelloIOIOService': ['packageDebug'],
-  'applications/IOIOSimpleApp': ['packageDebug'],
-  'applications/pc/HelloIOIOConsole': ['distJar'],
-  'applications/pc/HelloIOIOSwing': ['distJar'],
-  'applications/pc/HelloSequencer': ['distJar']
+  'HelloIOIO': ['packageDebug'],
+  'HelloIOIOService': ['packageDebug'],
+  'IOIOSimpleApp': ['packageDebug'],
+  'HelloIOIOConsole': ['distJar'],
+  'HelloIOIOSwing': ['distJar'],
+  'HelloSequencer': ['distJar']
 ]
 
 def gitFiles(dirs) {
