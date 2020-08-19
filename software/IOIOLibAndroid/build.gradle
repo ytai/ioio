@@ -24,8 +24,8 @@ uploadArchives {
 }
 
 android {
-  buildToolsVersion "23.0.2"
-  compileSdkVersion 7
+  buildToolsVersion "29.0.2"
+  compileSdkVersion 29
 }
 
 dependencies {

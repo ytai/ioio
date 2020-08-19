@@ -12,8 +12,12 @@ buildscript {
 }
 
 android {
-  buildToolsVersion "23.0.2"
-  compileSdkVersion "Google Inc.:Google APIs:12"
+  buildToolsVersion "29.0.2"
+  compileSdkVersion 29
+  defaultConfig{
+    minSdkVersion 14
+    targetSdkVersion 29
+  }
 }
 
 uploadArchives {
