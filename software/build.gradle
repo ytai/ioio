@@ -89,10 +89,10 @@ evaluationDependsOnChildren()
 def libraries = [
   'IOIOLibCore': ['jar'],
   'IOIOLibPC': ['jar'],
-  'IOIOLibAndroid': ['bundleRelease', 'bundleDebug'],
-  'IOIOLibAndroidBluetooth': ['bundleRelease', 'bundleDebug'],
-  'IOIOLibAndroidAccessory': ['bundleRelease', 'bundleDebug'],
-  'IOIOLibAndroidDevice': ['bundleRelease', 'bundleDebug']
+//  'IOIOLibAndroid': ['bundleRelease', 'bundleDebug'],
+//  'IOIOLibAndroidBluetooth': ['bundleRelease', 'bundleDebug'],
+//  'IOIOLibAndroidAccessory': ['bundleRelease', 'bundleDebug'],
+//  'IOIOLibAndroidDevice': ['bundleRelease', 'bundleDebug']
 ]
 
 def applications = [
