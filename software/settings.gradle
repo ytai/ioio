@@ -1,3 +1,5 @@
+rootProject.name = 'IOIO samples'
+
 // PC applications.
 def pcApplications = [
         'HelloIOIOSwing',
