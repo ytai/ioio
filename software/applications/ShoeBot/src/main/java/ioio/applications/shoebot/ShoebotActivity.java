@@ -62,7 +62,7 @@ public class ShoebotActivity extends IOIOActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wakeLock_ = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "ShoeBot");
+		wakeLock_ = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "IOIO:ShoeBot");
 
 		enableButton_ = (ToggleButton) findViewById(R.id.enableButton);
 		setButton_ = (Button) findViewById(R.id.setButton);
