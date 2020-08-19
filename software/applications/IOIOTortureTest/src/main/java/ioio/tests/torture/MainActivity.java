@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 public class MainActivity extends IOIOActivity {
-	private static final String TAG = "TortureTest";
+	private static final String TAG = "IOIO:TortureTest";
 	private PowerManager.WakeLock wakeLock_;
 
 	@Override
