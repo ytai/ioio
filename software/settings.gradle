@@ -1,3 +1,46 @@
+// PC applications.
+def pcApplications = [
+        'HelloIOIOSwing',
+        'HelloIOIOConsole',
+        'HelloSequencer',
+        'IOIOServoSwing',
+        'SeeedTestbed',
+        'IOIOConnectionTesterPC'
+]
+
+// Android applications
+def androidApplications = [
+        'HelloIOIO',
+        'HelloIOIOService',
+        'HolidayIOIO',
+        'IOIOManager',
+        'IOIOSimpleApp',
+        'IOIOTestBed',
+        'IOIOTortureTest',
+        'ShoeBot',
+        'IOIOConnectionTesterAndroid'
+]
+
+// Application support libraries.
+def appSupportLibraries = [
+        'IOIOConnectionTester'
+]
+
+// Include statements and projectDir settings.
+androidApplications.each {
+    app -> include app
+        project(":${app}").projectDir = file("applications/${app}")
+}
+
+pcApplications.each {
+    app -> include app
+        project(":${app}").projectDir = file("applications/pc/${app}")
+}
+
+appSupportLibraries.each {
+    app -> include app
+        project(":${app}").projectDir = file("applications/${app}")
+}
 // Core library.
 include 'IOIOLibCore'
 
@@ -8,20 +51,6 @@ include 'IOIOLibPC'
 include 'IOIOLibAndroid', 'IOIOLibAndroidBluetooth', 'IOIOLibAndroidAccessory',
         'IOIOLibAndroidDevice'
 
-// Application support libraries.
-include 'applications/IOIOConnectionTester'
-
-// PC applications.
-include 'applications/pc/HelloIOIOSwing', 'applications/pc/HelloIOIOConsole',
-        'applications/pc/HelloSequencer', 'applications/pc/IOIOServoSwing',
-        'applications/pc/SeeedTestbed', 'applications/pc/IOIOConnectionTesterPC'
-
 // PC tools.
 include 'IOIODude', 'IOIOBridge'
-
-// Android applications.
-include 'applications/HelloIOIO', 'applications/HelloIOIOService', 'applications/HolidayIOIO',
-        'applications/IOIOManager', 'applications/IOIOSimpleApp', 'applications/IOIOTestBed',
-        'applications/IOIOTortureTest', 'applications/ShoeBot',
-        'applications/IOIOConnectionTesterAndroid'
 
