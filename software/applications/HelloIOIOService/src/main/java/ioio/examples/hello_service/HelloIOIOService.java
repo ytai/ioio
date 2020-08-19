@@ -6,11 +6,13 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOService;
-import android.app.Notification;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import androidx.core.app.NotificationCompat;
 
 /**
  * An example IOIO service. While this service is alive, it will attempt to
@@ -43,23 +45,41 @@ public class HelloIOIOService extends IOIOService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		int result = super.onStartCommand(intent, flags, startId);
-		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager notificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		if (intent != null && intent.getAction() != null
 				&& intent.getAction().equals("stop")) {
 			// User clicked the notification. Need to stop the service.
-			nm.cancel(0);
+			if (notificationManager != null) {
+				notificationManager.cancel(0);
+			}
 			stopSelf();
 		} else {
+
+			// Todo get someone to verify this works as refactoring may not be completely accurate.
 			// Service starting. Create a notification.
-			Notification notification = new Notification(
-					R.drawable.ic_launcher, "IOIO service running",
-					System.currentTimeMillis());
-			notification
-					.setLatestEventInfo(this, "IOIO Service", "Click to stop",
-							PendingIntent.getService(this, 0, new Intent(
-									"stop", null, this, this.getClass()), 0));
-			notification.flags |= Notification.FLAG_ONGOING_EVENT;
-			nm.notify(0, notification);
+//			Notification notification = new Notification(
+//					R.drawable.ic_launcher, "IOIO service running",
+//					System.currentTimeMillis());
+//			notification
+//					.setLatestEventInfo(this, "IOIO Service", "Click to stop",
+//							PendingIntent.getService(this, 0, new Intent(
+//									"stop", null, this, this.getClass()), 0));
+
+			NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
+
+			notificationBuilder
+					.setSmallIcon(R.drawable.ic_launcher)
+					.setTicker("IOIO service running")
+					.setWhen(System.currentTimeMillis())
+					.setContentTitle("IOIO Service")
+					.setContentText("Click to stop")
+					.setContentIntent(PendingIntent.getService(this, 0, new Intent(
+							"stop", null, this, this.getClass()), 0));
+
+			if (notificationManager != null) {
+				notificationManager.notify(1, notificationBuilder.build());
+			}
+
 		}
 		return result;
 	}
