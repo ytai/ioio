@@ -12,8 +12,8 @@ buildscript {
 }
 
 android {
-  buildToolsVersion "23.0.2"
-  compileSdkVersion 19
+  buildToolsVersion "29.0.2"
+  compileSdkVersion 29
 
   signingConfigs {
     release {
@@ -30,6 +30,10 @@ android {
       proguardFile 'proguard-ioio.txt'
       signingConfig signingConfigs.release
     }
+  }
+  defaultConfig {
+    minSdkVersion 14
+    targetSdkVersion 29
   }
 }
 

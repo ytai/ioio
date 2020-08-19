@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	android:versionCode="1" android:versionName="1.0" package="ioio.examples.hello">
-	<uses-sdk android:targetSdkVersion="10" android:minSdkVersion="3" />
-	<application android:icon="@drawable/icon" android:label="@string/app_name">
+
+	<application android:icon="@drawable/icon" android:label="@string/app_name" android:extractNativeLibs="true">
 		<uses-library android:name="com.android.future.usb.accessory"
 			android:required="false" />
 		<activity android:label="@string/app_name" android:name="MainActivity"
