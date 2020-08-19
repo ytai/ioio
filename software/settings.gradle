@@ -1,3 +1,5 @@
+rootProject.name = 'IOIO'
+
 // Core library.
 include 'IOIOLibCore'
 
