@@ -9,19 +9,38 @@ include 'IOIOLibAndroid', 'IOIOLibAndroidBluetooth', 'IOIOLibAndroidAccessory',
         'IOIOLibAndroidDevice'
 
 // Application support libraries.
-include 'applications/IOIOConnectionTester'
+include 'IOIOConnectionTester'
 
 // PC applications.
-include 'applications/pc/HelloIOIOSwing', 'applications/pc/HelloIOIOConsole',
-        'applications/pc/HelloSequencer', 'applications/pc/IOIOServoSwing',
-        'applications/pc/SeeedTestbed', 'applications/pc/IOIOConnectionTesterPC'
+include 'HelloIOIOSwing', 'HelloIOIOConsole',
+        'HelloSequencer', 'IOIOServoSwing',
+        'SeeedTestbed', 'IOIOConnectionTesterPC'
 
 // PC tools.
 include 'IOIODude', 'IOIOBridge'
 
 // Android applications.
-include 'applications/HelloIOIO', 'applications/HelloIOIOService', 'applications/HolidayIOIO',
-        'applications/IOIOManager', 'applications/IOIOSimpleApp', 'applications/IOIOTestBed',
-        'applications/IOIOTortureTest', 'applications/ShoeBot',
-        'applications/IOIOConnectionTesterAndroid'
+include 'HelloIOIO', 'HelloIOIOService', 'HolidayIOIO',
+        'IOIOManager', 'IOIOSimpleApp', 'IOIOTestBed',
+        'IOIOTortureTest', 'ShoeBot',
+        'IOIOConnectionTesterAndroid'
+		
+		
+project(':HelloIOIO').projectDir = new File('./applications/HelloIOIO')
+project(':HelloIOIOService').projectDir = new File('./applications/HelloIOIOService')
+project(':HolidayIOIO').projectDir = new File('./applications/HolidayIOIO')
+project(':IOIOManager').projectDir = new File('./applications/IOIOManager')
+project(':IOIOSimpleApp').projectDir = new File('./applications/IOIOSimpleApp')
+project(':IOIOTestBed').projectDir = new File('./applications/IOIOTestBed')
+project(':IOIOTortureTest').projectDir = new File('./applications/IOIOTortureTest')
+project(':ShoeBot').projectDir = new File('./applications/ShoeBot')
+project(':IOIOConnectionTesterAndroid').projectDir = new File('./applications/IOIOConnectionTesterAndroid')
+project(':IOIOConnectionTester').projectDir = new File('./applications/IOIOConnectionTester')
+project(':HelloIOIOSwing').projectDir = new File('./applications/pc/HelloIOIOSwing')
+project(':HelloIOIOConsole').projectDir = new File('./applications/pc/HelloIOIOConsole')
+project(':HelloSequencer').projectDir = new File('./applications/pc/HelloSequencer')
+project(':IOIOServoSwing').projectDir = new File('./applications/pc/IOIOServoSwing')
+project(':SeeedTestbed').projectDir = new File('./applications/pc/SeeedTestbed')
+project(':IOIOConnectionTesterPC').projectDir = new File('./applications/pc/IOIOConnectionTesterPC')
+
 
