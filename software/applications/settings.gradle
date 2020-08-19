@@ -1,0 +1,12 @@
+include ':HelloIOIO'
+include ':IOIOConnectionTester'
+include ':IOIOConnectionTesterAndroid'
+include ':IOIOSimpleApp'
+include ':IOIOTestBed'
+include ':HolidayIOIO'
+include ':HelloIOIOService'
+include ':IOIOTortureTest'
+include ':ShoeBot'
+include ':IOIOManager'
+
+

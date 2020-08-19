@@ -6,13 +6,13 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.5.0'
+    classpath 'com.android.tools.build:gradle:2.3.3'
   }
 }
 
 android {
-  buildToolsVersion "23.0.2"
-  compileSdkVersion "Google Inc.:Google APIs:12"
+  buildToolsVersion defaultBuildToolsVersion
+  compileSdkVersion 12
 }
 
 uploadArchives {

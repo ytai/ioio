@@ -6,20 +6,27 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.5.0'
+    classpath 'com.android.tools.build:gradle:2.3.3'
   }
 }
 
+ext {
+  defRELEASE_STORE_FILE = hasProperty('RELEASE_STORE_FILE') ? RELEASE_STORE_FILE : "FIXME"
+  defRELEASE_STORE_PASSWORD = hasProperty('RELEASE_STORE_PASSWORD') ? RELEASE_STORE_PASSWORD : "FIXME"
+  defRELEASE_KEY_ALIAS = hasProperty('RELEASE_KEY_ALIAS') ? RELEASE_KEY_ALIAS : "FIXME"
+  defRELEASE_KEY_PASSWORD = hasProperty('RELEASE_KEY_PASSWORD') ? RELEASE_KEY_PASSWORD : "FIXME"
+}
+
 android {
-  buildToolsVersion "23.0.2"
+  buildToolsVersion defaultBuildToolsVersion
   compileSdkVersion 19
 
   signingConfigs {
     release {
-      storeFile file(RELEASE_STORE_FILE)
-      storePassword RELEASE_STORE_PASSWORD
-      keyAlias RELEASE_KEY_ALIAS
-      keyPassword RELEASE_KEY_PASSWORD
+      storeFile file(defRELEASE_STORE_FILE)
+      storePassword defRELEASE_STORE_PASSWORD
+      keyAlias defRELEASE_KEY_ALIAS
+      keyPassword defRELEASE_KEY_PASSWORD
     }
   }
 

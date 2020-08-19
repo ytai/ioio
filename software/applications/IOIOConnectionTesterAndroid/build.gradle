@@ -6,17 +6,17 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.5.0'
+    classpath 'com.android.tools.build:gradle:2.3.3'
   }
 }
 
 android {
-  buildToolsVersion "23.0.2"
+  buildToolsVersion defaultBuildToolsVersion
   compileSdkVersion 19
 }
 
 dependencies {
-  compile project(':applications/IOIOConnectionTester')
+  compile project(':IOIOConnectionTester')
   compile 'com.github.ytai.ioio:IOIOLibAndroid:5.07'
   compile 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
   compile 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
