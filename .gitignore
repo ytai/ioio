@@ -9,6 +9,5 @@ build
 local.properties
 proguard-project.txt
 
-*.iml
 .idea/*
 !.idea/codeStyles/
