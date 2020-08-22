@@ -11,15 +11,11 @@ dependencies {
 }
 
 repositories {
-    google()
-    jcenter()
     maven { url "http://www.sparetimelabs.com/maven2" }
 }
 
 buildscript {
     repositories {
-        google()
-        jcenter()
         mavenCentral()
     }
     dependencies {
