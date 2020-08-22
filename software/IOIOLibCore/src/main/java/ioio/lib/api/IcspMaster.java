@@ -91,7 +91,7 @@ public interface IcspMaster extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO has been lost.
 	 */
-	public void enterProgramming() throws ConnectionLostException;
+	void enterProgramming() throws ConnectionLostException;
 
 	/**
 	 * Initiate a sequence that will put the slave device out of programming
@@ -100,7 +100,7 @@ public interface IcspMaster extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO has been lost.
 	 */
-	public void exitProgramming() throws ConnectionLostException;
+	void exitProgramming() throws ConnectionLostException;
 
 	/**
 	 * Execute a single instruction on the slave MCU.
@@ -110,7 +110,7 @@ public interface IcspMaster extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO has been lost.
 	 */
-	public void executeInstruction(int instruction)
+	void executeInstruction(int instruction)
 			throws ConnectionLostException;
 
 	/**
@@ -125,7 +125,7 @@ public interface IcspMaster extends Closeable {
 	 * @throws InterruptedException
 	 *             Interrupted while blocking.
 	 */
-	public void readVisi() throws ConnectionLostException, InterruptedException;
+	void readVisi() throws ConnectionLostException, InterruptedException;
 
 	/**
 	 * Wait and return a result of a call to {@link #readVisi()}.
@@ -140,6 +140,6 @@ public interface IcspMaster extends Closeable {
 	 * @throws InterruptedException
 	 *             Interrupted while blocking.
 	 */
-	public int waitVisiResult() throws ConnectionLostException,
+	int waitVisiResult() throws ConnectionLostException,
 			InterruptedException;
 }

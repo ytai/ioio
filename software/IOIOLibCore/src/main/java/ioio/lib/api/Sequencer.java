@@ -197,7 +197,7 @@ public interface Sequencer extends Closeable {
 	/**
 	 * A clock rate selection, which implies a time-base.
 	 */
-	public enum Clock {
+	enum Clock {
 		/** 16 MHz (62.5ns time-base). */
 		CLK_16M,
 		/** 2 MHz (0.5us time-base). */
@@ -211,7 +211,7 @@ public interface Sequencer extends Closeable {
 	/**
 	 * A sequencer event. Used for tracking execution progress.
 	 */
-	public class Event {
+	class Event {
 		/**
 		 * Event type.
 		 */
@@ -270,7 +270,7 @@ public interface Sequencer extends Closeable {
 	 * A marker interface for channel configurations. A concrete instance of this describes the
 	 * configuration of a single channel.
 	 */
-	public static interface ChannelConfig {
+	interface ChannelConfig {
 	}
 
 	/**
@@ -281,7 +281,7 @@ public interface Sequencer extends Closeable {
 	 * difference from a PWM speed channel is that the position channel will retain its pulse width
 	 * during a stall event.
 	 */
-	public static class ChannelConfigPwmPosition implements ChannelConfig {
+	class ChannelConfigPwmPosition implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -341,7 +341,7 @@ public interface Sequencer extends Closeable {
 	 * PWM position channel is that the position channel will go back to its initial pulse width
 	 * during a stall event.
 	 */
-	public static class ChannelConfigPwmSpeed implements ChannelConfig {
+	class ChannelConfigPwmSpeed implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -402,7 +402,7 @@ public interface Sequencer extends Closeable {
 	 * {@link ChannelConfigSteps}). An FM speed channel will idle (not produce any pulses) during a
 	 * stall event.
 	 */
-	public static class ChannelConfigFmSpeed implements ChannelConfig {
+	class ChannelConfigFmSpeed implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -450,7 +450,7 @@ public interface Sequencer extends Closeable {
 	 * every cue. See {@link ChannelCueSteps} for a discussion on number of steps calculation. A
 	 * steps channel will idle (not produce any pulses) during a stall event.
 	 */
-	public static class ChannelConfigSteps implements ChannelConfig {
+	class ChannelConfigSteps implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -476,7 +476,7 @@ public interface Sequencer extends Closeable {
 	 * actuators that can be controlled by a binary channel. During a stall event, the channel can
 	 * be configured to either retain its last state, or go to its initial state.
 	 */
-	public static class ChannelConfigBinary implements ChannelConfig {
+	class ChannelConfigBinary implements ChannelConfig {
 		/**
 		 * Specification of the output pin(s) for this channel.
 		 */
@@ -516,7 +516,7 @@ public interface Sequencer extends Closeable {
 	 * A marker interface for channel cues. A concrete instance of this describes a single cue of a
 	 * single channel.
 	 */
-	public static interface ChannelCue {
+	interface ChannelCue {
 	}
 
 	/**
@@ -524,7 +524,7 @@ public interface Sequencer extends Closeable {
 	 * <p>
 	 * Determines what is going to be the pulse width will while cue is executing.
 	 */
-	public static class ChannelCuePwmPosition implements ChannelCue {
+	class ChannelCuePwmPosition implements ChannelCue {
 		/**
 		 * The pulse-width, in time-base units, as determined for this channel in its configuration.
 		 * Valid values are 0 or [2..65536].
@@ -537,7 +537,7 @@ public interface Sequencer extends Closeable {
 	 * <p>
 	 * Determines what is going to be the pulse width while this cue is executing.
 	 */
-	public static class ChannelCuePwmSpeed implements ChannelCue {
+	class ChannelCuePwmSpeed implements ChannelCue {
 		/**
 		 * The pulse-width, in time-base units, as determined for this channel in its configuration.
 		 * Valid values are 0 or [2..65536].
@@ -550,7 +550,7 @@ public interface Sequencer extends Closeable {
 	 * <p>
 	 * Determines what is going to be the period duration (frequency) while this cue is executing.
 	 */
-	public static class ChannelCueFmSpeed implements ChannelCue {
+	class ChannelCueFmSpeed implements ChannelCue {
 		/**
 		 * The pulse period, in time-base units, as determined for this channel in its
 		 * configuration. Valid values are [0..65536]. Note that:
@@ -595,7 +595,7 @@ public interface Sequencer extends Closeable {
 	 * will be round(2MHz / 51Hz) = 39216. This result in an actual rate of 2MHz / 39216 ~=
 	 * 50.9996[Hz].
 	 */
-	public static class ChannelCueSteps implements ChannelCue {
+	class ChannelCueSteps implements ChannelCue {
 		/**
 		 * The clock rate for this cue. See discussion in the class documentation on how to choose
 		 * it.
@@ -620,7 +620,7 @@ public interface Sequencer extends Closeable {
 	 * <p>
 	 * This cue determines whether the output should be high or low while the cue is executing.
 	 */
-	public static class ChannelCueBinary implements ChannelCue {
+	class ChannelCueBinary implements ChannelCue {
 		/**
 		 * The desired output state (true = high, false = low).
 		 */
@@ -651,7 +651,7 @@ public interface Sequencer extends Closeable {
 	 * @throws InterruptedException
 	 *             The operation was interrupted before completion.
 	 */
-	public void push(ChannelCue[] cues, int duration) throws ConnectionLostException,
+	void push(ChannelCue[] cues, int duration) throws ConnectionLostException,
 			InterruptedException;
 
 	/**
@@ -669,7 +669,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void manualStart(ChannelCue[] cues) throws ConnectionLostException;
+	void manualStart(ChannelCue[] cues) throws ConnectionLostException;
 
 	/**
 	 * Stop a manual cue currently running.
@@ -683,7 +683,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void manualStop() throws ConnectionLostException;
+	void manualStop() throws ConnectionLostException;
 
 	/**
 	 * Start execution of the sequence.
@@ -695,7 +695,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void start() throws ConnectionLostException;
+	void start() throws ConnectionLostException;
 
 	/**
 	 * Pause execution of the sequence.
@@ -708,7 +708,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void pause() throws ConnectionLostException;
+	void pause() throws ConnectionLostException;
 
 	/**
 	 * Stop execution of the sequence.
@@ -720,7 +720,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void stop() throws ConnectionLostException;
+	void stop() throws ConnectionLostException;
 
 	/**
 	 * Get the number of cues which can be pushed without blocking.
@@ -732,7 +732,7 @@ public interface Sequencer extends Closeable {
 	 *
 	 * @return The number of available slots in the cue FIFO.
 	 */
-	public int available() throws ConnectionLostException;;
+	int available() throws ConnectionLostException;
 
 	/**
 	 * Get the most recent execution event.
@@ -747,7 +747,7 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public Event getLastEvent() throws ConnectionLostException;
+	Event getLastEvent() throws ConnectionLostException;
 
 	/**
 	 * Waits until an execution event occurs and returns it.
@@ -760,7 +760,7 @@ public interface Sequencer extends Closeable {
 	 * @throws InterruptedException
 	 *             The operation was interrupted before completion.
 	 */
-	public Event waitEvent() throws ConnectionLostException, InterruptedException;
+	Event waitEvent() throws ConnectionLostException, InterruptedException;
 
 	/**
 	 * A convenience method for blocking until an event of a certain type appears on the event
@@ -772,7 +772,7 @@ public interface Sequencer extends Closeable {
 	 * @throws InterruptedException
 	 *             The operation was interrupted before completion.
 	 */
-	public void waitEventType(Event.Type type) throws ConnectionLostException, InterruptedException;
+	void waitEventType(Event.Type type) throws ConnectionLostException, InterruptedException;
 
 	/**
 	 * Sets a new size for the incoming event queue.
@@ -789,5 +789,5 @@ public interface Sequencer extends Closeable {
 	 * @throws ConnectionLostException
 	 *             Connection to the IOIO was lost before or during this operation.
 	 */
-	public void setEventQueueSize(int size) throws ConnectionLostException;
+	void setEventQueueSize(int size) throws ConnectionLostException;
 }

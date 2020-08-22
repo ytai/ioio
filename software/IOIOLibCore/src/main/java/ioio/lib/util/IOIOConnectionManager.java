@@ -69,15 +69,15 @@ public class IOIOConnectionManager {
 		abortAllThreads();
 		try {
 			joinAllThreads();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ignored) {
 		}
 	}
 
 	public interface IOIOConnectionThreadProvider {
-		public Thread createThreadFromFactory(IOIOConnectionFactory factory);
+		Thread createThreadFromFactory(IOIOConnectionFactory factory);
 	}
 
-	private Collection<Thread> threads_ = new LinkedList<Thread>();
+	private Collection<Thread> threads_ = new LinkedList<>();
 
 	private void abortAllThreads() {
 		for (Thread thread : threads_) {
