@@ -30,17 +30,20 @@ def appSupportLibraries = [
 
 // Include statements and projectDir settings.
 androidApplications.each {
-    app -> include app
+    app ->
+        include app
         project(":${app}").projectDir = file("applications/${app}")
 }
 
 pcApplications.each {
-    app -> include app
+    app ->
+        include app
         project(":${app}").projectDir = file("applications/pc/${app}")
 }
 
 appSupportLibraries.each {
-    app -> include app
+    app ->
+        include app
         project(":${app}").projectDir = file("applications/${app}")
 }
 // Core library.

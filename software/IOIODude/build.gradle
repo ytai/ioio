@@ -1,32 +1,32 @@
 apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
-  mainClass = 'ioio.dude.IOIODudeMain'
-  version = null
+    mainClass = 'ioio.dude.IOIODudeMain'
+    version = null
 }
 
 task zip(type: Zip, dependsOn: distJar) {
-  baseName = 'IOIODude'
-  version = '0103'
+    baseName = 'IOIODude'
+    version = '0103'
 
-  from distJar
-  from('ioiodude', 'ioiodude.bat')
-  rename 'IOIODude-standalone.jar', 'ioiodude.jar'
+    from distJar
+    from('ioiodude', 'ioiodude.bat')
+    rename 'IOIODude-standalone.jar', 'ioiodude.jar'
 }
 
 tasks.build.dependsOn zip
 
 dependencies {
-  implementation 'com.sparetimelabs:purejavacomm:1.0.0'
+    implementation 'com.sparetimelabs:purejavacomm:1.0.0'
 }
 
 buildscript {
-  repositories {
-    google()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-  }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
+    }
 }

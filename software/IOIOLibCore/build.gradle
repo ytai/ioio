@@ -1,26 +1,26 @@
 apply plugin: 'java'
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name = 'IOIOLibCore'
-        description = 'Common core of the IOIO library'
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name = 'IOIOLibCore'
+                description = 'Common core of the IOIO library'
+            }
+        }
     }
-  }
 }
 
 task generateVersionFile(type: GenerateVersion) {
-  version = versionString
-  outputFile = file("$project.buildDir/classes/main/version.properties")
+    version = versionString
+    outputFile = file("$project.buildDir/classes/main/version.properties")
 }
 
 tasks.classes.dependsOn generateVersionFile
 
 javadoc {
-  source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
-  failOnError = false
+    source = fileTree(dir: 'src/main/java').matching { include 'ioio/lib/api/**' }
+    failOnError = false
 }
 
 task javadocJar(type: Jar) {

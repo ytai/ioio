@@ -1,52 +1,52 @@
 buildscript {
-  ext.kotlin_version = '1.4.0'
-  repositories {
-    google()
-    jcenter()
-  }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:4.0.1'
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-  }
+    ext.kotlin_version = '1.4.0'
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
 
 allprojects {
-  group = 'com.github.ytai.ioio'
-  version = 5.07
-  ext.versionNamespace = 'IOIO'
-  ext.versionString = sprintf("%s%02d%02d",
-                              versionNamespace,
-                              (int) version,
-                              ((int) (version * 100)) % 100)
+    group = 'com.github.ytai.ioio'
+    version = 5.07
+    ext.versionNamespace = 'IOIO'
+    ext.versionString = sprintf("%s%02d%02d",
+            versionNamespace,
+            (int) version,
+            ((int) (version * 100)) % 100)
 }
 
 subprojects {
-  apply plugin: 'maven'
-  apply plugin: 'signing'
+    apply plugin: 'maven'
+    apply plugin: 'signing'
 
-  repositories {
-    google()
-    jcenter()
-    maven {
-      url "http://www.sparetimelabs.com/maven2"
-    }
-    maven {
-      url 'https://oss.sonatype.org/content/groups/staging'
-    }
-  }
-
-  afterEvaluate {
-    // Replace dependendices on modules from the ioio group with local project
-    // dependencies.
-    configurations.each { config->
-      def ioioDeps = config.dependencies.findAll { it.group == group }
-      config.dependencies.removeAll(ioioDeps)
-      ioioDeps.each {
-        dependencies.add(config.name, dependencies.project(path: ":$it.name"))
-      }
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "http://www.sparetimelabs.com/maven2"
+        }
+        maven {
+            url 'https://oss.sonatype.org/content/groups/staging'
+        }
     }
 
-    // Common handling for uploading archives to Maven central.
+    afterEvaluate {
+        // Replace dependendices on modules from the ioio group with local project
+        // dependencies.
+        configurations.each { config ->
+            def ioioDeps = config.dependencies.findAll { it.group == group }
+            config.dependencies.removeAll(ioioDeps)
+            ioioDeps.each {
+                dependencies.add(config.name, dependencies.project(path: ":$it.name"))
+            }
+        }
+
+        // Common handling for uploading archives to Maven central.
 //    if (tasks.findByName('uploadArchives')?.repositories?.findByName('mavenDeployer')) {
 //      signing {
 //        sign configurations.archives
@@ -90,7 +90,7 @@ subprojects {
 //        }
 //      }
 //    }
-  }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,8 +99,8 @@ subprojects {
 evaluationDependsOnChildren()
 
 def libraries = [
-  'IOIOLibCore': ['jar'],
-  'IOIOLibPC': ['jar'],
+        'IOIOLibCore': ['jar'],
+        'IOIOLibPC'  : ['jar'],
 //  'IOIOLibAndroid': ['bundleRelease', 'bundleDebug'],
 //  'IOIOLibAndroidBluetooth': ['bundleRelease', 'bundleDebug'],
 //  'IOIOLibAndroidAccessory': ['bundleRelease', 'bundleDebug'],
@@ -108,46 +108,46 @@ def libraries = [
 ]
 
 def applications = [
-  'HelloIOIO': ['packageDebug'],
-  'HelloIOIOService': ['packageDebug'],
-  'IOIOSimpleApp': ['packageDebug'],
-  'HelloIOIOConsole': ['distJar'],
-  'HelloIOIOSwing': ['distJar'],
-  'HelloSequencer': ['distJar']
+        'HelloIOIO'       : ['packageDebug'],
+        'HelloIOIOService': ['packageDebug'],
+        'IOIOSimpleApp'   : ['packageDebug'],
+        'HelloIOIOConsole': ['distJar'],
+        'HelloIOIOSwing'  : ['distJar'],
+        'HelloSequencer'  : ['distJar']
 ]
 
 def gitFiles(dirs) {
-  ('git ls-files -- ' + dirs.join(' ')).execute().text.readLines()
+    ('git ls-files -- ' + dirs.join(' ')).execute().text.readLines()
 }
 
 
 task bundle(type: Zip) {
-  baseName = 'App'
-  version = versionString
-  destinationDir = file('../release/software')
+    baseName = 'App'
+    version = versionString
+    destinationDir = file('../release/software')
 
-  into('src') {
-    from fileTree('.').include(gitFiles(libraries.keySet()*.concat('/src'))).exclude('.git*')
-    from fileTree('.').include(gitFiles(applications.keySet())).exclude('.git*')
-  }
-
-  libraries.each { entry ->
-    entry.value.each { value ->
-      into('lib') {
-        from project(entry.key).tasks[value]
-      }
+    into('src') {
+        from fileTree('.').include(gitFiles(libraries.keySet()*.concat('/src'))).exclude('.git*')
+        from fileTree('.').include(gitFiles(applications.keySet())).exclude('.git*')
     }
-  }
 
-  applications.each { entry ->
-    entry.value.each { value ->
-      into('bin') {
-        from project(entry.key).tasks[value]
-      }
+    libraries.each { entry ->
+        entry.value.each { value ->
+            into('lib') {
+                from project(entry.key).tasks[value]
+            }
+        }
     }
-  }
 
-  into('doc') {
-    from project('IOIOLibCore').tasks.getByName('javadoc')
-  }
+    applications.each { entry ->
+        entry.value.each { value ->
+            into('bin') {
+                from project(entry.key).tasks[value]
+            }
+        }
+    }
+
+    into('doc') {
+        from project('IOIOLibCore').tasks.getByName('javadoc')
+    }
 }

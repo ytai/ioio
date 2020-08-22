@@ -1,28 +1,28 @@
 apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
-  mainClass = 'ioio.examples.hello_console.HelloIOIOConsole'
+    mainClass = 'ioio.examples.hello_console.HelloIOIOConsole'
 }
 
 tasks.build.dependsOn distJar
 
 dependencies {
-  implementation project(':IOIOLibPC')
+    implementation project(':IOIOLibPC')
 }
 
 repositories {
-  google()
-  jcenter()
-  maven { url "http://www.sparetimelabs.com/maven2" }
+    google()
+    jcenter()
+    maven { url "http://www.sparetimelabs.com/maven2" }
 }
 
 buildscript {
-  repositories {
-    google()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-  }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
+    }
 }

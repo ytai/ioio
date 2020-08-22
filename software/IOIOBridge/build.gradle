@@ -1,32 +1,32 @@
 apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
-  mainClass = 'ioio.bridge.Main'
-  version = null
+    mainClass = 'ioio.bridge.Main'
+    version = null
 }
 
 task zip(type: Zip, dependsOn: distJar) {
-  baseName = 'IOIOBridge'
-  version = '0103'
+    baseName = 'IOIOBridge'
+    version = '0103'
 
-  from distJar
-  from('ioiobridge', 'ioiobridge.bat')
-  rename 'IOIOBridge-standalone.jar', 'ioiobridge.jar'
+    from distJar
+    from('ioiobridge', 'ioiobridge.bat')
+    rename 'IOIOBridge-standalone.jar', 'ioiobridge.jar'
 }
 
 tasks.build.dependsOn zip
 
 dependencies {
-  implementation 'com.sparetimelabs:purejavacomm:1.0.0'
+    implementation 'com.sparetimelabs:purejavacomm:1.0.0'
 }
 
 buildscript {
-  repositories {
-    google()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-  }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
+    }
 }

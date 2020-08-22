@@ -1,22 +1,22 @@
 apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
-  mainClass = 'mobi.ioio.seeed.testbed.SeeedTestbed'
+    mainClass = 'mobi.ioio.seeed.testbed.SeeedTestbed'
 }
 
 tasks.build.dependsOn distJar
 
 dependencies {
-  implementation project(':IOIOLibPC')
+    implementation project(':IOIOLibPC')
 }
 
 buildscript {
-  repositories {
-    google()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-  }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
+    }
 }

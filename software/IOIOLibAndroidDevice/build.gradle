@@ -1,21 +1,21 @@
 apply plugin: 'com.android.library'
 
 android {
-  compileSdkVersion 29
+    compileSdkVersion 29
 }
 
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      pom.project {
-        name = 'IOIOLibAndroidDevice'
-        description = 'IOIO library for Android - USB device extenstion'
-        packaging = 'aar'
-      }
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name = 'IOIOLibAndroidDevice'
+                description = 'IOIO library for Android - USB device extenstion'
+                packaging = 'aar'
+            }
+        }
     }
-  }
 }
 
 dependencies {
-  implementation project(":IOIOLibAndroid")
+    implementation project(":IOIOLibAndroid")
 }

@@ -1,24 +1,24 @@
 apply plugin: 'gradle-one-jar'
 
 task distJar(type: OneJar) {
-  mainClass = 'ioio.connection_tester_pc.IOIOConnectionTesterMain'
+    mainClass = 'ioio.connection_tester_pc.IOIOConnectionTesterMain'
 }
 
 tasks.build.dependsOn distJar
 
 dependencies {
-  implementation project(':IOIOLibPC')
-  implementation project(':IOIOConnectionTester')
-  implementation 'com.google.guava:guava:12.0'
+    implementation project(':IOIOLibPC')
+    implementation project(':IOIOConnectionTester')
+    implementation 'com.google.guava:guava:12.0'
 }
 
 buildscript {
-  repositories {
-    google()
-    jcenter()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-  }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
+    }
 }
