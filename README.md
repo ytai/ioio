@@ -5,8 +5,6 @@ The IOIO board can be connected to its host over USB or Bluetooth, and provides 
 
 All user documentation is on [the Wiki](https://github.com/ytai/ioio/wiki).
 
-You can get answers to questions and get news about IOIO on the [ioio-users discussion group](https://groups.google.com/d/forum/ioio-users).
-
 The [IOIO Gallery](http://pinterest.com/ytaibt/ioio/) lists various IOIO projects to give you some ideas of what you can do with IOIO.
 
 And this is [the blog of Ytai](http://ytai-mer.blogspot.com), the inventor of IOIO, where new developments are normally announced. Specifically, [this introductory post](http://ytai-mer.blogspot.com/2011/04/meet-ioio-io-for-android.html) provides a good overview of this technology.
