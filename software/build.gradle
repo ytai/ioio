@@ -1,3 +1,15 @@
+buildscript {
+  ext.kotlin_version = '1.4.0'
+  repositories {
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:4.0.1'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
 allprojects {
   group = 'com.github.ytai.ioio'
   version = 5.07

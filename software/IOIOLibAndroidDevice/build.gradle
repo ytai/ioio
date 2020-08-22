@@ -1,18 +1,6 @@
 apply plugin: 'com.android.library'
 
-buildscript {
-  repositories {
-    google()
-    jcenter()
-  }
-
-  dependencies {
-    classpath 'com.android.tools.build:gradle:4.0.1'
-  }
-}
-
 android {
-  buildToolsVersion "29.0.2"
   compileSdkVersion 29
 }
 
