@@ -8,3 +8,6 @@ build
 
 local.properties
 proguard-project.txt
+
+.idea/*
+!.idea/codeStyles/
