@@ -61,7 +61,7 @@ public interface DigitalInput extends Closeable {
 	/**
 	 * A digital input pin specification, used when opening digital inputs.
 	 */
-	static public class Spec {
+	class Spec {
 		/** Input pin mode. */
 		public enum Mode {
 			/**
@@ -122,7 +122,7 @@ public interface DigitalInput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public boolean read() throws InterruptedException, ConnectionLostException;
+	boolean read() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * Block until a desired logical level is sensed. The calling thread can be
@@ -135,6 +135,6 @@ public interface DigitalInput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public void waitForValue(boolean value) throws InterruptedException,
+	void waitForValue(boolean value) throws InterruptedException,
 			ConnectionLostException;
 }

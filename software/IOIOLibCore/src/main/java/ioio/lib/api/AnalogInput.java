@@ -90,152 +90,135 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @see IOIO#openAnalogInput(int)
  */
 public interface AnalogInput extends Closeable {
-	/**
-	 * Gets the analog input reading, as an absolute voltage in Volt units.
-	 * <p>
-	 * It typically takes a few milliseconds between when the instance is created and until the
-	 * first value can be read. In this case, the method may block shortly. If this is a problem,
-	 * the calling thread can be interrupted.
-	 * <p>
-	 * If a scaled value is desired, consider using {@link #read()}.
-	 *
-	 * @return The voltage, in Volt units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #read()
-	 */
-	public float getVoltage() throws InterruptedException, ConnectionLostException;
-
-	/**
-	 * This is very similar to {@link #getVoltage()}, but will wait for a new sample to arrive
-	 * before returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we
-	 * want to guarantee the we are looking at a sample that has been captured strictly after
-	 * certain other commands have been executed.
-	 *
+    /**
+     * Gets the analog input reading, as an absolute voltage in Volt units.
+     * <p>
+     * It typically takes a few milliseconds between when the instance is created and until the
+     * first value can be read. In this case, the method may block shortly. If this is a problem,
+     * the calling thread can be interrupted.
+     * <p>
+     * If a scaled value is desired, consider using {@link #read()}.
+     *
      * @return The voltage, in Volt units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #getVoltage()
-	 * @see #readSync()
-	 */
-	public float getVoltageSync() throws InterruptedException, ConnectionLostException;
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #read()
+     */
+    float getVoltage() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Gets the maximum value against which {@link #read()} values are scaled.
-	 *
-	 * @return The voltage, in Volts.
-	 */
-	public float getReference();
+    /**
+     * This is very similar to {@link #getVoltage()}, but will wait for a new sample to arrive
+     * before returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we
+     * want to guarantee the we are looking at a sample that has been captured strictly after
+     * certain other commands have been executed.
+     *
+     * @return The voltage, in Volt units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #getVoltage()
+     * @see #readSync()
+     */
+    float getVoltageSync() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Gets the analog input reading, as a scaled real value between 0 and 1.
-	 * <p>
-	 * It typically takes a few milliseconds between when the instance is created and until the
-	 * first value can be read. In this case, the method may block shortly. If this is a problem,
-	 * the calling thread can be interrupted.
-	 * <p>
-	 * If an absolute value is desired, consider using {@link #getVoltage()}.
-	 *
-	 * @return The voltage, in scaled units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #getVoltage()
-	 */
-	public float read() throws InterruptedException, ConnectionLostException;
+    /**
+     * Gets the maximum value against which {@link #read()} values are scaled.
+     *
+     * @return The voltage, in Volts.
+     */
+    float getReference();
 
-	/**
-	 * This is very similar to {@link #read()}, but will wait for a new sample to arrive before
-	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
-	 * guarantee the we are looking at a sample that has been captured strictly after certain other
-	 * commands have been executed.
-	 *
-	 * @return The voltage, in scaled units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #read()
-	 * @see #getVoltageSync()
-	 */
-	public float readSync() throws InterruptedException, ConnectionLostException;
+    /**
+     * Gets the analog input reading, as a scaled real value between 0 and 1.
+     * <p>
+     * It typically takes a few milliseconds between when the instance is created and until the
+     * first value can be read. In this case, the method may block shortly. If this is a problem,
+     * the calling thread can be interrupted.
+     * <p>
+     * If an absolute value is desired, consider using {@link #getVoltage()}.
+     *
+     * @return The voltage, in scaled units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #getVoltage()
+     */
+    float read() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Initializes or destroys an internal buffer, used for queuing sampled data. When called with a
-	 * positive argument, an internal buffer will be created, and start storing sampled data. The
-	 * client can then call {@link #readBuffered()} or {@link #getVoltageBuffered()} for obtaining
-	 * buffered samples.
-	 * <p>
-	 * When called with argument of 0, the internal buffer is destroyed.
-	 *
-	 * @param capacity
-	 *            The maximum number of unread samples that can be buffered before overflow occurs.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public void setBuffer(int capacity) throws ConnectionLostException;
+    /**
+     * This is very similar to {@link #read()}, but will wait for a new sample to arrive before
+     * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
+     * guarantee the we are looking at a sample that has been captured strictly after certain other
+     * commands have been executed.
+     *
+     * @return The voltage, in scaled units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #read()
+     * @see #getVoltageSync()
+     */
+    float readSync() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Gets the number of samples that have been dropped as result of overflow, since
-	 * {@link #setBuffer(int)} has been called.
-	 *
-	 * @return The number of dropped samples.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public int getOverflowCount() throws ConnectionLostException;
+    /**
+     * Initializes or destroys an internal buffer, used for queuing sampled data. When called with a
+     * positive argument, an internal buffer will be created, and start storing sampled data. The
+     * client can then call {@link #readBuffered()} or {@link #getVoltageBuffered()} for obtaining
+     * buffered samples.
+     * <p>
+     * When called with argument of 0, the internal buffer is destroyed.
+     *
+     * @param capacity The maximum number of unread samples that can be buffered before overflow occurs.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    void setBuffer(int capacity) throws ConnectionLostException;
 
-	/**
-	 * Gets the number of samples currently in the buffer. Reading that many samples is guaranteed
-	 * not to block.
-	 *
-	 * @return The number of samples available in the buffer.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public int available() throws ConnectionLostException;
+    /**
+     * Gets the number of samples that have been dropped as result of overflow, since
+     * {@link #setBuffer(int)} has been called.
+     *
+     * @return The number of dropped samples.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    int getOverflowCount() throws ConnectionLostException;
 
-	/**
-	 * Read a sample from the internal buffer. This method will block until at least one sample is
-	 * available, the instance is closed (via {@link #close()}), the thread is interrupted (via
-	 * {@link Thread#interrupt()} or connection is lost. {@link #setBuffer(int)} must be called
-	 * prior to this method for setting up an internal buffer for storing samples.
-	 *
-	 * @see #getVoltageBuffered()
-	 * @return The earliest (oldest) sample available in the buffer, scaled to the range [0,1].
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public float readBuffered() throws InterruptedException, ConnectionLostException;
+    /**
+     * Gets the number of samples currently in the buffer. Reading that many samples is guaranteed
+     * not to block.
+     *
+     * @return The number of samples available in the buffer.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    int available() throws ConnectionLostException;
 
-	/**
-	 * Read a sample from the internal buffer. This method will block until at least one sample is
-	 * available, the instance is closed (via {@link #close()}), the thread is interrupted (via
-	 * {@link Thread#interrupt()} or connection is lost. {@link #setBuffer(int)} must be called
-	 * prior to this method for setting up an internal buffer for storing samples.
-	 *
-	 * @see #readBuffered()
-	 * @return The earliest (oldest) sample available in the buffer, in Volt units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public float getVoltageBuffered() throws InterruptedException, ConnectionLostException;
+    /**
+     * Read a sample from the internal buffer. This method will block until at least one sample is
+     * available, the instance is closed (via {@link #close()}), the thread is interrupted (via
+     * {@link Thread#interrupt()} or connection is lost. {@link #setBuffer(int)} must be called
+     * prior to this method for setting up an internal buffer for storing samples.
+     *
+     * @return The earliest (oldest) sample available in the buffer, scaled to the range [0,1].
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #getVoltageBuffered()
+     */
+    float readBuffered() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Gets the sample rate used for obtaining buffered samples.
-	 *
-	 * @return The sample rate, in Hz units.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public float getSampleRate() throws ConnectionLostException;
+    /**
+     * Read a sample from the internal buffer. This method will block until at least one sample is
+     * available, the instance is closed (via {@link #close()}), the thread is interrupted (via
+     * {@link Thread#interrupt()} or connection is lost. {@link #setBuffer(int)} must be called
+     * prior to this method for setting up an internal buffer for storing samples.
+     *
+     * @return The earliest (oldest) sample available in the buffer, in Volt units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #readBuffered()
+     */
+    float getVoltageBuffered() throws InterruptedException, ConnectionLostException;
+
+    /**
+     * Gets the sample rate used for obtaining buffered samples.
+     *
+     * @return The sample rate, in Hz units.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    float getSampleRate() throws ConnectionLostException;
 }

@@ -59,7 +59,7 @@ public interface DigitalOutput extends Closeable {
 	/**
 	 * A digital output pin specification, used when opening digital outputs.
 	 */
-	public static class Spec {
+	class Spec {
 		/** Output pin mode. */
 		public enum Mode {
 			/**
@@ -116,5 +116,5 @@ public interface DigitalOutput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public void write(boolean val) throws ConnectionLostException;
+	void write(boolean val) throws ConnectionLostException;
 }

@@ -226,7 +226,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  */
 public interface PulseInput extends Closeable {
 	/** An enumeration for describing the module's operating mode. */
-	public enum PulseMode {
+	enum PulseMode {
 		/** Positive pulse measurement (rising-edge-to-falling-edge). */
 		POSITIVE(1),
 		/** Negative pulse measurement (falling-edge-to-rising-edge). */
@@ -241,13 +241,13 @@ public interface PulseInput extends Closeable {
 		/** The scaling factor as an integer. */
 		public final int scaling;
 
-		private PulseMode(int s) {
+		PulseMode(int s) {
 			scaling = s;
 		}
 	}
 
 	/** Supported clock rate enum. */
-	public enum ClockRate {
+	enum ClockRate {
 		/** 16MHz */
 		RATE_16MHz(16000000),
 		/** 2MHz */
@@ -260,7 +260,7 @@ public interface PulseInput extends Closeable {
 		/** The value in Hertz units. */
 		public final int hertz;
 
-		private ClockRate(int h) {
+		ClockRate(int h) {
 			hertz = h;
 		}
 	}
@@ -279,7 +279,7 @@ public interface PulseInput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public float getDuration() throws InterruptedException, ConnectionLostException;
+	float getDuration() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * This is very similar to {@link #getDuration()}, but will wait for a new sample to arrive
@@ -294,7 +294,7 @@ public interface PulseInput extends Closeable {
 	 *             The connection with the IOIO is lost.
 	 * @see #getDuration()
 	 */
-	public float getDurationSync() throws InterruptedException, ConnectionLostException;
+	float getDurationSync() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * Reads a single measurement from the queue. If the queue is empty, will block until more data
@@ -309,12 +309,12 @@ public interface PulseInput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public float getDurationBuffered() throws InterruptedException, ConnectionLostException;
+	float getDurationBuffered() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * @deprecated Please use {@link #getDurationBuffered()} instead.
 	 */
-	public float waitPulseGetDuration() throws InterruptedException, ConnectionLostException;
+	float waitPulseGetDuration() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * Gets the momentary frequency of the measured signal. When scaling is used, this is
@@ -331,7 +331,7 @@ public interface PulseInput extends Closeable {
 	 * @throws ConnectionLostException
 	 *             The connection with the IOIO has been lost.
 	 */
-	public float getFrequency() throws InterruptedException, ConnectionLostException;
+	float getFrequency() throws InterruptedException, ConnectionLostException;
 
 	/**
 	 * This is very similar to {@link #getFrequency()}, but will wait for a new sample to arrive
@@ -346,5 +346,5 @@ public interface PulseInput extends Closeable {
 	 *             The connection with the IOIO is lost.
 	 * @see #getFrequency()
 	 */
-	public float getFrequencySync() throws InterruptedException, ConnectionLostException;
+	float getFrequencySync() throws InterruptedException, ConnectionLostException;
 }

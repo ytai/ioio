@@ -96,12 +96,12 @@ public interface Uart extends Closeable {
 	 * 
 	 * @return An input stream.
 	 */
-	public InputStream getInputStream();
+	InputStream getInputStream();
 
 	/**
 	 * Gets the output stream.
 	 * 
 	 * @return An output stream.
 	 */
-	public OutputStream getOutputStream();
+	OutputStream getOutputStream();
 }

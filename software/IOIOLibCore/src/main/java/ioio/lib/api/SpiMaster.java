@@ -102,7 +102,7 @@ public interface SpiMaster extends Closeable {
 	}
 
 	/** An object that can be waited on for asynchronous calls. */
-	public interface Result {
+	interface Result {
 		/**
 		 * Wait until the asynchronous call which returned this instance is
 		 * complete.
@@ -112,12 +112,12 @@ public interface SpiMaster extends Closeable {
 		 * @throws InterruptedException
 		 *             This operation has been interrupted.
 		 */
-		public void waitReady() throws ConnectionLostException,
+		void waitReady() throws ConnectionLostException,
 				InterruptedException;
 	}
 
 	/** SPI configuration structure. */
-	static class Config {
+	class Config {
 		/** Data rate. */
 		public Rate rate;
 		/** Whether to invert clock polarity. */
@@ -185,8 +185,8 @@ public interface SpiMaster extends Closeable {
 	 * @throws InterruptedException
 	 *             Calling thread has been interrupted.
 	 */
-	public void writeRead(int slave, byte[] writeData, int writeSize,
-			int totalSize, byte[] readData, int readSize)
+	void writeRead(int slave, byte[] writeData, int writeSize,
+				   int totalSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException;
 
 	/**
@@ -195,8 +195,8 @@ public interface SpiMaster extends Closeable {
 	 * 
 	 * @see #writeRead(int, byte[], int, int, byte[], int)
 	 */
-	public void writeRead(byte[] writeData, int writeSize, int totalSize,
-			byte[] readData, int readSize) throws ConnectionLostException,
+	void writeRead(byte[] writeData, int writeSize, int totalSize,
+				   byte[] readData, int readSize) throws ConnectionLostException,
 			InterruptedException;
 
 	/**
@@ -206,7 +206,7 @@ public interface SpiMaster extends Closeable {
 	 * 
 	 * @see #writeRead(int, byte[], int, int, byte[], int)
 	 */
-	public Result writeReadAsync(int slave, byte[] writeData, int writeSize,
-			int totalSize, byte[] readData, int readSize)
+	Result writeReadAsync(int slave, byte[] writeData, int writeSize,
+						  int totalSize, byte[] readData, int readSize)
 			throws ConnectionLostException;
 }

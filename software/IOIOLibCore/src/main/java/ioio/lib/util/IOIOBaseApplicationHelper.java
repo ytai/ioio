@@ -66,7 +66,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 					while (!abort_ && ioio_.getState() == IOIO.State.CONNECTED) {
 						looper_.loop();
 					}
-				} catch (ConnectionLostException e) {
+				} catch (ConnectionLostException ignored) {
 				} catch (InterruptedException e) {
 					ioio_.disconnect();
 				} catch (IncompatibilityException e) {
@@ -81,7 +81,7 @@ public abstract class IOIOBaseApplicationHelper implements IOIOConnectionThreadP
 				} finally {
 					try {
 						ioio_.waitForDisconnect();
-					} catch (InterruptedException e1) {
+					} catch (InterruptedException ignored) {
 					}
 					synchronized (this) {
 						ioio_ = null;

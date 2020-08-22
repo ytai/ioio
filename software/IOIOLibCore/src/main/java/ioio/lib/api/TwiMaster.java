@@ -87,7 +87,7 @@ public interface TwiMaster extends Closeable {
 	}
 
 	/** An object that can be waited on for asynchronous calls. */
-	public interface Result {
+	interface Result {
 		/**
 		 * Wait until the asynchronous call which returned this instance is
 		 * complete.
@@ -99,7 +99,7 @@ public interface TwiMaster extends Closeable {
 		 * @throws InterruptedException
 		 *             This operation has been interrupted.
 		 */
-		public boolean waitReady() throws ConnectionLostException,
+		boolean waitReady() throws ConnectionLostException,
 				InterruptedException;
 	}
 
@@ -130,8 +130,8 @@ public interface TwiMaster extends Closeable {
 	 * @throws InterruptedException
 	 *             Calling thread has been interrupted.
 	 */
-	public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
-			int writeSize, byte[] readData, int readSize)
+	boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
+					  int writeSize, byte[] readData, int readSize)
 			throws ConnectionLostException, InterruptedException;
 
 	/**
@@ -142,7 +142,7 @@ public interface TwiMaster extends Closeable {
 	 * 
 	 * @see #writeRead(int, boolean, byte[], int, byte[], int)
 	 */
-	public Result writeReadAsync(int address, boolean tenBitAddr,
-			byte[] writeData, int writeSize, byte[] readData, int readSize)
+	Result writeReadAsync(int address, boolean tenBitAddr,
+						  byte[] writeData, int writeSize, byte[] readData, int readSize)
 			throws ConnectionLostException;
 }

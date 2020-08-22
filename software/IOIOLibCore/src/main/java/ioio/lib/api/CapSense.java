@@ -81,114 +81,96 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @see IOIO#openCapSense(int, float)
  */
 public interface CapSense extends Closeable {
-	public static final float DEFAULT_COEF = 25.f;
+    float DEFAULT_COEF = 25.f;
 
-	/**
-	 * Gets the capacitance reading.
-	 * <p>
-	 * It typically takes a few milliseconds between when the instance is created and until the
-	 * first value can be read. In this case, the method may block shortly. If this is a problem,
-	 * the calling thread can be interrupted.
-	 * <p>
-	 * This value is computed using a filtered signal, which is configured via
-	 * {@link #setFilterCoef(float)}
-	 *
-	 * @return The capacitance, in pico-Farade units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public float read() throws InterruptedException, ConnectionLostException;
+    /**
+     * Gets the capacitance reading.
+     * <p>
+     * It typically takes a few milliseconds between when the instance is created and until the
+     * first value can be read. In this case, the method may block shortly. If this is a problem,
+     * the calling thread can be interrupted.
+     * <p>
+     * This value is computed using a filtered signal, which is configured via
+     * {@link #setFilterCoef(float)}
+     *
+     * @return The capacitance, in pico-Farade units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    float read() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * This is very similar to {@link #read()}, but will wait for a new sample to arrive before
-	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
-	 * guarantee the we are looking at a sample that has been captured strictly after certain other
-	 * commands have been executed.
-	 *
-	 * @return The capacitance, in pico-Farade units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #read()
-	 */
-	public float readSync() throws InterruptedException, ConnectionLostException;
+    /**
+     * This is very similar to {@link #read()}, but will wait for a new sample to arrive before
+     * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
+     * guarantee the we are looking at a sample that has been captured strictly after certain other
+     * commands have been executed.
+     *
+     * @return The capacitance, in pico-Farade units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #read()
+     */
+    float readSync() throws InterruptedException, ConnectionLostException;
 
-	/**
-	 * Sets the low-pass filter coefficient.
-	 *
-	 * This coefficient is the typical time constant of the system, which gives us an order of
-	 * magnitude of its response time. Slower response time typically provides better noise immunity
-	 * at the expense of higher latency.
-	 *
-	 * @param t
-	 *            The time constant, in milliseconds.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 */
-	public void setFilterCoef(float t) throws ConnectionLostException;
+    /**
+     * Sets the low-pass filter coefficient.
+     * <p>
+     * This coefficient is the typical time constant of the system, which gives us an order of
+     * magnitude of its response time. Slower response time typically provides better noise immunity
+     * at the expense of higher latency.
+     *
+     * @param t The time constant, in milliseconds.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     */
+    void setFilterCoef(float t) throws ConnectionLostException;
 
-	/**
-	 * Block until sensed capacitance becomes greater than a given threshold.
-	 *
-	 * For using a touch surface as a digital button, a threshold of 50pF is normally useful, with
-	 * some hysteresis recommended.
-	 *
-	 * @param threshold
-	 *            The threshold value, in pF units.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 */
-	public void waitOver(float threshold) throws ConnectionLostException, InterruptedException;
+    /**
+     * Block until sensed capacitance becomes greater than a given threshold.
+     * <p>
+     * For using a touch surface as a digital button, a threshold of 50pF is normally useful, with
+     * some hysteresis recommended.
+     *
+     * @param threshold The threshold value, in pF units.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     */
+    void waitOver(float threshold) throws ConnectionLostException, InterruptedException;
 
-	/**
-	 * This is very similar to {@link #waitOver(float)}, but will wait for a new sample to arrive before
-	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
-	 * guarantee the we are looking at a sample that has been captured strictly after certain other
-	 * commands have been executed.
-	 *
-	 * @param threshold
-     *            The threshold value, in pF units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #waitOver(float)
-	 */
-	public void waitOverSync(float threshold) throws ConnectionLostException, InterruptedException;
+    /**
+     * This is very similar to {@link #waitOver(float)}, but will wait for a new sample to arrive before
+     * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
+     * guarantee the we are looking at a sample that has been captured strictly after certain other
+     * commands have been executed.
+     *
+     * @param threshold The threshold value, in pF units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #waitOver(float)
+     */
+    void waitOverSync(float threshold) throws ConnectionLostException, InterruptedException;
 
-	/**
-	 * Block until sensed capacitance becomes less than a given threshold.
-	 *
-	 * For using a touch surface as a digital button, a threshold of 50pF is normally useful, with
-	 * some hysteresis recommended.
-	 *
-	 * @param threshold
-	 *            The threshold value, in pF units.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 */
-	public void waitUnder(float threshold) throws ConnectionLostException, InterruptedException;
+    /**
+     * Block until sensed capacitance becomes less than a given threshold.
+     * <p>
+     * For using a touch surface as a digital button, a threshold of 50pF is normally useful, with
+     * some hysteresis recommended.
+     *
+     * @param threshold The threshold value, in pF units.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     */
+    void waitUnder(float threshold) throws ConnectionLostException, InterruptedException;
 
-	/**
-	 * This is very similar to {@link #waitUnder(float)}, but will wait for a new sample to arrive before
-	 * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
-	 * guarantee the we are looking at a sample that has been captured strictly after certain other
-	 * commands have been executed.
-	 *
-     * @param threshold
-     *            The threshold value, in pF units.
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO is lost.
-	 * @see #waitUnder(float)
-	 */
-	public void waitUnderSync(float threshold) throws ConnectionLostException, InterruptedException;
+    /**
+     * This is very similar to {@link #waitUnder(float)}, but will wait for a new sample to arrive before
+     * returning. This is useful in conjunction with {@link IOIO#sync()}, in cases when we want to
+     * guarantee the we are looking at a sample that has been captured strictly after certain other
+     * commands have been executed.
+     *
+     * @param threshold The threshold value, in pF units.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO is lost.
+     * @see #waitUnder(float)
+     */
+    void waitUnderSync(float threshold) throws ConnectionLostException, InterruptedException;
 }
