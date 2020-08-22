@@ -1,18 +1,6 @@
 apply plugin: 'com.android.application'
 
-buildscript {
-  repositories {
-    google()
-    jcenter()
-  }
-
-  dependencies {
-    classpath 'com.android.tools.build:gradle:4.0.1'
-  }
-}
-
 android {
-  buildToolsVersion "29.0.2"
   compileSdkVersion 29
   defaultConfig {
     minSdkVersion 14
@@ -27,9 +15,3 @@ dependencies {
   implementation 'com.github.ytai.ioio:IOIOLibAndroidDevice:5.07'
   implementation 'androidx.appcompat:appcompat:1.2.0'
 }
-
-repositories {
-  google()
-  jcenter()
-}
-
