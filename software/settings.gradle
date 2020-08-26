@@ -1,4 +1,4 @@
-rootProject.name = 'IOIO samples'
+rootProject.name = 'IOIO'
 
 // PC applications.
 def pcApplications = [
