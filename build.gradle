@@ -7,6 +7,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -18,9 +19,6 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'maven'
-    apply plugin: 'signing'
-
     repositories {
         google()
         jcenter()
@@ -48,7 +46,10 @@ static def getTag() {
         tagVersion = process.text.toString().trim() + dirty
     } else {
         def tagVersionToken = tagVersion.split("/")
-        tagVersion = tagVersionToken[2]
+        if (tagVersionToken.size() > 2)
+            tagVersion = tagVersionToken[2]
+        else
+            tagVersion = tagVersionToken[0]
     }
     return tagVersion
 }

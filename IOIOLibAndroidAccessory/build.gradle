@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group = 'ioio.lib.accessory'
 
 android {
     compileSdkVersion 30
@@ -8,18 +11,6 @@ android {
 
         versionCode getGitCommitCount()
         versionName getTag()
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name = 'IOIOLibAndroidAccessory'
-                description = 'IOIO library for Android - OpenAccessory extenstion'
-                packaging = 'aar'
-            }
-        }
     }
 }
 
