@@ -1,19 +1,10 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group = 'ioio.lib.device'
 
 android {
     compileSdkVersion 30
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name = 'IOIOLibAndroidDevice'
-                description = 'IOIO library for Android - USB device extenstion'
-                packaging = 'aar'
-            }
-        }
-    }
 }
 
 dependencies {

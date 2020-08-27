@@ -1,16 +1,5 @@
 apply plugin: 'java'
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name = 'IOIOLibCore'
-                description = 'Common core of the IOIO library'
-            }
-        }
-    }
-}
-
 task generateVersionFile(type: GenerateVersion) {
     version = versionString
     outputFile = file("$project.buildDir/classes/main/version.properties")

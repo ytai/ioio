@@ -1,16 +1,5 @@
 apply plugin: 'java-library'
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name = 'IOIOLibPC'
-                description = 'IOIO Library for PC applications'
-            }
-        }
-    }
-}
-
 javadoc {
     source = fileTree(dir: 'src/main/java')
     failOnError = false
