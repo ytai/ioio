@@ -3,6 +3,7 @@
     package="ioio.examples.simple">
 
     <application
+        android:theme="@style/Theme.AppCompat"
         android:icon="@drawable/icon"
         android:label="@string/app_name">
         <uses-library
