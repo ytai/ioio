@@ -17,5 +17,5 @@ uploadArchives {
 }
 
 dependencies {
-    implementation project(":IOIOLibAndroid")
+    api project(":IOIOLibAndroid")
 }
