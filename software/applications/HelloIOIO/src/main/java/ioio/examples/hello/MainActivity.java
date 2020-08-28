@@ -54,6 +54,7 @@ public class MainActivity extends IOIOActivity {
 		 *
 		 * @see ioio.lib.util.IOIOLooper#setup()
 		 */
+		@SuppressWarnings("JavadocReference")
 		@Override
 		protected void setup() throws ConnectionLostException {
 			showVersions(ioio_, "IOIO connected!");
@@ -104,6 +105,7 @@ public class MainActivity extends IOIOActivity {
 	 *
 	 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
 	 */
+	@SuppressWarnings("JavadocReference")
 	@Override
 	protected IOIOLooper createIOIOLooper() {
 		return new Looper();
