@@ -9,7 +9,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.ytai.ioio:IOIOLibAndroid:5.07'
-    implementation 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
-    implementation 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
+    implementation project(':IOIOLibAndroidBluetooth')
+    implementation project(':IOIOLibAndroidAccessory')
 }
