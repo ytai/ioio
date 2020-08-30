@@ -5,6 +5,9 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
+
+        versionCode getGitCommitCount()
+        versionName getTag()
     }
 }
 

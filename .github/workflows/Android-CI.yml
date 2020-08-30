@@ -22,6 +22,8 @@ jobs:
         uses: malinskiy/action-android/install-sdk@release/0.0.7
       - name: Build project
         run: cd software && ./gradlew assembleDebug
+        env:
+          TAG_VERSION: ${{ github.ref }}
       - name: Run tests
         run: cd software && ./gradlew test
   Check:
