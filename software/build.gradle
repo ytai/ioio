@@ -35,3 +35,28 @@ subprojects {
         }
     }
 }
+
+static def getTag() {
+    def tagVersion = "$System.env.TAG_VERSION"
+    if (tagVersion == "null") {
+        println "No variable TAG_VERSION specified, it seems it runs locally, I'm using 'git describe --tags'"
+
+        // with local un-commited changes a -DIRTY is added
+        def processChanges = "git diff-index --name-only HEAD --".execute()
+        def dirty = ""
+        if (!processChanges.text.toString().trim().isEmpty())
+            dirty = "-DIRTY"
+
+        def process = "git describe --tags".execute()
+        tagVersion = process.text.toString().trim() + dirty
+    } else {
+        def tagVersionToken = tagVersion.split("/")
+        tagVersion = tagVersionToken[2]
+    }
+    return tagVersion
+}
+
+static def getGitCommitCount() {
+    def process = "git rev-list HEAD --count".execute()
+    return process.text.toInteger()
+}
