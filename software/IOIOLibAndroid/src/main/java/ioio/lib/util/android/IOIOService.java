@@ -28,15 +28,16 @@
  */
 package ioio.lib.util.android;
 
-import ioio.lib.impl.SocketIOIOConnection;
-import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.IOIOLooperProvider;
 import android.app.Service;
 import android.content.Intent;
 
+import ioio.lib.impl.SocketIOIOConnection;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.IOIOLooperProvider;
+
 /**
  * A convenience class for easy creation of IOIO-based services.
- *
+ * <p>
  * It is used by creating a concrete {@link Service} in your application, which
  * extends this class. This class then takes care of proper creation and
  * abortion of the IOIO connection and of a dedicated thread for IOIO
@@ -67,96 +68,94 @@ import android.content.Intent;
  * example, in the case of {@link SocketIOIOConnection}, the second argument
  * will contain an {@link Integer} representing the local port number.
  */
-public abstract class IOIOService extends Service implements
-		IOIOLooperProvider {
-	private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(
-			this, this);
-	private boolean started_ = false;
+public abstract class IOIOService extends Service implements IOIOLooperProvider {
 
-	/**
-	 * Subclasses should call this method from their own onCreate() if
-	 * overloaded. It takes care of connecting with the IOIO.
-	 */
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		helper_.create();
-	}
+    private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(this, this);
+    private boolean started_ = false;
 
-	/**
-	 * Subclasses should call this method from their own onDestroy() if
-	 * overloaded. It takes care of connecting with the IOIO.
-	 */
-	@Override
-	public void onDestroy() {
-		stop();
-		helper_.destroy();
-		super.onDestroy();
-	}
+    /**
+     * Subclasses should call this method from their own onCreate() if
+     * overloaded. It takes care of connecting with the IOIO.
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        helper_.create();
+    }
 
-	private void start(Intent intent) {
-		if (!started_) {
-			helper_.start();
-			started_ = true;
-		} else {
-			helper_.restart();
-		}
-	}
+    /**
+     * Subclasses should call this method from their own onDestroy() if
+     * overloaded. It takes care of connecting with the IOIO.
+     */
+    @Override
+    public void onDestroy() {
+        stop();
+        helper_.destroy();
+        super.onDestroy();
+    }
 
-	/**
-	 * This is the old onStart() method. Override and/or call this method only
-	 * if you're using Android API level lower than 5. Otherwise you shoud call
-	 * the onStartCommand() method.
-	 */
-	@Override
-	public void onStart(Intent intent, int startId) {
-		start(intent);
-	}
+    private void start(Intent intent) {
+        if (!started_) {
+            helper_.start();
+            started_ = true;
+        } else {
+            helper_.restart();
+        }
+    }
 
-	/**
-	 * Subclasses should call this method from their own onStartCommand() if
-	 * overloaded. It takes care of connecting with the IOIO.
-	 */
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		start(intent);
-		// We want this service to continue running until it is explicitly
-		// stopped, so return sticky.
-		return START_STICKY;
-	}
+    /**
+     * This is the old onStart() method. Override and/or call this method only
+     * if you're using Android API level lower than 5. Otherwise you shoud call
+     * the onStartCommand() method.
+     */
+    @Override
+    public void onStart(Intent intent, int startId) {
+        start(intent);
+    }
 
-	/**
-	 * Subclasses should call this method if they wish to disconnect from the
-	 * IOIO(s) until the next onStart().
-	 */
-	protected void stop() {
-		if (started_) {
-			helper_.stop();
-			started_ = false;
-		}
-	}
+    /**
+     * Subclasses should call this method from their own onStartCommand() if
+     * overloaded. It takes care of connecting with the IOIO.
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        start(intent);
+        // We want this service to continue running until it is explicitly
+        // stopped, so return sticky.
+        return START_STICKY;
+    }
 
-	/**
-	 * Subclasses must either implement this method or its other overload by
-	 * returning an implementation of {@link IOIOLooper}. A dedicated thread
-	 * will be created for each available IOIO, from which the
-	 * {@link IOIOLooper}'s methods will be invoked. <code>null</code> may be
-	 * returned if the client is not interested to create a thread for this
-	 * IOIO. In multi-IOIO scenarios, where you want to identify which IOIO the
-	 * thread is for, consider overriding
-	 * {@link #createIOIOLooper(String, Object)} instead.
-	 *
-	 * @return An implementation of {@link IOIOLooper}, or <code>null</code> to
-	 *         skip.
-	 */
-	protected IOIOLooper createIOIOLooper() {
-		throw new RuntimeException(
-				"Client must override one of the createIOIOLooper overloads!");
-	}
+    /**
+     * Subclasses should call this method if they wish to disconnect from the
+     * IOIO(s) until the next onStart().
+     */
+    protected void stop() {
+        if (started_) {
+            helper_.stop();
+            started_ = false;
+        }
+    }
 
-	@Override
-	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
-		return createIOIOLooper();
-	}
+    /**
+     * Subclasses must either implement this method or its other overload by
+     * returning an implementation of {@link IOIOLooper}. A dedicated thread
+     * will be created for each available IOIO, from which the
+     * {@link IOIOLooper}'s methods will be invoked. <code>null</code> may be
+     * returned if the client is not interested to create a thread for this
+     * IOIO. In multi-IOIO scenarios, where you want to identify which IOIO the
+     * thread is for, consider overriding
+     * {@link #createIOIOLooper(String, Object)} instead.
+     *
+     * @return An implementation of {@link IOIOLooper}, or <code>null</code> to
+     * skip.
+     */
+    protected IOIOLooper createIOIOLooper() {
+        throw new RuntimeException("Client must override one of the createIOIOLooper overloads!");
+    }
+
+    @Override
+    public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
+        return createIOIOLooper();
+    }
 
 }

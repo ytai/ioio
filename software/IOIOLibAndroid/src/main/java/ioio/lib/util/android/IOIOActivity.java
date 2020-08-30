@@ -71,8 +71,7 @@ import android.os.Bundle;
  */
 public abstract class IOIOActivity extends AppCompatActivity implements
 		IOIOLooperProvider {
-	private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(
-			this, this);
+	private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(this, this);
 
 	/**
 	 * Subclasses should call this method from their own onCreate() if

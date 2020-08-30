@@ -89,7 +89,7 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 				}
 				try {
 					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
+				} catch (InterruptedException ignored) {
 				}
 			}
 		}
@@ -122,18 +122,18 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 		if (socket_ != null) {
 			try {
 				socket_.close();
-			} catch (IOException e) {
+			} catch (IOException ignored) {
 			}
 		}
 	}
 
 	@Override
-	public InputStream getInputStream() throws ConnectionLostException {
+	public InputStream getInputStream() {
 		return inputStream_;
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws ConnectionLostException {
+	public OutputStream getOutputStream() {
 		return outputStream_;
 	}
 

@@ -53,6 +53,7 @@ import android.content.ContextWrapper;
  * {@code onDestroy()}, {@code onStart()}, {@code onStop()} and
  * {@code onRestart()}, respectively.
  */
+@SuppressWarnings("ALL")
 public class AndroidIOIOConnectionManager extends IOIOConnectionManager {
 	private final ContextWrapper contextWrapper_;
 	private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
