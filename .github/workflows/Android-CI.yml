@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   buildTest:
     name: Build & Test JDK ${{ matrix.java_version }}
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     strategy:
       matrix:
         java_version: [1.8]
@@ -26,6 +26,33 @@ jobs:
           TAG_VERSION: ${{ github.ref }}
       - name: Run tests
         run: ./gradlew test
+      #- name: Set project dir environment var
+      #  run: echo ::set-env name=PROJECT_DIR::"$GITHUB_WORKSPACE/software" # working-directory: ./software doesn't work with uses:
+      - name: Run instrumentation tests
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.7
+        with:
+          cmd: ./gradlew cAT --continue
+          api: 28
+          tag: default
+          abi: x86
+      - name: Archive Espresso results
+        uses: actions/upload-artifact@v2.1.4
+        if: ${{ always() }}
+        with:
+          name: IOIO-Espresso-report
+          path: applications/**/build/reports/androidTests/connected/
+      - name: Save logcat output
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: IOIO-logcat
+          path: artifacts/logcat.log
+      - name: Archive screenshots
+        uses: actions/upload-artifact@v2.1.4
+        if: ${{ always() }}
+        with:
+          name: IOIO-Screenshots
+          path: applications/screenshots/adb/
   Check:
     name: Check
     runs-on: ubuntu-latest
