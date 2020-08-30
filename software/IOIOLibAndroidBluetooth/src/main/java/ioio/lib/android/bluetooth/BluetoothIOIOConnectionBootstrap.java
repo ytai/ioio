@@ -28,70 +28,65 @@
  */
 package ioio.lib.android.bluetooth;
 
-import ioio.lib.api.IOIOConnection;
-import ioio.lib.spi.IOIOConnectionBootstrap;
-import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.NoRuntimeSupportException;
-
-import java.util.Collection;
-import java.util.Set;
-
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
+import java.util.Collection;
+import java.util.Set;
+
+import ioio.lib.api.IOIOConnection;
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.NoRuntimeSupportException;
+
 @TargetApi(5)
-public class BluetoothIOIOConnectionBootstrap implements
-		IOIOConnectionBootstrap {
+public class BluetoothIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
 
-	private static final String TAG = "BluetoothIOIOConnection";
-	private final BluetoothAdapter adapter_;
+    private static final String TAG = "BluetoothIOIOConnection";
+    private final BluetoothAdapter adapter_;
 
-	public BluetoothIOIOConnectionBootstrap() throws NoRuntimeSupportException {
-		try {
-			adapter_ = BluetoothAdapter.getDefaultAdapter();
-			if (adapter_ != null) {
-				return;
-			}
-		} catch (Throwable e) {
-		}
-			throw new NoRuntimeSupportException(
-					"Bluetooth is not supported on this device.");
-		}
+    public BluetoothIOIOConnectionBootstrap() throws NoRuntimeSupportException {
+        try {
+            adapter_ = BluetoothAdapter.getDefaultAdapter();
+            if (adapter_ != null) {
+                return;
+            }
+        } catch (Throwable ignored) {
+        }
+        throw new NoRuntimeSupportException("Bluetooth is not supported on this device.");
+    }
 
-	@Override
-	public void getFactories(Collection<IOIOConnectionFactory> result) {
-		try {
-			Set<BluetoothDevice> bondedDevices = adapter_.getBondedDevices();
-			for (final BluetoothDevice device : bondedDevices) {
-				if (device.getName() != null && device.getName().startsWith("IOIO")) {
-					result.add(new IOIOConnectionFactory() {
-						@Override
-						public String getType() {
-							return BluetoothIOIOConnection.class
-									.getCanonicalName();
-						}
+    @Override
+    public void getFactories(Collection<IOIOConnectionFactory> result) {
+        try {
+            Set<BluetoothDevice> bondedDevices = adapter_.getBondedDevices();
+            for (final BluetoothDevice device : bondedDevices) {
+                if (device.getName() != null && device.getName().startsWith("IOIO")) {
+                    result.add(new IOIOConnectionFactory() {
+                        @Override
+                        public String getType() {
+                            return BluetoothIOIOConnection.class.getCanonicalName();
+                        }
 
-						@Override
-						public Object getExtra() {
-							return new Object[] { device.getName(),
-									device.getAddress() };
-						}
+                        @Override
+                        public Object getExtra() {
+                            return new Object[]{device.getName(), device.getAddress()};
+                        }
 
-						@Override
-						public IOIOConnection createConnection() {
-							return new BluetoothIOIOConnection(device);
-						}
-					});
-				}
-			}
-		} catch (SecurityException e) {
-			Log.e(TAG,
-					"Did you forget to declare uses-permission of android.permission.BLUETOOTH?");
-			throw e;
-		} catch (NoClassDefFoundError e) {
-			Log.w(TAG, "Bluetooth is not supported on this device.", e);
-		}
-	}
+                        @Override
+                        public IOIOConnection createConnection() {
+                            return new BluetoothIOIOConnection(device);
+                        }
+                    });
+                }
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "Did you forget to declare uses-permission of android.permission.BLUETOOTH?");
+            throw e;
+        } catch (NoClassDefFoundError e) {
+            Log.w(TAG, "Bluetooth is not supported on this device.", e);
+        }
+    }
 }

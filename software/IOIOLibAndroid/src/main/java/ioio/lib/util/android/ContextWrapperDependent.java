@@ -36,9 +36,9 @@ import android.content.ContextWrapper;
  * <i>Not intended for direct usage by end-users.</i>
  */
 public interface ContextWrapperDependent {
-	public void onCreate(ContextWrapper wrapper);
-	public void onDestroy();
-	public void open();
-	public void reopen();
-	public void close();
+	void onCreate(ContextWrapper wrapper);
+	void onDestroy();
+	void open();
+	void reopen();
+	void close();
 }
