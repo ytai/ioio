@@ -15,7 +15,7 @@ android {
         code {
             dimension "integration"
         }
-        aar {
+        library {
             dimension "integration"
         }
     }
@@ -27,8 +27,8 @@ dependencies {
     codeImplementation project(':IOIOLibAndroidAccessory')
     codeImplementation project(':IOIOLibAndroidDevice')
 
-    aarImplementation 'com.github.ytai.ioio:IOIOLibAndroid:5.07' // the old artifacts still need it
-    aarImplementation 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
-    aarImplementation 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
-    aarImplementation 'com.github.ytai.ioio:IOIOLibAndroidDevice:5.07'
+    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroid:5.07' // the old artifacts still need it
+    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
+    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
+    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidDevice:5.07'
 }
