@@ -5,6 +5,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
+        manifestPlaceholders = [theme:"@style/Theme.AppCompat"]
     }
 
     flavorDimensions "integration"
@@ -14,6 +15,7 @@ android {
         }
         aar {
             dimension "integration"
+            manifestPlaceholders = [theme:"@android:style/Theme.DeviceDefault"]
         }
     }
 

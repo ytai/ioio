@@ -6,7 +6,7 @@
     android:versionName="1.0">
 
     <application
-        android:theme="@style/Theme.AppCompat"
+        android:theme="${theme}"
         android:extractNativeLibs="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
