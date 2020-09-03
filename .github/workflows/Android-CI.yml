@@ -21,11 +21,11 @@ jobs:
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.0.7
       - name: Build project
-        run: cd software && ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
         env:
           TAG_VERSION: ${{ github.ref }}
       - name: Run tests
-        run: cd software && ./gradlew test
+        run: ./gradlew test
   Check:
     name: Check
     runs-on: ubuntu-latest
@@ -41,10 +41,10 @@ jobs:
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.0.7
       - name: Code checks
-        run: cd software && ./gradlew check
+        run: ./gradlew check
       - name: Archive Lint report
         uses: actions/upload-artifact@v2.0.1
         if: ${{ always() }}
         with:
           name: IOIO-Lint-report
-          path: software/app/build/reports/lint-results.html
+          path: applications/**/build/reports/lint-results.html
