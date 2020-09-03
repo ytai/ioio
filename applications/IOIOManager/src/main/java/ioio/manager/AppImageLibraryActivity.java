@@ -149,7 +149,7 @@ public class AppImageLibraryActivity extends ListActivity {
 			setListAdapter(listAdapter_);
 			registerForContextMenu(getListView());
 		} catch (IOException e) {
-			Log.w(TAG, e);
+			Log.e(TAG, e.getMessage(), e);
 		}
 		handleIntent(getIntent());
 	}
