@@ -4,7 +4,7 @@
 	package="ioio.examples.hello">
 
     <application
-        android:theme="${theme}"
+        android:theme="@style/Theme.AppCompat"
         android:extractNativeLibs="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
