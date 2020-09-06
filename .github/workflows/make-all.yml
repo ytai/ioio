@@ -1,0 +1,19 @@
+name: make all
+
+on: [ pull_request ]
+
+jobs:
+  buildTest:
+    name: make all
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macOS-13 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: make all
+        run: tools/make-all.sh
