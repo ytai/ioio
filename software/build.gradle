@@ -18,6 +18,10 @@ allprojects {
             versionNamespace,
             (int) version,
             ((int) (version * 100)) % 100)
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
 }
 
 subprojects {

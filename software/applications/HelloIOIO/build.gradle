@@ -27,8 +27,8 @@ dependencies {
     codeImplementation project(':IOIOLibAndroidAccessory')
     codeImplementation project(':IOIOLibAndroidDevice')
 
-    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroid:5.07' // the old artifacts still need it
-    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidBluetooth:5.07'
-    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidAccessory:5.07'
-    libraryImplementation 'com.github.ytai.ioio:IOIOLibAndroidDevice:5.07'
+    def ioioVersion = "6.0.0-beta4"
+    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:$ioioVersion"
+    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:$ioioVersion"
+    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidDevice:$ioioVersion"
 }
