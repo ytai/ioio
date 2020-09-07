@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="ioio.manager">
 
     <supports-screens android:anyDensity="true" />
 
     <application
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        tools:ignore="AllowBackup">
         <uses-library
             android:name="com.android.future.usb.accessory"
             android:required="false" />
@@ -45,10 +47,10 @@
         </activity>
         <activity
             android:name="SelectFileActivity"
-            android:label="@string/select_file"></activity>
+            android:label="@string/select_file" />
         <activity
             android:name="DownloadUrlActivity"
-            android:launchMode="singleTop"></activity>
+            android:launchMode="singleTop" />
         <activity
             android:name="ProgrammerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
