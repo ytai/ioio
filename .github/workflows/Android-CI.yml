@@ -26,8 +26,6 @@ jobs:
           TAG_VERSION: ${{ github.ref }}
       - name: Run tests
         run: ./gradlew test
-      #- name: Set project dir environment var
-      #  run: echo ::set-env name=PROJECT_DIR::"$GITHUB_WORKSPACE/software" # working-directory: ./software doesn't work with uses:
       - name: Run instrumentation tests
         uses: malinskiy/action-android/emulator-run-cmd@release/0.0.7
         with:
