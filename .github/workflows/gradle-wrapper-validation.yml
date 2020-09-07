@@ -14,6 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Change directory
-        run: cd software
       - uses: gradle/wrapper-validation-action@v1
