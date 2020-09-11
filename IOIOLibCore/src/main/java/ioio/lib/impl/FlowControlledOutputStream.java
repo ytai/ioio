@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -34,95 +34,93 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 class FlowControlledOutputStream extends OutputStream {
-	interface Sender {
-		void send(byte[] data, int size);
-	}
+    private final Sender sender_;
+    // We don't actually need the queue to be blocking, but ArrayDeque is only
+    // available since API-9.
+    private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(Constants.BUFFER_SIZE);
+    private final FlushThread thread_ = new FlushThread();
+    private final int maxPacket_;
+    private final byte[] packet_;
+    private int readyToSend_ = 0;
+    private boolean closed_ = false;
+    public FlowControlledOutputStream(Sender sender, int maxPacket) {
+        sender_ = sender;
+        maxPacket_ = maxPacket;
+        packet_ = new byte[maxPacket];
+        thread_.start();
+    }
 
-	private final Sender sender_;
-	// We don't actually need the queue to be blocking, but ArrayDeque is only
-	// available since API-9.
-	private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(Constants.BUFFER_SIZE);
-	private final FlushThread thread_ = new FlushThread();
-	private final int maxPacket_;
-	private final byte[] packet_;
+    @Override
+    synchronized public void flush() throws IOException {
+        try {
+            while (!closed_ && !queue_.isEmpty()) {
+                wait();
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("Interrupted");
+        }
+        if (closed_) {
+            throw new IOException("Stream has been closed");
+        }
+    }
 
-	private int readyToSend_ = 0;
-	private boolean closed_ = false;
+    @Override
+    synchronized public void write(int oneByte) throws IOException {
+        try {
+            while (!closed_ && !queue_.offer((byte) oneByte)) {
+                wait();
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("Interrupted");
+        }
+        if (closed_) {
+            throw new IOException("Stream has been closed");
+        }
+        notifyAll();
+    }
 
-	public FlowControlledOutputStream(Sender sender, int maxPacket) {
-		sender_ = sender;
-		maxPacket_ = maxPacket;
-		packet_ = new byte[maxPacket];
-		thread_.start();
-	}
+    synchronized public void readyToSend(int numBytes) {
+        readyToSend_ += numBytes;
+        notifyAll();
+    }
 
-	@Override
-	synchronized public void flush() throws IOException {
-		try {
-			while (!closed_ && !queue_.isEmpty()) {
-				wait();
-			}
-		} catch (InterruptedException e) {
-			throw new IOException("Interrupted");
-		}
-		if (closed_) {
-			throw new IOException("Stream has been closed");
-		}
-	}
+    @Override
+    synchronized public void close() {
+        if (closed_) {
+            return;
+        }
+        closed_ = true;
+        notifyAll();
+        thread_.interrupt();
+    }
 
-	@Override
-	synchronized public void write(int oneByte) throws IOException {
-		try {
-			while (!closed_ && !queue_.offer((byte) oneByte)) {
-				wait();
-			}
-		} catch (InterruptedException e) {
-			throw new IOException("Interrupted");
-		}
-		if (closed_) {
-			throw new IOException("Stream has been closed");
-		}
-		notifyAll();
-	}
+    interface Sender {
+        void send(byte[] data, int size);
+    }
 
-	synchronized public void readyToSend(int numBytes) {
-		readyToSend_ += numBytes;
-		notifyAll();
-	}
-
-	@Override
-	synchronized public void close() {
-		if (closed_) {
-			return;
-		}
-		closed_ = true;
-		notifyAll();
-		thread_.interrupt();
-	}
-
-	class FlushThread extends Thread {
-		@Override
-		public void run() {
-			super.run();
-			try {
-				while (true) {
-					int toSend;
-					synchronized (FlowControlledOutputStream.this) {
-						while (readyToSend_ == 0 || queue_.isEmpty()) {
-							FlowControlledOutputStream.this.wait();
-						}
-						toSend = Math.min(maxPacket_, Math.min(readyToSend_, queue_.size()));
-						for (int i = 0; i < toSend; ++i) {
-							packet_[i] = queue_.remove();
-						}
-						readyToSend_ -= toSend;
-						FlowControlledOutputStream.this.notifyAll();
-					}
-					sender_.send(packet_, toSend);
-				}
-			} catch (InterruptedException e) {
-				// This is here to exit the loop.
-			}
-		}
-	}
+    class FlushThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            try {
+                while (true) {
+                    int toSend;
+                    synchronized (FlowControlledOutputStream.this) {
+                        while (readyToSend_ == 0 || queue_.isEmpty()) {
+                            FlowControlledOutputStream.this.wait();
+                        }
+                        toSend = Math.min(maxPacket_, Math.min(readyToSend_, queue_.size()));
+                        for (int i = 0; i < toSend; ++i) {
+                            packet_[i] = queue_.remove();
+                        }
+                        readyToSend_ -= toSend;
+                        FlowControlledOutputStream.this.notifyAll();
+                    }
+                    sender_.send(packet_, toSend);
+                }
+            } catch (InterruptedException e) {
+                // This is here to exit the loop.
+            }
+        }
+    }
 }

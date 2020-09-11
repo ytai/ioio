@@ -41,160 +41,158 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleListener, Sender {
-	public class SpiResult extends ResourceLifeCycle implements Result {
-		private boolean ready_ = false;
-		private final byte[] data_;
+    private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<SpiMasterImpl.SpiResult>();
+    private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
+    private final Resource spi_;
+    private final Resource[] indexToSsPin_;
+    private final Resource mosiPin_;
+    private final Resource misoPin_;
+    private final Resource clkPin_;
+    SpiMasterImpl(IOIOImpl ioio, Resource spi, Resource mosiPin, Resource misoPin, Resource clkPin,
+                  Resource[] ssPins) throws ConnectionLostException {
+        super(ioio);
+        spi_ = spi;
+        mosiPin_ = mosiPin;
+        misoPin_ = misoPin;
+        clkPin_ = clkPin;
+        indexToSsPin_ = ssPins.clone();
+    }
 
-		SpiResult(byte[] data) {
-			data_ = data;
-		}
+    @Override
+    synchronized public void disconnected() {
+        outgoing_.kill();
+        for (SpiResult result : pendingRequests_) {
+            result.disconnected();
+        }
+        super.disconnected();
+    }
 
-		@Override
-		public synchronized void waitReady() throws ConnectionLostException, InterruptedException {
-			checkState();
-			while (!ready_) {
-				safeWait();
-			}
-		}
+    @Override
+    public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize,
+                          byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
+        Result result = writeReadAsync(slave, writeData, writeSize, totalSize, readData, readSize);
+        result.waitReady();
+    }
 
-		public synchronized void ready() {
-			ready_ = true;
-			notifyAll();
-		}
+    @Override
+    public SpiResult writeReadAsync(int slave, byte[] writeData, int writeSize, int totalSize,
+                                    byte[] readData, int readSize) throws ConnectionLostException {
+        checkState();
+        SpiResult result = new SpiResult(readData);
 
-		public byte[] getData() {
-			return data_;
-		}
-	}
+        OutgoingPacket p = new OutgoingPacket();
+        p.writeSize_ = writeSize;
+        p.writeData_ = writeData;
+        p.readSize_ = readSize;
+        p.ssPin_ = indexToSsPin_[slave].id;
+        p.totalSize_ = totalSize;
 
-	class OutgoingPacket implements Packet {
-		int writeSize_;
-		byte[] writeData_;
-		int ssPin_;
-		int readSize_;
-		int totalSize_;
+        if (p.readSize_ > 0) {
+            synchronized (this) {
+                pendingRequests_.add(result);
+            }
+        } else {
+            result.ready_ = true;
+        }
+        try {
+            outgoing_.write(p);
+        } catch (IOException e) {
+            Log.e("SpiMasterImpl", "Exception caught", e);
+        }
+        return result;
+    }
 
-		@Override
-		public int getSize() {
-			return writeSize_ + 4;
-		}
-	}
+    @Override
+    public void writeRead(byte[] writeData, int writeSize, int totalSize, byte[] readData,
+                          int readSize) throws ConnectionLostException, InterruptedException {
+        writeRead(0, writeData, writeSize, totalSize, readData, readSize);
+    }
 
-	private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<SpiMasterImpl.SpiResult>();
-	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
+    @Override
+    public void dataReceived(byte[] data, int size) {
+        SpiResult result = pendingRequests_.remove();
+        synchronized (result) {
+            System.arraycopy(data, 0, result.getData(), 0, size);
+            result.ready();
+            result.notify();
+        }
+    }
 
-	private final Resource spi_;
-	private final Resource[] indexToSsPin_;
-	private final Resource mosiPin_;
-	private final Resource misoPin_;
-	private final Resource clkPin_;
+    @Override
+    public void reportAdditionalBuffer(int bytesRemaining) {
+        outgoing_.readyToSend(bytesRemaining);
+    }
 
-	SpiMasterImpl(IOIOImpl ioio, Resource spi, Resource mosiPin, Resource misoPin, Resource clkPin,
-			Resource[] ssPins) throws ConnectionLostException {
-		super(ioio);
-		spi_ = spi;
-		mosiPin_ = mosiPin;
-		misoPin_ = misoPin;
-		clkPin_ = clkPin;
-		indexToSsPin_ = ssPins.clone();
-	}
+    @Override
+    synchronized public void close() {
+        checkClose();
+        outgoing_.close();
+        for (SpiResult result : pendingRequests_) {
+            result.close();
+        }
 
-	@Override
-	synchronized public void disconnected() {
-		outgoing_.kill();
-		for (SpiResult result : pendingRequests_) {
-			result.disconnected();
-		}
-		super.disconnected();
-	}
+        try {
+            ioio_.protocol_.spiClose(spi_.id);
+            ioio_.resourceManager_.free(spi_);
+        } catch (IOException e) {
+        }
+        ioio_.closePin(mosiPin_);
+        ioio_.closePin(misoPin_);
+        ioio_.closePin(clkPin_);
+        for (Resource pin : indexToSsPin_) {
+            ioio_.closePin(pin);
+        }
+        super.close();
+    }
 
-	@Override
-	public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize,
-			byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
-		Result result = writeReadAsync(slave, writeData, writeSize, totalSize, readData, readSize);
-		result.waitReady();
-	}
+    @Override
+    public void send(Packet packet) {
+        OutgoingPacket p = (OutgoingPacket) packet;
+        try {
+            ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_,
+                    p.totalSize_, p.readSize_);
+        } catch (IOException e) {
+            Log.e("SpiImpl", "Caught exception", e);
+        }
+    }
 
-	@Override
-	public SpiResult writeReadAsync(int slave, byte[] writeData, int writeSize, int totalSize,
-			byte[] readData, int readSize) throws ConnectionLostException {
-		checkState();
-		SpiResult result = new SpiResult(readData);
+    public class SpiResult extends ResourceLifeCycle implements Result {
+        private final byte[] data_;
+        private boolean ready_ = false;
 
-		OutgoingPacket p = new OutgoingPacket();
-		p.writeSize_ = writeSize;
-		p.writeData_ = writeData;
-		p.readSize_ = readSize;
-		p.ssPin_ = indexToSsPin_[slave].id;
-		p.totalSize_ = totalSize;
+        SpiResult(byte[] data) {
+            data_ = data;
+        }
 
-		if (p.readSize_ > 0) {
-			synchronized (this) {
-				pendingRequests_.add(result);
-			}
-		} else {
-			result.ready_ = true;
-		}
-		try {
-			outgoing_.write(p);
-		} catch (IOException e) {
-			Log.e("SpiMasterImpl", "Exception caught", e);
-		}
-		return result;
-	}
+        @Override
+        public synchronized void waitReady() throws ConnectionLostException, InterruptedException {
+            checkState();
+            while (!ready_) {
+                safeWait();
+            }
+        }
 
-	@Override
-	public void writeRead(byte[] writeData, int writeSize, int totalSize, byte[] readData,
-			int readSize) throws ConnectionLostException, InterruptedException {
-		writeRead(0, writeData, writeSize, totalSize, readData, readSize);
-	}
+        public synchronized void ready() {
+            ready_ = true;
+            notifyAll();
+        }
 
-	@Override
-	public void dataReceived(byte[] data, int size) {
-		SpiResult result = pendingRequests_.remove();
-		synchronized (result) {
-			System.arraycopy(data, 0, result.getData(), 0, size);
-			result.ready();
-			result.notify();
-		}
-	}
+        public byte[] getData() {
+            return data_;
+        }
+    }
 
-	@Override
-	public void reportAdditionalBuffer(int bytesRemaining) {
-		outgoing_.readyToSend(bytesRemaining);
-	}
+    class OutgoingPacket implements Packet {
+        int writeSize_;
+        byte[] writeData_;
+        int ssPin_;
+        int readSize_;
+        int totalSize_;
 
-	@Override
-	synchronized public void close() {
-		checkClose();
-		outgoing_.close();
-		for (SpiResult result : pendingRequests_) {
-			result.close();
-		}
-
-		try {
-			ioio_.protocol_.spiClose(spi_.id);
-			ioio_.resourceManager_.free(spi_);
-		} catch (IOException e) {
-		}
-		ioio_.closePin(mosiPin_);
-		ioio_.closePin(misoPin_);
-		ioio_.closePin(clkPin_);
-		for (Resource pin : indexToSsPin_) {
-			ioio_.closePin(pin);
-		}
-		super.close();
-	}
-
-	@Override
-	public void send(Packet packet) {
-		OutgoingPacket p = (OutgoingPacket) packet;
-		try {
-			ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_,
-					p.totalSize_, p.readSize_);
-		} catch (IOException e) {
-			Log.e("SpiImpl", "Caught exception", e);
-		}
-	}
+        @Override
+        public int getSize() {
+            return writeSize_ + 4;
+        }
+    }
 
 }

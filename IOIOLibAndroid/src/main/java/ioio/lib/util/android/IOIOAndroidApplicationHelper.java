@@ -59,13 +59,6 @@ import ioio.lib.util.IOIOLooperProvider;
  * </ul>
  */
 public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
-    private final AndroidIOIOConnectionManager manager_;
-
-    public IOIOAndroidApplicationHelper(ContextWrapper wrapper, IOIOLooperProvider provider) {
-        super(provider);
-        manager_ = new AndroidIOIOConnectionManager(wrapper, this);
-    }
-
     static {
         IOIOConnectionRegistry
                 .addBootstraps(new String[]{
@@ -73,6 +66,13 @@ public class IOIOAndroidApplicationHelper extends IOIOBaseApplicationHelper {
                         "ioio.lib.android.accessory.AccessoryConnectionBootstrap",
                         "ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap",
                         "ioio.lib.android.device.DeviceConnectionBootstrap"});
+    }
+
+    private final AndroidIOIOConnectionManager manager_;
+
+    public IOIOAndroidApplicationHelper(ContextWrapper wrapper, IOIOLooperProvider provider) {
+        super(provider);
+        manager_ = new AndroidIOIOConnectionManager(wrapper, this);
     }
 
     public void create() {

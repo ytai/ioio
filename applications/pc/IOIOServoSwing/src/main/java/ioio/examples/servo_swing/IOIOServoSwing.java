@@ -24,92 +24,91 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class IOIOServoSwing extends IOIOSwingApp implements ActionListener, ChangeListener {
-	private static final String BUTTON_PRESSED = "bp";
+    private static final String BUTTON_PRESSED = "bp";
+    protected boolean ledOn_;
+    protected int slider_ = 50;
 
-	// Boilerplate main(). Copy-paste this code into any IOIOapplication.
-	public static void main(String[] args) throws Exception {
-		new IOIOServoSwing().go(args);
-	}
+    // Boilerplate main(). Copy-paste this code into any IOIOapplication.
+    public static void main(String[] args) throws Exception {
+        new IOIOServoSwing().go(args);
+    }
 
-	protected boolean ledOn_;
-	protected int slider_ = 50;
+    @Override
+    protected Window createMainWindow(String[] args) {
+        // Use native look and feel.
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        }
 
-	@Override
-	protected Window createMainWindow(String[] args) {
-		// Use native look and feel.
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
+        JFrame frame = new JFrame("HelloIOIOSwing");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		JFrame frame = new JFrame("HelloIOIOSwing");
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        Container contentPane = frame.getContentPane();
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
-		Container contentPane = frame.getContentPane();
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
-		
-		contentPane.add(Box.createVerticalGlue());
+        contentPane.add(Box.createVerticalGlue());
 
-		JToggleButton button = new JToggleButton("LED");
-		button.setAlignmentX(Component.CENTER_ALIGNMENT);
-		button.setActionCommand(BUTTON_PRESSED);
-		button.addActionListener(this);
-		contentPane.add(button);
-		contentPane.add(Box.createVerticalGlue());
-		
-		JSlider slider = new JSlider();
-		contentPane.add(slider);
-		contentPane.add(Box.createVerticalGlue());
-		slider.addChangeListener(this);
+        JToggleButton button = new JToggleButton("LED");
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setActionCommand(BUTTON_PRESSED);
+        button.addActionListener(this);
+        contentPane.add(button);
+        contentPane.add(Box.createVerticalGlue());
 
-		// Display the window.
-		frame.setSize(300, 100);
-		frame.setLocationRelativeTo(null); // center it
-		frame.setVisible(true);
-		
-		return frame;
-	}
+        JSlider slider = new JSlider();
+        contentPane.add(slider);
+        contentPane.add(Box.createVerticalGlue());
+        slider.addChangeListener(this);
 
-	@Override
-	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
-		return new BaseIOIOLooper() {
-			private DigitalOutput led_;
-			private PwmOutput servo_;
-			private double phase_ = 0;
+        // Display the window.
+        frame.setSize(300, 100);
+        frame.setLocationRelativeTo(null); // center it
+        frame.setVisible(true);
 
-			@Override
-			protected void setup() throws ConnectionLostException,
-					InterruptedException {
-				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
-				servo_ = ioio_.openPwmOutput(12, 50);
-			}
+        return frame;
+    }
 
-			@Override
-			public void loop() throws ConnectionLostException,
-					InterruptedException {
-				// led
-				led_.write(!ledOn_);
-				
-				// servo
-				final double freq = slider_ / 50.;
-				phase_ += 2 * Math.PI * freq / 100 * 2;
-				final double amplitude = Math.sin(phase_);
-				servo_.setPulseWidth(1500 + (float) (amplitude * 500));
-				
-				Thread.sleep(10);
-			}
-		};
-	}
+    @Override
+    public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
+        return new BaseIOIOLooper() {
+            private DigitalOutput led_;
+            private PwmOutput servo_;
+            private double phase_ = 0;
 
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		if (event.getActionCommand().equals(BUTTON_PRESSED)) {
-			ledOn_ = ((JToggleButton) event.getSource()).isSelected();
-		}
-	}
+            @Override
+            protected void setup() throws ConnectionLostException,
+                    InterruptedException {
+                led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
+                servo_ = ioio_.openPwmOutput(12, 50);
+            }
 
-	@Override
-	public void stateChanged(ChangeEvent event) {
-		slider_ = ((JSlider) event.getSource()).getValue();
-	}
+            @Override
+            public void loop() throws ConnectionLostException,
+                    InterruptedException {
+                // led
+                led_.write(!ledOn_);
+
+                // servo
+                final double freq = slider_ / 50.;
+                phase_ += 2 * Math.PI * freq / 100 * 2;
+                final double amplitude = Math.sin(phase_);
+                servo_.setPulseWidth(1500 + (float) (amplitude * 500));
+
+                Thread.sleep(10);
+            }
+        };
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        if (event.getActionCommand().equals(BUTTON_PRESSED)) {
+            ledOn_ = ((JToggleButton) event.getSource()).isSelected();
+        }
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent event) {
+        slider_ = ((JSlider) event.getSource()).getValue();
+    }
 }

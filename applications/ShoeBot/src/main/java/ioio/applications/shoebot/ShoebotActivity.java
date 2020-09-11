@@ -28,13 +28,12 @@ import ioio.lib.util.android.IOIOActivity;
 public class ShoebotActivity extends IOIOActivity implements
         SensorEventListener, LineListener {
     public static final float STEPS_FREQ = 62500;
-
+    PowerManager.WakeLock wakeLock_;
     private Sequencer.ChannelConfig[] cfg_ = {
             new Sequencer.ChannelConfigFmSpeed(Sequencer.Clock.CLK_62K5, 2, new DigitalOutput.Spec(3)),
             new Sequencer.ChannelConfigBinary(false, false, new DigitalOutput.Spec(2)),
             new Sequencer.ChannelConfigFmSpeed(Sequencer.Clock.CLK_62K5, 2, new DigitalOutput.Spec(14)),
             new Sequencer.ChannelConfigBinary(false, false, new DigitalOutput.Spec(13))};
-
     private Sequencer.ChannelCueFmSpeed leftSteps_ = new Sequencer.ChannelCueFmSpeed();
     private Sequencer.ChannelCueFmSpeed rightSteps_ = new Sequencer.ChannelCueFmSpeed();
     private Sequencer.ChannelCueBinary leftDir_ = new Sequencer.ChannelCueBinary();
@@ -42,7 +41,6 @@ public class ShoebotActivity extends IOIOActivity implements
     private Sequencer.ChannelCue[] cue_ = {
             leftSteps_, leftDir_, rightSteps_, rightDir_
     };
-
     private ToggleButton enableButton_;
     private Button setButton_;
     private Button driveButton_;
@@ -53,7 +51,34 @@ public class ShoebotActivity extends IOIOActivity implements
     private TextView eTextView_;
     private TextView sTextView_;
     private TcpServer tcpServer_;
-    PowerManager.WakeLock wakeLock_;
+    private long gyroTimestamp_;
+    private float targetOrientation_;
+    private float orientation_ = 0;
+    private float orientationX_ = 0;
+    private float error_ = 0; // orientation - target
+    private float errorDeriv_;
+    private float errorInt_;
+    private Sensor orientationSensor_;
+    private Sensor gyroSensor_;
+    private float p_ = 2.0F;
+    private float i_ = 40.0f;
+    private float d_ = 0.02f;
+    private float s_ = 0.001f;
+    private float rotation_ = 0;
+
+    private static float normAngle(float angle) {
+        while (angle < -Math.PI)
+            angle += 2 * Math.PI;
+        while (angle > Math.PI)
+            angle -= 2 * Math.PI;
+        return angle;
+    }
+
+    private static float crop(float value, float min, float max) {
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -184,6 +209,47 @@ public class ShoebotActivity extends IOIOActivity implements
         });
     }
 
+    @Override
+    public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
+        if (connectionType
+                .equals("ioio.lib.android.accessory.AccessoryConnectionBootstrap.Connection")
+                || connectionType.equals("ioio.lib.impl.SocketIOIOConnection")) {
+            return new BalancerLooper();
+        }
+        if (connectionType
+                .equals("ioio.lib.android.bluetooth.BluetoothIOIOConnection")) {
+            return new RemoteLooper();
+        }
+        return null;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor == gyroSensor_) {
+            if (gyroTimestamp_ != 0) {
+                long dt = event.timestamp - gyroTimestamp_;
+                errorDeriv_ = -event.values[0];
+                orientation_ += errorDeriv_ * dt * 1e-9;
+                error_ = orientation_ - targetOrientation_;
+                errorInt_ = (float) ((error_ * dt * 1e-9) + 0.999 * errorInt_);
+            }
+            gyroTimestamp_ = event.timestamp;
+        } else if (event.sensor == orientationSensor_) {
+            float current = (float) (Math.atan2(event.values[2],
+                    event.values[1]));
+            orientation_ = 0.99f * orientation_ + 0.01f * current;
+            orientation_ = normAngle(orientation_);
+            error_ = orientation_ - targetOrientation_;
+
+            orientationX_ = normAngle((float) (Math.atan2(-event.values[0],
+                    event.values[2])));
+        }
+    }
+
     private class Stepper {
         private final Sequencer.ChannelCueBinary dir_;
         private final Sequencer.ChannelCueFmSpeed stp_;
@@ -216,9 +282,9 @@ public class ShoebotActivity extends IOIOActivity implements
     }
 
     class BalancerLooper extends BaseIOIOLooper {
-        private DigitalOutput led_;
-        private final Stepper[] steppers_ = new Stepper[2];
         private static final int SLEEP_MS = 2;
+        private final Stepper[] steppers_ = new Stepper[2];
+        private DigitalOutput led_;
         private int loopCount_ = 0;
 
         private Sequencer sequencer_;
@@ -287,8 +353,8 @@ public class ShoebotActivity extends IOIOActivity implements
     }
 
     class RemoteLooper extends BaseIOIOLooper {
-        private DigitalOutput led_;
         private final Stepper[] steppers_ = new Stepper[2];
+        private DigitalOutput led_;
         private Sequencer sequencer_;
 
         @Override
@@ -312,7 +378,7 @@ public class ShoebotActivity extends IOIOActivity implements
             if (driveButton_.isPressed()) {
                 speedX = crop((float) (orientationX_ / Math.PI), -1, 1);
                 speedY = crop((float) (orientation_ * 2 / Math.PI - 0.5), -1, 1);
-				steppers_[0].setEnable(true);
+                steppers_[0].setEnable(true);
                 steppers_[1].setEnable(true);
                 steppers_[0].setSpeed(speedY + speedX);
                 steppers_[1].setSpeed(-speedY + speedX);
@@ -351,76 +417,6 @@ public class ShoebotActivity extends IOIOActivity implements
                 }
             });
         }
-    }
-
-    @Override
-    public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
-        if (connectionType
-                .equals("ioio.lib.android.accessory.AccessoryConnectionBootstrap.Connection")
-                || connectionType.equals("ioio.lib.impl.SocketIOIOConnection")) {
-            return new BalancerLooper();
-        }
-        if (connectionType
-                .equals("ioio.lib.android.bluetooth.BluetoothIOIOConnection")) {
-            return new RemoteLooper();
-        }
-        return null;
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-    private long gyroTimestamp_;
-    private float targetOrientation_;
-    private float orientation_ = 0;
-    private float orientationX_ = 0;
-    private float error_ = 0; // orientation - target
-    private float errorDeriv_;
-    private float errorInt_;
-    private Sensor orientationSensor_;
-    private Sensor gyroSensor_;
-    private float p_ = 2.0F;
-    private float i_ = 40.0f;
-    private float d_ = 0.02f;
-    private float s_ = 0.001f;
-    private float rotation_ = 0;
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == gyroSensor_) {
-            if (gyroTimestamp_ != 0) {
-                long dt = event.timestamp - gyroTimestamp_;
-                errorDeriv_ = -event.values[0];
-                orientation_ += errorDeriv_ * dt * 1e-9;
-                error_ = orientation_ - targetOrientation_;
-                errorInt_ = (float) ((error_ * dt * 1e-9) + 0.999 * errorInt_);
-            }
-            gyroTimestamp_ = event.timestamp;
-        } else if (event.sensor == orientationSensor_) {
-            float current = (float) (Math.atan2(event.values[2],
-                    event.values[1]));
-            orientation_ = 0.99f * orientation_ + 0.01f * current;
-            orientation_ = normAngle(orientation_);
-            error_ = orientation_ - targetOrientation_;
-
-            orientationX_ = normAngle((float) (Math.atan2(-event.values[0],
-                    event.values[2])));
-        }
-    }
-
-    private static float normAngle(float angle) {
-        while (angle < -Math.PI)
-            angle += 2 * Math.PI;
-        while (angle > Math.PI)
-            angle -= 2 * Math.PI;
-        return angle;
-    }
-
-    private static float crop(float value, float min, float max) {
-        if (value < min) return min;
-        if (value > max) return max;
-        return value;
     }
 
 }

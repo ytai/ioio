@@ -30,6 +30,7 @@
 package ioio.lib.android.accessory;
 
 import ioio.lib.spi.NoRuntimeSupportException;
+
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -41,174 +42,173 @@ import android.os.ParcelFileDescriptor;
 /**
  * This class serves as a common interface for USB accessory for either com.android.future.usb or
  * android.hardware.usb.
- *
+ * <p>
  * When this class is instantiated, it will throw a {@link NoRuntimeSupportException} if none of the
  * underlying implementations exist. Otherwise, the client may call
  * {@link #getManager(ContextWrapper)}, which returns an interface that is equivalent to UsbManager
  * on either API. Likewise, the {@link UsbAccessoryInterface} interface is a wrapper around
  * UsbAccessory.
- *
  */
 class Adapter {
-	static abstract class AbstractUsbManager {
-		final String EXTRA_PERMISSION_GRANTED;
+    Support support_ = Support.NONE;
 
-		abstract UsbAccessoryInterface[] getAccessoryList();
+    Adapter() throws NoRuntimeSupportException {
+        try {
+            Class.forName("android.hardware.usb.UsbManager");
+            support_ = Support.NEW;
+            return;
+        } catch (ClassNotFoundException e) {
+        }
+        try {
+            Class.forName("android.hardware.usb.UsbManager");
+            support_ = Support.LEGACY;
+            return;
+        } catch (ClassNotFoundException e) {
+        }
+        throw new NoRuntimeSupportException("No support for USB accesory mode.");
+    }
 
-		abstract boolean hasPermission(UsbAccessoryInterface accessory);
+    AbstractUsbManager getManager(ContextWrapper wrapper) {
+        switch (support_) {
+            case NEW:
+                return getManagerNew(wrapper);
+            case LEGACY:
+                return getManagerLegacy(wrapper);
+            default:
+                return null;
+        }
+    }
 
-		abstract void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent);
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    private AbstractUsbManager getManagerNew(ContextWrapper wrapper) {
+        final android.hardware.usb.UsbManager manager = (android.hardware.usb.UsbManager) wrapper
+                .getSystemService(Context.USB_SERVICE);
+        return new NewUsbManager(manager);
+    }
 
-		abstract ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory);
+    private AbstractUsbManager getManagerLegacy(ContextWrapper wrapper) {
+        final android.hardware.usb.UsbManager manager = (UsbManager) wrapper.getSystemService(Context.USB_SERVICE);
+        return new LegacyUsbManager(manager);
+    }
 
-		protected AbstractUsbManager(String action_usb_accessory_detached,
-				String extra_permission_granted) {
-			EXTRA_PERMISSION_GRANTED = extra_permission_granted;
-		}
-	}
+    private enum Support {
+        NEW, LEGACY, NONE
+    }
 
-	interface UsbAccessoryInterface {
-	}
+    interface UsbAccessoryInterface {
+    }
 
-	Adapter() throws NoRuntimeSupportException {
-		try {
-			Class.forName("android.hardware.usb.UsbManager");
-			support_ = Support.NEW;
-			return;
-		} catch (ClassNotFoundException e) {
-		}
-		try {
-			Class.forName("android.hardware.usb.UsbManager");
-			support_ = Support.LEGACY;
-			return;
-		} catch (ClassNotFoundException e) {
-		}
-		throw new NoRuntimeSupportException("No support for USB accesory mode.");
-	}
+    static abstract class AbstractUsbManager {
+        final String EXTRA_PERMISSION_GRANTED;
 
-	AbstractUsbManager getManager(ContextWrapper wrapper) {
-		switch (support_) {
-		case NEW:
-			return getManagerNew(wrapper);
-		case LEGACY:
-			return getManagerLegacy(wrapper);
-		default:
-			return null;
-		}
-	}
+        protected AbstractUsbManager(String action_usb_accessory_detached,
+                                     String extra_permission_granted) {
+            EXTRA_PERMISSION_GRANTED = extra_permission_granted;
+        }
 
-	private enum Support {
-		NEW, LEGACY, NONE
-	}
+        abstract UsbAccessoryInterface[] getAccessoryList();
 
-	Support support_ = Support.NONE;
+        abstract boolean hasPermission(UsbAccessoryInterface accessory);
 
-	private static class UsbAccessoryAdapter<T> implements UsbAccessoryInterface {
-		final T impl;
+        abstract void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent);
 
-		UsbAccessoryAdapter(T t) {
-			impl = t;
-		}
-	}
+        abstract ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory);
+    }
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-	private AbstractUsbManager getManagerNew(ContextWrapper wrapper) {
-		final android.hardware.usb.UsbManager manager = (android.hardware.usb.UsbManager) wrapper
-				.getSystemService(Context.USB_SERVICE);
-		return new NewUsbManager(manager);
-	}
+    private static class UsbAccessoryAdapter<T> implements UsbAccessoryInterface {
+        final T impl;
 
-	private AbstractUsbManager getManagerLegacy(ContextWrapper wrapper) {
-		final android.hardware.usb.UsbManager manager = (UsbManager) wrapper.getSystemService(Context.USB_SERVICE);
-		return new LegacyUsbManager(manager);
-	}
+        UsbAccessoryAdapter(T t) {
+            impl = t;
+        }
+    }
 
-	private static final class LegacyUsbManager extends AbstractUsbManager {
-		private final android.hardware.usb.UsbManager manager_;
+    private static final class LegacyUsbManager extends AbstractUsbManager {
+        private final android.hardware.usb.UsbManager manager_;
 
-		private LegacyUsbManager(android.hardware.usb.UsbManager manager) {
-			super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
-					android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
-			manager_ = manager;
-		}
+        private LegacyUsbManager(android.hardware.usb.UsbManager manager) {
+            super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
+                    android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
+            manager_ = manager;
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent) {
-			manager_.requestPermission(
-					((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl,
-					pendingIntent);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent) {
+            manager_.requestPermission(
+                    ((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl,
+                    pendingIntent);
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory) {
-			return manager_
-					.openAccessory(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory) {
+            return manager_
+                    .openAccessory(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		boolean hasPermission(UsbAccessoryInterface accessory) {
-			return manager_
-					.hasPermission(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        boolean hasPermission(UsbAccessoryInterface accessory) {
+            return manager_
+                    .hasPermission(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
+        }
 
-		@Override
-		UsbAccessoryInterface[] getAccessoryList() {
-			final android.hardware.usb.UsbAccessory[] accs = manager_.getAccessoryList();
-			if (accs == null)
-				return null;
-			UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
-			for (int i = 0; i < accs.length; ++i) {
-				result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
-			}
-			return result;
-		}
-	}
+        @Override
+        UsbAccessoryInterface[] getAccessoryList() {
+            final android.hardware.usb.UsbAccessory[] accs = manager_.getAccessoryList();
+            if (accs == null)
+                return null;
+            UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
+            for (int i = 0; i < accs.length; ++i) {
+                result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
+            }
+            return result;
+        }
+    }
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-	private static final class NewUsbManager extends AbstractUsbManager {
-		private final android.hardware.usb.UsbManager manager_;
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    private static final class NewUsbManager extends AbstractUsbManager {
+        private final android.hardware.usb.UsbManager manager_;
 
-		private NewUsbManager(android.hardware.usb.UsbManager manager) {
-			super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
-					android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
-			manager_ = manager;
-		}
+        private NewUsbManager(android.hardware.usb.UsbManager manager) {
+            super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
+                    android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
+            manager_ = manager;
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent) {
-			manager_.requestPermission(
-					((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl,
-					pendingIntent);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        void requestPermission(UsbAccessoryInterface accessory, PendingIntent pendingIntent) {
+            manager_.requestPermission(
+                    ((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl,
+                    pendingIntent);
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory) {
-			return manager_
-					.openAccessory(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        ParcelFileDescriptor openAccessory(UsbAccessoryInterface accessory) {
+            return manager_
+                    .openAccessory(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		boolean hasPermission(UsbAccessoryInterface accessory) {
-			return manager_
-					.hasPermission(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        boolean hasPermission(UsbAccessoryInterface accessory) {
+            return manager_
+                    .hasPermission(((UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>) accessory).impl);
+        }
 
-		@Override
-		UsbAccessoryInterface[] getAccessoryList() {
-			final android.hardware.usb.UsbAccessory[] accs = manager_.getAccessoryList();
-			if (accs == null)
-				return null;
-			UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
-			for (int i = 0; i < accs.length; ++i) {
-				result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
-			}
-			return result;
-		}
-	}
+        @Override
+        UsbAccessoryInterface[] getAccessoryList() {
+            final android.hardware.usb.UsbAccessory[] accs = manager_.getAccessoryList();
+            if (accs == null)
+                return null;
+            UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
+            for (int i = 0; i < accs.length; ++i) {
+                result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
+            }
+            return result;
+        }
+    }
 }

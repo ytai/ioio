@@ -25,19 +25,19 @@ import javax.swing.JFrame;
  * </ul>
  * <p>
  * Example:
- * 
+ *
  * <pre>
  * public class MyIOIOSwingApp extends IOIOSwingApp {
  * 	// Boilerplate main().
  * 	public static void main(String[] args) throws Exception {
  * 		new MyIOIOSwingApp().go(args);
- * 	}
- * 
+ *    }
+ *
  * 	&#064;Override
  * 	protected Window createMainWindow(String args[]) {
  * 		// ... create main window ...
- * 	}
- * 
+ *    }
+ *
  * 	&#064;Override
  * 	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
  * 		return new BaseIOIOLooper() {
@@ -45,51 +45,51 @@ import javax.swing.JFrame;
  * 			protected void setup() throws ConnectionLostException,
  * 					InterruptedException {
  * 				// ... code to run when IOIO connects ...
- * 			}
- * 
+ *            }
+ *
  * 			&#064;Override
  * 			public void loop() throws ConnectionLostException,
  * 					InterruptedException {
  * 				// ... code to run repeatedly as long as IOIO is connected ...
- * 			}
- * 
+ *            }
+ *
  * 			&#064;Override
  * 			public void disconnected() {
  * 				// ... code to run when IOIO is disconnected ...
- * 			}
- * 
+ *            }
+ *
  * 			&#064;Override
  * 			public void incompatible() {
  * 				// ... code to run when a IOIO with an incompatible firmware
  * 				// version is connected ...
- * 			}
- * 		};
- * 	}
+ *            }
+ *        };
+ *    }
  * }
  * </pre>
  */
 public abstract class IOIOSwingApp extends WindowAdapter implements IOIOLooperProvider {
-	public IOIOPcApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
+    public IOIOPcApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
 
-	public void go(final String[] args) {
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				createMainWindow(args).addWindowListener(IOIOSwingApp.this);
-			}
-		});
-	}
+    public void go(final String[] args) {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createMainWindow(args).addWindowListener(IOIOSwingApp.this);
+            }
+        });
+    }
 
-	protected abstract Window createMainWindow(String[] args);
+    protected abstract Window createMainWindow(String[] args);
 
-	@Override
-	public void windowClosing(WindowEvent event) {
-		helper_.stop();
-	}
+    @Override
+    public void windowClosing(WindowEvent event) {
+        helper_.stop();
+    }
 
-	@Override
-	public void windowOpened(WindowEvent event) {
-		helper_.start();
-	}
+    @Override
+    public void windowOpened(WindowEvent event) {
+        helper_.start();
+    }
 
 }

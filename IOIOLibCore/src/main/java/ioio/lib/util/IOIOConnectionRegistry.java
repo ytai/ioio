@@ -60,6 +60,13 @@ import ioio.lib.spi.NoRuntimeSupportException;
  * communication channel to a IOIO.
  */
 public class IOIOConnectionRegistry {
+    private static final String TAG = "IOIOConnectionRegistry";
+    private static Collection<IOIOConnectionBootstrap> bootstraps_;
+
+    static {
+        bootstraps_ = new LinkedList<IOIOConnectionBootstrap>();
+    }
+
     /**
      * Get all available connection specifications. This is a list of all
      * currently available communication channels in which a IOIO may be
@@ -95,14 +102,6 @@ public class IOIOConnectionRegistry {
         for (String className : classNames) {
             addBootstrap(className);
         }
-    }
-
-    private static final String TAG = "IOIOConnectionRegistry";
-
-    private static Collection<IOIOConnectionBootstrap> bootstraps_;
-
-    static {
-        bootstraps_ = new LinkedList<IOIOConnectionBootstrap>();
     }
 
     private static void addBootstrap(String className) {

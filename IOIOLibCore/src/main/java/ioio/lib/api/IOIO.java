@@ -93,52 +93,6 @@ public interface IOIO {
     int LED_PIN = 0;
 
     /**
-     * A versioned component in the system.
-     *
-     * @see IOIO#getImplVersion(VersionType)
-     */
-    enum VersionType {
-        /**
-         * Hardware version.
-         */
-        HARDWARE_VER,
-        /**
-         * Bootloader version.
-         */
-        BOOTLOADER_VER,
-        /**
-         * Application layer firmware version.
-         */
-        APP_FIRMWARE_VER,
-        /**
-         * IOIOLib version.
-         */
-        IOIOLIB_VER
-    }
-
-    /**
-     * A state of a IOIO instance.
-     */
-    enum State {
-        /**
-         * Connection not yet established.
-         */
-        INIT,
-        /**
-         * Connected.
-         */
-        CONNECTED,
-        /**
-         * Connection established, incompatible firmware detected.
-         */
-        INCOMPATIBLE,
-        /**
-         * Disconnected. Instance is useless.
-         */
-        DEAD
-    }
-
-    /**
      * Establishes connection with the IOIO board.
      * <p>
      * This method is blocking until connection is established. This method can be aborted by
@@ -633,4 +587,50 @@ public interface IOIO {
      * @throws InterruptedException    When interrupt() has been called on this thread.
      */
     void sync() throws ConnectionLostException, InterruptedException;
+
+    /**
+     * A versioned component in the system.
+     *
+     * @see IOIO#getImplVersion(VersionType)
+     */
+    enum VersionType {
+        /**
+         * Hardware version.
+         */
+        HARDWARE_VER,
+        /**
+         * Bootloader version.
+         */
+        BOOTLOADER_VER,
+        /**
+         * Application layer firmware version.
+         */
+        APP_FIRMWARE_VER,
+        /**
+         * IOIOLib version.
+         */
+        IOIOLIB_VER
+    }
+
+    /**
+     * A state of a IOIO instance.
+     */
+    enum State {
+        /**
+         * Connection not yet established.
+         */
+        INIT,
+        /**
+         * Connected.
+         */
+        CONNECTED,
+        /**
+         * Connection established, incompatible firmware detected.
+         */
+        INCOMPATIBLE,
+        /**
+         * Disconnected. Instance is useless.
+         */
+        DEAD
+    }
 }

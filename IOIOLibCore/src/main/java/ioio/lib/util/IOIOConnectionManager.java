@@ -1,17 +1,17 @@
 /*
  * Copyright 2012 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -50,63 +50,62 @@ import java.util.LinkedList;
  * </ul>
  */
 public class IOIOConnectionManager {
-	private final IOIOConnectionThreadProvider provider_;
+    private final IOIOConnectionThreadProvider provider_;
+    private Collection<Thread> threads_ = new LinkedList<>();
 
-	public IOIOConnectionManager(IOIOConnectionThreadProvider provider) {
-		provider_ = provider;
-	}
+    public IOIOConnectionManager(IOIOConnectionThreadProvider provider) {
+        provider_ = provider;
+    }
 
-	public abstract static class Thread extends java.lang.Thread {
-		public abstract void abort();
-	}
+    public void start() {
+        createAllThreads();
+        startAllThreads();
+    }
 
-	public void start() {
-		createAllThreads();
-		startAllThreads();
-	}
+    public void stop() {
+        abortAllThreads();
+        try {
+            joinAllThreads();
+        } catch (InterruptedException ignored) {
+        }
+    }
 
-	public void stop() {
-		abortAllThreads();
-		try {
-			joinAllThreads();
-		} catch (InterruptedException ignored) {
-		}
-	}
+    private void abortAllThreads() {
+        for (Thread thread : threads_) {
+            thread.abort();
+        }
+    }
 
-	public interface IOIOConnectionThreadProvider {
-		Thread createThreadFromFactory(IOIOConnectionFactory factory);
-	}
+    private void joinAllThreads() throws InterruptedException {
+        for (Thread thread : threads_) {
+            thread.join();
+        }
+    }
 
-	private Collection<Thread> threads_ = new LinkedList<>();
+    private void createAllThreads() {
+        threads_.clear();
+        Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+                .getConnectionFactories();
+        for (IOIOConnectionFactory factory : factories) {
+            Thread thread = provider_.createThreadFromFactory(factory);
+            if (thread != null) {
+                threads_.add(thread);
+            }
+        }
+    }
 
-	private void abortAllThreads() {
-		for (Thread thread : threads_) {
-			thread.abort();
-		}
-	}
+    private void startAllThreads() {
+        for (Thread thread : threads_) {
+            thread.start();
+        }
+    }
 
-	private void joinAllThreads() throws InterruptedException {
-		for (Thread thread : threads_) {
-			thread.join();
-		}
-	}
+    public interface IOIOConnectionThreadProvider {
+        Thread createThreadFromFactory(IOIOConnectionFactory factory);
+    }
 
-	private void createAllThreads() {
-		threads_.clear();
-		Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
-				.getConnectionFactories();
-		for (IOIOConnectionFactory factory : factories) {
-			Thread thread = provider_.createThreadFromFactory(factory);
-			if (thread != null) {
-				threads_.add(thread);
-			}
-		}
-	}
-
-	private void startAllThreads() {
-		for (Thread thread : threads_) {
-			thread.start();
-		}
-	}
+    public abstract static class Thread extends java.lang.Thread {
+        public abstract void abort();
+    }
 
 }

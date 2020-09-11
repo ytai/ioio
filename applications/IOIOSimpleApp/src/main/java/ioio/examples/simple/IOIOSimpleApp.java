@@ -8,77 +8,78 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+
 import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class IOIOSimpleApp extends IOIOActivity {
-	private TextView textView_;
-	private SeekBar seekBar_;
-	private ToggleButton toggleButton_;
+    private TextView textView_;
+    private SeekBar seekBar_;
+    private ToggleButton toggleButton_;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
 
-		textView_ = findViewById(R.id.TextView);
-		seekBar_ = findViewById(R.id.SeekBar);
-		toggleButton_ = findViewById(R.id.ToggleButton);
+        textView_ = findViewById(R.id.TextView);
+        seekBar_ = findViewById(R.id.SeekBar);
+        toggleButton_ = findViewById(R.id.ToggleButton);
 
-		enableUi(false);
-	}
+        enableUi(false);
+    }
 
-	class Looper extends BaseIOIOLooper {
-		private AnalogInput input_;
-		private PwmOutput pwmOutput_;
-		private DigitalOutput led_;
+    @Override
+    protected IOIOLooper createIOIOLooper() {
+        return new Looper();
+    }
 
-		@Override
-		public void setup() throws ConnectionLostException {
-			led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
-			input_ = ioio_.openAnalogInput(40);
-			pwmOutput_ = ioio_.openPwmOutput(12, 100);
-			enableUi(true);
-		}
+    private void enableUi(final boolean enable) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                seekBar_.setEnabled(enable);
+                toggleButton_.setEnabled(enable);
+            }
+        });
+    }
 
-		@Override
-		public void loop() throws ConnectionLostException, InterruptedException {
-			setNumber(input_.read());
-			pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
-			led_.write(!toggleButton_.isChecked());
-			Thread.sleep(10);
-		}
+    private void setNumber(float f) {
+        final String str = String.format("%.2f", f);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView_.setText(str);
+            }
+        });
+    }
 
-		@Override
-		public void disconnected() {
-			enableUi(false);
-		}
-	}
+    class Looper extends BaseIOIOLooper {
+        private AnalogInput input_;
+        private PwmOutput pwmOutput_;
+        private DigitalOutput led_;
 
-	@Override
-	protected IOIOLooper createIOIOLooper() {
-		return new Looper();
-	}
+        @Override
+        public void setup() throws ConnectionLostException {
+            led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
+            input_ = ioio_.openAnalogInput(40);
+            pwmOutput_ = ioio_.openPwmOutput(12, 100);
+            enableUi(true);
+        }
 
-	private void enableUi(final boolean enable) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				seekBar_.setEnabled(enable);
-				toggleButton_.setEnabled(enable);
-			}
-		});
-	}
+        @Override
+        public void loop() throws ConnectionLostException, InterruptedException {
+            setNumber(input_.read());
+            pwmOutput_.setPulseWidth(500 + seekBar_.getProgress() * 2);
+            led_.write(!toggleButton_.isChecked());
+            Thread.sleep(10);
+        }
 
-	private void setNumber(float f) {
-		final String str = String.format("%.2f", f);
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				textView_.setText(str);
-			}
-		});
-	}
+        @Override
+        public void disconnected() {
+            enableUi(false);
+        }
+    }
 }

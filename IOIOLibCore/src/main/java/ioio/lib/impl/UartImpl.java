@@ -40,73 +40,73 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 class UartImpl extends AbstractResource implements DataModuleListener, Sender, Uart {
-	private static final int MAX_PACKET = 64;
+    private static final int MAX_PACKET = 64;
 
-	private final Resource uart_;
-	private final Resource rxPin_;
-	private final Resource txPin_;
-	private final FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
-	private final QueueInputStream incoming_ = new QueueInputStream();
+    private final Resource uart_;
+    private final Resource rxPin_;
+    private final Resource txPin_;
+    private final FlowControlledOutputStream outgoing_ = new FlowControlledOutputStream(this, MAX_PACKET);
+    private final QueueInputStream incoming_ = new QueueInputStream();
 
-	public UartImpl(IOIOImpl ioio, Resource txPin, Resource rxPin, Resource uartNum) throws ConnectionLostException {
-		super(ioio);
-		uart_ = uartNum;
-		rxPin_ = rxPin;
-		txPin_ = txPin;
-	}
+    public UartImpl(IOIOImpl ioio, Resource txPin, Resource rxPin, Resource uartNum) throws ConnectionLostException {
+        super(ioio);
+        uart_ = uartNum;
+        rxPin_ = rxPin;
+        txPin_ = txPin;
+    }
 
-	@Override
-	public void dataReceived(byte[] data, int size) {
-		incoming_.write(data, size);
-	}
+    @Override
+    public void dataReceived(byte[] data, int size) {
+        incoming_.write(data, size);
+    }
 
-	@Override
-	public void send(byte[] data, int size) {
-		try {
-			ioio_.protocol_.uartData(uart_.id, size, data);
-		} catch (IOException e) {
-			Log.e("UartImpl", e.getMessage());
-		}
-	}
+    @Override
+    public void send(byte[] data, int size) {
+        try {
+            ioio_.protocol_.uartData(uart_.id, size, data);
+        } catch (IOException e) {
+            Log.e("UartImpl", e.getMessage());
+        }
+    }
 
-	@Override
-	synchronized public void close() {
-		checkClose();
-		incoming_.close();
-		outgoing_.close();
-		try {
-			ioio_.protocol_.uartClose(uart_.id);
-			ioio_.resourceManager_.free(uart_);
-		} catch (IOException e) {
-		}
-		if (rxPin_ != null) {
-			ioio_.closePin(rxPin_);
-		}
-		if (txPin_ != null) {
-			ioio_.closePin(txPin_);
-		}
-		super.close();
-	}
+    @Override
+    synchronized public void close() {
+        checkClose();
+        incoming_.close();
+        outgoing_.close();
+        try {
+            ioio_.protocol_.uartClose(uart_.id);
+            ioio_.resourceManager_.free(uart_);
+        } catch (IOException e) {
+        }
+        if (rxPin_ != null) {
+            ioio_.closePin(rxPin_);
+        }
+        if (txPin_ != null) {
+            ioio_.closePin(txPin_);
+        }
+        super.close();
+    }
 
-	@Override
-	synchronized public void disconnected() {
-		incoming_.kill();
-		outgoing_.close();
-		super.disconnected();
-	}
+    @Override
+    synchronized public void disconnected() {
+        incoming_.kill();
+        outgoing_.close();
+        super.disconnected();
+    }
 
-	@Override
-	public InputStream getInputStream() {
-		return incoming_;
-	}
+    @Override
+    public InputStream getInputStream() {
+        return incoming_;
+    }
 
-	@Override
-	public OutputStream getOutputStream() {
-		return outgoing_;
-	}
+    @Override
+    public OutputStream getOutputStream() {
+        return outgoing_;
+    }
 
-	@Override
-	public void reportAdditionalBuffer(int bytesRemaining) {
-		outgoing_.readyToSend(bytesRemaining);
-	}
+    @Override
+    public void reportAdditionalBuffer(int bytesRemaining) {
+        outgoing_.readyToSend(bytesRemaining);
+    }
 }

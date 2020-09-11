@@ -45,96 +45,96 @@ import android.hardware.usb.UsbEndpoint;
  */
 @TargetApi(12)
 public class Streams {
-	// It seems that for bulkTransfer, giving timeout of 0 does what we need.
-	// The documentation on the Android side of things is not clear about what
-	// we should choose, so as long as it works - great.
-	static final int TRANSFER_TIMEOUT_MILLIS = 0;
+    // It seems that for bulkTransfer, giving timeout of 0 does what we need.
+    // The documentation on the Android side of things is not clear about what
+    // we should choose, so as long as it works - great.
+    static final int TRANSFER_TIMEOUT_MILLIS = 0;
 
-	public static class DeviceInputStream extends InputStream {
-		private final byte[] buffer_ = new byte[1024];
-		private final UsbDeviceConnection connection_;
-		private final UsbEndpoint ep_;
+    public static class DeviceInputStream extends InputStream {
+        private final byte[] buffer_ = new byte[1024];
+        private final UsbDeviceConnection connection_;
+        private final UsbEndpoint ep_;
 
-		DeviceInputStream(UsbDeviceConnection connection, UsbEndpoint ep) {
-			this.connection_ = connection;
-			this.ep_ = ep;
-		}
+        DeviceInputStream(UsbDeviceConnection connection, UsbEndpoint ep) {
+            this.connection_ = connection;
+            this.ep_ = ep;
+        }
 
-		@Override
-		public int read() throws IOException {
-			return read(buffer_, 0, 1) == 1 ? buffer_[0] : -1;
-		}
+        @Override
+        public int read() throws IOException {
+            return read(buffer_, 0, 1) == 1 ? buffer_[0] : -1;
+        }
 
-		@Override
-		public int read(byte[] buffer) throws IOException {
-			return read(buffer, 0, buffer.length);
-		}
+        @Override
+        public int read(byte[] buffer) throws IOException {
+            return read(buffer, 0, buffer.length);
+        }
 
-		@Override
-		public synchronized int read(byte[] buffer, int offset, int length) throws IOException {
-			if (offset == 0) {
-				return connection_.bulkTransfer(ep_, buffer, length, TRANSFER_TIMEOUT_MILLIS);
-			}
-			// We have to go through an intermediate buffer and copy, since the API won't let us
-			// write to a non-0
-			// offset.
-			int readAmount = connection_.bulkTransfer(ep_, buffer_,
-					Math.min(length, buffer_.length), TRANSFER_TIMEOUT_MILLIS);
-			System.arraycopy(buffer_, 0, buffer, offset, readAmount);
-			return readAmount;
-		}
-	}
+        @Override
+        public synchronized int read(byte[] buffer, int offset, int length) throws IOException {
+            if (offset == 0) {
+                return connection_.bulkTransfer(ep_, buffer, length, TRANSFER_TIMEOUT_MILLIS);
+            }
+            // We have to go through an intermediate buffer and copy, since the API won't let us
+            // write to a non-0
+            // offset.
+            int readAmount = connection_.bulkTransfer(ep_, buffer_,
+                    Math.min(length, buffer_.length), TRANSFER_TIMEOUT_MILLIS);
+            System.arraycopy(buffer_, 0, buffer, offset, readAmount);
+            return readAmount;
+        }
+    }
 
-	public static class DeviceOutputStream extends OutputStream {
-		private final UsbDeviceConnection connection_;
-		private final UsbEndpoint ep_;
-		private final byte[] buffer_ = new byte[1024];
+    public static class DeviceOutputStream extends OutputStream {
+        private final UsbDeviceConnection connection_;
+        private final UsbEndpoint ep_;
+        private final byte[] buffer_ = new byte[1024];
 
-		DeviceOutputStream(UsbDeviceConnection connection, UsbEndpoint ep) {
-			this.connection_ = connection;
-			this.ep_ = ep;
-		}
+        DeviceOutputStream(UsbDeviceConnection connection, UsbEndpoint ep) {
+            this.connection_ = connection;
+            this.ep_ = ep;
+        }
 
-		@Override
-		public synchronized void write(int oneByte) throws IOException {
-			buffer_[0] = (byte) oneByte;
-			write(buffer_, 0, 1);
-		}
+        @Override
+        public synchronized void write(int oneByte) throws IOException {
+            buffer_[0] = (byte) oneByte;
+            write(buffer_, 0, 1);
+        }
 
-		@Override
-		public void write(byte[] buffer) throws IOException {
-			write(buffer, 0, buffer.length);
-		}
+        @Override
+        public void write(byte[] buffer) throws IOException {
+            write(buffer, 0, buffer.length);
+        }
 
-		@Override
-		public synchronized void write(byte[] buffer, int offset, int count) throws IOException {
-			if (count > (buffer.length - offset)) {
-				throw new IOException("Count is too big");
-			}
-			while (count > 0) {
-				if (offset == 0) {
-					// This is an optimization: when the offset is 0, we can pass the original
-					// buffer and avoid a copy.
-					offset = connection_.bulkTransfer(ep_, buffer, count, TRANSFER_TIMEOUT_MILLIS);
-					if (offset < 0) {
-						throw new IOException("Couldn't write to USB");
-					}
-					count -= offset;
-				} else {
-					// We cannot write directly from the buffer, since the API won't let us use a
-					// non-0 offset.
-					// So we have to use an intermediate buffer and copy.
-					int copied = Math.min(count, buffer_.length);
-					System.arraycopy(buffer, offset, buffer_, 0, copied);
-					int written = connection_.bulkTransfer(ep_, buffer_, copied,
-							TRANSFER_TIMEOUT_MILLIS);
-					if (written < 0) {
-						throw new IOException("Couldn't write to USB");
-					}
-					offset += written;
-					count -= written;
-				}
-			}
-		}
-	}
+        @Override
+        public synchronized void write(byte[] buffer, int offset, int count) throws IOException {
+            if (count > (buffer.length - offset)) {
+                throw new IOException("Count is too big");
+            }
+            while (count > 0) {
+                if (offset == 0) {
+                    // This is an optimization: when the offset is 0, we can pass the original
+                    // buffer and avoid a copy.
+                    offset = connection_.bulkTransfer(ep_, buffer, count, TRANSFER_TIMEOUT_MILLIS);
+                    if (offset < 0) {
+                        throw new IOException("Couldn't write to USB");
+                    }
+                    count -= offset;
+                } else {
+                    // We cannot write directly from the buffer, since the API won't let us use a
+                    // non-0 offset.
+                    // So we have to use an intermediate buffer and copy.
+                    int copied = Math.min(count, buffer_.length);
+                    System.arraycopy(buffer, offset, buffer_, 0, copied);
+                    int written = connection_.bulkTransfer(ep_, buffer_, copied,
+                            TRANSFER_TIMEOUT_MILLIS);
+                    if (written < 0) {
+                        throw new IOException("Couldn't write to USB");
+                    }
+                    offset += written;
+                    count -= written;
+                }
+            }
+        }
+    }
 }

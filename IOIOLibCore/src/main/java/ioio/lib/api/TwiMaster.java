@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -63,10 +63,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * and can be reused.
  * <p>
  * Typical usage:
- * 
+ *
  * <pre>
  * {@code
- * // Uses the SDA1/SCL1 pins, I2C volatege levels at 100KHz. 
+ * // Uses the SDA1/SCL1 pins, I2C volatege levels at 100KHz.
  * TwiMaster twi = ioio.openTwiMaster(1, TwiMaster.RATE_100KHz, false);
  * final byte[] request = new byte[]{ 0x23, 0x45 };
  * final byte[] response = new byte[3];
@@ -78,71 +78,62 @@ import ioio.lib.api.exception.ConnectionLostException;
  * }
  * twi.close();  // free TWI module and pins
  * }</pre>
- * 
+ *
  * @see IOIO#openTwiMaster(int, ioio.lib.api.TwiMaster.Rate, boolean)
  */
 public interface TwiMaster extends Closeable {
-	enum Rate {
-		RATE_100KHz, RATE_400KHz, RATE_1MHz
-	}
+    /**
+     * Perform a single TWI transaction which includes optional transmission and
+     * optional reception of data to a single slave. This is a blocking
+     * operation that can take a few milliseconds to a few tens of milliseconds.
+     * To abort this operation, client can interrupt the blocked thread.
+     *
+     * @param address    The slave address, either 7-bit or 10-bit. Note that in some
+     *                   TWI device documentation the documented addresses are actually
+     *                   2x the address values used here, as they regard the trailing
+     *                   0-bit as part of the address.
+     * @param tenBitAddr Whether this is a 10-bit addressing mode.
+     * @param writeData  The request data.
+     * @param writeSize  The number of bytes to write. Valid value are 0-255.
+     * @param readData   The array where the response should be stored.
+     * @param readSize   The expected number of response bytes. Valid value are 0-255.
+     * @return Whether operation succeeded.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     * @throws InterruptedException    Calling thread has been interrupted.
+     */
+    boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
+                      int writeSize, byte[] readData, int readSize)
+            throws ConnectionLostException, InterruptedException;
 
-	/** An object that can be waited on for asynchronous calls. */
-	interface Result {
-		/**
-		 * Wait until the asynchronous call which returned this instance is
-		 * complete.
-		 * 
-		 * @return true if TWI transaction succeeded.
-		 * 
-		 * @throws ConnectionLostException
-		 *             Connection with the IOIO has been lost.
-		 * @throws InterruptedException
-		 *             This operation has been interrupted.
-		 */
-		boolean waitReady() throws ConnectionLostException,
-				InterruptedException;
-	}
+    /**
+     * Asynchronous version of
+     * {@link #writeRead(int, boolean, byte[], int, byte[], int)}. Returns
+     * immediately and provides a {@link Result} object on which the client can
+     * wait for the result.
+     *
+     * @see #writeRead(int, boolean, byte[], int, byte[], int)
+     */
+    Result writeReadAsync(int address, boolean tenBitAddr,
+                          byte[] writeData, int writeSize, byte[] readData, int readSize)
+            throws ConnectionLostException;
 
-	/**
-	 * Perform a single TWI transaction which includes optional transmission and
-	 * optional reception of data to a single slave. This is a blocking
-	 * operation that can take a few milliseconds to a few tens of milliseconds.
-	 * To abort this operation, client can interrupt the blocked thread.
-	 * 
-	 * @param address
-	 *            The slave address, either 7-bit or 10-bit. Note that in some
-	 *            TWI device documentation the documented addresses are actually
-	 *            2x the address values used here, as they regard the trailing
-	 *            0-bit as part of the address.
-	 * @param tenBitAddr
-	 *            Whether this is a 10-bit addressing mode.
-	 * @param writeData
-	 *            The request data.
-	 * @param writeSize
-	 *            The number of bytes to write. Valid value are 0-255.
-	 * @param readData
-	 *            The array where the response should be stored.
-	 * @param readSize
-	 *            The expected number of response bytes. Valid value are 0-255.
-	 * @return Whether operation succeeded.
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 * @throws InterruptedException
-	 *             Calling thread has been interrupted.
-	 */
-	boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
-					  int writeSize, byte[] readData, int readSize)
-			throws ConnectionLostException, InterruptedException;
+    enum Rate {
+        RATE_100KHz, RATE_400KHz, RATE_1MHz
+    }
 
-	/**
-	 * Asynchronous version of
-	 * {@link #writeRead(int, boolean, byte[], int, byte[], int)}. Returns
-	 * immediately and provides a {@link Result} object on which the client can
-	 * wait for the result.
-	 * 
-	 * @see #writeRead(int, boolean, byte[], int, byte[], int)
-	 */
-	Result writeReadAsync(int address, boolean tenBitAddr,
-						  byte[] writeData, int writeSize, byte[] readData, int readSize)
-			throws ConnectionLostException;
+    /**
+     * An object that can be waited on for asynchronous calls.
+     */
+    interface Result {
+        /**
+         * Wait until the asynchronous call which returned this instance is
+         * complete.
+         *
+         * @return true if TWI transaction succeeded.
+         * @throws ConnectionLostException Connection with the IOIO has been lost.
+         * @throws InterruptedException    This operation has been interrupted.
+         */
+        boolean waitReady() throws ConnectionLostException,
+                InterruptedException;
+    }
 }
