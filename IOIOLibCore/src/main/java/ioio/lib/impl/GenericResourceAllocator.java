@@ -48,7 +48,7 @@ class GenericResourceAllocator implements ResourceManager.ResourceAllocator {
 		}
 	}
 
-	public GenericResourceAllocator(int ids[]) {
+	public GenericResourceAllocator(int[] ids) {
 		available_ = new ArrayList<Integer>(ids.length);
 		allocated_ = new HashSet<Integer>(ids.length);
 		for (int i = 0; i < ids.length; i++) {

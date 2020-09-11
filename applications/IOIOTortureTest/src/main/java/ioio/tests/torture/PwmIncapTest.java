@@ -64,11 +64,9 @@ public class PwmIncapTest implements Test<Boolean> {
 		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_2MHz,
 				PulseMode.FREQ, false))
 			return false;
-		if (!runTest(inPin, outPin, 2000, 100, ClockRate.RATE_16MHz,
-				PulseMode.FREQ_SCALE_16, true))
-			return false;
-		return true;
-	}
+        return runTest(inPin, outPin, 2000, 100, ClockRate.RATE_16MHz,
+                PulseMode.FREQ_SCALE_16, true);
+    }
 
 	private boolean runTest(int inPin, int outPin, int freq,
 			int pulseWidthUsec, ClockRate rate, PulseMode freqScaling,

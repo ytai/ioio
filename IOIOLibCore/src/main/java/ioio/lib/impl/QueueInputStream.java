@@ -38,9 +38,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 class QueueInputStream extends InputStream {
 	private enum State {
 		OPEN, CLOSED, KILLED
-	};
+	}
 
-	private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
+    private final Queue<Byte> queue_ = new ArrayBlockingQueue<Byte>(
 			Constants.BUFFER_SIZE);
 	private State state_ = State.OPEN;
 

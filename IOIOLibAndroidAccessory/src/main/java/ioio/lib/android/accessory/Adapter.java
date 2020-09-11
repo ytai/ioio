@@ -67,7 +67,7 @@ class Adapter {
 		}
 	}
 
-	static interface UsbAccessoryInterface {
+	interface UsbAccessoryInterface {
 	}
 
 	Adapter() throws NoRuntimeSupportException {

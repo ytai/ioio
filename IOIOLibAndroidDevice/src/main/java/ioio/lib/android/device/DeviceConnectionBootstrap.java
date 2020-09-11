@@ -149,7 +149,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 		Log.v(TAG, "onReceive(" + intent + ")");
 		String action = intent.getAction();
 		if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-			UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+			UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 			if (device.equals(device_)) {
 				device_ = null;
 				updateState();
@@ -507,9 +507,9 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
 
 	private enum InstanceState {
 		INIT, CONNECTED, DEAD
-	};
+	}
 
-	/**
+    /**
 	 * The actual {@link IOIOConnection} implementation.
 	 *
 	 * Doesn't do much, except signal the external state machine whether or not we're interested in

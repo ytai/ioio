@@ -278,7 +278,7 @@ public class AppImageLibraryActivity extends ListActivity {
 		switch (requestCode) {
 		case ADD_FROM_FILE:
 			if (resultCode == RESULT_OK) {
-				File file = (File) new File(data.getData().getPath());
+				File file = new File(data.getData().getPath());
 				addBundleFromFile(file);
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(

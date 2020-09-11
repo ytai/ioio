@@ -23,9 +23,9 @@ public class IOIOSimpleApp extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		textView_ = (TextView) findViewById(R.id.TextView);
-		seekBar_ = (SeekBar) findViewById(R.id.SeekBar);
-		toggleButton_ = (ToggleButton) findViewById(R.id.ToggleButton);
+		textView_ = findViewById(R.id.TextView);
+		seekBar_ = findViewById(R.id.SeekBar);
+		toggleButton_ = findViewById(R.id.ToggleButton);
 
 		enableUi(false);
 	}

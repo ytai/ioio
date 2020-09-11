@@ -46,7 +46,7 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 	private long sampleCount_ = 0;
 
 	// TODO: a fixed-size array would have been much better than a linked list.
-	private Queue<Long> pulseQueue_ = new LinkedList<Long>();
+	private Queue<Long> pulseQueue_ = new LinkedList<>();
 
 	public IncapImpl(IOIOImpl ioio, PulseMode mode, ResourceManager.Resource incap,
 			ResourceManager.Resource pin, int clockRate, int scale, boolean doublePrecision)
@@ -153,7 +153,7 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
 		try {
 			ioio_.protocol_.incapClose(incap_.id, doublePrecision_);
 			ioio_.resourceManager_.free(incap_);
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 		super.close();
 	}

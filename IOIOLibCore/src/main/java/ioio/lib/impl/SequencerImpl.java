@@ -361,7 +361,7 @@ public class SequencerImpl extends AbstractResource implements Sequencer, Sequen
 				+ config.getClass().getName());
 	}
 
-	private static interface Channel {
+	private interface Channel {
 		int serializeConfig(byte[] buf, int offset);
 
 		int serializeCue(ChannelCue cue, byte[] buf, int offset);

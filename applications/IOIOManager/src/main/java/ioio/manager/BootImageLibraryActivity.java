@@ -226,9 +226,9 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 			});
 			return images[childPosition];
 		}
-	};
+	}
 
-	@Override
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.image_library_options, menu);
@@ -327,7 +327,7 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 		switch (requestCode) {
 		case ADD_FROM_FILE:
 			if (resultCode == RESULT_OK) {
-				File file = (File) new File(data.getData().getPath());
+				File file = new File(data.getData().getPath());
 				addBundleFromFile(file);
 			} else if (resultCode == FileReturner.RESULT_ERROR) {
 				Toast.makeText(

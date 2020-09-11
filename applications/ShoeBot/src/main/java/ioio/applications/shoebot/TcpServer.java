@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class TcpServer implements Runnable {
 	interface LineListener {
-		public void onLine(String line);
+		void onLine(String line);
 	}
 
 	private LineListener listener_;

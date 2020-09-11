@@ -48,11 +48,11 @@ class TestProvider {
 				(TextView) activity.findViewById(R.id.incap_fail),
 				(TextView) activity.findViewById(R.id.incap_count));
 		dlatAgg_ = new HistogramAggregator(activity, new TextView[] {
-				(TextView) activity.findViewById(R.id.digital_latency_min),
-				(TextView) activity.findViewById(R.id.digital_latency_p25),
-				(TextView) activity.findViewById(R.id.digital_latency_p50),
-				(TextView) activity.findViewById(R.id.digital_latency_p75),
-				(TextView) activity.findViewById(R.id.digital_latency_max) },
+				activity.findViewById(R.id.digital_latency_min),
+				activity.findViewById(R.id.digital_latency_p25),
+				activity.findViewById(R.id.digital_latency_p50),
+				activity.findViewById(R.id.digital_latency_p75),
+				activity.findViewById(R.id.digital_latency_max)},
 				(TextView) activity.findViewById(R.id.digital_latency_count));
 	}
 

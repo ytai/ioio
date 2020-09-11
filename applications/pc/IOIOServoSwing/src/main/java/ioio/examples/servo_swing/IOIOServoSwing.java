@@ -35,7 +35,7 @@ public class IOIOServoSwing extends IOIOSwingApp implements ActionListener, Chan
 	protected int slider_ = 50;
 
 	@Override
-	protected Window createMainWindow(String args[]) {
+	protected Window createMainWindow(String[] args) {
 		// Use native look and feel.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

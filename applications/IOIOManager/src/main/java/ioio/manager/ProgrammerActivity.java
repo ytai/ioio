@@ -75,7 +75,7 @@ public class ProgrammerActivity extends IOIOActivity {
 			return UNKNOWN;
 		}
 
-		private Chip(int id) {
+		Chip(int id) {
 			this.id = id;
 		}
 	}
@@ -89,7 +89,7 @@ public class ProgrammerActivity extends IOIOActivity {
 
 		public Chip chip;
 
-		private Board(Chip chip) {
+		Board(Chip chip) {
 			this.chip = chip;
 		}
 
@@ -147,15 +147,15 @@ public class ProgrammerActivity extends IOIOActivity {
 	private void prepareGui() {
 		setContentView(R.layout.programmer);
 		setTitle(R.string.programmer_title);
-		programmerStatusTextView_ = (TextView) findViewById(R.id.programmerStatusTextView);
-		imageStatusTextView_ = (TextView) findViewById(R.id.imageStatusTextView);
-		selectedImageTextView_ = (TextView) findViewById(R.id.selectedImage);
+		programmerStatusTextView_ = findViewById(R.id.programmerStatusTextView);
+		imageStatusTextView_ = findViewById(R.id.imageStatusTextView);
+		selectedImageTextView_ = findViewById(R.id.selectedImage);
 		if (selectedImage_ != null) {
 			selectedImageTextView_.setText(selectedBundleName_ + " / "
 					+ selectedBoardName_);
 			selectedImageTextView_.setTextColor(Color.WHITE);
 		}
-		selectButton_ = (Button) findViewById(R.id.selectButton);
+		selectButton_ = findViewById(R.id.selectButton);
 		selectButton_.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -165,14 +165,14 @@ public class ProgrammerActivity extends IOIOActivity {
 						REQUEST_IMAGE_SELECT);
 			}
 		});
-		eraseButton_ = (Button) findViewById(R.id.eraseButton);
+		eraseButton_ = findViewById(R.id.eraseButton);
 		eraseButton_.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				desiredState_ = ProgrammerState.STATE_ERASE_START;
 			}
 		});
-		programButton_ = (Button) findViewById(R.id.programButton);
+		programButton_ = findViewById(R.id.programButton);
 		programButton_.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -512,7 +512,7 @@ public class ProgrammerActivity extends IOIOActivity {
 		switch (requestCode) {
 		case REQUEST_IMAGE_SELECT:
 			if (resultCode == RESULT_OK) {
-				File file = (File) new File(data.getData().getPath());
+				File file = new File(data.getData().getPath());
 				if (file.exists()) {
 					String bundleName = data
 							.getStringExtra(BootImageLibraryActivity.EXTRA_BUNDLE_NAME);

@@ -151,7 +151,7 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
 						R.layout.file_list_item, parent, false);
 			}
 			File item = getItem(position);
-			TextView textView = (TextView) convertView
+			TextView textView = convertView
 					.findViewById(R.id.fileListTextView);
 			Resources res = getResources();
 			if (item == null) {

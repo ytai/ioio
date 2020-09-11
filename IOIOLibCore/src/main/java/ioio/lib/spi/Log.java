@@ -40,7 +40,7 @@ public class Log {
     public static final int VERBOSE = 2;
 
     public interface ILogger {
-        public void write(int level, String tag, String message);
+        void write(int level, String tag, String message);
     }
 
     private static ILogger log_;
