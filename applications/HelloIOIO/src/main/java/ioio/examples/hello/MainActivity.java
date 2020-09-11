@@ -31,7 +31,7 @@ public class MainActivity extends IOIOActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		button_ = (ToggleButton) findViewById(R.id.button);
+		button_ = findViewById(R.id.button);
 	}
 
 	/**

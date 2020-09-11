@@ -52,7 +52,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
 		setContentView(R.layout.main);
 		getWindow().setFlags(LayoutParams.FLAG_KEEP_SCREEN_ON, LayoutParams.FLAG_KEEP_SCREEN_ON);
 		// The first seekbar controls the blink frequency.
-		final SeekBar freqSeekBar = (SeekBar) findViewById(R.id.frequencySeekBar);
+		final SeekBar freqSeekBar = findViewById(R.id.frequencySeekBar);
 		updateFrequency(freqSeekBar, freqSeekBar.getProgress());
 		freqSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
@@ -71,7 +71,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
 		});
 
 		// The second seekbar controls the fade time.
-		final SeekBar fadeSeekBar = (SeekBar) findViewById(R.id.fadeSeekBar);
+		final SeekBar fadeSeekBar = findViewById(R.id.fadeSeekBar);
 		updateFade(fadeSeekBar, fadeSeekBar.getProgress());
 		fadeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override

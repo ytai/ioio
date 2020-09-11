@@ -277,11 +277,11 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 		}
 	}
 
-	private static enum InstanceState {
+	private enum InstanceState {
 		INIT, CONNECTED, DEAD
-	};
+	}
 
-	private class Connection implements IOIOConnection {
+    private class Connection implements IOIOConnection {
 		private InstanceState instanceState_ = InstanceState.INIT;
 
 		@Override

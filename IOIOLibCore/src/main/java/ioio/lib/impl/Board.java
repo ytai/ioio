@@ -36,7 +36,7 @@ enum Board {
 
 	public final Hardware hardware;
 
-	private Board(Hardware hw) {
+	Board(Hardware hw) {
 		hardware = hw;
 	}
 

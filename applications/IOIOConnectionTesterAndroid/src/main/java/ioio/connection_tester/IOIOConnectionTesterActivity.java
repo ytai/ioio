@@ -36,7 +36,7 @@ public class IOIOConnectionTesterActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		manager_.create();
-		mainLayout_ = (ViewGroup) findViewById(R.id.main_layout);
+		mainLayout_ = findViewById(R.id.main_layout);
 	}
 
 	@Override
@@ -57,9 +57,9 @@ public class IOIOConnectionTesterActivity extends Activity implements
 		View view = inflater.inflate(R.layout.connection_stats, mainLayout_,
 				false);
 		mainLayout_.addView(view);
-		TextView typeTextView = (TextView) view
+		TextView typeTextView = view
 				.findViewById(R.id.connection_type);
-		TextView extraTextView = (TextView) view
+		TextView extraTextView = view
 				.findViewById(R.id.connection_extra);
 		if (type.equals("ioio.lib.impl.SocketIOIOConnection")) {
 			typeTextView.setText("Socket (ADB)");
@@ -80,15 +80,15 @@ public class IOIOConnectionTesterActivity extends Activity implements
 		new java.lang.Thread() {
 			@Override
 			public void run() {
-				final TextView upThroughputTextView = (TextView) view
+				final TextView upThroughputTextView = view
 						.findViewById(R.id.up_throughput);
-				final TextView downThroughputTextView = (TextView) view
+				final TextView downThroughputTextView = view
 						.findViewById(R.id.down_throughput);
-				final TextView bidiThroughputTextView = (TextView) view
+				final TextView bidiThroughputTextView = view
 						.findViewById(R.id.bidi_throughput);
-				final TextView lightLatencyTextView = (TextView) view
+				final TextView lightLatencyTextView = view
 						.findViewById(R.id.light_latency);
-				final TextView heavyLatencyTextView = (TextView) view
+				final TextView heavyLatencyTextView = view
 						.findViewById(R.id.heavy_latency);
 
 				try {

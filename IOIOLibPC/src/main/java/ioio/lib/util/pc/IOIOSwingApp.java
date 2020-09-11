@@ -71,7 +71,7 @@ import javax.swing.JFrame;
 public abstract class IOIOSwingApp extends WindowAdapter implements IOIOLooperProvider {
 	public IOIOPcApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
 
-	public void go(final String args[]) {
+	public void go(final String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -80,7 +80,7 @@ public abstract class IOIOSwingApp extends WindowAdapter implements IOIOLooperPr
 		});
 	}
 
-	protected abstract Window createMainWindow(String args[]);
+	protected abstract Window createMainWindow(String[] args);
 
 	@Override
 	public void windowClosing(WindowEvent event) {

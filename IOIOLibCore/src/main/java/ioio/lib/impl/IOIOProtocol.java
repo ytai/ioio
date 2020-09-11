@@ -359,7 +359,7 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void uartData(int uartNum, int numBytes, byte data[]) throws IOException {
+	synchronized public void uartData(int uartNum, int numBytes, byte[] data) throws IOException {
 		if (numBytes > 64) {
 			throw new IllegalArgumentException(
 					"A maximum of 64 bytes can be sent in one uartData message. Got: " + numBytes);
@@ -427,8 +427,8 @@ class IOIOProtocol {
 		endBatch();
 	}
 
-	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte data[], int dataBytes,
-			int totalBytes, int responseBytes) throws IOException {
+	synchronized public void spiMasterRequest(int spiNum, int ssPin, byte[] data, int dataBytes,
+                                              int totalBytes, int responseBytes) throws IOException {
 		final boolean dataNeqTotal = (dataBytes != totalBytes);
 		final boolean resNeqTotal = (responseBytes != totalBytes);
 		beginBatch();
@@ -583,50 +583,50 @@ class IOIOProtocol {
 	}
 
 	public interface IncomingHandler {
-		public void handleEstablishConnection(byte[] hardwareId, byte[] bootloaderId,
-				byte[] firmwareId);
+		void handleEstablishConnection(byte[] hardwareId, byte[] bootloaderId,
+                                       byte[] firmwareId);
 
-		public void handleConnectionLost();
+		void handleConnectionLost();
 
-		public void handleSoftReset();
+		void handleSoftReset();
 
-		public void handleCheckInterfaceResponse(boolean supported);
+		void handleCheckInterfaceResponse(boolean supported);
 
-		public void handleSetChangeNotify(int pin, boolean changeNotify);
+		void handleSetChangeNotify(int pin, boolean changeNotify);
 
-		public void handleReportDigitalInStatus(int pin, boolean level);
+		void handleReportDigitalInStatus(int pin, boolean level);
 
-		public void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
+		void handleRegisterPeriodicDigitalSampling(int pin, int freqScale);
 
-		public void handleReportPeriodicDigitalInStatus(int frameNum, boolean values[]);
+		void handleReportPeriodicDigitalInStatus(int frameNum, boolean[] values);
 
-		public void handleAnalogPinStatus(int pin, boolean open);
+		void handleAnalogPinStatus(int pin, boolean open);
 
-		public void handleReportAnalogInStatus(List<Integer> pins, List<Integer> values);
+		void handleReportAnalogInStatus(List<Integer> pins, List<Integer> values);
 
-		public void handleUartOpen(int uartNum);
+		void handleUartOpen(int uartNum);
 
-		public void handleUartClose(int uartNum);
+		void handleUartClose(int uartNum);
 
-		public void handleUartData(int uartNum, int numBytes, byte data[]);
+		void handleUartData(int uartNum, int numBytes, byte[] data);
 
-		public void handleUartReportTxStatus(int uartNum, int bytesRemaining);
+		void handleUartReportTxStatus(int uartNum, int bytesRemaining);
 
-		public void handleSpiOpen(int spiNum);
+		void handleSpiOpen(int spiNum);
 
-		public void handleSpiClose(int spiNum);
+		void handleSpiClose(int spiNum);
 
-		public void handleSpiData(int spiNum, int ssPin, byte data[], int dataBytes);
+		void handleSpiData(int spiNum, int ssPin, byte[] data, int dataBytes);
 
-		public void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
+		void handleSpiReportTxStatus(int spiNum, int bytesRemaining);
 
-		public void handleI2cOpen(int i2cNum);
+		void handleI2cOpen(int i2cNum);
 
-		public void handleI2cClose(int i2cNum);
+		void handleI2cClose(int i2cNum);
 
-		public void handleI2cResult(int i2cNum, int size, byte[] data);
+		void handleI2cResult(int i2cNum, int size, byte[] data);
 
-		public void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
+		void handleI2cReportTxStatus(int spiNum, int bytesRemaining);
 
 		void handleIcspOpen();
 
@@ -636,19 +636,19 @@ class IOIOProtocol {
 
 		void handleIcspResult(int size, byte[] data);
 
-		public void handleIncapReport(int incapNum, int size, byte[] data);
+		void handleIncapReport(int incapNum, int size, byte[] data);
 
-		public void handleIncapClose(int incapNum);
+		void handleIncapClose(int incapNum);
 
-		public void handleIncapOpen(int incapNum);
+		void handleIncapOpen(int incapNum);
 
-		public void handleCapSenseReport(int pinNum, int value);
+		void handleCapSenseReport(int pinNum, int value);
 
-		public void handleSetCapSenseSampling(int pinNum, boolean enable);
+		void handleSetCapSenseSampling(int pinNum, boolean enable);
 
-		public void handleSequencerEvent(SequencerEvent event, int arg);
+		void handleSequencerEvent(SequencerEvent event, int arg);
 
-		public void handleSync();
+		void handleSync();
 	}
 
 	class IncomingThread extends Thread {

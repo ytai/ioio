@@ -58,8 +58,9 @@ import java.io.IOException;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
 	private static class SyncListener implements IncomingState.SyncListener, DisconnectListener {
-		enum State { WAITING, SIGNALED, DISCONNECTED };
-		private State state_ = State.WAITING;
+		enum State { WAITING, SIGNALED, DISCONNECTED }
+
+        private State state_ = State.WAITING;
 
 		@Override
 		public synchronized void sync() {
@@ -562,7 +563,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 		hardware_.checkSupportsPeripheralOutput(mosi.pin);
 		hardware_.checkSupportsPeripheralOutput(clk.pin);
 
-		Resource ssPins[] = new Resource[slaveSelect.length];
+		Resource[] ssPins = new Resource[slaveSelect.length];
 		Resource misoPin = new Resource(ResourceType.PIN, miso.pin);
 		Resource mosiPin = new Resource(ResourceType.PIN, mosi.pin);
 		Resource clkPin = new Resource(ResourceType.PIN, clk.pin);
@@ -631,7 +632,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 	}
 
 	@Override
-	public Sequencer openSequencer(Sequencer.ChannelConfig config[])
+	public Sequencer openSequencer(Sequencer.ChannelConfig[] config)
 			throws ConnectionLostException {
 		return new SequencerImpl(this, config);
 	}

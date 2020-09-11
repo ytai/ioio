@@ -41,7 +41,7 @@ public class IOIOFileProgrammer {
 	private static final String TAG = "IOIOFileProgrammer";
 
 	interface ProgressListener {
-		public void blockDone();
+		void blockDone();
 	}
 
 	public static int countBlocks(IOIOFileReader file) throws FormatException {

@@ -30,7 +30,7 @@ public interface IOIOLooperProvider {
 	 * @return An implementation of {@link IOIOLooper}, or <code>null</code> to
 	 *         skip.
 	 */
-	public abstract IOIOLooper createIOIOLooper(String connectionType,
-			Object extra);
+    IOIOLooper createIOIOLooper(String connectionType,
+                                Object extra);
 
 }

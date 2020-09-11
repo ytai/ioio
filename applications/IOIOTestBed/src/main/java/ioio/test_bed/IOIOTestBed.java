@@ -39,8 +39,8 @@ public class IOIOTestBed extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		EVEN_TEXT = (TextView) findViewById(R.id.even_text);
-		ODD_TEXT = (TextView) findViewById(R.id.odd_text);
+		EVEN_TEXT = findViewById(R.id.even_text);
+		ODD_TEXT = findViewById(R.id.odd_text);
 	}
 
 	class Looper extends BaseIOIOLooper {
@@ -174,8 +174,8 @@ public class IOIOTestBed extends IOIOActivity {
 			} catch (Exception e) {
 				Log.i(LOG_TAG, "LED thread is stopped");
 			}
-		};
-	}
+		}
+    }
 
 	private void updateLabel(final TextView textView, final List<Integer> high,
 			final List<Integer> low) {

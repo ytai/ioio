@@ -30,7 +30,7 @@ public class HelloIOIOSwing extends IOIOSwingApp implements ActionListener {
 	protected boolean ledOn_;
 
 	@Override
-	protected Window createMainWindow(String args[]) {
+	protected Window createMainWindow(String[] args) {
 		// Use native look and feel.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -166,9 +166,9 @@ public class ResourceManager {
 		}
 	}
 
-	static interface ResourceAllocator {
-		public void alloc(Resource r);
+	interface ResourceAllocator {
+		void alloc(Resource r);
 
-		public void free(Resource r);
+		void free(Resource r);
 	}
 }

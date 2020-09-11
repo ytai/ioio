@@ -48,11 +48,11 @@ public class IOIODudeMain {
 	private static final int WRITE_IMAGE = 0x04;
 	private static final int CHECKSUM = 0x04;
 
-	private static enum Protocol {
+	private enum Protocol {
 		PROTOCOL_IOIO, PROTOCOL_BOOTLOADER
 	}
 
-	private static enum Command {
+	private enum Command {
 		VERSIONS, FINGERPRINT, WRITE
 	}
 
@@ -193,10 +193,10 @@ public class IOIODudeMain {
 			throws IOException {
 		out_.write(WRITE_IMAGE);
 
-		out_.write((int) ((length >> 0) & 0xff));
-		out_.write((int) ((length >> 8) & 0xff));
-		out_.write((int) ((length >> 16) & 0xff));
-		out_.write((int) (length >> 24) & 0xff);
+		out_.write((length >> 0) & 0xff);
+		out_.write((length >> 8) & 0xff);
+		out_.write((length >> 16) & 0xff);
+		out_.write((length >> 24) & 0xff);
 
 		out_.flush();
 
