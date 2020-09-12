@@ -38,8 +38,6 @@ subprojects {
 static def getTag() {
     def tagVersion = "$System.env.VERSION"
     if (tagVersion == "null") {
-        println "No variable \$VERSION specified, it seems it runs locally, I'm using 'git describe --tags'"
-
         // with local un-commited changes a -DIRTY is added
         def processChanges = "git diff-index --name-only HEAD --".execute()
         def dirty = ""
