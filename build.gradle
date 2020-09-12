@@ -12,7 +12,7 @@ buildscript {
 }
 
 allprojects {
-    group = 'com.github.ytai.ioio'
+    group = 'com.github.ioio'
     version = getTag()
     ext.versionNamespace = 'IOIO'
     ext.versionString = sprintf("%s%s", versionNamespace, version)

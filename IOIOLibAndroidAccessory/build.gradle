@@ -1,8 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'ioio.lib.accessory'
-
 android {
     compileSdkVersion 30
     defaultConfig {
