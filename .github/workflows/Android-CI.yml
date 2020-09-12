@@ -23,7 +23,7 @@ jobs:
       - name: Build project
         run: ./gradlew assembleDebug
         env:
-          TAG_VERSION: ${{ github.ref }}
+          VERSION: ${{ github.ref }}
       - name: Run tests
         run: ./gradlew test
       - name: Run instrumentation tests
