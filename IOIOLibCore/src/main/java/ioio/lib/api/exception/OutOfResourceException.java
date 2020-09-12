@@ -34,9 +34,9 @@ package ioio.lib.api.exception;
  * on concurrent resource usage are never exceeded.
  */
 public class OutOfResourceException extends RuntimeException {
-	private static final long serialVersionUID = -4482605241361881899L;
+    private static final long serialVersionUID = -4482605241361881899L;
 
-	public OutOfResourceException(String msg) {
-		super(msg);
-	}
+    public OutOfResourceException(String msg) {
+        super(msg);
+    }
 }

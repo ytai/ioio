@@ -211,18 +211,50 @@ public abstract class AbstractIOIOActivity extends Activity {
         return createIOIOThread();
     }
 
+    private void abortAllThreads() {
+        for (IOIOThread thread : threads_) {
+            thread.abort();
+        }
+    }
+
+    private void joinAllThreads() throws InterruptedException {
+        for (IOIOThread thread : threads_) {
+            thread.join();
+        }
+    }
+
+    private void createAllThreads() {
+        threads_.clear();
+        Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
+                .getConnectionFactories();
+        for (IOIOConnectionFactory factory : factories) {
+            currentConnectionFactory_ = factory;
+            IOIOThread thread = createIOIOThread(factory.getType(),
+                    factory.getExtra());
+            if (thread != null) {
+                threads_.add(thread);
+            }
+        }
+    }
+
+    private void startAllThreads() {
+        for (IOIOThread thread : threads_) {
+            thread.start();
+        }
+    }
+
     /**
      * An abstract class, which facilitates a thread dedicated for communication
      * with a single physical IOIO device.
      */
     protected abstract class IOIOThread extends Thread {
+        private final IOIOConnectionFactory connectionFactory_ = currentConnectionFactory_;
         /**
          * Subclasses should use this field for controlling the IOIO.
          */
         protected IOIO ioio_;
         private boolean abort_ = false;
         private boolean connected_ = true;
-        private final IOIOConnectionFactory connectionFactory_ = currentConnectionFactory_;
 
         /**
          * Subclasses should override this method for performing operations to
@@ -331,38 +363,6 @@ public abstract class AbstractIOIOActivity extends Activity {
             if (connected_) {
                 interrupt();
             }
-        }
-    }
-
-    private void abortAllThreads() {
-        for (IOIOThread thread : threads_) {
-            thread.abort();
-        }
-    }
-
-    private void joinAllThreads() throws InterruptedException {
-        for (IOIOThread thread : threads_) {
-            thread.join();
-        }
-    }
-
-    private void createAllThreads() {
-        threads_.clear();
-        Collection<IOIOConnectionFactory> factories = IOIOConnectionRegistry
-                .getConnectionFactories();
-        for (IOIOConnectionFactory factory : factories) {
-            currentConnectionFactory_ = factory;
-            IOIOThread thread = createIOIOThread(factory.getType(),
-                    factory.getExtra());
-            if (thread != null) {
-                threads_.add(thread);
-            }
-        }
-    }
-
-    private void startAllThreads() {
-        for (IOIOThread thread : threads_) {
-            thread.start();
         }
     }
 

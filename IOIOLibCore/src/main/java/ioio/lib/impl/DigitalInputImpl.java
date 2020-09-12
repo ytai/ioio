@@ -35,52 +35,52 @@ import ioio.lib.impl.IncomingState.InputPinListener;
 import java.io.IOException;
 
 class DigitalInputImpl extends AbstractPin implements DigitalInput,
-		InputPinListener {
-	private boolean value_;
-	private boolean valid_ = false;
+        InputPinListener {
+    private boolean value_;
+    private boolean valid_ = false;
 
-	DigitalInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
-			throws ConnectionLostException {
-		super(ioio, pin);
-	}
+    DigitalInputImpl(IOIOImpl ioio, ResourceManager.Resource pin)
+            throws ConnectionLostException {
+        super(ioio, pin);
+    }
 
-	@Override
-	synchronized public void setValue(int value) {
-		// Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
-		assert (value == 0 || value == 1);
-		value_ = (value == 1);
-		if (!valid_) {
-			valid_ = true;
-		}
-		notifyAll();
-	}
+    @Override
+    synchronized public void setValue(int value) {
+        // Log.v("DigitalInputImpl", "Pin " + pinNum_ + " value is " + value);
+        assert (value == 0 || value == 1);
+        value_ = (value == 1);
+        if (!valid_) {
+            valid_ = true;
+        }
+        notifyAll();
+    }
 
-	@Override
-	synchronized public void waitForValue(boolean value)
-			throws InterruptedException, ConnectionLostException {
-		checkState();
-		while (!valid_ || value_ != value) {
-			safeWait();
-		}
-	}
+    @Override
+    synchronized public void waitForValue(boolean value)
+            throws InterruptedException, ConnectionLostException {
+        checkState();
+        while (!valid_ || value_ != value) {
+            safeWait();
+        }
+    }
 
-	@Override
-	synchronized public void close() {
-		checkClose();
-		try {
-			ioio_.protocol_.setChangeNotify(pin_.id, false);
-		} catch (IOException e) {
-		}
-		super.close();
-	}
+    @Override
+    synchronized public void close() {
+        checkClose();
+        try {
+            ioio_.protocol_.setChangeNotify(pin_.id, false);
+        } catch (IOException e) {
+        }
+        super.close();
+    }
 
-	@Override
-	synchronized public boolean read() throws InterruptedException,
-			ConnectionLostException {
-		checkState();
-		while (!valid_) {
-			safeWait();
-		}
-		return value_;
-	}
+    @Override
+    synchronized public boolean read() throws InterruptedException,
+            ConnectionLostException {
+        checkState();
+        while (!valid_) {
+            safeWait();
+        }
+        return value_;
+    }
 }

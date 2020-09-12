@@ -35,99 +35,99 @@ import ioio.lib.impl.IncomingState.InputPinListener;
 import java.io.IOException;
 
 class CapSenseImpl extends AbstractPin implements CapSense, InputPinListener {
-	private static final float CHARGE = 89.1f; // In [pC] units.
-	private static final float SAMPLE_PERIOD_MS = 16.f;
-	private float value_;
-	private long sampleCount_ = 0;
-	private float coef_;
+    private static final float CHARGE = 89.1f; // In [pC] units.
+    private static final float SAMPLE_PERIOD_MS = 16.f;
+    private float value_;
+    private long sampleCount_ = 0;
+    private float coef_;
 
-	CapSenseImpl(IOIOImpl ioio, ResourceManager.Resource pin, float filterCoef)
-			throws ConnectionLostException {
-		super(ioio, pin);
-		setFilterCoef(filterCoef);
-	}
+    CapSenseImpl(IOIOImpl ioio, ResourceManager.Resource pin, float filterCoef)
+            throws ConnectionLostException {
+        super(ioio, pin);
+        setFilterCoef(filterCoef);
+    }
 
-	@Override
-	synchronized public void setValue(int value) {
-		assert (value >= 0 && value < 1024);
-		final float fVal = value / 1023.f;
-		if (sampleCount_ == 0) {
-			value_ = fVal;
-		} else {
-			value_ = fVal * (1.f - coef_) + value_ * coef_;
-		}
-		++sampleCount_;
-		notifyAll();
-	}
+    @Override
+    synchronized public void setValue(int value) {
+        assert (value >= 0 && value < 1024);
+        final float fVal = value / 1023.f;
+        if (sampleCount_ == 0) {
+            value_ = fVal;
+        } else {
+            value_ = fVal * (1.f - coef_) + value_ * coef_;
+        }
+        ++sampleCount_;
+        notifyAll();
+    }
 
-	@Override
-	synchronized public float read() throws InterruptedException,
-			ConnectionLostException {
-		checkState();
-		while (sampleCount_ == 0) {
-			safeWait();
-		}
-		final float voltage = 3.3f * value_;
-		return CHARGE / voltage;
-	}
+    @Override
+    synchronized public float read() throws InterruptedException,
+            ConnectionLostException {
+        checkState();
+        while (sampleCount_ == 0) {
+            safeWait();
+        }
+        final float voltage = 3.3f * value_;
+        return CHARGE / voltage;
+    }
 
-	@Override
-	public synchronized float readSync() throws InterruptedException, ConnectionLostException {
-		checkState();
-		final long initialSampleCount = sampleCount_;
-		// Wait for sample count to increase.
-		while (sampleCount_ == initialSampleCount) {
-			safeWait();
-		}
-		final float voltage = 3.3f * value_;
-		return CHARGE / voltage;
-	}
+    @Override
+    public synchronized float readSync() throws InterruptedException, ConnectionLostException {
+        checkState();
+        final long initialSampleCount = sampleCount_;
+        // Wait for sample count to increase.
+        while (sampleCount_ == initialSampleCount) {
+            safeWait();
+        }
+        final float voltage = 3.3f * value_;
+        return CHARGE / voltage;
+    }
 
-	@Override
-	public synchronized void waitOver(float threshold) throws ConnectionLostException,
-			InterruptedException {
-		while (read() <= threshold) {
-			wait();
-		}
-	}
+    @Override
+    public synchronized void waitOver(float threshold) throws ConnectionLostException,
+            InterruptedException {
+        while (read() <= threshold) {
+            wait();
+        }
+    }
 
-	@Override
-	public synchronized void waitOverSync(float threshold) throws ConnectionLostException, InterruptedException {
-		while (readSync() <= threshold) {
-			wait();
-		}
-	}
+    @Override
+    public synchronized void waitOverSync(float threshold) throws ConnectionLostException, InterruptedException {
+        while (readSync() <= threshold) {
+            wait();
+        }
+    }
 
-	@Override
-	public synchronized void waitUnder(float threshold)
-			throws ConnectionLostException, InterruptedException {
-		while (read() >= threshold) {
-			wait();
-		}
-	}
+    @Override
+    public synchronized void waitUnder(float threshold)
+            throws ConnectionLostException, InterruptedException {
+        while (read() >= threshold) {
+            wait();
+        }
+    }
 
-	@Override
-	public synchronized void waitUnderSync(float threshold) throws ConnectionLostException, InterruptedException {
-		while (readSync() >= threshold) {
-			wait();
-		}
-	}
+    @Override
+    public synchronized void waitUnderSync(float threshold) throws ConnectionLostException, InterruptedException {
+        while (readSync() >= threshold) {
+            wait();
+        }
+    }
 
-	@Override
-	public synchronized void close() {
-		checkClose();
-		try {
-			ioio_.protocol_.setCapSenseSampling(pin_.id, false);
-		} catch (IOException e) {
-		}
-		super.close();
-	}
+    @Override
+    public synchronized void close() {
+        checkClose();
+        try {
+            ioio_.protocol_.setCapSenseSampling(pin_.id, false);
+        } catch (IOException e) {
+        }
+        super.close();
+    }
 
-	@Override
-	public synchronized void setFilterCoef(float t)
-			throws ConnectionLostException {
-		// We define t as the time it takes for an impulse response to fade to
-		// 0.1.
-		coef_ = (float) Math.pow(0.1, SAMPLE_PERIOD_MS / t);
-	}
+    @Override
+    public synchronized void setFilterCoef(float t)
+            throws ConnectionLostException {
+        // We define t as the time it takes for an impulse response to fade to
+        // 0.1.
+        coef_ = (float) Math.pow(0.1, SAMPLE_PERIOD_MS / t);
+    }
 }

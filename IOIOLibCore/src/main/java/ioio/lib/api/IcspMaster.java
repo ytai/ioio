@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -66,7 +66,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * and can be reused.
  * <p>
  * Typical usage:
- * 
+ *
  * <pre>
  * {@code
  * IcspMaster icsp = ioio.openIcspMaster();
@@ -79,67 +79,59 @@ import ioio.lib.api.exception.ConnectionLostException;
  * icsp.exitProgramming();
  * icsp.close();                       // free ICSP module and pins
  * }</pre>
- * 
+ *
  * @see IOIO#openIcspMaster()
  */
 public interface IcspMaster extends Closeable {
-	/**
-	 * Initiate a sequence that will put the slave device in programming mode.
-	 * This sequence is necessary for executing instructions and reading
-	 * register values.
-	 * 
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 */
-	void enterProgramming() throws ConnectionLostException;
+    /**
+     * Initiate a sequence that will put the slave device in programming mode.
+     * This sequence is necessary for executing instructions and reading
+     * register values.
+     *
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     */
+    void enterProgramming() throws ConnectionLostException;
 
-	/**
-	 * Initiate a sequence that will put the slave device out of programming
-	 * mode. It will be held in reset.
-	 * 
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 */
-	void exitProgramming() throws ConnectionLostException;
+    /**
+     * Initiate a sequence that will put the slave device out of programming
+     * mode. It will be held in reset.
+     *
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     */
+    void exitProgramming() throws ConnectionLostException;
 
-	/**
-	 * Execute a single instruction on the slave MCU.
-	 * 
-	 * @param instruction
-	 *            a 24-bit PIC instruction.
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 */
-	void executeInstruction(int instruction)
-			throws ConnectionLostException;
+    /**
+     * Execute a single instruction on the slave MCU.
+     *
+     * @param instruction a 24-bit PIC instruction.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     */
+    void executeInstruction(int instruction)
+            throws ConnectionLostException;
 
-	/**
-	 * Request a read of the VISI register on the slave MCU. This is an
-	 * asynchronous call, in which the 16-bit result is obtained by
-	 * {@link #waitVisiResult()}.
-	 * This method may block if the read queue on the IOIO is full, but this
-	 * should be for short periods only.
-	 * 
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 * @throws InterruptedException
-	 *             Interrupted while blocking.
-	 */
-	void readVisi() throws ConnectionLostException, InterruptedException;
+    /**
+     * Request a read of the VISI register on the slave MCU. This is an
+     * asynchronous call, in which the 16-bit result is obtained by
+     * {@link #waitVisiResult()}.
+     * This method may block if the read queue on the IOIO is full, but this
+     * should be for short periods only.
+     *
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     * @throws InterruptedException    Interrupted while blocking.
+     */
+    void readVisi() throws ConnectionLostException, InterruptedException;
 
-	/**
-	 * Wait and return a result of a call to {@link #readVisi()}.
-	 * Results will be returned in the same order as requested.
-	 * 
-	 * The call will block until there is data, until interrupted, or until
-	 * connection to the IOIO has been lost.
-	 * 
-	 * @return The result - an unsigned 16-bit number.
-	 * @throws ConnectionLostException
-	 *             Connection to the IOIO has been lost.
-	 * @throws InterruptedException
-	 *             Interrupted while blocking.
-	 */
-	int waitVisiResult() throws ConnectionLostException,
-			InterruptedException;
+    /**
+     * Wait and return a result of a call to {@link #readVisi()}.
+     * Results will be returned in the same order as requested.
+     * <p>
+     * The call will block until there is data, until interrupted, or until
+     * connection to the IOIO has been lost.
+     *
+     * @return The result - an unsigned 16-bit number.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     * @throws InterruptedException    Interrupted while blocking.
+     */
+    int waitVisiResult() throws ConnectionLostException,
+            InterruptedException;
 }

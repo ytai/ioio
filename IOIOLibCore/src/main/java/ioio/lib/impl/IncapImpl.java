@@ -37,124 +37,124 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
-	private static final int MAX_QUEUE_LEN = 32;
-	private final PulseMode mode_;
-	private final ResourceManager.Resource incap_;
-	private long lastDuration_;
-	private final float timeBase_;
-	private final boolean doublePrecision_;
-	private long sampleCount_ = 0;
+    private static final int MAX_QUEUE_LEN = 32;
+    private final PulseMode mode_;
+    private final ResourceManager.Resource incap_;
+    private final float timeBase_;
+    private final boolean doublePrecision_;
+    private long lastDuration_;
+    private long sampleCount_ = 0;
 
-	// TODO: a fixed-size array would have been much better than a linked list.
-	private Queue<Long> pulseQueue_ = new LinkedList<>();
+    // TODO: a fixed-size array would have been much better than a linked list.
+    private Queue<Long> pulseQueue_ = new LinkedList<>();
 
-	public IncapImpl(IOIOImpl ioio, PulseMode mode, ResourceManager.Resource incap,
-			ResourceManager.Resource pin, int clockRate, int scale, boolean doublePrecision)
-			throws ConnectionLostException {
-		super(ioio, pin);
-		mode_ = mode;
-		incap_ = incap;
-		timeBase_ = 1.0f / (scale * clockRate);
-		doublePrecision_ = doublePrecision;
-	}
+    public IncapImpl(IOIOImpl ioio, PulseMode mode, ResourceManager.Resource incap,
+                     ResourceManager.Resource pin, int clockRate, int scale, boolean doublePrecision)
+            throws ConnectionLostException {
+        super(ioio, pin);
+        mode_ = mode;
+        incap_ = incap;
+        timeBase_ = 1.0f / (scale * clockRate);
+        doublePrecision_ = doublePrecision;
+    }
 
-	@Override
-	public float getFrequency() throws InterruptedException, ConnectionLostException {
-		if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
-				&& mode_ != PulseMode.FREQ_SCALE_16) {
-			throw new IllegalStateException(
-					"Cannot query frequency when module was not opened in frequency mode.");
-		}
-		return 1.0f / getDuration();
-	}
+    private static long ByteArrayToLong(byte[] data, int size) {
+        long result = 0;
+        int i = size;
+        while (i-- > 0) {
+            result <<= 8;
+            result |= ((int) data[i]) & 0xFF;
+        }
+        if (result == 0) {
+            result = 1 << (size * 8);
+        }
+        return result;
+    }
 
-	@Override
-	public float getFrequencySync() throws InterruptedException, ConnectionLostException {
-		if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
-				&& mode_ != PulseMode.FREQ_SCALE_16) {
-			throw new IllegalStateException(
-					"Cannot query frequency when module was not opened in frequency mode.");
-		}
-		return 1.0f / getDurationSync();
-	}
+    @Override
+    public float getFrequency() throws InterruptedException, ConnectionLostException {
+        if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
+                && mode_ != PulseMode.FREQ_SCALE_16) {
+            throw new IllegalStateException(
+                    "Cannot query frequency when module was not opened in frequency mode.");
+        }
+        return 1.0f / getDuration();
+    }
 
-	@Override
-	public synchronized float getDuration() throws InterruptedException, ConnectionLostException {
-		checkState();
-		// Wait for sample count to be non-zero.
-		while (sampleCount_ == 0) {
-			safeWait();
-		}
-		return timeBase_ * lastDuration_;
-	}
+    @Override
+    public float getFrequencySync() throws InterruptedException, ConnectionLostException {
+        if (mode_ != PulseMode.FREQ && mode_ != PulseMode.FREQ_SCALE_4
+                && mode_ != PulseMode.FREQ_SCALE_16) {
+            throw new IllegalStateException(
+                    "Cannot query frequency when module was not opened in frequency mode.");
+        }
+        return 1.0f / getDurationSync();
+    }
 
-	@Override
-	public synchronized float getDurationSync() throws InterruptedException, ConnectionLostException {
-		checkState();
-		final long initialSampleCount = sampleCount_;
-		// Wait for sample count to increase.
-		while (sampleCount_ == initialSampleCount) {
-			safeWait();
-		}
-		return timeBase_ * lastDuration_;
-	}
+    @Override
+    public synchronized float getDuration() throws InterruptedException, ConnectionLostException {
+        checkState();
+        // Wait for sample count to be non-zero.
+        while (sampleCount_ == 0) {
+            safeWait();
+        }
+        return timeBase_ * lastDuration_;
+    }
 
-	@Override
-	public synchronized float waitPulseGetDuration() throws InterruptedException,
-			ConnectionLostException {
-		return getDurationBuffered();
-	}
+    @Override
+    public synchronized float getDurationSync() throws InterruptedException, ConnectionLostException {
+        checkState();
+        final long initialSampleCount = sampleCount_;
+        // Wait for sample count to increase.
+        while (sampleCount_ == initialSampleCount) {
+            safeWait();
+        }
+        return timeBase_ * lastDuration_;
+    }
 
-	@Override
-	public synchronized float getDurationBuffered() throws InterruptedException,
-			ConnectionLostException {
-		if (mode_ != PulseMode.POSITIVE && mode_ != PulseMode.NEGATIVE) {
-			throw new IllegalStateException(
-					"Cannot wait for pulse when module was not opened in pulse mode.");
-		}
-		checkState();
-		while (pulseQueue_.isEmpty()) {
-			safeWait();
-		}
-		return timeBase_ * pulseQueue_.remove();
-	}
+    @Override
+    public synchronized float waitPulseGetDuration() throws InterruptedException,
+            ConnectionLostException {
+        return getDurationBuffered();
+    }
 
-	@Override
-	public synchronized void dataReceived(byte[] data, int size) {
-		lastDuration_ = ByteArrayToLong(data, size);
-		if (pulseQueue_.size() == MAX_QUEUE_LEN) {
-			pulseQueue_.remove();
-		}
-		pulseQueue_.add(lastDuration_);
-		++sampleCount_;
-		notifyAll();
-	}
+    @Override
+    public synchronized float getDurationBuffered() throws InterruptedException,
+            ConnectionLostException {
+        if (mode_ != PulseMode.POSITIVE && mode_ != PulseMode.NEGATIVE) {
+            throw new IllegalStateException(
+                    "Cannot wait for pulse when module was not opened in pulse mode.");
+        }
+        checkState();
+        while (pulseQueue_.isEmpty()) {
+            safeWait();
+        }
+        return timeBase_ * pulseQueue_.remove();
+    }
 
-	private static long ByteArrayToLong(byte[] data, int size) {
-		long result = 0;
-		int i = size;
-		while (i-- > 0) {
-			result <<= 8;
-			result |= ((int) data[i]) & 0xFF;
-		}
-		if (result == 0) {
-			result = 1 << (size * 8);
-		}
-		return result;
-	}
+    @Override
+    public synchronized void dataReceived(byte[] data, int size) {
+        lastDuration_ = ByteArrayToLong(data, size);
+        if (pulseQueue_.size() == MAX_QUEUE_LEN) {
+            pulseQueue_.remove();
+        }
+        pulseQueue_.add(lastDuration_);
+        ++sampleCount_;
+        notifyAll();
+    }
 
-	@Override
-	public synchronized void reportAdditionalBuffer(int bytesToAdd) {
-	}
+    @Override
+    public synchronized void reportAdditionalBuffer(int bytesToAdd) {
+    }
 
-	@Override
-	public synchronized void close() {
-		checkClose();
-		try {
-			ioio_.protocol_.incapClose(incap_.id, doublePrecision_);
-			ioio_.resourceManager_.free(incap_);
-		} catch (IOException ignored) {
-		}
-		super.close();
-	}
+    @Override
+    public synchronized void close() {
+        checkClose();
+        try {
+            ioio_.protocol_.incapClose(incap_.id, doublePrecision_);
+            ioio_.resourceManager_.free(incap_);
+        } catch (IOException ignored) {
+        }
+        super.close();
+    }
 }

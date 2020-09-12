@@ -41,146 +41,145 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class TwiMasterImpl extends AbstractResource implements TwiMaster,
-		DataModuleListener, Sender {
-	class TwiResult extends ResourceLifeCycle implements Result {
-		private boolean ready_ = false;
-		private boolean success_;
-		private final byte[] data_;
+        DataModuleListener, Sender {
+    private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<TwiMasterImpl.TwiResult>();
+    private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
+            this);
+    private final Resource twi_;
+    private final Resource[] pins_;
+    TwiMasterImpl(IOIOImpl ioio, Resource twi, Resource[] pins) throws ConnectionLostException {
+        super(ioio);
+        twi_ = twi;
+        pins_ = pins;
+    }
 
-		public TwiResult(byte[] data) {
-			data_ = data;
-		}
+    @Override
+    synchronized public void disconnected() {
+        outgoing_.kill();
+        for (TwiResult result : pendingRequests_) {
+            result.disconnected();
+        }
+        super.disconnected();
+    }
 
-		public synchronized void ready(boolean success) {
-			ready_ = true;
-			success_ = success;
-			notifyAll();
-		}
+    @Override
+    public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
+                             int writeSize, byte[] readData, int readSize)
+            throws ConnectionLostException, InterruptedException {
+        Result result = writeReadAsync(address, tenBitAddr, writeData,
+                writeSize, readData, readSize);
+        return result.waitReady();
+    }
 
-		public byte[] getData() {
-			return data_;
-		}
+    @Override
+    public Result writeReadAsync(int address, boolean tenBitAddr,
+                                 byte[] writeData, int writeSize, byte[] readData, int readSize)
+            throws ConnectionLostException {
+        checkState();
+        TwiResult result = new TwiResult(readData);
 
-		@Override
-		public synchronized boolean waitReady() throws ConnectionLostException,
-				InterruptedException {
-			checkState();
-			while (!ready_) {
-				safeWait();
-			}
-			return success_;
-		}
-	}
+        OutgoingPacket p = new OutgoingPacket();
+        p.writeSize_ = writeSize;
+        p.writeData_ = writeData;
+        p.tenBitAddr_ = tenBitAddr;
+        p.readSize_ = readSize;
+        p.addr_ = address;
 
-	class OutgoingPacket implements Packet {
-		int writeSize_;
-		byte[] writeData_;
-		boolean tenBitAddr_;
-		int addr_;
-		int readSize_;
+        synchronized (this) {
+            pendingRequests_.add(result);
+            try {
+                outgoing_.write(p);
+            } catch (IOException e) {
+                Log.e("SpiMasterImpl", "Exception caught", e);
+            }
+        }
+        return result;
+    }
 
-		@Override
-		public int getSize() {
-			return writeSize_ + 4;
-		}
+    @Override
+    public void dataReceived(byte[] data, int size) {
+        TwiResult result = pendingRequests_.remove();
+        synchronized (result) {
+            final boolean success = size != 0xFF;
+            if (success && size > 0) {
+                System.arraycopy(data, 0, result.getData(), 0, size);
+            }
+            result.ready(success);
+        }
+    }
 
-	}
+    @Override
+    public void reportAdditionalBuffer(int bytesRemaining) {
+        outgoing_.readyToSend(bytesRemaining);
+    }
 
-	private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<TwiMasterImpl.TwiResult>();
-	private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
-			this);
-	private final Resource twi_;
-	private final Resource[] pins_;
+    @Override
+    synchronized public void close() {
+        checkClose();
+        outgoing_.close();
+        for (TwiResult result : pendingRequests_) {
+            result.close();
+        }
+        try {
+            ioio_.protocol_.i2cClose(twi_.id);
+            ioio_.resourceManager_.free(twi_, pins_);
+        } catch (IOException e) {
+        }
+        super.close();
+    }
 
-	TwiMasterImpl(IOIOImpl ioio, Resource twi, Resource[] pins) throws ConnectionLostException {
-		super(ioio);
-		twi_ = twi;
-		pins_ = pins;
-	}
+    @Override
+    public void send(Packet packet) {
+        OutgoingPacket p = (OutgoingPacket) packet;
+        try {
+            ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_,
+                    p.writeSize_, p.readSize_, p.writeData_);
+        } catch (IOException e) {
+            Log.e("TwiImpl", "Caught exception", e);
+        }
+    }
 
-	@Override
-	synchronized public void disconnected() {
-		outgoing_.kill();
-		for (TwiResult result : pendingRequests_) {
-			result.disconnected();
-		}
-		super.disconnected();
-	}
+    class TwiResult extends ResourceLifeCycle implements Result {
+        private final byte[] data_;
+        private boolean ready_ = false;
+        private boolean success_;
 
-	@Override
-	public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
-			int writeSize, byte[] readData, int readSize)
-			throws ConnectionLostException, InterruptedException {
-		Result result = writeReadAsync(address, tenBitAddr, writeData,
-				writeSize, readData, readSize);
-		return result.waitReady();
-	}
+        public TwiResult(byte[] data) {
+            data_ = data;
+        }
 
-	@Override
-	public Result writeReadAsync(int address, boolean tenBitAddr,
-			byte[] writeData, int writeSize, byte[] readData, int readSize)
-			throws ConnectionLostException {
-		checkState();
-		TwiResult result = new TwiResult(readData);
+        public synchronized void ready(boolean success) {
+            ready_ = true;
+            success_ = success;
+            notifyAll();
+        }
 
-		OutgoingPacket p = new OutgoingPacket();
-		p.writeSize_ = writeSize;
-		p.writeData_ = writeData;
-		p.tenBitAddr_ = tenBitAddr;
-		p.readSize_ = readSize;
-		p.addr_ = address;
+        public byte[] getData() {
+            return data_;
+        }
 
-		synchronized (this) {
-			pendingRequests_.add(result);
-			try {
-				outgoing_.write(p);
-			} catch (IOException e) {
-				Log.e("SpiMasterImpl", "Exception caught", e);
-			}
-		}
-		return result;
-	}
+        @Override
+        public synchronized boolean waitReady() throws ConnectionLostException,
+                InterruptedException {
+            checkState();
+            while (!ready_) {
+                safeWait();
+            }
+            return success_;
+        }
+    }
 
-	@Override
-	public void dataReceived(byte[] data, int size) {
-		TwiResult result = pendingRequests_.remove();
-		synchronized (result) {
-			final boolean success = size != 0xFF;
-			if (success && size > 0) {
-				System.arraycopy(data, 0, result.getData(), 0, size);
-			}
-			result.ready(success);
-		}
-	}
+    class OutgoingPacket implements Packet {
+        int writeSize_;
+        byte[] writeData_;
+        boolean tenBitAddr_;
+        int addr_;
+        int readSize_;
 
-	@Override
-	public void reportAdditionalBuffer(int bytesRemaining) {
-		outgoing_.readyToSend(bytesRemaining);
-	}
+        @Override
+        public int getSize() {
+            return writeSize_ + 4;
+        }
 
-	@Override
-	synchronized public void close() {
-		checkClose();
-		outgoing_.close();
-		for (TwiResult result : pendingRequests_) {
-			result.close();
-		}
-		try {
-			ioio_.protocol_.i2cClose(twi_.id);
-			ioio_.resourceManager_.free(twi_, pins_);
-		} catch (IOException e) {
-		}
-		super.close();
-	}
-
-	@Override
-	public void send(Packet packet) {
-		OutgoingPacket p = (OutgoingPacket) packet;
-		try {
-			ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_,
-					p.writeSize_, p.readSize_, p.writeData_);
-		} catch (IOException e) {
-			Log.e("TwiImpl", "Caught exception", e);
-		}
-	}
+    }
 }

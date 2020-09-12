@@ -29,11 +29,12 @@
 package ioio.lib.spi;
 
 import ioio.lib.spi.Log.ILogger;
+
 import android.util.Log;
 
 public class LogImpl implements ILogger {
-	@Override
-	public void write(int level, String tag, String message) {
-		Log.println(level, tag, message);
-	}
+    @Override
+    public void write(int level, String tag, String message) {
+        Log.println(level, tag, message);
+    }
 }

@@ -31,16 +31,16 @@ package ioio.lib.impl;
 import ioio.lib.api.exception.ConnectionLostException;
 
 class AbstractResource extends ResourceLifeCycle {
-	protected final IOIOImpl ioio_;
+    protected final IOIOImpl ioio_;
 
-	public AbstractResource(IOIOImpl ioio) throws ConnectionLostException {
-		ioio_ = ioio;
-	}
+    public AbstractResource(IOIOImpl ioio) throws ConnectionLostException {
+        ioio_ = ioio;
+    }
 
-	@Override
-	public synchronized void close() {
-		checkClose();
-		ioio_.removeDisconnectListener(this);
-		super.close();
-	}
+    @Override
+    public synchronized void close() {
+        checkClose();
+        ioio_.removeDisconnectListener(this);
+        super.close();
+    }
 }

@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -39,29 +39,29 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class ZipExtractor {
-	public static void extract(File inFile, File outDir) throws
+    public static void extract(File inFile, File outDir) throws
             IOException {
-		ZipFile zip = new ZipFile(inFile);
-		Enumeration<? extends ZipEntry> entries = zip.entries();
-		while (entries.hasMoreElements()) {
-			ZipEntry entry = entries.nextElement();
-			String outFileName = outDir.getAbsolutePath() + '/'
-					+ entry.getName();
-			if (entry.isDirectory()) {
-				if (!new File(outFileName).mkdirs()) {
-					throw new IOException("Failed to create directory "
-							+ outFileName);
-				}
-			} else {
-				InputStream in = zip.getInputStream(entry);
-				OutputStream out = new FileOutputStream(outFileName);
-				byte[] buf = new byte[64];
-				int numRead;
-				while (-1 != (numRead = in.read(buf))) {
-					out.write(buf, 0, numRead);
-				}
-				out.close();
-			}
-		}
-	}
+        ZipFile zip = new ZipFile(inFile);
+        Enumeration<? extends ZipEntry> entries = zip.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            String outFileName = outDir.getAbsolutePath() + '/'
+                    + entry.getName();
+            if (entry.isDirectory()) {
+                if (!new File(outFileName).mkdirs()) {
+                    throw new IOException("Failed to create directory "
+                            + outFileName);
+                }
+            } else {
+                InputStream in = zip.getInputStream(entry);
+                OutputStream out = new FileOutputStream(outFileName);
+                byte[] buf = new byte[64];
+                int numRead;
+                while (-1 != (numRead = in.read(buf))) {
+                    out.write(buf, 0, numRead);
+                }
+                out.close();
+            }
+        }
+    }
 }

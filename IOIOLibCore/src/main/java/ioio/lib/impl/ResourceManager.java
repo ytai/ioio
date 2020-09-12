@@ -33,142 +33,142 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class ResourceManager {
-	private ResourceAllocator[] allocators_ = new ResourceAllocator[ResourceType
-			.values().length];
+    private ResourceAllocator[] allocators_ = new ResourceAllocator[ResourceType
+            .values().length];
 
-	enum ResourceType {
-		PIN, OUTCOMPARE, INCAP_SINGLE, INCAP_DOUBLE, TWI, ICSP, UART, SPI, SEQUENCER
-	}
+    public ResourceManager(Board.Hardware hardware) {
+        allocators_[ResourceType.PIN.ordinal()] = new SpecificResourceAllocator(
+                0, hardware.numPins());
+        allocators_[ResourceType.TWI.ordinal()] = new SpecificResourceAllocator(
+                0, hardware.numTwiModules());
+        allocators_[ResourceType.ICSP.ordinal()] = new GenericResourceAllocator(
+                0, 1);
+        allocators_[ResourceType.OUTCOMPARE.ordinal()] = new GenericResourceAllocator(
+                0, hardware.numPwmModules());
+        allocators_[ResourceType.UART.ordinal()] = new GenericResourceAllocator(
+                0, hardware.numUartModules());
+        allocators_[ResourceType.SPI.ordinal()] = new GenericResourceAllocator(
+                0, hardware.numSpiModules());
+        allocators_[ResourceType.INCAP_SINGLE.ordinal()] = new GenericResourceAllocator(
+                hardware.incapSingleModules());
+        allocators_[ResourceType.INCAP_DOUBLE.ordinal()] = new GenericResourceAllocator(
+                hardware.incapDoubleModules());
+        allocators_[ResourceType.SEQUENCER.ordinal()] = new GenericResourceAllocator(
+                0, 1);
+    }
 
-	public static class Resource {
-		public final ResourceType type;
-		public int id;
+    @SuppressWarnings("unchecked")
+    public synchronized void alloc(Object... args) {
+        int i = 0;
+        try {
+            for (; i < args.length; ++i) {
+                if (args[i] != null) {
+                    if (args[i] instanceof Resource) {
+                        alloc((Resource) args[i]);
+                    } else if (args[i] instanceof Resource[]) {
+                        alloc(Arrays.asList((Resource[]) args[i]));
+                    } else if (args[i] instanceof Collection<?>) {
+                        alloc((Collection<Resource>) args[i]);
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            for (int j = 0; j < i; ++j) {
+                if (args[j] instanceof Resource) {
+                    free((Resource) args[j]);
+                } else if (args[j] instanceof Resource[]) {
+                    free(Arrays.asList((Resource[]) args[j]));
+                } else if (args[i] instanceof Collection<?>) {
+                    free((Collection<Resource>) args[i]);
+                }
+            }
+            throw e;
+        }
+    }
 
-		Resource(ResourceType t) {
-			type = t;
-			id = -1;
-		}
+    @SuppressWarnings("unchecked")
+    public synchronized void free(Object... args) {
+        for (int i = 0; i < args.length; ++i) {
+            if (args[i] instanceof Resource) {
+                free((Resource) args[i]);
+            } else if (args[i] instanceof Resource[]) {
+                free(Arrays.asList((Resource[]) args[i]));
+            } else if (args[i] instanceof Collection<?>) {
+                free((Collection<Resource>) args[i]);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+    }
 
-		Resource(ResourceType t, int i) {
-			type = t;
-			id = i;
-		}
+    public synchronized void alloc(Collection<Resource> resources) {
+        int i = 0;
+        try {
+            Iterator<Resource> iter = resources.iterator();
+            while (iter.hasNext()) {
+                alloc(iter.next());
+                ++i;
+            }
+        } catch (RuntimeException e) {
+            Iterator<Resource> iter = resources.iterator();
+            while (i-- > 0) {
+                free(iter.next());
+            }
+            throw e;
+        }
+    }
 
-		@Override
-		public String toString() {
-			if (id == -1) {
-				return type.toString();
-			} else {
-				return type.toString() + "(" + id + ")";
-			}
-		}
-	}
+    public synchronized void free(Collection<Resource> resources) {
+        for (Resource r : resources) {
+            free(r);
+        }
+    }
 
-	public ResourceManager(Board.Hardware hardware) {
-		allocators_[ResourceType.PIN.ordinal()] = new SpecificResourceAllocator(
-				0, hardware.numPins());
-		allocators_[ResourceType.TWI.ordinal()] = new SpecificResourceAllocator(
-				0, hardware.numTwiModules());
-		allocators_[ResourceType.ICSP.ordinal()] = new GenericResourceAllocator(
-				0, 1);
-		allocators_[ResourceType.OUTCOMPARE.ordinal()] = new GenericResourceAllocator(
-				0, hardware.numPwmModules());
-		allocators_[ResourceType.UART.ordinal()] = new GenericResourceAllocator(
-				0, hardware.numUartModules());
-		allocators_[ResourceType.SPI.ordinal()] = new GenericResourceAllocator(
-				0, hardware.numSpiModules());
-		allocators_[ResourceType.INCAP_SINGLE.ordinal()] = new GenericResourceAllocator(
-				hardware.incapSingleModules());
-		allocators_[ResourceType.INCAP_DOUBLE.ordinal()] = new GenericResourceAllocator(
-				hardware.incapDoubleModules());
-		allocators_[ResourceType.SEQUENCER.ordinal()] = new GenericResourceAllocator(
-				0, 1);
-	}
+    public synchronized void alloc(Resource r) {
+        if (r != null) {
+            allocators_[r.type.ordinal()].alloc(r);
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	public synchronized void alloc(Object... args) {
-		int i = 0;
-		try {
-			for (; i < args.length; ++i) {
-				if (args[i] != null) {
-					if (args[i] instanceof Resource) {
-						alloc((Resource) args[i]);
-					} else if (args[i] instanceof Resource[]) {
-						alloc(Arrays.asList((Resource[]) args[i]));
-					} else if (args[i] instanceof Collection<?>) {
-						alloc((Collection<Resource>) args[i]);
-					} else {
-						throw new IllegalArgumentException();
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			for (int j = 0; j < i; ++j) {
-				if (args[j] instanceof Resource) {
-					free((Resource) args[j]);
-				} else if (args[j] instanceof Resource[]) {
-					free(Arrays.asList((Resource[]) args[j]));
-				} else if (args[i] instanceof Collection<?>) {
-					free((Collection<Resource>) args[i]);
-				}
-			}
-			throw e;
-		}
-	}
+    public synchronized void free(Resource r) {
+        if (r != null) {
+            allocators_[r.type.ordinal()].free(r);
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	public synchronized void free(Object... args) {
-		for (int i = 0; i < args.length; ++i) {
-			if (args[i] instanceof Resource) {
-				free((Resource) args[i]);
-			} else if (args[i] instanceof Resource[]) {
-				free(Arrays.asList((Resource[]) args[i]));
-			} else if (args[i] instanceof Collection<?>) {
-				free((Collection<Resource>) args[i]);
-			} else {
-				throw new IllegalArgumentException();
-			}
-		}
-	}
+    enum ResourceType {
+        PIN, OUTCOMPARE, INCAP_SINGLE, INCAP_DOUBLE, TWI, ICSP, UART, SPI, SEQUENCER
+    }
 
-	public synchronized void alloc(Collection<Resource> resources) {
-		int i = 0;
-		try {
-			Iterator<Resource> iter = resources.iterator();
-			while (iter.hasNext()) {
-				alloc(iter.next());
-				++i;
-			}
-		} catch (RuntimeException e) {
-			Iterator<Resource> iter = resources.iterator();
-			while (i-- > 0) {
-				free(iter.next());
-			}
-			throw e;
-		}
-	}
+    interface ResourceAllocator {
+        void alloc(Resource r);
 
-	public synchronized void free(Collection<Resource> resources) {
-		for (Resource r : resources) {
-			free(r);
-		}
-	}
+        void free(Resource r);
+    }
 
-	public synchronized void alloc(Resource r) {
-		if (r != null) {
-			allocators_[r.type.ordinal()].alloc(r);
-		}
-	}
+    public static class Resource {
+        public final ResourceType type;
+        public int id;
 
-	public synchronized void free(Resource r) {
-		if (r != null) {
-			allocators_[r.type.ordinal()].free(r);
-		}
-	}
+        Resource(ResourceType t) {
+            type = t;
+            id = -1;
+        }
 
-	interface ResourceAllocator {
-		void alloc(Resource r);
+        Resource(ResourceType t, int i) {
+            type = t;
+            id = i;
+        }
 
-		void free(Resource r);
-	}
+        @Override
+        public String toString() {
+            if (id == -1) {
+                return type.toString();
+            } else {
+                return type.toString() + "(" + id + ")";
+            }
+        }
+    }
 }

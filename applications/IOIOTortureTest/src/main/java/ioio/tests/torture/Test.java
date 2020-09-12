@@ -2,5 +2,5 @@ package ioio.tests.torture;
 
 
 interface Test<E> {
-	E run() throws Exception;
+    E run() throws Exception;
 }

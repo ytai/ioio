@@ -38,16 +38,20 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
 
 class IcspMasterImpl extends AbstractResource implements IcspMaster, DataModuleListener {
-    private Queue<Integer> resultQueue_ = new LinkedList<>();
-    private int rxRemaining_ = 0;
     private final Resource icsp_;
     private final Resource[] pins_;
+    private Queue<Integer> resultQueue_ = new LinkedList<>();
+    private int rxRemaining_ = 0;
 
     public IcspMasterImpl(IOIOImpl ioio, Resource icsp, Resource[] pins)
             throws ConnectionLostException {
         super(ioio);
         icsp_ = icsp;
         pins_ = pins;
+    }
+
+    private static int byteToInt(byte b) {
+        return ((int) b) & 0xFF;
     }
 
     @Override
@@ -122,10 +126,6 @@ class IcspMasterImpl extends AbstractResource implements IcspMaster, DataModuleL
         }
         ioio_.resourceManager_.free(icsp_);
         super.close();
-    }
-
-    private static int byteToInt(byte b) {
-        return ((int) b) & 0xFF;
     }
 
     @Override

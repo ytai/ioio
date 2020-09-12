@@ -38,150 +38,150 @@ import purejavacomm.NoSuchPortException;
 import purejavacomm.SerialPort;
 
 class SerialPortIOIOConnection {
-	private boolean abort_ = false;
-	private final String name_;
-	private SerialPort serialPort_;
-	private InputStream inputStream_;
-	private OutputStream outputStream_;
+    private final String name_;
+    private boolean abort_ = false;
+    private SerialPort serialPort_;
+    private InputStream inputStream_;
+    private OutputStream outputStream_;
 
-	public SerialPortIOIOConnection(String name) {
-		name_ = name;
-	}
+    public SerialPortIOIOConnection(String name) {
+        name_ = name;
+    }
 
-	public void waitForConnect() throws IOException {
-		while (!abort_) {
-			try {
-				CommPortIdentifier identifier = CommPortIdentifier.getPortIdentifier(name_);
-				CommPort commPort = identifier.open(this.getClass().getName(), 1000);
-				synchronized (this) {
-					if (!abort_) {
-						serialPort_ = (SerialPort) commPort;
-						serialPort_.enableReceiveThreshold(1);
-						serialPort_.enableReceiveTimeout(500);
+    public void waitForConnect() throws IOException {
+        while (!abort_) {
+            try {
+                CommPortIdentifier identifier = CommPortIdentifier.getPortIdentifier(name_);
+                CommPort commPort = identifier.open(this.getClass().getName(), 1000);
+                synchronized (this) {
+                    if (!abort_) {
+                        serialPort_ = (SerialPort) commPort;
+                        serialPort_.enableReceiveThreshold(1);
+                        serialPort_.enableReceiveTimeout(500);
 
-						inputStream_ = new GracefullyClosingInputStream(
-								serialPort_.getInputStream());
-						outputStream_ = serialPort_.getOutputStream();
+                        inputStream_ = new GracefullyClosingInputStream(
+                                serialPort_.getInputStream());
+                        outputStream_ = serialPort_.getOutputStream();
 
-						// This is only required on Windows and OSX El Capitan, but otherwise
-						// harmless.
-						serialPort_.setDTR(false);
-						serialPort_.setDTR(true);
-						Thread.sleep(100);
-						return;
-					}
-				}
-			} catch (NoSuchPortException e) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-				}
-			} catch (Exception e) {
-				if (serialPort_ != null) {
-					serialPort_.close();
-				}
-			}
-		}
-		throw new IOException("Aborted.");
-	}
+                        // This is only required on Windows and OSX El Capitan, but otherwise
+                        // harmless.
+                        serialPort_.setDTR(false);
+                        serialPort_.setDTR(true);
+                        Thread.sleep(100);
+                        return;
+                    }
+                }
+            } catch (NoSuchPortException e) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                }
+            } catch (Exception e) {
+                if (serialPort_ != null) {
+                    serialPort_.close();
+                }
+            }
+        }
+        throw new IOException("Aborted.");
+    }
 
-	synchronized public void disconnect() {
-		abort_ = true;
-		if (serialPort_ != null) {
-			try {
-				inputStream_.close();
-			} catch (IOException e) {
-			}
-			serialPort_.close();
-		}
-	}
+    synchronized public void disconnect() {
+        abort_ = true;
+        if (serialPort_ != null) {
+            try {
+                inputStream_.close();
+            } catch (IOException e) {
+            }
+            serialPort_.close();
+        }
+    }
 
-	public InputStream getInputStream() {
-		return inputStream_;
-	}
+    public InputStream getInputStream() {
+        return inputStream_;
+    }
 
-	public OutputStream getOutputStream() {
-		return outputStream_;
-	}
+    public OutputStream getOutputStream() {
+        return outputStream_;
+    }
 
-	// This is a hack:
-	// On Windows, PJC will sometimes block a read until its timeout (which is ideally infinite in
-	// our case) despite the fact that data is available.
-	// The workaround is to set a timeout on the InputStream and to read in a loop until something
-	// is actually read.
-	// Since a timeout is indistinguishable from an end-of-stream when using the no-argument read(),
-	// we set a flag to designate that this is a real
-	// close, prior to actually closing, causing the read loop to exit upon the next timeout.
-	private static class GracefullyClosingInputStream extends InputStream {
-		private final InputStream underlying_;
-		private boolean closed_ = false;
+    // This is a hack:
+    // On Windows, PJC will sometimes block a read until its timeout (which is ideally infinite in
+    // our case) despite the fact that data is available.
+    // The workaround is to set a timeout on the InputStream and to read in a loop until something
+    // is actually read.
+    // Since a timeout is indistinguishable from an end-of-stream when using the no-argument read(),
+    // we set a flag to designate that this is a real
+    // close, prior to actually closing, causing the read loop to exit upon the next timeout.
+    private static class GracefullyClosingInputStream extends InputStream {
+        private final InputStream underlying_;
+        private boolean closed_ = false;
 
-		public GracefullyClosingInputStream(InputStream is) {
-			underlying_ = is;
-		}
+        public GracefullyClosingInputStream(InputStream is) {
+            underlying_ = is;
+        }
 
-		@Override
-		public int read(byte[] b) throws IOException {
-			while (!closed_) {
-				int i = underlying_.read(b);
-				if (i > 0) {
-					return i;
-				}
-			}
-			return -1;
-		}
+        @Override
+        public int read(byte[] b) throws IOException {
+            while (!closed_) {
+                int i = underlying_.read(b);
+                if (i > 0) {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			while (!closed_) {
-				int i = underlying_.read(b, off, len);
-				if (i > 0) {
-					return i;
-				}
-			}
-			return -1;
-		}
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            while (!closed_) {
+                int i = underlying_.read(b, off, len);
+                if (i > 0) {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
-		@Override
-		public long skip(long n) throws IOException {
-			return underlying_.skip(n);
-		}
+        @Override
+        public long skip(long n) throws IOException {
+            return underlying_.skip(n);
+        }
 
-		@Override
-		public int available() throws IOException {
-			return underlying_.available();
-		}
+        @Override
+        public int available() throws IOException {
+            return underlying_.available();
+        }
 
-		@Override
-		public void close() throws IOException {
-			closed_ = true;
-			underlying_.close();
-		}
+        @Override
+        public void close() throws IOException {
+            closed_ = true;
+            underlying_.close();
+        }
 
-		@Override
-		public synchronized void mark(int readlimit) {
-			underlying_.mark(readlimit);
-		}
+        @Override
+        public synchronized void mark(int readlimit) {
+            underlying_.mark(readlimit);
+        }
 
-		@Override
-		public synchronized void reset() throws IOException {
-			underlying_.reset();
-		}
+        @Override
+        public synchronized void reset() throws IOException {
+            underlying_.reset();
+        }
 
-		@Override
-		public boolean markSupported() {
-			return underlying_.markSupported();
-		}
+        @Override
+        public boolean markSupported() {
+            return underlying_.markSupported();
+        }
 
-		@Override
-		public int read() throws IOException {
-			while (!closed_) {
-				int i = underlying_.read();
-				if (i >= 0) {
-					return i;
-				}
-			}
-			return -1;
-		}
-	}
+        @Override
+        public int read() throws IOException {
+            while (!closed_) {
+                int i = underlying_.read();
+                if (i >= 0) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
 }

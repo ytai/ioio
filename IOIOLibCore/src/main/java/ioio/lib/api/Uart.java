@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -58,7 +58,7 @@ import java.io.OutputStream;
  * and can be reused.
  * <p>
  * Typical usage:
- * 
+ *
  * <pre>
  * Uart uart = ioio.openUart(3, 4, 19200, Parity.NONE, StopBits.ONE);
  * InputStream in = uart.getInputStream();
@@ -68,40 +68,54 @@ import java.io.OutputStream;
  * ...
  * uart.close();  // free UART module and pins
  * </pre>
- * 
+ *
  * @see IOIO#openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity,
- *      Uart.StopBits)
+ * Uart.StopBits)
  */
 public interface Uart extends Closeable {
-	/** Parity-bit mode. */
-	enum Parity {
-		/** No parity. */
-		NONE,
-		/** Even parity. */
-		EVEN,
-		/** Odd parity. */
-		ODD
-	}
+    /**
+     * Gets the input stream.
+     *
+     * @return An input stream.
+     */
+    InputStream getInputStream();
 
-	/** Number of stop-bits. */
-	enum StopBits {
-		/** One stop bit. */
-		ONE,
-		/** Two stop bits. */
-		TWO
-	}
+    /**
+     * Gets the output stream.
+     *
+     * @return An output stream.
+     */
+    OutputStream getOutputStream();
 
-	/**
-	 * Gets the input stream.
-	 * 
-	 * @return An input stream.
-	 */
-	InputStream getInputStream();
+    /**
+     * Parity-bit mode.
+     */
+    enum Parity {
+        /**
+         * No parity.
+         */
+        NONE,
+        /**
+         * Even parity.
+         */
+        EVEN,
+        /**
+         * Odd parity.
+         */
+        ODD
+    }
 
-	/**
-	 * Gets the output stream.
-	 * 
-	 * @return An output stream.
-	 */
-	OutputStream getOutputStream();
+    /**
+     * Number of stop-bits.
+     */
+    enum StopBits {
+        /**
+         * One stop bit.
+         */
+        ONE,
+        /**
+         * Two stop bits.
+         */
+        TWO
+    }
 }

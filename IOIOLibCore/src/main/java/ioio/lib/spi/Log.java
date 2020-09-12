@@ -38,12 +38,17 @@ public class Log {
     public static final int INFO = 4;
     public static final int DEBUG = 3;
     public static final int VERBOSE = 2;
-
-    public interface ILogger {
-        void write(int level, String tag, String message);
-    }
-
     private static ILogger log_;
+
+    static {
+        try {
+            Log.log_ = (ILogger) Class.forName("ioio.lib.spi.LogImpl").newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Cannot instantiate the LogImpl class. This is likely a result of failing to " +
+                            "include a proper platform-specific IOIOLib* library.", e);
+        }
+    }
 
     public static void e(String tag, String message) {
         write(ERROR, tag, message);
@@ -98,14 +103,8 @@ public class Log {
         write(level, tag, writer.toString());
     }
 
-    static {
-        try {
-            Log.log_ = (ILogger) Class.forName("ioio.lib.spi.LogImpl").newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Cannot instantiate the LogImpl class. This is likely a result of failing to " +
-                            "include a proper platform-specific IOIOLib* library.", e);
-        }
+    public interface ILogger {
+        void write(int level, String tag, String message);
     }
 
 }

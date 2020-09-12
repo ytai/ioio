@@ -55,57 +55,57 @@ import android.content.ContextWrapper;
  */
 @SuppressWarnings("ALL")
 public class AndroidIOIOConnectionManager extends IOIOConnectionManager {
-	private final ContextWrapper contextWrapper_;
-	private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
-			.getBootstraps();
+    private final ContextWrapper contextWrapper_;
+    private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry
+            .getBootstraps();
 
-	public AndroidIOIOConnectionManager(ContextWrapper wrapper,
-			IOIOConnectionThreadProvider provider) {
-		super(provider);
-		contextWrapper_ = wrapper;
-	}
+    public AndroidIOIOConnectionManager(ContextWrapper wrapper,
+                                        IOIOConnectionThreadProvider provider) {
+        super(provider);
+        contextWrapper_ = wrapper;
+    }
 
-	public void create() {
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ContextWrapperDependent) {
-				((ContextWrapperDependent) bootstrap).onCreate(contextWrapper_);
-			}
-		}
-	}
+    public void create() {
+        for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+            if (bootstrap instanceof ContextWrapperDependent) {
+                ((ContextWrapperDependent) bootstrap).onCreate(contextWrapper_);
+            }
+        }
+    }
 
-	public void destroy() {
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ContextWrapperDependent) {
-				((ContextWrapperDependent) bootstrap).onDestroy();
-			}
-		}
-	}
+    public void destroy() {
+        for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+            if (bootstrap instanceof ContextWrapperDependent) {
+                ((ContextWrapperDependent) bootstrap).onDestroy();
+            }
+        }
+    }
 
-	@Override
-	public void start() {
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ContextWrapperDependent) {
-				((ContextWrapperDependent) bootstrap).open();
-			}
-		}
-		super.start();
-	}
+    @Override
+    public void start() {
+        for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+            if (bootstrap instanceof ContextWrapperDependent) {
+                ((ContextWrapperDependent) bootstrap).open();
+            }
+        }
+        super.start();
+    }
 
-	@Override
-	public void stop() {
-		super.stop();
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ContextWrapperDependent) {
-				((ContextWrapperDependent) bootstrap).close();
-			}
-		}
-	}
+    @Override
+    public void stop() {
+        super.stop();
+        for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+            if (bootstrap instanceof ContextWrapperDependent) {
+                ((ContextWrapperDependent) bootstrap).close();
+            }
+        }
+    }
 
-	public void restart() {
-		for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
-			if (bootstrap instanceof ContextWrapperDependent) {
-				((ContextWrapperDependent) bootstrap).reopen();
-			}
-		}
-	}
+    public void restart() {
+        for (IOIOConnectionBootstrap bootstrap : bootstraps_) {
+            if (bootstrap instanceof ContextWrapperDependent) {
+                ((ContextWrapperDependent) bootstrap).reopen();
+            }
+        }
+    }
 }

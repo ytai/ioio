@@ -1,17 +1,17 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
- *  
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *    1. Redistributions of source code must retain the above copyright notice, this list of
  *       conditions and the following disclaimer.
- * 
+ *
  *    2. Redistributions in binary form must reproduce the above copyright notice, this list
  *       of conditions and the following disclaimer in the documentation and/or other materials
  *       provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ARSHAN POURSOHI OR
@@ -21,7 +21,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
@@ -49,7 +49,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * associated with it are freed and can be reused.
  * <p>
  * Typical usage:
- * 
+ *
  * <pre>
  * DigitalInput button = ioio.openDigitalInput(10);  // used an external pull-up
  * button.waitForValue(false);  // wait for press
@@ -58,83 +58,83 @@ import ioio.lib.api.exception.ConnectionLostException;
  * </pre>
  */
 public interface DigitalInput extends Closeable {
-	/**
-	 * A digital input pin specification, used when opening digital inputs.
-	 */
-	class Spec {
-		/** Input pin mode. */
-		public enum Mode {
-			/**
-			 * Pin is floating. When the pin is left disconnected the value
-			 * sensed is undefined. Use this mode when an external pull-up or
-			 * pull-down resistor is used or when interfacing push-pull type
-			 * logic circuits.
-			 */
-			FLOATING,
-			/**
-			 * Internal pull-up resistor is used. When the pin is left
-			 * disconnected, a logical "HIGH" (true) will be sensed. This is
-			 * useful for interfacing with open drain circuits or for
-			 * interacting with a switch connected between the pin and ground.
-			 */
-			PULL_UP,
-			/**
-			 * Internal pull-down resistor is used. When the pin is left
-			 * disconnected, a logical "LOW" (false) will be sensed. This is
-			 * useful for interacting with a switch connected between the pin
-			 * and Vdd.
-			 */
-			PULL_DOWN
-		}
+    /**
+     * Read the value sensed on the pin. May block for a few milliseconds if
+     * called right after creation of the instance. If this is a problem, the
+     * calling thread may be interrupted.
+     *
+     * @return True for logical "HIGH", false for logical "LOW".
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO has been lost.
+     */
+    boolean read() throws InterruptedException, ConnectionLostException;
 
-		/** The pin number, as labeled on the board. */
-		public int pin;
-		/** The pin mode. */
-		public Mode mode;
+    /**
+     * Block until a desired logical level is sensed. The calling thread can be
+     * interrupted for aborting this operation.
+     *
+     * @param value The desired logical level. true for "HIGH", false for "LOW".
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO has been lost.
+     */
+    void waitForValue(boolean value) throws InterruptedException,
+            ConnectionLostException;
 
-		/**
-		 * Constructor.
-		 * 
-		 * @param pin
-		 *            Pin number, as labeled on the board.
-		 * @param mode
-		 *            Pin mode.
-		 */
-		public Spec(int pin, Mode mode) {
-			this.pin = pin;
-			this.mode = mode;
-		}
+    /**
+     * A digital input pin specification, used when opening digital inputs.
+     */
+    class Spec {
+        /**
+         * The pin number, as labeled on the board.
+         */
+        public int pin;
+        /**
+         * The pin mode.
+         */
+        public Mode mode;
+        /**
+         * Constructor.
+         *
+         * @param pin  Pin number, as labeled on the board.
+         * @param mode Pin mode.
+         */
+        public Spec(int pin, Mode mode) {
+            this.pin = pin;
+            this.mode = mode;
+        }
 
-		/** Shorthand for Spec(pin, Mode.FLOATING). */
-		public Spec(int pin) {
-			this(pin, Mode.FLOATING);
-		}
-	}
+        /**
+         * Shorthand for Spec(pin, Mode.FLOATING).
+         */
+        public Spec(int pin) {
+            this(pin, Mode.FLOATING);
+        }
 
-	/**
-	 * Read the value sensed on the pin. May block for a few milliseconds if
-	 * called right after creation of the instance. If this is a problem, the
-	 * calling thread may be interrupted.
-	 * 
-	 * @return True for logical "HIGH", false for logical "LOW".
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO has been lost.
-	 */
-	boolean read() throws InterruptedException, ConnectionLostException;
-
-	/**
-	 * Block until a desired logical level is sensed. The calling thread can be
-	 * interrupted for aborting this operation.
-	 * 
-	 * @param value
-	 *            The desired logical level. true for "HIGH", false for "LOW".
-	 * @throws InterruptedException
-	 *             The calling thread has been interrupted.
-	 * @throws ConnectionLostException
-	 *             The connection with the IOIO has been lost.
-	 */
-	void waitForValue(boolean value) throws InterruptedException,
-			ConnectionLostException;
+        /**
+         * Input pin mode.
+         */
+        public enum Mode {
+            /**
+             * Pin is floating. When the pin is left disconnected the value
+             * sensed is undefined. Use this mode when an external pull-up or
+             * pull-down resistor is used or when interfacing push-pull type
+             * logic circuits.
+             */
+            FLOATING,
+            /**
+             * Internal pull-up resistor is used. When the pin is left
+             * disconnected, a logical "HIGH" (true) will be sensed. This is
+             * useful for interfacing with open drain circuits or for
+             * interacting with a switch connected between the pin and ground.
+             */
+            PULL_UP,
+            /**
+             * Internal pull-down resistor is used. When the pin is left
+             * disconnected, a logical "LOW" (false) will be sensed. This is
+             * useful for interacting with a switch connected between the pin
+             * and Vdd.
+             */
+            PULL_DOWN
+        }
+    }
 }

@@ -31,10 +31,10 @@ package ioio.lib.spi;
 import ioio.lib.spi.Log.ILogger;
 
 public class LogImpl implements ILogger {
-	private static final char[] LEVELS = { '0', '1', 'V', 'D', 'I', 'W', 'E', 'F' };
+    private static final char[] LEVELS = {'0', '1', 'V', 'D', 'I', 'W', 'E', 'F'};
 
-	@Override
-	public void write(int priority, String tag, String msg) {
-		System.err.println("[" + LEVELS[priority] + "/" + tag + "] " + msg);
-	}
+    @Override
+    public void write(int priority, String tag, String msg) {
+        System.err.println("[" + LEVELS[priority] + "/" + tag + "] " + msg);
+    }
 }
