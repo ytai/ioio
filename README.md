@@ -1,3 +1,4 @@
+[![](https://jitpack.io/v/ytai/ioio.svg)](https://jitpack.io/#ytai/ioio)
 <img alt="IOIO Logo" src="https://lh6.googleusercontent.com/-NtccMO1M7f4/UDhhwrx26UI/AAAAAAAAjTI/xwTI4Fb8xVQ/s887/ioio-logo.png">
 The IOIO is a board that provides a host machine the capability of interfacing with external hardware over a variety of commonly used protocols.
 The original IOIO board has been specifically designed to work with Android devices. The newer IOIO-OTG ("on the go") boards work with both Android devices and PC's (details [here](http://ytai-mer.blogspot.com/2012/05/second-generation-of-ioio-is-in-works.html)).
@@ -18,4 +19,25 @@ You can purchase a IOIO-OTG board online from:
 - [LinkSprite](http://linksprite.com/wiki/index.php5?title=IOIO-OTG).
 - [CuteDigi](http://www.cutedigi.com/development-tools/pic/ioio-otg-for-android.html).
 - [AliExpress](http://www.aliexpress.com/store/product/Free-Shipping-IOIO-OTG/600038_781363573.html).
+
+## Usage in Gradle
+
+in top `build.gradle`
+
+    allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+	
+and in module `build.gradle`
+
+	dependencies {
+	        implementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:$LATEST"
+            implementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:$LATEST"
+            implementation "com.github.ytai.ioio:IOIOLibAndroidDevice:$LATEST"
+	}
+
+Please see details here https://jitpack.io/#ytai/ioio 
 

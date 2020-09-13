@@ -1,16 +1,5 @@
 apply plugin: 'com.android.library'
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name = 'IOIOLibAndroid'
-                description = 'IOIO library for Android - common code with ADB support'
-                packaging = 'aar'
-            }
-        }
-    }
-}
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 30
