@@ -39,7 +39,7 @@ dependencies {
     codeImplementation project(':IOIOLibAndroidAccessory')
     codeImplementation project(':IOIOLibAndroidDevice')
 
-    def ioioVersion = "6.0.0.beta7"
+    def ioioVersion = "6.0.0.beta8"
     libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:$ioioVersion"
     libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:$ioioVersion"
     libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidDevice:$ioioVersion"
