@@ -27,6 +27,6 @@ class HelloIOIOSmokeTest {
     @Test
     fun smokeTestSimplyStart() {
         onView(withId(R.id.button)).check(matches(isDisplayed()))
-        Screenshot.takeScreenshot(BuildConfig.APPLICATION_ID + "-smoke")
+        Screenshot.takeScreenshot("smoke")
     }
 }
