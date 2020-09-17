@@ -22,27 +22,12 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions "integration"
-    productFlavors {
-        code {
-            dimension "integration"
-        }
-        library {
-            dimension "integration"
-        }
-    }
-
 }
 
 dependencies {
-    codeImplementation project(':IOIOLibAndroidBluetooth')
-    codeImplementation project(':IOIOLibAndroidAccessory')
-    codeImplementation project(':IOIOLibAndroidDevice')
-
-    def ioioVersion = "6.0.0.beta8"
-    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:$ioioVersion"
-    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:$ioioVersion"
-    libraryImplementation "com.github.ytai.ioio:IOIOLibAndroidDevice:$ioioVersion"
+    implementation project(':IOIOLibAndroidBluetooth')
+    implementation project(':IOIOLibAndroidAccessory')
+    implementation project(':IOIOLibAndroidDevice')
 
     androidTestImplementation 'com.github.AppDevNext:Moka:0.4'
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
