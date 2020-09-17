@@ -6,14 +6,7 @@ android {
     compileSdkVersion 30
     defaultConfig {
 
-        gradle.startParameter.taskNames.each {
-            if (it.contains("AndroidTest") || it.contains("cAT")) {
-                minSdkVersion 21
-            } else {
-                minSdkVersion 14
-            }
-        }
-
+        minSdkVersion 21
         targetSdkVersion 30
 
         versionCode getGitCommitCount()
