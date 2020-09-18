@@ -173,33 +173,38 @@ public class HolidayIOIOActivity extends IOIOActivity {
     protected void onStart() {
         // Start the camera oreview
         camera_ = getCameraInstance();
-        Parameters params = camera_.getParameters();
-        params.setPreviewFormat(ImageFormat.NV21);
-        getSmallestPreviewSize(params);
-        params.setPreviewSize(width_, height_);
-        //params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-        params.setWhiteBalance(Parameters.WHITE_BALANCE_AUTO);
-        camera_.setParameters(params);
-        frame_ = new RGB[width_ * height_];
-        for (int i = 0; i < frame_.length; ++i) {
-            frame_[i] = new RGB();
-        }
+        Parameters params = null;
 
-        camera_.setPreviewCallback(new PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-                synchronized (frame_) {
-                    decodeYUV420SP(frame_, data, width_, height_);
-                }
+        if (camera_ != null) {
+            params = camera_.getParameters();
+            params.setPreviewFormat(ImageFormat.NV21);
+            getSmallestPreviewSize(params);
+            params.setPreviewSize(width_, height_);
+            //params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+            params.setWhiteBalance(Parameters.WHITE_BALANCE_AUTO);
+            camera_.setParameters(params);
+
+            frame_ = new RGB[width_ * height_];
+            for (int i = 0; i < frame_.length; ++i) {
+                frame_[i] = new RGB();
             }
-        });
-        texture_ = new SurfaceTexture(0);
-        try {
-            camera_.setPreviewTexture(texture_);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            camera_.setPreviewCallback(new PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    synchronized (frame_) {
+                        decodeYUV420SP(frame_, data, width_, height_);
+                    }
+                }
+            });
+            texture_ = new SurfaceTexture(0);
+            try {
+                camera_.setPreviewTexture(texture_);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            camera_.startPreview();
         }
-        camera_.startPreview();
 
         super.onStart();
     }
