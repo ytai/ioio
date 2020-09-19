@@ -28,6 +28,10 @@
  */
 package ioio.manager;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -36,10 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 
 public class FirmwareManager {
     private static FirmwareManager instance_;
@@ -89,23 +89,21 @@ public class FirmwareManager {
     }
 
     private static File[] getImageFiles(File dir) {
-        File[] files = dir.listFiles(new FilenameFilter() {
+        return dir.listFiles(new FilenameFilter() {
             @Override
-            public boolean accept(File dir, String filename) {
+            public boolean accept(File dir1, String filename) {
                 return filename.endsWith(".ioio");
             }
         });
-        return files;
     }
 
     private static File[] getFingerprintFiles(File dir) {
-        File[] files = dir.listFiles(new FilenameFilter() {
+        return dir.listFiles(new FilenameFilter() {
             @Override
-            public boolean accept(File dir, String filename) {
+            public boolean accept(File dir1, String filename) {
                 return filename.endsWith(".fp");
             }
         });
-        return files;
     }
 
     private static boolean recursiveDelete(File f) {
@@ -196,7 +194,7 @@ public class FirmwareManager {
         activeBundleName_ = name;
         Editor editor = preferences_.edit();
         editor.putString("activeBundleName", name);
-        editor.commit();
+        editor.apply();
     }
 
     public void removeAppBundle(String name) throws IOException {
@@ -229,7 +227,7 @@ public class FirmwareManager {
     public void clearActiveBundle() throws IOException {
         Editor editor = preferences_.edit();
         editor.putString("activeBundleName", null);
-        editor.commit();
+        editor.apply();
         activeBundleName_ = null;
         for (File f : getImageFiles(activeImagesDir_)) {
             if (!f.delete()) {
@@ -263,8 +261,7 @@ public class FirmwareManager {
         String baseFilename = filename.substring(0, filename.lastIndexOf('.'));
         InputStream in = context_.openFileInput(filename);
         String fingerprintFilename = baseFilename + ".fp";
-        OutputStream out = context_.openFileOutput(fingerprintFilename,
-                Context.MODE_WORLD_READABLE);
+        OutputStream out = context_.openFileOutput(fingerprintFilename, Context.MODE_WORLD_READABLE);
         try {
             MessageDigest digester = MessageDigest.getInstance("MD5");
             byte[] bytes = new byte[1024];

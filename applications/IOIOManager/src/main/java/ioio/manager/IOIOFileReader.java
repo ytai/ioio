@@ -117,7 +117,7 @@ public class IOIOFileReader {
                 | (byteToInt(buf_[offset + 3]) << 24);
     }
 
-    public class FormatException extends Exception {
+    public static class FormatException extends Exception {
         private static final long serialVersionUID = 7944061537571462938L;
 
         public FormatException(String msg) {

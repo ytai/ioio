@@ -35,12 +35,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class ZipExtractor {
-    public static void extract(File inFile, File outDir) throws
-            IOException {
+
+    public static void extract(File inFile, File outDir) throws IOException {
         ZipFile zip = new ZipFile(inFile);
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
