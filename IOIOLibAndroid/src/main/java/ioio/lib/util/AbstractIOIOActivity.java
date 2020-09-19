@@ -28,7 +28,7 @@
  */
 package ioio.lib.util;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -81,7 +81,7 @@ import ioio.lib.util.android.ContextWrapperDependent;
  *
  * @deprecated Please use {@link ioio.lib.util.android.IOIOActivity} instead.
  */
-public abstract class AbstractIOIOActivity extends Activity {
+public abstract class AbstractIOIOActivity extends AppCompatActivity {
     private static final String TAG = "AbstractIOIOActivity";
 
     static {

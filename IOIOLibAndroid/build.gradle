@@ -14,4 +14,5 @@ android {
 
 dependencies {
     api project(":IOIOLibCore")
+    api 'androidx.appcompat:appcompat:1.2.0'
 }

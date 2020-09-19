@@ -28,9 +28,9 @@
  */
 package ioio.manager;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 
 public interface FileReturner {
     String ERROR_MESSAGE_EXTRA = "ioio.manager.ERROR_MESSAGE";
-    int RESULT_ERROR = Activity.RESULT_FIRST_USER;
+    int RESULT_ERROR = AppCompatActivity.RESULT_FIRST_USER;
 }
