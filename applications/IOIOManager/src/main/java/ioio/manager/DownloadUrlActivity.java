@@ -28,6 +28,13 @@
  */
 package ioio.manager;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.net.Uri;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,15 +43,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
-import android.net.Uri;
-
-public class DownloadUrlActivity extends Activity implements Runnable,
-        FileReturner {
+public class DownloadUrlActivity extends Activity implements Runnable, FileReturner {
     public static final String URL_EXTRA = "URL";
     private ProgressDialog dialog_;
     private String url_;

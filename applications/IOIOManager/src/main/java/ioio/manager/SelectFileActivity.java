@@ -28,11 +28,6 @@
  */
 package ioio.manager;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.util.Stack;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -46,13 +41,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.util.Stack;
+
 public class SelectFileActivity extends ListActivity implements FileReturner {
     public static final String EXTRA_START_DIR = "START_DIR";
     public static final String EXTRA_SUFFIXES = "SUFFIXES";
     private File currentDir_;
     private String[] suffixes_;
     private FileAdapter adapter_;
-    private Stack<File> fileStack_ = new Stack<File>();
+    private Stack<File> fileStack_ = new Stack<>();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -79,7 +81,7 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putStringArray(EXTRA_SUFFIXES, suffixes_);
         outState.putString(EXTRA_START_DIR, currentDir_.getAbsolutePath());
@@ -112,13 +114,13 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
             adapter_.add(null);
         }
 
-        File[] subdirs = currentDir_.listFiles(new FileFilter() {
+        File[] subDirs = currentDir_.listFiles(new FileFilter() {
             @Override
             public boolean accept(File f) {
                 return f.isDirectory() && f.canRead();
             }
         });
-        for (File f : subdirs) {
+        for (File f : subDirs) {
             adapter_.add(f);
         }
 
@@ -133,8 +135,8 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
                 return false;
             }
         });
-        for (int i = 0; i < files.length; ++i) {
-            adapter_.add(files[i]);
+        for (File file : files) {
+            adapter_.add(file);
         }
         adapter_.notifyDataSetChanged();
     }
@@ -144,15 +146,14 @@ public class SelectFileActivity extends ListActivity implements FileReturner {
             super(context, textViewResourceId);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(
-                        R.layout.file_list_item, parent, false);
+                convertView = getLayoutInflater().inflate(R.layout.file_list_item, parent, false);
             }
             File item = getItem(position);
-            TextView textView = convertView
-                    .findViewById(R.id.fileListTextView);
+            TextView textView = convertView.findViewById(R.id.fileListTextView);
             Resources res = getResources();
             if (item == null) {
                 textView.setText("..");

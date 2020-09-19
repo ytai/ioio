@@ -28,16 +28,7 @@
  */
 package ioio.manager;
 
-import ioio.lib.api.IcspMaster;
-import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.BaseIOIOLooper;
-import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.IOIOActivity;
-import ioio.manager.IOIOFileProgrammer.ProgressListener;
-import ioio.manager.IOIOFileReader.FormatException;
-
-import java.io.File;
-
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -55,6 +46,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import java.io.File;
+
+import ioio.lib.api.IcspMaster;
+import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.IOIOActivity;
+import ioio.manager.IOIOFileProgrammer.ProgressListener;
+import ioio.manager.IOIOFileReader.FormatException;
+
 public class ProgrammerActivity extends IOIOActivity {
     private static final String TAG = "ProgrammerActivity";
     private static final int REQUEST_IMAGE_SELECT = 0;
@@ -65,7 +68,6 @@ public class ProgrammerActivity extends IOIOActivity {
     private TextView programmerStatusTextView_;
     private TextView imageStatusTextView_;
     private TextView selectedImageTextView_;
-    private Button selectButton_;
     private Button eraseButton_;
     private Button programButton_;
     private File selectedImage_;
@@ -96,6 +98,7 @@ public class ProgrammerActivity extends IOIOActivity {
         setProgrammerState(ProgrammerState.STATE_IOIO_DISCONNECTED);
     }
 
+    @SuppressLint("SetTextI18n")
     private void prepareGui() {
         setContentView(R.layout.programmer);
         setTitle(R.string.programmer_title);
@@ -103,11 +106,10 @@ public class ProgrammerActivity extends IOIOActivity {
         imageStatusTextView_ = findViewById(R.id.imageStatusTextView);
         selectedImageTextView_ = findViewById(R.id.selectedImage);
         if (selectedImage_ != null) {
-            selectedImageTextView_.setText(selectedBundleName_ + " / "
-                    + selectedBoardName_);
+            selectedImageTextView_.setText(selectedBundleName_ + " / " + selectedBoardName_);
             selectedImageTextView_.setTextColor(Color.WHITE);
         }
-        selectButton_ = findViewById(R.id.selectButton);
+        Button selectButton_ = findViewById(R.id.selectButton);
         selectButton_.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,8 +193,7 @@ public class ProgrammerActivity extends IOIOActivity {
                         }
                     }
                 } else {
-                    setImageStatusText("",
-                            getResources().getColor(R.color.disabledText));
+                    setImageStatusText("", getResources().getColor(R.color.disabledText));
                 }
             }
         });
@@ -354,6 +355,7 @@ public class ProgrammerActivity extends IOIOActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void setSelectedImage(File file, String bundleName, String imageName) {
         selectedImage_ = file;
         selectedBundleName_ = bundleName;
@@ -370,7 +372,7 @@ public class ProgrammerActivity extends IOIOActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (selectedImage_ != null) {
             outState.putString(SELECTED_BUNDLE_NAME, selectedBundleName_);
@@ -432,8 +434,7 @@ public class ProgrammerActivity extends IOIOActivity {
         private IcspMaster icsp_;
 
         @Override
-        protected void setup() throws ConnectionLostException,
-                InterruptedException {
+        protected void setup() throws ConnectionLostException {
             setProgrammerState(ProgrammerState.STATE_IOIO_CONNECTED);
             icsp_ = ioio_.openIcspMaster();
         }
@@ -472,10 +473,7 @@ public class ProgrammerActivity extends IOIOActivity {
                         setProgrammerState(ProgrammerState.STATE_ERASE_IN_PROGRESS);
                         Scripts.chipErase(ioio_, icsp_);
                         toast(R.string.success);
-                    } catch (ConnectionLostException e) {
-                        toast(R.string.erase_failed);
-                        throw e;
-                    } catch (InterruptedException e) {
+                    } catch (ConnectionLostException | InterruptedException e) {
                         toast(R.string.erase_failed);
                         throw e;
                     } catch (Exception e) {
@@ -525,10 +523,7 @@ public class ProgrammerActivity extends IOIOActivity {
                         toast(R.string.success);
                     } catch (FormatException e) {
                         toast(R.string.image_file_corrupt);
-                    } catch (ConnectionLostException e) {
-                        toast(R.string.programming_failed);
-                        throw e;
-                    } catch (InterruptedException e) {
+                    } catch (ConnectionLostException | InterruptedException e) {
                         toast(R.string.programming_failed);
                         throw e;
                     } catch (Exception e) {

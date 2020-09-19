@@ -33,10 +33,8 @@ import ioio.lib.api.IcspMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 
 class Scripts {
-    private static int NUM_ATTEMPTS = 20;
 
-    private static void exitResetVector(IOIO ioio, IcspMaster icsp)
-            throws ConnectionLostException {
+    private static void exitResetVector(IOIO ioio, IcspMaster icsp) throws ConnectionLostException {
         ioio.beginBatch();
         icsp.executeInstruction(0x040200); // GOTO 0x200
         icsp.executeInstruction(0x040200); // GOTO 0x200
@@ -155,8 +153,7 @@ class Scripts {
     }
 
     public static void writeBlock(IOIO ioio, IcspMaster icsp, int addr, int[] buf)
-            throws ConnectionLostException, InterruptedException,
-            TimeoutException {
+            throws ConnectionLostException, InterruptedException, TimeoutException {
         assert (buf.length >= 64);
         ioio.beginBatch();
         exitResetVector(ioio, icsp);
@@ -241,7 +238,7 @@ class Scripts {
     private static void waitWriteDone(IOIO ioio, IcspMaster icsp)
             throws ConnectionLostException, InterruptedException,
             TimeoutException {
-        int attempts = NUM_ATTEMPTS;
+        int attempts = 20;
         do {
             if (attempts-- == 0) {
                 throw new TimeoutException();

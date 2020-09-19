@@ -28,14 +28,6 @@
  */
 package ioio.manager;
 
-import ioio.manager.FirmwareManager.ImageBundle;
-import ioio.manager.FirmwareManager.ImageFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-
 import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
 import android.content.ActivityNotFoundException;
@@ -57,6 +49,14 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+
+import ioio.manager.FirmwareManager.ImageBundle;
+import ioio.manager.FirmwareManager.ImageFile;
 
 public class BootImageLibraryActivity extends ExpandableListActivity {
     public static final String ACTION_SELECT = "SELECT";
@@ -111,32 +111,28 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (fintent.getScheme().equals("file")) {
-                                addBundleFromFile(new File(fintent.getData()
-                                        .getPath()));
+                                addBundleFromFile(new File(fintent.getData().getPath()));
                             } else if (fintent.getScheme().equals("http")) {
                                 addBundleFromUrl(fintent.getDataString());
                             }
                             setIntent(new Intent(Intent.ACTION_MAIN));
                         }
                     });
-            builder.setNegativeButton(R.string.no,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            setIntent(new Intent(Intent.ACTION_MAIN));
-                        }
-                    });
+            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    setIntent(new Intent(Intent.ACTION_MAIN));
+                }
+            });
             builder.setIcon(android.R.drawable.ic_dialog_alert);
             builder.show();
         }
     }
 
     @Override
-    public boolean onChildClick(ExpandableListView parent, View v,
-                                int groupPosition, int childPosition, long id) {
+    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
         ImageBundle bundle = (ImageBundle) adapter_.getGroup(groupPosition);
-        ImageFile selected = (ImageFile) adapter_.getChild(groupPosition,
-                childPosition);
+        ImageFile selected = (ImageFile) adapter_.getChild(groupPosition, childPosition);
         Intent intent = new Intent(ACTION_SELECT, new Uri.Builder()
                 .scheme("file").path(selected.getFile().getAbsolutePath())
                 .build());
@@ -156,25 +152,18 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
-                .getMenuInfo();
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.remove_item:
                 try {
                     String name = bundles_[(int) info.id].getName();
                     firmwareManager_.removeImageBundle(name);
                     adapter_.notifyDataSetChanged();
-                    Toast.makeText(
-                            this,
-                            String.format(getString(R.string.bundle_removed), name),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, String.format(getString(R.string.bundle_removed), name), Toast.LENGTH_SHORT).show();
                     return true;
                 } catch (IOException e) {
                     Log.w(TAG, e);
-                    Toast.makeText(
-                            this,
-                            String.format(getString(R.string.failed_remove_bundle),
-                                    e.getMessage()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, String.format(getString(R.string.failed_remove_bundle), e.getMessage()), Toast.LENGTH_SHORT).show();
                 }
             default:
                 return super.onContextItemSelected(item);
@@ -197,8 +186,7 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.list_item_context_menu, menu);
@@ -210,17 +198,14 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
         try {
             startActivityForResult(intent, ADD_FROM_QR);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, R.string.install_zxing, Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this, R.string.install_zxing, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void addFromExternalStorage() {
         Intent intent = new Intent(this, SelectFileActivity.class);
-        intent.putExtra(SelectFileActivity.EXTRA_START_DIR, Environment
-                .getExternalStorageDirectory().getAbsolutePath());
-        intent.putExtra(SelectFileActivity.EXTRA_SUFFIXES,
-                new String[]{".ioioimg"});
+        intent.putExtra(SelectFileActivity.EXTRA_START_DIR, Environment.getExternalStorageDirectory().getAbsolutePath());
+        intent.putExtra(SelectFileActivity.EXTRA_SUFFIXES, new String[]{".ioioimg"});
         startActivityForResult(intent, ADD_FROM_FILE);
     }
 
@@ -249,12 +234,7 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
                     File file = new File(data.getData().getPath());
                     addBundleFromFile(file);
                 } else if (resultCode == FileReturner.RESULT_ERROR) {
-                    Toast.makeText(
-                            this,
-                            String.format(
-                                    getString(R.string.error),
-                                    data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA)),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, String.format(getString(R.string.error), data.getStringExtra(FileReturner.ERROR_MESSAGE_EXTRA)), Toast.LENGTH_LONG).show();
                 }
                 break;
 
@@ -266,16 +246,11 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
                         if (format.equals("QR_CODE")) {
                             addBundleFromUrl(contents);
                         } else {
-                            Toast.makeText(this, R.string.barcode_not_uri,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.barcode_not_uri, Toast.LENGTH_LONG).show();
                         }
                     } catch (Exception e) {
                         Log.w(TAG, e);
-                        Toast.makeText(
-                                this,
-                                String.format(
-                                        getString(R.string.failed_add_bundle),
-                                        e.getMessage()), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, String.format(getString(R.string.failed_add_bundle), e.getMessage()), Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
@@ -290,19 +265,12 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
 
     private void addBundleFromFile(File file) {
         try {
-            ImageBundle bundle = firmwareManager_.addImageBundle(file
-                    .getAbsolutePath());
+            ImageBundle bundle = firmwareManager_.addImageBundle(file.getAbsolutePath());
             adapter_.notifyDataSetChanged();
-            Toast.makeText(
-                    this,
-                    String.format(getString(R.string.bundle_added),
-                            bundle.getName()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, String.format(getString(R.string.bundle_added), bundle.getName()), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.w(TAG, e);
-            Toast.makeText(
-                    this,
-                    String.format(getString(R.string.failed_add_bundle),
-                            e.getMessage()), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, String.format(getString(R.string.failed_add_bundle), e.getMessage()), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -326,11 +294,9 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
         }
 
         @Override
-        public View getGroupView(int groupPosition, boolean isExpanded,
-                                 View convertView, ViewGroup parent) {
+        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(
-                        R.layout.boot_image_list_group, null, false);
+                convertView = getLayoutInflater().inflate(R.layout.boot_image_list_group, null, false);
             }
             ((TextView) convertView).setText(bundles_[groupPosition].getName());
             return convertView;
@@ -357,15 +323,12 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
         }
 
         @Override
-        public View getChildView(int groupPosition, int childPosition,
-                                 boolean isLastChild, View convertView, ViewGroup parent) {
+        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(
-                        R.layout.boot_image_list_item, null, false);
+                convertView = getLayoutInflater().inflate(R.layout.boot_image_list_item, null, false);
             }
             ((TextView) convertView.findViewById(R.id.programmerListItemTitle))
-                    .setText(((ImageFile) getChild(groupPosition, childPosition))
-                            .getName());
+                    .setText(((ImageFile) getChild(groupPosition, childPosition)).getName());
             return convertView;
         }
 
