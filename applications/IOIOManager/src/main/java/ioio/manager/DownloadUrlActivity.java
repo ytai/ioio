@@ -28,7 +28,7 @@
  */
 package ioio.manager;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -43,7 +43,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class DownloadUrlActivity extends Activity implements Runnable, FileReturner {
+public class DownloadUrlActivity extends AppCompatActivity implements Runnable, FileReturner {
     public static final String URL_EXTRA = "URL";
     private ProgressDialog dialog_;
     private String url_;
