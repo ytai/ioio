@@ -32,14 +32,14 @@ import ioio.lib.impl.SocketIOIOConnection;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
 /**
  * A convenience class for easy creation of IOIO-based activities.
  * <p>
- * It is used by creating a concrete {@link Activity} in your application, which
+ * It is used by creating a concrete {@link AppCompatActivity} in your application, which
  * extends this class. This class then takes care of proper creation and
  * abortion of the IOIO connection and of a dedicated thread for IOIO
  * communication.
@@ -69,7 +69,7 @@ import android.os.Bundle;
  * example, in the case of {@link SocketIOIOConnection}, the second argument
  * will contain an {@link Integer} representing the local port number.
  */
-public abstract class IOIOActivity extends Activity implements
+public abstract class IOIOActivity extends AppCompatActivity implements
         IOIOLooperProvider {
     private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(this, this);
 
