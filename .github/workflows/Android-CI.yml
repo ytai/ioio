@@ -20,14 +20,14 @@ jobs:
           java-version: ${{ matrix.java_version }}
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.1.1
-      - name: Build project
-        run: ./gradlew assembleDebug
-        env:
-          VERSION: ${{ github.ref }}
       - name: Run tests
         run: ./gradlew test
+        env:
+          VERSION: ${{ github.ref }}
       - name: Run instrumentation tests
         uses: malinskiy/action-android/emulator-run-cmd@release/0.1.1
+        env:
+          VERSION: ${{ github.ref }}
         with:
           cmd: ./gradlew cAT --continue
           api: 28
