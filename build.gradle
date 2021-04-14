@@ -19,6 +19,9 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
     repositories {
         google()
         jcenter()
@@ -26,11 +29,6 @@ subprojects {
         maven { url 'https://oss.sonatype.org/content/groups/staging' }
         maven { url 'https://jitpack.io' }
     }
-}
-
-subprojects {
-    apply plugin: 'maven'
-    apply plugin: 'signing'
 }
 
 static def getTag() {
