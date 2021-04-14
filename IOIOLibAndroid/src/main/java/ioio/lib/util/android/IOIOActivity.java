@@ -69,9 +69,9 @@ import android.os.Bundle;
  * example, in the case of {@link SocketIOIOConnection}, the second argument
  * will contain an {@link Integer} representing the local port number.
  */
-public abstract class IOIOActivity extends AppCompatActivity implements
-        IOIOLooperProvider {
-    private final IOIOAndroidApplicationHelper helper_ = new IOIOAndroidApplicationHelper(this, this);
+public abstract class IOIOActivity extends AppCompatActivity implements IOIOLooperProvider {
+
+    private final IOIOAndroidApplicationHelper ioioHelper = new IOIOAndroidApplicationHelper(this, this);
 
     /**
      * Subclasses should call this method from their own onCreate() if
@@ -80,7 +80,7 @@ public abstract class IOIOActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helper_.create();
+        ioioHelper.create();
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class IOIOActivity extends AppCompatActivity implements
      */
     @Override
     protected void onDestroy() {
-        helper_.destroy();
+        ioioHelper.destroy();
         super.onDestroy();
     }
 
@@ -100,7 +100,7 @@ public abstract class IOIOActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        helper_.start();
+        ioioHelper.start();
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class IOIOActivity extends AppCompatActivity implements
      */
     @Override
     protected void onStop() {
-        helper_.stop();
+        ioioHelper.stop();
         super.onStop();
     }
 
@@ -117,7 +117,7 @@ public abstract class IOIOActivity extends AppCompatActivity implements
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
-            helper_.restart();
+            ioioHelper.restart();
         }
     }
 
