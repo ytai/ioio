@@ -1,4 +1,6 @@
-apply plugin: 'gradle-one-jar'
+plugins {
+    id "com.github.onslip.gradle-one-jar" version "1.0.6"
+}
 
 task distJar(type: OneJar) {
     mainClass = 'ioio.examples.servo_swing.IOIOServoSwing'
@@ -8,13 +10,4 @@ tasks.build.dependsOn distJar
 
 dependencies {
     implementation project(':IOIOLibPC')
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.github.onslip:gradle-one-jar:1.0.5'
-    }
 }
