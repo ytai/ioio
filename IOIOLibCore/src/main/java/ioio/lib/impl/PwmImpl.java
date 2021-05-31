@@ -59,8 +59,8 @@ class PwmImpl extends AbstractPin implements PwmOutput {
     }
 
     @Override
-    public void setDutyCycle(float dutyCycle) throws ConnectionLostException {
-        assert (dutyCycle <= 1 && dutyCycle >= 0);
+    public void setDutyCycle(float dutyCycle) throws ConnectionLostException, AssertionError {
+        if (dutyCycle > 1 || dutyCycle < 0) throw new AssertionError("dutyCycle must be between 0 and 1");
         setPulseWidthInClocks(period_ * dutyCycle);
     }
 
