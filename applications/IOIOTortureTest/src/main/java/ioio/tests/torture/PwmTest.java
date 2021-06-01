@@ -73,7 +73,7 @@ public class PwmTest implements Test<Boolean> {
     }
 
     private boolean runSingleTest(PwmOutput out, DigitalInput in, float dc)
-            throws InterruptedException, ConnectionLostException, AssertionError {
+            throws InterruptedException, ConnectionLostException, RuntimeException {
         out.setDutyCycle(dc);
         Thread.sleep(100);
         int highCount = 0;

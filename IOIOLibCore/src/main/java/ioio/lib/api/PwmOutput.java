@@ -100,7 +100,7 @@ public interface PwmOutput extends Closeable {
      * @throws ConnectionLostException The connection to the IOIO has been lost.
      * @see #setPulseWidth(int)
      */
-    void setDutyCycle(float dutyCycle) throws ConnectionLostException, AssertionError;
+    void setDutyCycle(float dutyCycle) throws ConnectionLostException, RuntimeException;
 
     /**
      * Sets the pulse width of the PWM output. The pulse width is duration of
@@ -109,7 +109,7 @@ public interface PwmOutput extends Closeable {
      *
      * @param pulseWidthUs The pulse width, in microsecond units.
      * @throws ConnectionLostException The connection to the IOIO has been lost.
-     * @throws AssertionError dutyCycle must take values from 0 to 1 (inclusive).
+     * @throws RuntimeException dutyCycle must take values from 0 to 1 (inclusive).
      * @see #setDutyCycle(float)
      */
     void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
