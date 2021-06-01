@@ -66,7 +66,9 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListen
     @Override
     synchronized public void setValue(int value) {
         // Log.v("AnalogInputImpl", "Pin " + pinNum_ + " value is " + value);
-        assert (value >= 0 && value < 1024);
+        if (value < 0 || value >= 1024) {
+            throw new RuntimeException("value must be between 0 (inclusive) and 1024 (exclusive). A value of " + value + " was given.");
+        }
         value_ = value;
         ++sampleCount_;
         bufferPush((short) value);
