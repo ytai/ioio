@@ -108,17 +108,17 @@ public interface PwmOutput extends Closeable {
      * the high-time within a single period of the signal. For relative control
      * of the pulse with, consider using {@link #setDutyCycle(float)}.
      *
-     * @param pulseWidthUs The pulse width, in microsecond units.
+     * @param pulseWidthUs The pulse width, in microsecond units. Must be larger than zero.
      * @throws ConnectionLostException The connection to the IOIO has been lost.
      * @throws RuntimeException pulseWidthUs must take values larger than zero.
      * @see #setDutyCycle(float)
      */
-    void setPulseWidth(int pulseWidthUs) throws ConnectionLostException;
+    void setPulseWidth(int pulseWidthUs) throws ConnectionLostException, RuntimeException;
 
     /**
      * The same as {@link #setPulseWidth(int)}, but with sub-microsecond
      * precision.
      */
     void setPulseWidth(float pulseWidthUs)
-            throws ConnectionLostException;
+            throws ConnectionLostException, RuntimeException;
 }

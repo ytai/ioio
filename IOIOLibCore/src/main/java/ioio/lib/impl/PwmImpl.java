@@ -67,14 +67,16 @@ class PwmImpl extends AbstractPin implements PwmOutput {
     }
 
     @Override
-    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException {
+    public void setPulseWidth(int pulseWidthUs) throws ConnectionLostException, RuntimeException {
         setPulseWidth((float) pulseWidthUs);
     }
 
     @Override
     public void setPulseWidth(float pulseWidthUs)
-            throws ConnectionLostException {
-        assert (pulseWidthUs >= 0);
+            throws ConnectionLostException, RuntimeException {
+        if (pulseWidthUs < 0) {
+            throw new RuntimeException("pulseWidthUs must be larger than 0. A pulseWidthUs of " + pulseWidthUs + " was given.");
+        }
         float p = pulseWidthUs / baseUs_;
         setPulseWidthInClocks(p);
     }
