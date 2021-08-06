@@ -25,7 +25,6 @@ subprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "http://www.sparetimelabs.com/maven2" }
         maven { url 'https://jitpack.io' }
     }
 }
