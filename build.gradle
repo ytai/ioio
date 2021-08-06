@@ -26,7 +26,6 @@ subprojects {
         google()
         jcenter()
         maven { url "http://www.sparetimelabs.com/maven2" }
-        maven { url 'https://oss.sonatype.org/content/groups/staging' }
         maven { url 'https://jitpack.io' }
     }
 }
