@@ -23,3 +23,8 @@ dependencies {
     implementation 'com.sparetimelabs:purejavacomm:1.0.1'
     api project(":IOIOLibCore")
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
