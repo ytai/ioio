@@ -38,13 +38,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Build;
 import android.util.Log;
 
-@TargetApi(5)
+@SuppressLint("MissingPermission")
 public class BluetoothIOIOConnection implements IOIOConnection {
     private static final String TAG = "BluetoothIOIOConnection";
     private final BluetoothDevice device_;
@@ -63,16 +62,11 @@ public class BluetoothIOIOConnection implements IOIOConnection {
 
     public static BluetoothSocket createSocket(final BluetoothDevice device)
             throws IOException {
-        if (Build.VERSION.SDK_INT >= 10) {
-            // We're trying to create an insecure socket, which is only
-            // supported in API 10 and up. Otherwise, we try a secure socket
-            // which is in API 7 and up.
-            return device.createInsecureRfcommSocketToServiceRecord(UUID
-                    .fromString("00001101-0000-1000-8000-00805F9B34FB"));
-        } else {
-            return device.createRfcommSocketToServiceRecord(UUID
-                    .fromString("00001101-0000-1000-8000-00805F9B34FB"));
-        }
+        // We're trying to create an insecure socket, which is only
+        // supported in API 10 and up. Otherwise, we try a secure socket
+        // which is in API 7 and up.
+        return device.createInsecureRfcommSocketToServiceRecord(UUID
+                .fromString("00001101-0000-1000-8000-00805F9B34FB"));
     }
 
     @Override
