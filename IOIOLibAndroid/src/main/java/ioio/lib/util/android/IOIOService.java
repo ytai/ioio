@@ -1,7 +1,6 @@
 /*
  * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
  *
- *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -94,7 +93,7 @@ public abstract class IOIOService extends Service implements IOIOLooperProvider 
         super.onDestroy();
     }
 
-    private void start(Intent intent) {
+    private void start() {
         if (!started_) {
             helper_.start();
             started_ = true;
@@ -105,12 +104,12 @@ public abstract class IOIOService extends Service implements IOIOLooperProvider 
 
     /**
      * This is the old onStart() method. Override and/or call this method only
-     * if you're using Android API level lower than 5. Otherwise you shoud call
+     * if you're using Android API level lower than 5. Otherwise you should call
      * the onStartCommand() method.
      */
     @Override
     public void onStart(Intent intent, int startId) {
-        start(intent);
+        start();
     }
 
     /**
@@ -119,7 +118,7 @@ public abstract class IOIOService extends Service implements IOIOLooperProvider 
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        start(intent);
+        start();
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;

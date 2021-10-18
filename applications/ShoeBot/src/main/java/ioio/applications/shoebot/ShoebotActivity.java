@@ -1,5 +1,6 @@
 package ioio.applications.shoebot;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -29,16 +30,16 @@ public class ShoebotActivity extends IOIOActivity implements
         SensorEventListener, LineListener {
     public static final float STEPS_FREQ = 62500;
     PowerManager.WakeLock wakeLock_;
-    private Sequencer.ChannelConfig[] cfg_ = {
+    private final Sequencer.ChannelConfig[] cfg_ = {
             new Sequencer.ChannelConfigFmSpeed(Sequencer.Clock.CLK_62K5, 2, new DigitalOutput.Spec(3)),
             new Sequencer.ChannelConfigBinary(false, false, new DigitalOutput.Spec(2)),
             new Sequencer.ChannelConfigFmSpeed(Sequencer.Clock.CLK_62K5, 2, new DigitalOutput.Spec(14)),
             new Sequencer.ChannelConfigBinary(false, false, new DigitalOutput.Spec(13))};
-    private Sequencer.ChannelCueFmSpeed leftSteps_ = new Sequencer.ChannelCueFmSpeed();
-    private Sequencer.ChannelCueFmSpeed rightSteps_ = new Sequencer.ChannelCueFmSpeed();
-    private Sequencer.ChannelCueBinary leftDir_ = new Sequencer.ChannelCueBinary();
-    private Sequencer.ChannelCueBinary rightDir_ = new Sequencer.ChannelCueBinary();
-    private Sequencer.ChannelCue[] cue_ = {
+    private final Sequencer.ChannelCueFmSpeed leftSteps_ = new Sequencer.ChannelCueFmSpeed();
+    private final Sequencer.ChannelCueFmSpeed rightSteps_ = new Sequencer.ChannelCueFmSpeed();
+    private final Sequencer.ChannelCueBinary leftDir_ = new Sequencer.ChannelCueBinary();
+    private final Sequencer.ChannelCueBinary rightDir_ = new Sequencer.ChannelCueBinary();
+    private final Sequencer.ChannelCue[] cue_ = {
             leftSteps_, leftDir_, rightSteps_, rightDir_
     };
     private ToggleButton enableButton_;
@@ -76,8 +77,7 @@ public class ShoebotActivity extends IOIOActivity implements
 
     private static float crop(float value, float min, float max) {
         if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        return Math.min(value, max);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ShoebotActivity extends IOIOActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        wakeLock_.acquire();
+        wakeLock_.acquire(10*60*1000L /*10 minutes*/);
     }
 
     @Override
@@ -150,8 +150,8 @@ public class ShoebotActivity extends IOIOActivity implements
         if (line.length() > 0) {
             float f = 0;
             try {
-                f = Float.valueOf(line.substring(1));
-            } catch (NumberFormatException e) {
+                f = Float.parseFloat(line.substring(1));
+            } catch (NumberFormatException ignored) {
             }
             switch (line.charAt(0)) {
                 case 'p':
@@ -191,12 +191,13 @@ public class ShoebotActivity extends IOIOActivity implements
             tcpServer_.write("P: " + p_ + "\nI: " + i_ + "\nD: " + d_ + "\nS: "
                     + s_ + "\nT: " + targetOrientation_ + "\nE: " + error_
                     + "\n");
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
     private void updateDisplay() {
         runOnUiThread(new Runnable() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void run() {
                 pTextView_.setText("P: " + p_);
@@ -250,7 +251,7 @@ public class ShoebotActivity extends IOIOActivity implements
         }
     }
 
-    private class Stepper {
+    private static class Stepper {
         private final Sequencer.ChannelCueBinary dir_;
         private final Sequencer.ChannelCueFmSpeed stp_;
         private final DigitalOutput slp_;
@@ -373,7 +374,7 @@ public class ShoebotActivity extends IOIOActivity implements
 
         @Override
         public void loop() throws ConnectionLostException, InterruptedException {
-            float speedX = 0, speedY = 0;
+            float speedX, speedY;
             led_.write(!driveButton_.isPressed());
             if (driveButton_.isPressed()) {
                 speedX = crop((float) (orientationX_ / Math.PI), -1, 1);
@@ -390,14 +391,12 @@ public class ShoebotActivity extends IOIOActivity implements
             }
 
             runOnUiThread(new Runnable() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void run() {
-                    ((TextView) findViewById(R.id.p)).setText("X: "
-                            + orientationX_);
-                    ((TextView) findViewById(R.id.i)).setText("Y: "
-                            + orientation_);
-                    ((TextView) findViewById(R.id.d)).setText("dY: "
-                            + errorDeriv_);
+                    ((TextView) findViewById(R.id.p)).setText("X: " + orientationX_);
+                    ((TextView) findViewById(R.id.i)).setText("Y: " + orientation_);
+                    ((TextView) findViewById(R.id.d)).setText("dY: " + errorDeriv_);
                 }
             });
 
