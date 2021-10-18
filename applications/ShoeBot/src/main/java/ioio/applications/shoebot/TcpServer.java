@@ -7,8 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class TcpServer implements Runnable {
-    private LineListener listener_;
-    private int port_;
+    private final LineListener listener_;
+    private final int port_;
     private ServerSocket socketServer_;
     private Socket socket_;
     public TcpServer(int port, LineListener listener) {
@@ -25,13 +25,13 @@ public class TcpServer implements Runnable {
         if (socketServer_ != null) {
             try {
                 socketServer_.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
         if (socket_ != null) {
             try {
                 socket_.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -50,7 +50,7 @@ public class TcpServer implements Runnable {
                     listener_.onLine(line);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 

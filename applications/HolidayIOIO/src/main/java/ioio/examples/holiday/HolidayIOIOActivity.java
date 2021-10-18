@@ -43,8 +43,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
     private Camera camera_;
     private int height_;
     private int width_;
-    private RGB tempRGB_ = new RGB();
-    private SurfaceTexture texture_;
+    private final RGB tempRGB_ = new RGB();
 
     private static Camera getCameraInstance() {
         try {
@@ -173,7 +172,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
     protected void onStart() {
         // Start the camera oreview
         camera_ = getCameraInstance();
-        Parameters params = null;
+        Parameters params;
 
         if (camera_ != null) {
             params = camera_.getParameters();
@@ -197,7 +196,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
                     }
                 }
             });
-            texture_ = new SurfaceTexture(0);
+            SurfaceTexture texture_ = new SurfaceTexture(0);
             try {
                 camera_.setPreviewTexture(texture_);
             } catch (IOException e) {
@@ -303,7 +302,7 @@ public class HolidayIOIOActivity extends IOIOActivity {
                         null, 0);
                 ioio_.endBatch();
                 Thread.sleep(50);
-            } catch (InterruptedException e1) {
+            } catch (InterruptedException ignored) {
             }
         }
 

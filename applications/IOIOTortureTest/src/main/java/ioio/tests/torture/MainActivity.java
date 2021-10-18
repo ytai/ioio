@@ -2,7 +2,6 @@ package ioio.tests.torture;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
-import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
@@ -33,11 +32,11 @@ public class MainActivity extends IOIOActivity {
     }
 
     class Looper extends BaseIOIOLooper {
-        private TestThread[] workers_ = new TestThread[8];
+        private final TestThread[] workers_ = new TestThread[8];
 
         @Override
-        protected void setup() throws ConnectionLostException, InterruptedException {
-            wakeLock_.acquire();
+        protected void setup() {
+            wakeLock_.acquire(10*60*1000L /*10 minutes*/);
             ResourceAllocator alloc_ = new ResourceAllocator(Board.valueOf(ioio_
                     .getImplVersion(IOIO.VersionType.HARDWARE_VER)));
             TestProvider provider = new TestProvider(MainActivity.this, ioio_, alloc_);
@@ -49,21 +48,21 @@ public class MainActivity extends IOIOActivity {
         }
 
         @Override
-        public void loop() throws ConnectionLostException, InterruptedException {
+        public void loop() {
         }
 
         @Override
         public void disconnected() {
             Log.i(TAG, "IOIO disconnected, killing workers");
-            for (int i = 0; i < workers_.length; ++i) {
-                if (workers_[i] != null) {
-                    workers_[i].abort();
+            for (TestThread testThread : workers_) {
+                if (testThread != null) {
+                    testThread.abort();
                 }
             }
             try {
-                for (int i = 0; i < workers_.length; ++i) {
-                    if (workers_[i] != null) {
-                        workers_[i].join();
+                for (TestThread testThread : workers_) {
+                    if (testThread != null) {
+                        testThread.join();
                     }
                 }
                 Log.i(TAG, "All workers dead");
@@ -78,7 +77,7 @@ public class MainActivity extends IOIOActivity {
             Log.e(TAG, "Incompatibility detected");
         }
 
-        private void showVersions() throws ConnectionLostException {
+        private void showVersions() {
             final String versionText = "hw: " + ioio_.getImplVersion(VersionType.HARDWARE_VER)
                     + "\n" + "bl: " + ioio_.getImplVersion(VersionType.BOOTLOADER_VER) + "\n"
                     + "fw: " + ioio_.getImplVersion(VersionType.APP_FIRMWARE_VER) + "\n" + "lib: "

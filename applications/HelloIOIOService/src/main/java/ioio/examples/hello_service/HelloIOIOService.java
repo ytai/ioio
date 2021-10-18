@@ -27,8 +27,7 @@ public class HelloIOIOService extends IOIOService {
             private DigitalOutput led_;
 
             @Override
-            protected void setup() throws ConnectionLostException,
-                    InterruptedException {
+            protected void setup() throws ConnectionLostException {
                 led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
             }
 

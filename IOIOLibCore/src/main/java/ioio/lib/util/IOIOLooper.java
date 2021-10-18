@@ -50,8 +50,8 @@ public interface IOIOLooper {
      *
      * @deprecated Please use {@link #incompatible(IOIO)} instead.
      */
+    @Deprecated
     void incompatible();
-
 
     /**
      * Subclasses should override this method for performing operations to be
