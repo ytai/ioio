@@ -1,6 +1,4 @@
-plugins {
-    id "com.github.onslip.gradle-one-jar" version "1.0.6"
-}
+apply plugin: "gradle-one-jar"
 
 task distJar(type: OneJar) {
     mainClass = 'ioio.examples.hello_console.HelloIOIOConsole'
@@ -11,3 +9,15 @@ tasks.build.dependsOn distJar
 dependencies {
     implementation project(':IOIOLibPC')
 }
+
+//buildscript() {
+//    repositories {
+//        maven {
+//            url 'https://jitpack.io'
+//        }
+//    }
+//    dependencies {
+//        //replace 'TAG' with the desired version
+//        classpath 'com.github.cufyorg:jamplate-gradle-plugin:TAG'
+//    }
+//}
