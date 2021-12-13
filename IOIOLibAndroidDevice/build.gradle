@@ -9,8 +9,6 @@ android {
         minSdkVersion 14
         targetSdkVersion 31
 
-        versionCode getGitCommitCount()
-        versionName getTag()
     }
 }
 
