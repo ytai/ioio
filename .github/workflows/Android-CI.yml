@@ -35,19 +35,19 @@ jobs:
           tag: default
           abi: x86
       - name: Archive Espresso results
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.0
         if: ${{ always() }}
         with:
           name: IOIO-Espresso-report
           path: applications/**/build/reports/androidTests/connected/
       - name: Save logcat output
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.0
         if: failure()
         with:
           name: IOIO-logcat
           path: artifacts/logcat.log
       - name: Archive screenshots
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.0
         if: ${{ always() }}
         with:
           name: IOIO-Screenshots
@@ -70,7 +70,7 @@ jobs:
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.0
         if: ${{ always() }}
         with:
           name: IOIO-Lint-report
