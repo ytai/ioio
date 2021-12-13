@@ -1,6 +1,4 @@
-plugins {
-    id "com.github.onslip.gradle-one-jar" version "1.0.6"
-}
+apply plugin: "gradle-one-jar"
 
 task distJar(type: OneJar) {
     mainClass = 'ioio.examples.hello_console.HelloIOIOConsole'

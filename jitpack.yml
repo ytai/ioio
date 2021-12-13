@@ -1,0 +1,7 @@
+jdk:
+  - openjdk11
+install:
+  - ./gradlew :IOIOLibAndroid:build :IOIOLibAndroid:publishToMavenLocal
+  - ./gradlew :IOIOLibAndroidBluetooth:build :IOIOLibAndroidBluetooth:publishToMavenLocal
+  - ./gradlew :IOIOLibAndroidAccessory:build :IOIOLibAndroidAccessory:publishToMavenLocal
+  - ./gradlew :IOIOLibAndroidDevice:build :IOIOLibAndroidDevice:publishToMavenLocal
