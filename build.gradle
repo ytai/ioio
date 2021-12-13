@@ -25,7 +25,10 @@ subprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "http://www.sparetimelabs.com/maven2" }
+        maven {
+            url "http://www.sparetimelabs.com/maven2"
+            allowInsecureProtocol = true
+        }
         maven { url 'https://jitpack.io' }
     }
 }
