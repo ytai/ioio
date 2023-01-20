@@ -10,6 +10,7 @@ android {
         targetSdkVersion 33
 
     }
+    namespace 'ioio.lib.bluetooth'
 }
 
 dependencies {

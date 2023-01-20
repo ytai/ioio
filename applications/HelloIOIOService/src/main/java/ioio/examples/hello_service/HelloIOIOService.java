@@ -54,17 +54,6 @@ public class HelloIOIOService extends IOIOService {
             }
             stopSelf();
         } else {
-
-            // Todo get someone to verify this works as refactoring may not be completely accurate.
-            // Service starting. Create a notification.
-//			Notification notification = new Notification(
-//					R.drawable.ic_launcher, "IOIO service running",
-//					System.currentTimeMillis());
-//			notification
-//					.setLatestEventInfo(this, "IOIO Service", "Click to stop",
-//							PendingIntent.getService(this, 0, new Intent(
-//									"stop", null, this, this.getClass()), 0));
-
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
 
             notificationBuilder
