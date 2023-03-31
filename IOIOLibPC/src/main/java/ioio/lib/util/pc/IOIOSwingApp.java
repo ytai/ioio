@@ -18,7 +18,7 @@ import javax.swing.JFrame;
  * creating an instance of this class, and calling its
  * {@code void go(String[] args)} method.</li>
  * <li>Implement {@code Window createMainWindow(String args[])} with code to create your main window.
- * For proper cleanup on exit, make sure to set {@link JFrame.DISPOSE_ON_CLOSE} as the default close operation of your window.</li>
+ * For proper cleanup on exit, make sure to set JFrame.DISPOSE_ON_CLOSE as the default close operation of your window.</li>
  * <li>Implement
  * {@code IOIOLooper createIOIOLooper(String connectionType, Object extra)} with
  * code that should run on IOIO-dedicated threads.</li>

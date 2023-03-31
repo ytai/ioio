@@ -1,31 +1,30 @@
 package ioio.examples.simple
 
-import android.Manifest
+import androidx.test.core.graphics.writeToTestStorage
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.espresso.screenshot.captureToBitmap
+import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.GrantPermissionRule
-import com.moka.utils.Screenshot
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IOIOSimpleAppSmokeTest {
 
     @get:Rule
-    var activityScenarioRule = ActivityScenarioRule(IOIOSimpleApp::class.java)
+    val activityScenarioRule = activityScenarioRule<IOIOSimpleApp>()
 
-    @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE)
+    var nameRule = TestName()
 
     @Test
     fun smokeTestSimplyStart() {
         Espresso.onView(ViewMatchers.withId(R.id.SeekBar)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Screenshot.takeScreenshot("smoke")
+        Espresso.onView(ViewMatchers.isRoot())
+            .captureToBitmap()
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}")
     }
 }
