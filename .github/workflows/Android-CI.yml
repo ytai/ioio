@@ -20,13 +20,13 @@ jobs:
           distribution: 'adopt'
           java-version: ${{ matrix.java_version }}
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.2
+        uses: malinskiy/action-android/install-sdk@release/0.1.4
       - name: Run tests
         run: ./gradlew test
         env:
           VERSION: ${{ github.ref }}
       - name: Run instrumentation tests
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.2
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.4
         env:
           VERSION: ${{ github.ref }}
         with:
@@ -51,7 +51,9 @@ jobs:
         if: ${{ always() }}
         with:
           name: IOIO-Screenshots
-          path: applications/screenshots/adb/
+          path:  |
+            applications/**/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            applications/**/build/outputs/androidTest-results/connected
   Check:
     name: Check
     runs-on: ubuntu-latest
@@ -66,7 +68,7 @@ jobs:
           distribution: 'adopt'
           java-version: 11
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.2
+        uses: malinskiy/action-android/install-sdk@release/0.1.4
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report

@@ -44,7 +44,6 @@ import ioio.lib.util.IOIOLooperProvider;
  * <p>
  * This class implements a common life-cycle for applications interacting with
  * IOIO devices. Usage is as follows:
- * <ul>
  * <li>Create an instance of {@link IOIOPcApplicationHelper}, passing a
  * {@link IOIOLooperProvider} to the constructor.</li>
  * <li>When the application starts, call {@link #start()}, which will in turn
