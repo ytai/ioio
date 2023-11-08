@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace "ioio.examples.hello"
+
     compileSdkVersion 33
     defaultConfig {
 
