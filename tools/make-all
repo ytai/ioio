@@ -8,18 +8,23 @@ else
    MAKE=make     
 fi
 
-if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-  PRJMAKEFILEGENERATOR=prjMakefilesGenerator.sh
-else
-  PRJMAKEFILEGENERATOR=prjMakefilesGenerator.bat
-fi
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     PRJMAKEFILEGENERATOR=prjMakefilesGenerator.sh;;
+    Darwin*)    PRJMAKEFILEGENERATOR=prjMakefilesGenerator.sh;;
+    CYGWIN*)    PRJMAKEFILEGENERATOR=prjMakefilesGenerator.sh;;
+    //MINGW*)   PRJMAKEFILEGENERATOR=prjMakefilesGenerator.sh;;
+    *)          PRJMAKEFILEGENERATOR=prjMakefilesGenerator.bat
+esac
+
+echo PRJMAKEFILEGENERATOR=$PRJMAKEFILEGENERATOR
 
 for PROJ in $PROJECTS; do
   echo ===========================================
-  echo $PROJ
+  echo "$PROJ"
   echo ===========================================
-  if ! $PRJMAKEFILEGENERATOR firmware/$PROJ; then echo "WARNING: failed to regenerate Makefiles."; fi
-  if ! $MAKE -C firmware/$PROJ "$@"; then echo FAILURE ; exit 1 ; fi
+  if ! $PRJMAKEFILEGENERATOR firmware/"$PROJ"; then echo "WARNING: failed to regenerate Makefiles."; fi
+  if ! $MAKE -C firmware/"$PROJ" "$@"; then echo FAILURE ; exit 1 ; fi
 done
 echo SUCCESS
 
