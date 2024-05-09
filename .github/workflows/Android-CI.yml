@@ -4,11 +4,13 @@ on: [ pull_request ]
 
 jobs:
   buildTest:
-    name: Build & Test JDK ${{ matrix.java_version }}
-    runs-on: macOS-latest
+    name: Test
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        java_version: [ 11 ]
+        os: [ macOS-13 ]
+        java_version: [ 17 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,13 +23,13 @@ jobs:
           java-version: ${{ matrix.java_version }}
       - uses: gradle/wrapper-validation-action@v3
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
+        uses: hannesa2/action-android/install-sdk@0.1.16.7
       - name: Run tests
         run: ./gradlew test
         env:
           VERSION: ${{ github.ref }}
       - name: Run instrumentation tests
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.4
+        uses: hannesa2/action-android/emulator-run-cmd@0.1.16.7
         env:
           VERSION: ${{ github.ref }}
         with:
@@ -58,7 +60,12 @@ jobs:
             applications/**/build/outputs/androidTest-results/connected
   Check:
     name: Check
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        java_version: [ 17 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,9 +75,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11
+          java-version: ${{ matrix.java_version }}
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
+        uses: hannesa2/action-android/install-sdk@0.1.16.7
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
