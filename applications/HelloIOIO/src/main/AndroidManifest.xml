@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	package="ioio.examples.hello">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:theme="@style/Theme.AppCompat.NoActionBar"
         android:extractNativeLibs="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-		tools:ignore="AllowBackup">
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        tools:ignore="AllowBackup">
         <uses-library
             android:name="com.android.future.usb.accessory"
             android:required="false" />
         <activity
             android:name="MainActivity"
-            android:launchMode="singleTask"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
