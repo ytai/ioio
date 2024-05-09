@@ -44,12 +44,6 @@ jobs:
         with:
           name: IOIO-Espresso-report
           path: applications/**/build/reports/androidTests/connected/
-      - name: Save logcat output
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: IOIO-logcat
-          path: artifacts/logcat.log
       - name: Archive screenshots
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
