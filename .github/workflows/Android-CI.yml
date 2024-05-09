@@ -35,6 +35,7 @@ jobs:
           api: 28
           tag: default
           abi: x86
+          cmdOptions: -noaudio -no-boot-anim -no-window -metrics-collection
       - name: Archive Espresso results
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
