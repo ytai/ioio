@@ -4,10 +4,10 @@ apply plugin: 'kotlin-android'
 android {
     namespace "ioio.examples.hello"
 
-    compileSdkVersion 33
     defaultConfig {
 
         minSdkVersion 21
+        compileSdk 33
         targetSdkVersion 33
 
         versionCode getGitCommitCount()
