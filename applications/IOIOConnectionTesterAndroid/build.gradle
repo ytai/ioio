@@ -12,7 +12,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.google.guava:guava:32.1.3-jre'
     implementation project(':IOIOConnectionTester')
 
     implementation project(':IOIOLibAndroidBluetooth')
