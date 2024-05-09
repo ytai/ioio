@@ -80,3 +80,26 @@ jobs:
         with:
           name: IOIO-Lint-report
           path: applications/**/build/reports/lint-results.html
+
+  buildRelease:
+    name: Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macOS-14 ]
+        java_version: [ 17 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: ${{ matrix.java_version }}
+      - name: build release
+        run: ./gradlew assembleRelease
+        env:
+          VERSION: ${{ github.ref }}
