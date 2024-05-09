@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11
+          java-version: 17
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.16.7
       - name: Build project
