@@ -5,7 +5,6 @@ android {
     namespace "ioio.examples.hello"
 
     defaultConfig {
-
         minSdkVersion 21
         compileSdk 33
         targetSdkVersion 33

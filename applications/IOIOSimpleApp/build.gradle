@@ -4,7 +4,6 @@ apply plugin: 'kotlin-android'
 android {
     namespace "ioio.examples.simple"
     defaultConfig {
-
         minSdkVersion 21
         compileSdk 33
         targetSdkVersion 33
