@@ -11,6 +11,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
@@ -56,6 +57,13 @@ public class HelloIOIOService extends IOIOService {
         } else {
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
 
+            int pendingIntentFlags;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+            } else {
+                pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+            }
+
             notificationBuilder
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setTicker("IOIO service running")
@@ -63,7 +71,7 @@ public class HelloIOIOService extends IOIOService {
                     .setContentTitle("IOIO Service")
                     .setContentText("Click to stop")
                     .setContentIntent(PendingIntent.getService(this, 0, new Intent(
-                            "stop", null, this, this.getClass()), 0));
+                            "stop", null, this, this.getClass()), pendingIntentFlags));
 
             if (notificationManager != null) {
                 notificationManager.notify(1, notificationBuilder.build());

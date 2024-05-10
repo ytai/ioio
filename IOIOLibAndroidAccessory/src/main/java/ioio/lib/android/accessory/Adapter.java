@@ -31,12 +31,10 @@ package ioio.lib.android.accessory;
 
 import ioio.lib.spi.NoRuntimeSupportException;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.hardware.usb.UsbManager;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
 /**
@@ -50,22 +48,22 @@ import android.os.ParcelFileDescriptor;
  * UsbAccessory.
  */
 class Adapter {
-    Support support_ = Support.NONE;
+    Support support_;
 
     Adapter() throws NoRuntimeSupportException {
         try {
             Class.forName("android.hardware.usb.UsbManager");
             support_ = Support.NEW;
             return;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
         try {
             Class.forName("android.hardware.usb.UsbManager");
             support_ = Support.LEGACY;
             return;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
-        throw new NoRuntimeSupportException("No support for USB accesory mode.");
+        throw new NoRuntimeSupportException("No support for USB accessory mode.");
     }
 
     AbstractUsbManager getManager(ContextWrapper wrapper) {
@@ -79,7 +77,6 @@ class Adapter {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private AbstractUsbManager getManagerNew(ContextWrapper wrapper) {
         final android.hardware.usb.UsbManager manager = (android.hardware.usb.UsbManager) wrapper
                 .getSystemService(Context.USB_SERVICE);
@@ -92,7 +89,7 @@ class Adapter {
     }
 
     private enum Support {
-        NEW, LEGACY, NONE
+        NEW, LEGACY
     }
 
     interface UsbAccessoryInterface {
@@ -101,8 +98,7 @@ class Adapter {
     static abstract class AbstractUsbManager {
         final String EXTRA_PERMISSION_GRANTED;
 
-        protected AbstractUsbManager(String action_usb_accessory_detached,
-                                     String extra_permission_granted) {
+        protected AbstractUsbManager(String extra_permission_granted) {
             EXTRA_PERMISSION_GRANTED = extra_permission_granted;
         }
 
@@ -127,7 +123,7 @@ class Adapter {
         private final android.hardware.usb.UsbManager manager_;
 
         private LegacyUsbManager(android.hardware.usb.UsbManager manager) {
-            super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
+            super(
                     android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
             manager_ = manager;
         }
@@ -161,18 +157,17 @@ class Adapter {
                 return null;
             UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
             for (int i = 0; i < accs.length; ++i) {
-                result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
+                result[i] = new UsbAccessoryAdapter<>(accs[i]);
             }
             return result;
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private static final class NewUsbManager extends AbstractUsbManager {
         private final android.hardware.usb.UsbManager manager_;
 
         private NewUsbManager(android.hardware.usb.UsbManager manager) {
-            super(android.hardware.usb.UsbManager.ACTION_USB_ACCESSORY_DETACHED,
+            super(
                     android.hardware.usb.UsbManager.EXTRA_PERMISSION_GRANTED);
             manager_ = manager;
         }
@@ -206,7 +201,7 @@ class Adapter {
                 return null;
             UsbAccessoryInterface[] result = new UsbAccessoryInterface[accs.length];
             for (int i = 0; i < accs.length; ++i) {
-                result[i] = new UsbAccessoryAdapter<android.hardware.usb.UsbAccessory>(accs[i]);
+                result[i] = new UsbAccessoryAdapter<>(accs[i]);
             }
             return result;
         }

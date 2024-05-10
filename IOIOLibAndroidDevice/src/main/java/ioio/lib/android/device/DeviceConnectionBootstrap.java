@@ -66,7 +66,6 @@ import android.util.Log;
  * @author Nadir Izrael
  * @author Ytai Ben-Tsvi
  */
-@TargetApi(12)
 public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         ContextWrapperDependent, IOIOConnectionBootstrap {
     private static final String TAG = "DevConnBootstrap";
@@ -92,10 +91,8 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
     private UsbEndpoint epOut_;
     private InputStream inputStream_;
     private OutputStream outputStream_;
+
     public DeviceConnectionBootstrap() {
-        if (Build.VERSION.SDK_INT < 12) {
-            throw new NoRuntimeSupportException("OTG is not supported on this device.");
-        }
     }
 
     @Override
@@ -474,8 +471,13 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
             if (usbManager_.hasPermission(device_)) {
                 permission_ = Permission.GRANTED;
             } else {
-                pendingIntent_ = PendingIntent.getBroadcast(activity_, 0, new Intent(
-                        ACTION_USB_PERMISSION), 0);
+                int pendingIntentFlags;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                } else {
+                    pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                }
+                pendingIntent_ = PendingIntent.getBroadcast(activity_, 0, new Intent(ACTION_USB_PERMISSION), pendingIntentFlags);
                 usbManager_.requestPermission(device_, pendingIntent_);
                 permission_ = Permission.PENDING;
             }
@@ -553,12 +555,12 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         }
 
         @Override
-        public InputStream getInputStream() throws ConnectionLostException {
+        public InputStream getInputStream() {
             return inputStream_;
         }
 
         @Override
-        public OutputStream getOutputStream() throws ConnectionLostException {
+        public OutputStream getOutputStream() {
             return outputStream_;
         }
     }

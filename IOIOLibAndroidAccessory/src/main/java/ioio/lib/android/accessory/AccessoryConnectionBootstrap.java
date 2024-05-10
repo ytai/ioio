@@ -53,6 +53,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -154,7 +155,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         return null;
     }
 
-    private synchronized void waitForConnect(Connection connection) throws ConnectionLostException {
+    private synchronized void waitForConnect() throws ConnectionLostException {
         // In order to simplify the connection process in face of many different sequences of events
         // that might occur, we collapsed the entire sequence into one non-blocking method,
         // tryOpen(), which tries the entire process from the beginning, undoes everything if
@@ -196,8 +197,15 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         if (!usbManager_.hasPermission(accessory)) {
             if (pendingIntent_ == null) {
                 Log.v(TAG, "Requesting permission.");
-                pendingIntent_ = PendingIntent.getBroadcast(activity_, 0, new Intent(
-                        ACTION_USB_PERMISSION), 0);
+
+                int pendingIntentFlags;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                } else {
+                    pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                }
+
+                pendingIntent_ = PendingIntent.getBroadcast(activity_, 0, new Intent(ACTION_USB_PERMISSION), pendingIntentFlags);
                 usbManager_.requestPermission(accessory, pendingIntent_);
             }
             return false;
@@ -233,7 +241,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
                 // bug:
                 // http://code.google.com/p/android/issues/detail?id=20545
                 while (inputStream_.read() != 1) {
-                    trySleep(1000);
+                    trySleep();
                 }
 
                 success = true;
@@ -268,11 +276,11 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         activity_.unregisterReceiver(this);
     }
 
-    private void trySleep(long time) {
+    private void trySleep() {
         synchronized (AccessoryConnectionBootstrap.this) {
             try {
-                AccessoryConnectionBootstrap.this.wait(time);
-            } catch (InterruptedException e) {
+                AccessoryConnectionBootstrap.this.wait(1000);
+            } catch (InterruptedException ignored) {
             }
         }
     }
@@ -285,12 +293,12 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         private InstanceState instanceState_ = InstanceState.INIT;
 
         @Override
-        public InputStream getInputStream() throws ConnectionLostException {
+        public InputStream getInputStream() {
             return inputStream_;
         }
 
         @Override
-        public OutputStream getOutputStream() throws ConnectionLostException {
+        public OutputStream getOutputStream() {
             return outputStream_;
         }
 
@@ -307,7 +315,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
                 }
 
                 try {
-                    AccessoryConnectionBootstrap.this.waitForConnect(this);
+                    AccessoryConnectionBootstrap.this.waitForConnect();
                     instanceState_ = InstanceState.CONNECTED;
                 } catch (ConnectionLostException e) {
                     instanceState_ = InstanceState.DEAD;
@@ -327,7 +335,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         }
 
         @Override
-        protected void finalize() throws Throwable {
+        protected void finalize() {
             disconnect();
         }
     }
