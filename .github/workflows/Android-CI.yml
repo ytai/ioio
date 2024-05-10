@@ -52,6 +52,7 @@ jobs:
           path:  |
             applications/**/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
             applications/**/build/outputs/androidTest-results/connected
+
   Check:
     name: Check
     runs-on: ${{ matrix.os }}
@@ -103,3 +104,7 @@ jobs:
         run: ./gradlew assembleRelease
         env:
           VERSION: ${{ github.ref }}
+      - name: investigate aar
+        run: find . -name "*release.aar"
+      - name: investigate jar
+        run: find . -name "IOIO*.jar"

@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
+    namespace 'ioio.lib.accessory'
     defaultConfig {
         minSdkVersion 14
         compileSdk 33
         targetSdkVersion 33
 
     }
-    namespace 'ioio.lib.accessory'
 }
 
 dependencies {
