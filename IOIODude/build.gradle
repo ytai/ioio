@@ -6,8 +6,8 @@ task distJar(type: OneJar) {
 }
 
 task zip(type: Zip, dependsOn: distJar) {
-    baseName = 'IOIODude'
-    version = '0103'
+    archiveBaseName = 'IOIODude'
+    archiveVersion = '0103'
 
     from distJar
     from('ioiodude', 'ioiodude.bat')
