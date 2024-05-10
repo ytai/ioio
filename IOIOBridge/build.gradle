@@ -6,8 +6,8 @@ task distJar(type: OneJar) {
 }
 
 task zip(type: Zip, dependsOn: distJar) {
-    baseName = 'IOIOBridge'
-    version = '0103'
+    archiveBaseName = 'IOIOBridge'
+    archiveVersion = '0103'
 
     from distJar
     from('ioiobridge', 'ioiobridge.bat')
