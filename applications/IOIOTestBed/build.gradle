@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "ioio.test_bed"
     defaultConfig {
         minSdkVersion 14
         compileSdk 33
