@@ -3,18 +3,20 @@
     package="ioio.examples.hello_service">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
-        android:theme="@style/Theme.AppCompat.NoActionBar"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+
         <uses-library
             android:name="com.android.future.usb.accessory"
             android:required="false" />
-        <service android:name="HelloIOIOService" />
+
         <activity
             android:name="MainActivity"
-            android:launchMode="singleTask"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,5 +35,7 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
+
+        <service android:name="HelloIOIOService" />
     </application>
 </manifest>
