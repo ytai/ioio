@@ -17,11 +17,11 @@ dependencies {
     api 'androidx.appcompat:appcompat:1.6.1'
 }
 
-project.afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
+                from components.findByName('release')
             }
         }
     }
