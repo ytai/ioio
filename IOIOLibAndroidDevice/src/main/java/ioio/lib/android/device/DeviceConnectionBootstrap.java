@@ -42,6 +42,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -484,11 +485,18 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        activity_.registerReceiver(this, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                activity_.registerReceiver(this, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else
+                activity_.registerReceiver(this, filter);
+        } else
+            activity_.registerReceiver(this, filter);
     }
 
     private void unregisterReceiver() {
