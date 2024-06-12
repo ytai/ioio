@@ -16,4 +16,6 @@ dependencies {
     implementation project(':IOIOLibAndroidBluetooth')
     implementation project(':IOIOLibAndroidAccessory')
     implementation project(':IOIOLibAndroidDevice')
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }

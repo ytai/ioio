@@ -17,9 +17,7 @@ allprojects {
     version = getTag()
     ext.versionNamespace = 'IOIO'
     ext.versionString = sprintf("%s%s", versionNamespace, version)
-}
 
-subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
