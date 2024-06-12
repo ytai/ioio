@@ -1,16 +1,18 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java-library'
+}
 
 javadoc {
     source = fileTree(dir: 'src/main/java')
     failOnError = false
 }
 
-task javadocJar(type: Jar) {
+tasks.register('javadocJar', Jar) {
     archiveClassifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -22,4 +24,9 @@ artifacts {
 dependencies {
     implementation 'com.sparetimelabs:purejavacomm:1.0.1'
     api project(":IOIOLibCore")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
