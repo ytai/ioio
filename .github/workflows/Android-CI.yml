@@ -101,7 +101,7 @@ jobs:
           distribution: 'adopt'
           java-version: ${{ matrix.java_version }}
       - name: build release
-        run: ./gradlew assembleRelease
+        run: ./gradlew assemble
         env:
           VERSION: ${{ github.ref }}
       - name: investigate aar
