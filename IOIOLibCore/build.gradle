@@ -1,6 +1,9 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
 
-task generateVersionFile(type: GenerateVersion) {
+tasks.register('generateVersionFile', GenerateVersion) {
     version = versionString
     outputFile = file("$project.buildDir/classes/main/version.properties")
 }
@@ -12,12 +15,12 @@ javadoc {
     failOnError = false
 }
 
-task javadocJar(type: Jar) {
+tasks.register('javadocJar', Jar) {
     archiveClassifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -40,4 +43,19 @@ class GenerateVersion extends DefaultTask {
         properties.setProperty("version", version)
         properties.store(file.newWriter(), null)
     }
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
+                from components.findByName('release')
+            }
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }

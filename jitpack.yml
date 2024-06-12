@@ -1,6 +1,7 @@
 jdk:
   - openjdk17
 install:
+  - ./gradlew :IOIOLibCore:build :IOIOLibCore:publishToMavenLocal
   - ./gradlew :IOIOLibAndroid:build :IOIOLibAndroid:publishToMavenLocal
   - ./gradlew :IOIOLibAndroidBluetooth:build :IOIOLibAndroidBluetooth:publishToMavenLocal
   - ./gradlew :IOIOLibAndroidAccessory:build :IOIOLibAndroidAccessory:publishToMavenLocal
