@@ -1,7 +1,7 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 
 android {
-    namespace 'ioio.examples.hello_service'
+    namespace "ioio.examples.hello_service"
     defaultConfig {
         minSdkVersion 14
         compileSdk 34
@@ -13,9 +13,9 @@ android {
 }
 
 dependencies {
-    implementation project(':IOIOLibAndroidBluetooth')
-    implementation project(':IOIOLibAndroidAccessory')
-    implementation project(':IOIOLibAndroidDevice')
+    implementation project(":IOIOLibAndroidBluetooth")
+    implementation project(":IOIOLibAndroidAccessory")
+    implementation project(":IOIOLibAndroidDevice")
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.appcompat:appcompat:1.6.1"
 }

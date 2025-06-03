@@ -1,10 +1,10 @@
 plugins {
-    id 'com.android.library'
-    id 'maven-publish'
+    id "com.android.library"
+    id "maven-publish"
 }
 
 android {
-    namespace 'ioio.lib.accessory'
+    namespace "ioio.lib.accessory"
     defaultConfig {
         minSdkVersion 14
         compileSdk 34
@@ -20,7 +20,7 @@ publishing {
     publications {
         release(MavenPublication) {
             afterEvaluate {
-                from components.findByName('release')
+                from components.findByName("release")
             }
         }
     }
