@@ -1,10 +1,10 @@
 plugins {
-    id 'com.android.library'
-    id 'maven-publish'
+    id "com.android.library"
+    id "maven-publish"
 }
 
 android {
-    namespace 'ioio.lib'
+    namespace "ioio.lib"
     defaultConfig {
         minSdkVersion 14
         compileSdk 34
@@ -14,14 +14,14 @@ android {
 
 dependencies {
     api project(":IOIOLibCore")
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.appcompat:appcompat:1.6.1"
 }
 
 publishing {
     publications {
         release(MavenPublication) {
             afterEvaluate {
-                from components.findByName('release')
+                from components.findByName("release")
             }
         }
     }

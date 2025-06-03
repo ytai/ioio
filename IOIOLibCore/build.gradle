@@ -49,7 +49,7 @@ publishing {
     publications {
         release(MavenPublication) {
             afterEvaluate {
-                from components.findByName('release')
+                from components.findByName("release")
             }
         }
     }

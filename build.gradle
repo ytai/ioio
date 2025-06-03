@@ -1,25 +1,25 @@
 buildscript {
-    ext.kotlin_version = '2.1.21'
+    ext.kotlin_version = "2.1.21"
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.10.1'
+        classpath "com.android.tools.build:gradle:8.10.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.github.hannesa2:gradle-one-jar:1.7"
     }
 }
 
 allprojects {
-    group = 'com.github.ioio'
+    group = "com.github.ioio"
     version = getTag()
-    ext.versionNamespace = 'IOIO'
+    ext.versionNamespace = "IOIO"
     ext.versionString = sprintf("%s%s", versionNamespace, version)
 
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
+    apply plugin: "maven-publish"
+    apply plugin: "signing"
 
     repositories {
         google()
@@ -28,7 +28,7 @@ allprojects {
             url "http://www.sparetimelabs.com/maven2"
             allowInsecureProtocol = true
         }
-        maven { url 'https://jitpack.io' }
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -53,7 +53,7 @@ static def getTag() {
     return tagVersion
 }
 
-@SuppressWarnings('unused')
+@SuppressWarnings("unused")
 static def getGitCommitCount() {
     def process = "git rev-list HEAD --count".execute()
     return process.text.toInteger()

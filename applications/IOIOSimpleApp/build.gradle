@@ -1,5 +1,5 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
 
 android {
     namespace "ioio.examples.simple"
@@ -12,7 +12,7 @@ android {
         versionName getTag()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments useTestStorageService: 'true'
+        testInstrumentationRunnerArguments useTestStorageService: "true"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -21,11 +21,11 @@ android {
 }
 
 dependencies {
-    implementation project(':IOIOLibAndroidBluetooth')
-    implementation project(':IOIOLibAndroidAccessory')
-    implementation project(':IOIOLibAndroidDevice')
+    implementation project(":IOIOLibAndroidBluetooth")
+    implementation project(":IOIOLibAndroidAccessory")
+    implementation project(":IOIOLibAndroidDevice")
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.appcompat:appcompat:1.6.1"
 
     androidTestImplementation "androidx.test.ext:junit-ktx:1.1.5"
     androidTestUtil "androidx.test.services:test-services:1.4.2"

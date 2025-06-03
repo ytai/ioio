@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 
 android {
     namespace "ioio.applications.shoebot"
@@ -13,8 +13,8 @@ android {
 }
 
 dependencies {
-    implementation project(':IOIOLibAndroidBluetooth')
-    implementation project(':IOIOLibAndroidAccessory')
+    implementation project(":IOIOLibAndroidBluetooth")
+    implementation project(":IOIOLibAndroidAccessory")
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.appcompat:appcompat:1.6.1"
 }

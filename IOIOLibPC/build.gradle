@@ -1,19 +1,19 @@
 plugins {
-    id 'java-library'
+    id "java-library"
 }
 
 javadoc {
-    source = fileTree(dir: 'src/main/java')
+    source = fileTree(dir: "src/main/java")
     failOnError = false
 }
 
-tasks.register('javadocJar', Jar) {
-    archiveClassifier = 'javadoc'
+tasks.register("javadocJar", Jar) {
+    archiveClassifier = "javadoc"
     from javadoc
 }
 
-tasks.register('sourcesJar', Jar) {
-    archiveClassifier = 'sources'
+tasks.register("sourcesJar", Jar) {
+    archiveClassifier = "sources"
     from sourceSets.main.allSource
 }
 
@@ -22,7 +22,7 @@ artifacts {
 }
 
 dependencies {
-    implementation 'com.sparetimelabs:purejavacomm:1.0.1'
+    implementation "com.sparetimelabs:purejavacomm:1.0.1"
     api project(":IOIOLibCore")
 }
 
