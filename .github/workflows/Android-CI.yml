@@ -39,13 +39,13 @@ jobs:
           abi: x86
           cmdOptions: -noaudio -no-boot-anim -no-window -metrics-collection
       - name: Archive Espresso results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ always() }}
         with:
           name: IOIO-Espresso-report
           path: applications/**/build/reports/androidTests/connected/
       - name: Archive screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ always() }}
         with:
           name: IOIO-Screenshots
@@ -76,7 +76,7 @@ jobs:
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ always() }}
         with:
           name: IOIO-Lint-report
