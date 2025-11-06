@@ -22,9 +22,11 @@ android {
 }
 
 dependencies {
-    implementation project(":IOIOLibAndroidBluetooth")
-    implementation project(":IOIOLibAndroidAccessory")
-    implementation project(":IOIOLibAndroidDevice")
+    implementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:6.3.2"
+    implementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:6.3.2"
+    implementation "com.github.ytai.ioio:IOIOLibAndroidDevice:6.3.2"
+    implementation "com.github.ytai.ioio:IOIOLibAndroid:6.3.2"
+    implementation "com.github.ytai.ioio:IOIOLibCore:6.3.2"
 
     implementation "androidx.appcompat:appcompat:1.6.1"
 
