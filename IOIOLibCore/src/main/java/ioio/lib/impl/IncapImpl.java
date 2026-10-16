@@ -66,7 +66,7 @@ class IncapImpl extends AbstractPin implements DataModuleListener, PulseInput {
             result |= ((int) data[i]) & 0xFF;
         }
         if (result == 0) {
-            result = 1 << (size * 8);
+            result = 1L << (size * 8);
         }
         return result;
     }
