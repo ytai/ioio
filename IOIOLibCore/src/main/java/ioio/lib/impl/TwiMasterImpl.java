@@ -86,6 +86,10 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         p.addr_ = address;
 
         synchronized (this) {
+            // Check again under the lock: disconnected() may have run
+            // since the check above, and a result queued after it
+            // would never complete.
+            checkState();
             pendingRequests_.add(result);
             try {
                 outgoing_.write(p);
