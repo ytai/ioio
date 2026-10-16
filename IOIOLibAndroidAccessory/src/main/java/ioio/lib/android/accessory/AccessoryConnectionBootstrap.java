@@ -93,7 +93,10 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         final String action = intent.getAction();
         if (ACTION_USB_PERMISSION.equals(action)) {
             pendingIntent_ = null;
-            if (intent.getBooleanExtra(usbManager_.EXTRA_PERMISSION_GRANTED, false)) {
+            // The PendingIntent is immutable, so the system cannot add
+            // EXTRA_PERMISSION_GRANTED to it; ask the UsbManager.
+            UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
+            if (accessories != null && usbManager_.hasPermission(accessories[0])) {
                 notifyAll();
             } else {
                 Log.e(TAG, "Permission denied");
