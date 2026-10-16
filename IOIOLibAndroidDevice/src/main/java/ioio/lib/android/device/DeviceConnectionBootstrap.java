@@ -237,12 +237,18 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
                     if (!shouldOpen_ || !shouldOpenDevice_) {
                         if (permission_ == Permission.PENDING) {
                             pendingIntent_.cancel();
+                            // The cancelled request will never answer;
+                            // ask again next time.
+                            permission_ = Permission.UNKNOWN;
                         }
                         setState(State.DEVICE_ATTACHED);
                     } else if (device_ == null) {
                         // Detached
                         if (permission_ == Permission.PENDING) {
                             pendingIntent_.cancel();
+                            // The cancelled request will never answer;
+                            // ask again next time.
+                            permission_ = Permission.UNKNOWN;
                         }
                         setState(State.WAIT_DEVICE_ATTACHED);
                     } else {
