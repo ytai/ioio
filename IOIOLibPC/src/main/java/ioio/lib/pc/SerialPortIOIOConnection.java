@@ -82,7 +82,7 @@ class SerialPortIOIOConnection implements IOIOConnection {
             } catch (NoSuchPortException e) {
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException e1) {
+                } catch (InterruptedException ignored) {
                 }
             } catch (Exception e) {
                 if (serialPort_ != null) {
@@ -99,19 +99,19 @@ class SerialPortIOIOConnection implements IOIOConnection {
         if (serialPort_ != null) {
             try {
                 inputStream_.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
             serialPort_.close();
         }
     }
 
     @Override
-    public InputStream getInputStream() throws ConnectionLostException {
+    public InputStream getInputStream() {
         return inputStream_;
     }
 
     @Override
-    public OutputStream getOutputStream() throws ConnectionLostException {
+    public OutputStream getOutputStream() {
         return outputStream_;
     }
 

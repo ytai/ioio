@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import android.annotation.TargetApi;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 
@@ -43,7 +42,6 @@ import android.hardware.usb.UsbEndpoint;
  * @author Nadir Izrael
  * @author Ytai Ben-Tsvi
  */
-@TargetApi(12)
 public class Streams {
     // It seems that for bulkTransfer, giving timeout of 0 does what we need.
     // The documentation on the Android side of things is not clear about what
@@ -62,7 +60,7 @@ public class Streams {
 
         @Override
         public int read() throws IOException {
-            return read(buffer_, 0, 1) == 1 ? buffer_[0] : -1;
+            return (read(buffer_, 0, 1) == 1 ? buffer_[0] : -1) & 0xFF;
         }
 
         @Override

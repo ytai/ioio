@@ -57,8 +57,7 @@ import ioio.lib.util.IOIOLooperProvider;
  */
 public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper {
     static {
-        IOIOConnectionRegistry
-                .addBootstraps(new String[]{"ioio.lib.pc.SerialPortIOIOConnectionBootstrap"});
+        IOIOConnectionRegistry.addBootstraps(new String[]{"ioio.lib.pc.SerialPortIOIOConnectionBootstrap"});
     }
 
     private final IOIOConnectionManager manager_ = new IOIOConnectionManager(

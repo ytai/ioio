@@ -21,7 +21,7 @@ public class Version {
                 Properties properties = new Properties();
                 properties.load(stream);
                 VERSION = properties.getProperty("version", VERSION);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
         }

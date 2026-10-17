@@ -29,7 +29,7 @@
 package ioio.lib.api.exception;
 
 /**
- * The IOIO board does not have anymore of the requested resource. This
+ * The IOIO board does not have anymore of the requested resource. These
  * exceptions do not need to be handled if the client guarantees that the limits
  * on concurrent resource usage are never exceeded.
  */

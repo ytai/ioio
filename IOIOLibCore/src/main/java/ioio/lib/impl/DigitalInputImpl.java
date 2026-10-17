@@ -28,14 +28,13 @@
  */
 package ioio.lib.impl;
 
+import java.io.IOException;
+
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.IncomingState.InputPinListener;
 
-import java.io.IOException;
-
-class DigitalInputImpl extends AbstractPin implements DigitalInput,
-        InputPinListener {
+class DigitalInputImpl extends AbstractPin implements DigitalInput, InputPinListener {
     private boolean value_;
     private boolean valid_ = false;
 

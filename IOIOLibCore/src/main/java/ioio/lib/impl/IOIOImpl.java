@@ -111,8 +111,6 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             Log.d(TAG, "Connection lost / aborted");
             state_ = State.DEAD;
             throw e;
-        } catch (IncompatibilityException e) {
-            throw e;
         } catch (InterruptedException e) {
             Log.e(TAG, "Unexpected exception", e);
         }
@@ -195,7 +193,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
         try {
             protocol_.setPinDigitalIn(pin.id, DigitalInput.Spec.Mode.FLOATING);
             resourceManager_.free(pin);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 

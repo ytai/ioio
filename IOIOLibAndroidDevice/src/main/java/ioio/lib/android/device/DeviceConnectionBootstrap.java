@@ -33,7 +33,6 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FixedReadBufferedInputStream;
 import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.NoRuntimeSupportException;
 import ioio.lib.util.android.ContextWrapperDependent;
 
 import java.io.BufferedOutputStream;
@@ -43,7 +42,6 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -438,7 +436,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
      * <p>
      * The IOIO uses this signal to indicate whether a client is currently connected to it.
      *
-     * @param {@code true} means start a session, {@code false} means end a session.
+     * @param dtr {@code true} means start a session, {@code false} means end a session.
      * @return {@code true} if the transfer succeeded.
      */
     private boolean setDTR(boolean dtr) {

@@ -53,7 +53,7 @@ class PwmImpl extends AbstractPin implements PwmOutput {
         try {
             ioio_.protocol_.setPwmPeriod(pwm_.id, 0, IOIOProtocol.PwmScale.SCALE_1X);
             ioio_.resourceManager_.free(pwm_);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         super.close();
     }

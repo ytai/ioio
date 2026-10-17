@@ -6,8 +6,6 @@ import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
-
 /**
  * A base class for creating Swing-based IOIO applications.
  * <p>
@@ -72,12 +70,7 @@ public abstract class IOIOSwingApp extends WindowAdapter implements IOIOLooperPr
     public IOIOPcApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
 
     public void go(final String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                createMainWindow(args).addWindowListener(IOIOSwingApp.this);
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(() -> createMainWindow(args).addWindowListener(IOIOSwingApp.this));
     }
 
     protected abstract Window createMainWindow(String[] args);

@@ -77,7 +77,7 @@ class UartImpl extends AbstractResource implements DataModuleListener, Sender, U
         try {
             ioio_.protocol_.uartClose(uart_.id);
             ioio_.resourceManager_.free(uart_);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         if (rxPin_ != null) {
             ioio_.closePin(rxPin_);

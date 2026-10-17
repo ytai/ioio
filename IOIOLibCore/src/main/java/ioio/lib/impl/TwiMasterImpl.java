@@ -28,6 +28,10 @@
  */
 package ioio.lib.impl;
 
+import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import ioio.lib.api.TwiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledPacketSender.Packet;
@@ -36,17 +40,14 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
 
-import java.io.IOException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 class TwiMasterImpl extends AbstractResource implements TwiMaster,
         DataModuleListener, Sender {
-    private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<TwiMasterImpl.TwiResult>();
+    private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<>();
     private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
             this);
     private final Resource twi_;
     private final Resource[] pins_;
+
     TwiMasterImpl(IOIOImpl ioio, Resource twi, Resource[] pins) throws ConnectionLostException {
         super(ioio);
         twi_ = twi;
@@ -72,8 +73,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
     }
 
     @Override
-    public Result writeReadAsync(int address, boolean tenBitAddr,
-                                 byte[] writeData, int writeSize, byte[] readData, int readSize)
+    public Result writeReadAsync(int address, boolean tenBitAddr, byte[] writeData, int writeSize, byte[] readData, int readSize)
             throws ConnectionLostException {
         checkState();
         TwiResult result = new TwiResult(readData);
@@ -127,7 +127,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         try {
             ioio_.protocol_.i2cClose(twi_.id);
             ioio_.resourceManager_.free(twi_, pins_);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         super.close();
     }
@@ -143,7 +143,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         }
     }
 
-    class TwiResult extends ResourceLifeCycle implements Result {
+    static class TwiResult extends ResourceLifeCycle implements Result {
         private final byte[] data_;
         private boolean ready_ = false;
         private boolean success_;
@@ -173,7 +173,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         }
     }
 
-    class OutgoingPacket implements Packet {
+    static class OutgoingPacket implements Packet {
         int writeSize_;
         byte[] writeData_;
         boolean tenBitAddr_;
