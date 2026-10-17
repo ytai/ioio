@@ -1,0 +1,32 @@
+plugins {
+    id("com.android.library")
+    id("maven-publish")
+}
+
+android {
+    namespace = "ioio.lib"
+    defaultConfig {
+        minSdk = 14
+        compileSdk = 34
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+
+dependencies {
+    api(project(":IOIOLibCore"))
+    implementation("androidx.appcompat:appcompat:1.6.1")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            afterEvaluate {
+                from(components.findByName("release"))
+            }
+        }
+    }
+}

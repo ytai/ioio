@@ -28,13 +28,13 @@
  */
 package ioio.lib.util;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
+import androidx.appcompat.app.AppCompatActivity;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIOFactory;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -81,6 +81,7 @@ import ioio.lib.util.android.ContextWrapperDependent;
  *
  * @deprecated Please use {@link ioio.lib.util.android.IOIOActivity} instead.
  */
+@Deprecated
 public abstract class AbstractIOIOActivity extends AppCompatActivity {
     private static final String TAG = "AbstractIOIOActivity";
 
@@ -91,8 +92,8 @@ public abstract class AbstractIOIOActivity extends AppCompatActivity {
                         "ioio.lib.android.bluetooth.BluetoothIOIOConnectionBootstrap"});
     }
 
-    private Collection<IOIOThread> threads_ = new LinkedList<>();
-    private Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry.getBootstraps();
+    private final Collection<IOIOThread> threads_ = new LinkedList<>();
+    private final Collection<IOIOConnectionBootstrap> bootstraps_ = IOIOConnectionRegistry.getBootstraps();
     private IOIOConnectionFactory currentConnectionFactory_;
 
     /**
