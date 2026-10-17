@@ -56,6 +56,8 @@ class IncomingState implements IncomingHandler {
     private ListenerQueue<SequencerEventListener> sequencerListeners_;
     private SyncListeners syncListeners_;
     private ConnectionState connection_ = ConnectionState.INIT;
+    // The disconnect listeners have run, and the resources are free.
+    private boolean disconnectDone_ = false;
 
     synchronized public void waitConnectionEstablished()
             throws InterruptedException, ConnectionLostException {
@@ -83,7 +85,7 @@ class IncomingState implements IncomingHandler {
     }
 
     synchronized public void waitDisconnect() throws InterruptedException {
-        while (connection_ != ConnectionState.DISCONNECTED) {
+        while (!disconnectDone_) {
             wait();
         }
     }
@@ -134,14 +136,28 @@ class IncomingState implements IncomingHandler {
     }
 
     @Override
-    public synchronized void handleConnectionLost() {
+    public void handleConnectionLost() {
         // logMethod("handleConnectionLost");
-        connection_ = ConnectionState.DISCONNECTED;
-        for (DisconnectListener listener : disconnectListeners_) {
+        final DisconnectListener[] listeners;
+        synchronized (this) {
+            connection_ = ConnectionState.DISCONNECTED;
+            listeners = disconnectListeners_.toArray(
+                    new DisconnectListener[0]);
+            disconnectListeners_.clear();
+        }
+
+        // Call the listeners without holding this object's lock: they
+        // take their own lock and IOIOImpl's, while an application
+        // thread closing a resource takes those first and then this
+        // one (removeDisconnectListener()).
+        for (DisconnectListener listener : listeners) {
             listener.disconnected();
         }
-        disconnectListeners_.clear();
-        notifyAll();
+
+        synchronized (this) {
+            disconnectDone_ = true;
+            notifyAll();
+        }
     }
 
     @Override
