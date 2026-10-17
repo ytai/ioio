@@ -36,6 +36,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -63,7 +64,12 @@ public class SocketIOIOConnection implements IOIOConnection {
                     throw new ConnectionLostException();
                 }
                 Log.v(TAG, "Creating server socket");
-                server_ = new ServerSocket(port_);
+                // Only local clients: adbd in the IOIO's ADB mode and
+                // "adb forward" both connect to 127.0.0.1.  Not
+                // InetAddress.getLoopbackAddress(): Android has it only
+                // since API 19.
+                server_ = new ServerSocket(port_, 50,
+                        InetAddress.getByAddress(new byte[] {127, 0, 0, 1}));
                 server_owned_by_connect_ = false;
             }
             Log.v(TAG, "Waiting for TCP connection");
