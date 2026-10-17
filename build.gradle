@@ -19,16 +19,6 @@ allprojects {
 
     apply plugin: "maven-publish"
     apply plugin: "signing"
-
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url "http://www.sparetimelabs.com/maven2"
-            allowInsecureProtocol = true
-        }
-        maven { url "https://jitpack.io" }
-    }
 }
 
 static def getTag() {
