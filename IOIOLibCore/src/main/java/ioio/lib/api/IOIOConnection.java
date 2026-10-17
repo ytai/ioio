@@ -33,13 +33,36 @@ import java.io.OutputStream;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
+/**
+ * A low-level transport connection to an IOIO board.
+ */
 public interface IOIOConnection {
+    /**
+     * Waits until the underlying transport is connected and ready for I/O.
+     *
+     * @throws ConnectionLostException The connection was lost before it became ready.
+     */
     void waitForConnect() throws ConnectionLostException;
 
+    /**
+     * Disconnects the underlying transport.
+     */
     void disconnect();
 
+    /**
+     * Gets the input stream used for reading data from the connection.
+     *
+     * @return The connection input stream.
+     * @throws ConnectionLostException The connection was lost before the stream could be obtained.
+     */
     InputStream getInputStream() throws ConnectionLostException;
 
+    /**
+     * Gets the output stream used for writing data to the connection.
+     *
+     * @return The connection output stream.
+     * @throws ConnectionLostException The connection was lost before the stream could be obtained.
+     */
     OutputStream getOutputStream() throws ConnectionLostException;
 
     /**

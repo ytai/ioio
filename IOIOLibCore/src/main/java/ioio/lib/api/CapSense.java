@@ -81,6 +81,9 @@ import ioio.lib.api.exception.ConnectionLostException;
  * @see IOIO#openCapSense(int, float)
  */
 public interface CapSense extends Closeable {
+    /**
+     * Default low-pass filter coefficient, in milliseconds.
+     */
     float DEFAULT_COEF = 25.f;
 
     /**

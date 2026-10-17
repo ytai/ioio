@@ -60,17 +60,27 @@ public class IOIOPcApplicationHelper extends IOIOBaseApplicationHelper {
         IOIOConnectionRegistry.addBootstraps(new String[]{"ioio.lib.pc.SerialPortIOIOConnectionBootstrap"});
     }
 
-    private final IOIOConnectionManager manager_ = new IOIOConnectionManager(
-            this);
+    private final IOIOConnectionManager manager_ = new IOIOConnectionManager(this);
 
+    /**
+     * Constructs a new helper for the given application looper provider.
+     *
+     * @param provider the client-provided object responsible for creating {@link IOIOLooper} instances.
+     */
     public IOIOPcApplicationHelper(IOIOLooperProvider provider) {
         super(provider);
     }
 
+    /**
+     * Starts attempting to connect to an IOIO board on every available channel.
+     */
     public void start() {
         manager_.start();
     }
 
+    /**
+     * Disconnects all open connections and stops attempting to connect.
+     */
     public void stop() {
         manager_.stop();
     }

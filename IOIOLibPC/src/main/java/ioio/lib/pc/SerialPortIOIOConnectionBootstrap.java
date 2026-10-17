@@ -43,9 +43,18 @@ import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 
+/**
+ * An {@link IOIOConnectionBootstrap} that discovers IOIO boards connected over serial ports
+ * (including USB-to-serial adapters) on the host machine.
+ */
 public class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
     private static final String TAG = "SerialPortIOIOConnectionBootstrap";
 
+    /**
+     * Returns the names of all serial ports that are currently available for opening.
+     *
+     * @return a collection of openable serial port names.
+     */
     static Collection<String> getAllOpenablePorts() {
         List<String> result = new LinkedList<>();
         Enumeration<CommPortIdentifier> identifiers = CommPortIdentifier.getPortIdentifiers();

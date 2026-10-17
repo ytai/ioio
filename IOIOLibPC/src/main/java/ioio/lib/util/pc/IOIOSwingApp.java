@@ -67,14 +67,31 @@ import java.awt.event.WindowEvent;
  * </pre>
  */
 public abstract class IOIOSwingApp extends WindowAdapter implements IOIOLooperProvider {
+    /** The helper managing the underlying IOIO connection(s). */
     public IOIOPcApplicationHelper helper_ = new IOIOPcApplicationHelper(this);
 
+    /**
+     * Boilerplate entry point. Call this from your {@code main()} method.
+     *
+     * @param args the command-line arguments, as passed to {@code main()}.
+     */
     public void go(final String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> createMainWindow(args).addWindowListener(IOIOSwingApp.this));
     }
 
+    /**
+     * Override this method to create and return your application's main window.
+     *
+     * @param args the command-line arguments, as passed to {@code main()}.
+     * @return the application's main window.
+     */
     protected abstract Window createMainWindow(String[] args);
 
+    /**
+     * Invoked when the main window is being closed; stops the IOIO connection helper.
+     *
+     * @param event the window event.
+     */
     @Override
     public void windowClosing(WindowEvent event) {
         helper_.stop();

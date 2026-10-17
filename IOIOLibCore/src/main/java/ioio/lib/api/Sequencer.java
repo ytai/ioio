@@ -289,6 +289,7 @@ public interface Sequencer extends Closeable {
      * blocking.
      *
      * @return The number of available slots in the cue FIFO.
+     * @throws ConnectionLostException Connection to the IOIO was lost before or during this operation.
      */
     int available() throws ConnectionLostException;
 
@@ -311,6 +312,7 @@ public interface Sequencer extends Closeable {
      * In case the client is not reading fast enough, older events will be discarded as new once
      * arrive, so that the queue always stores the most recent events.
      *
+     * @return The next event from the queue.
      * @throws ConnectionLostException Connection to the IOIO was lost before or during this operation.
      * @throws InterruptedException    The operation was interrupted before completion.
      */
@@ -321,6 +323,7 @@ public interface Sequencer extends Closeable {
      * queue. All events proceeding this event type, including the event of the requested type will
      * be removed from the queue and discarded.
      *
+     * @param type The event type to wait for.
      * @throws ConnectionLostException Connection to the IOIO was lost before or during this operation.
      * @throws InterruptedException    The operation was interrupted before completion.
      */
@@ -394,6 +397,9 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
+         *
+         * @param t The event type.
+         * @param n The number of cues that have started execution.
          */
         public Event(Type t, int n) {
             type = t;
@@ -467,7 +473,6 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
-         * <p>
          *
          * @param clk               See {@link #clk}.
          * @param period            See {@link #period}.
@@ -523,7 +528,6 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
-         * <p>
          *
          * @param clk               See {@link #clk}.
          * @param period            See {@link #period}.
@@ -574,7 +578,6 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
-         * <p>
          *
          * @param clk        See {@link #clk}.
          * @param pulseWidth See {@link #pulseWidth}.
@@ -608,7 +611,6 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
-         * <p>
          *
          * @param pinSpec See {@link #pinSpec}.
          */
@@ -644,7 +646,6 @@ public interface Sequencer extends Closeable {
 
         /**
          * Constructor.
-         * <p>
          *
          * @param initialValue See {@link #initialValue}.
          * @param initWhenIdle See {@link #initWhenIdle}.

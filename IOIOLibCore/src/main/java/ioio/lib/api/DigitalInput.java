@@ -105,6 +105,8 @@ public interface DigitalInput extends Closeable {
 
         /**
          * Shorthand for Spec(pin, Mode.FLOATING).
+         *
+         * @param pin Pin number, as labeled on the board.
          */
         public Spec(int pin) {
             this(pin, Mode.FLOATING);

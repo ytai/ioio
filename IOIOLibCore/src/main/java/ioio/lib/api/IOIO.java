@@ -195,6 +195,9 @@ public interface IOIO {
     /**
      * Shorthand for openDigitalInput(new DigitalInput.Spec(pin)).
      *
+     * @param pin Pin number, as labeled on the board.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openDigitalInput(ioio.lib.api.DigitalInput.Spec)
      */
     DigitalInput openDigitalInput(int pin) throws ConnectionLostException;
@@ -202,6 +205,10 @@ public interface IOIO {
     /**
      * Shorthand for openDigitalInput(new DigitalInput.Spec(pin, mode)).
      *
+     * @param pin Pin number, as labeled on the board.
+     * @param mode Pin mode. See {@link DigitalInput.Spec.Mode} for more information.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openDigitalInput(ioio.lib.api.DigitalInput.Spec)
      */
     DigitalInput openDigitalInput(int pin, DigitalInput.Spec.Mode mode)
@@ -229,6 +236,11 @@ public interface IOIO {
     /**
      * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin, mode), startValue).
      *
+     * @param pin Pin number, as labeled on the board.
+     * @param mode Pin mode. See {@link DigitalOutput.Spec.Mode} for more information.
+     * @param startValue The initial logic level this pin will generate as soon at it is open.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
      */
     DigitalOutput openDigitalOutput(int pin, DigitalOutput.Spec.Mode mode, boolean startValue)
@@ -238,6 +250,10 @@ public interface IOIO {
      * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin), startValue). Pin mode will be
      * "normal" (as opposed to "open-drain".
      *
+     * @param pin Pin number, as labeled on the board.
+     * @param startValue The initial logic level this pin will generate as soon at it is open.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
      */
     DigitalOutput openDigitalOutput(int pin, boolean startValue)
@@ -247,6 +263,9 @@ public interface IOIO {
      * Shorthand for openDigitalOutput(new DigitalOutput.Spec(pin), false). Pin mode will be
      * "normal" (as opposed to "open-drain".
      *
+     * @param pin Pin number, as labeled on the board.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openDigitalOutput(ioio.lib.api.DigitalOutput.Spec, boolean)
      */
     DigitalOutput openDigitalOutput(int pin) throws ConnectionLostException;
@@ -299,6 +318,10 @@ public interface IOIO {
     /**
      * Shorthand for openPwmOutput(new DigitalOutput.Spec(pin), freqHz).
      *
+     * @param pin Pin number, as labeled on the board.
+     * @param freqHz PWM frequency, in Hertz.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openPwmOutput(ioio.lib.api.DigitalOutput.Spec, int)
      */
     PwmOutput openPwmOutput(int pin, int freqHz) throws ConnectionLostException;
@@ -344,6 +367,11 @@ public interface IOIO {
      * Shorthand for openPulseInput(new DigitalInput.Spec(pin), rate, mode, true), i.e. opens a
      * double-precision, 16MHz pulse input on the given pin with the given mode.
      *
+     * @param pin Pin number, as labeled on the board.
+     * @param mode The mode in which to operate. Determines whether the module will measure pulse
+     *             durations or frequency.
+     * @return An instance of the {@link PulseInput}, which can be used to obtain the data.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openPulseInput(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.PulseInput.ClockRate,
      * ioio.lib.api.PulseInput.PulseMode, boolean)
      */
@@ -391,6 +419,13 @@ public interface IOIO {
      * where the input pins use their default specs. {@link #INVALID_PIN} can be used on either pin
      * if a TX- or RX-only UART is needed.
      *
+     * @param rx Pin number for the RX pin, or {@link #INVALID_PIN} if RX is not needed.
+     * @param tx Pin number for the TX pin, or {@link #INVALID_PIN} if TX is not needed.
+     * @param baud The clock frequency of the UART module in Hz.
+     * @param parity The parity mode, as in {@link Parity}.
+     * @param stopbits Number of stop bits, as in {@link StopBits}.
+     * @return Interface of the assigned module.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openUart(DigitalInput.Spec, DigitalOutput.Spec, int, Uart.Parity, Uart.StopBits)
      */
     Uart openUart(int rx, int tx, int baud, Parity parity, StopBits stopbits)
@@ -447,6 +482,13 @@ public interface IOIO {
      * , where the pins are all open with the default modes and default configuration values are
      * used.
      *
+     * @param miso Pin number for the MISO pin, as labeled on the board.
+     * @param mosi Pin number for the MOSI pin, as labeled on the board.
+     * @param clk Pin number for the CLK pin, as labeled on the board.
+     * @param slaveSelect Pin numbers for each slave-select pin; array indexes become slave indexes.
+     * @param rate The SPI clock rate.
+     * @return Interface of the assigned module.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec,
      * ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[],
      * ioio.lib.api.SpiMaster.Config)
@@ -460,6 +502,13 @@ public interface IOIO {
      * , where the MISO pins is opened with pull up, and the other pins are open with the default
      * modes and default configuration values are used. In this version, a single slave is used.
      *
+     * @param miso Pin number for the MISO pin, as labeled on the board.
+     * @param mosi Pin number for the MOSI pin, as labeled on the board.
+     * @param clk Pin number for the CLK pin, as labeled on the board.
+     * @param slaveSelect Pin number for the single slave-select pin, as labeled on the board.
+     * @param rate The SPI clock rate.
+     * @return Interface of the assigned module.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openSpiMaster(ioio.lib.api.DigitalInput.Spec, ioio.lib.api.DigitalOutput.Spec,
      * ioio.lib.api.DigitalOutput.Spec, ioio.lib.api.DigitalOutput.Spec[],
      * ioio.lib.api.SpiMaster.Config)
@@ -516,6 +565,9 @@ public interface IOIO {
     /**
      * Shorthand for openCapSense(pin, CapSense.DEFAULT_COEF).
      *
+     * @param pin Pin number, as labeled on the board.
+     * @return Interface of the assigned pin.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see #openCapSense(int, float)
      */
     CapSense openCapSense(int pin) throws ConnectionLostException;
@@ -532,6 +584,7 @@ public interface IOIO {
      * have been established prior to calling this method, by invoking {@link #waitForConnect()}.
      *
      * @param pin Pin number, as labeled on the board.
+     * @param filterCoef The low-pass filter coefficient, in milliseconds.
      * @return Interface of the assigned pin.
      * @throws ConnectionLostException Connection was lost before or during the execution of this method.
      * @see CapSense

@@ -30,9 +30,20 @@ package ioio.lib.spi;
 
 import ioio.lib.spi.Log.ILogger;
 
+/**
+ * A {@link ILogger} implementation that writes log lines to {@code System.err}.
+ */
 public class LogImpl implements ILogger {
     private static final char[] LEVELS = {'0', '1', 'V', 'D', 'I', 'W', 'E', 'F'};
 
+    /**
+     * Writes a single log line to {@code System.err}, formatted as
+     * {@code [<level>/<tag>] <msg>}.
+     *
+     * @param priority the log priority, as defined in {@link ioio.lib.spi.Log}.
+     * @param tag the log tag identifying the log's source.
+     * @param msg the log message.
+     */
     @Override
     public void write(int priority, String tag, String msg) {
         System.err.println("[" + LEVELS[priority] + "/" + tag + "] " + msg);

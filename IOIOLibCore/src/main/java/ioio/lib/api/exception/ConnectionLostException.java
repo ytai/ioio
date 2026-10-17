@@ -34,10 +34,18 @@ package ioio.lib.api.exception;
 public class ConnectionLostException extends Exception {
     private static final long serialVersionUID = 7422862446246046772L;
 
+    /**
+     * Creates an exception wrapping the underlying cause of the disconnect.
+     *
+     * @param e The exception that caused the connection to be considered lost.
+     */
     public ConnectionLostException(Exception e) {
         super(e);
     }
 
+    /**
+     * Creates an exception indicating that the connection was lost.
+     */
     public ConnectionLostException() {
         super("Connection lost");
     }

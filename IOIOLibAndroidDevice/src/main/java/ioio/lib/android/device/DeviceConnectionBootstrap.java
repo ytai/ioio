@@ -133,7 +133,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         Log.v(TAG, "onReceive(" + intent + ")");
         String action = intent.getAction();
         if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-            UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            UsbDevice device = getUsbDeviceExtra(intent);
             if (device.equals(device_)) {
                 device_ = null;
                 updateState();
@@ -147,6 +147,22 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
                     ? Permission.GRANTED : Permission.DENIED;
             updateState();
         }
+    }
+
+    /**
+     * Retrieves the {@link UsbDevice} extra from a USB broadcast {@link Intent}, using the
+     * type-safe API on {@link Build.VERSION_CODES#TIRAMISU} and above, falling back to the
+     * deprecated untyped API on older platform versions.
+     *
+     * @param intent the broadcast intent, as delivered to {@link #onReceive(Context, Intent)}.
+     * @return the {@link UsbDevice} extra, or {@code null} if absent.
+     */
+    @SuppressWarnings("deprecation")
+    private static UsbDevice getUsbDeviceExtra(Intent intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice.class);
+        }
+        return intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
     }
 
     @Override
