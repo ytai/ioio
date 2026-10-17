@@ -9,18 +9,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macOS-13 ]
-        java_version: [ 17 ]
+        os: [ ubuntu-26.04 ]
+        api: [ 34 ]
+        abi: [ x86_64 ]
+        emulatorApi: [ 14 ]
+        tag: [ 'google_apis' ]
     steps:
+      - name: kvm support
+        run: |
+          egrep -c '(vmx|svm)' /proc/cpuinfo
+          id
+          sudo adduser $USER kvm
+          sudo chown -R $USER /dev/kvm
+          id
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Install JDK ${{ matrix.java_version }}
+      - name: Install JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'adopt'
-          java-version: ${{ matrix.java_version }}
+          distribution: 'temurin'
+          java-version: 17
       - uses: gradle/actions/wrapper-validation@v5
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.16.7
@@ -59,8 +69,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        java_version: [ 17 ]
+        os: [ ubuntu-26.04 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -69,8 +78,8 @@ jobs:
       - name: Install JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'adopt'
-          java-version: ${{ matrix.java_version }}
+          distribution: 'temurin'
+          java-version: 17
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.16.7
       - name: Code checks
@@ -88,18 +97,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macOS-14 ]
-        java_version: [ 17 ]
+        os: [ ubuntu-26.04 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Install JDK ${{ matrix.java_version }}
+      - name: Install JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'adopt'
-          java-version: ${{ matrix.java_version }}
+          distribution: 'temurin'
+          java-version: 17
       - name: build release
         run: ./gradlew assemble
         env:

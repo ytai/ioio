@@ -2,17 +2,24 @@ name: Update Gradle Wrapper
 
 on:
   schedule:
-    - cron: "0 6 * * MON"
+    - cron: "0 8 * * MON"
 
 jobs:
   update-gradle-wrapper:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Install JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 17
       - name: Update Gradle Wrapper
         uses: gradle-update/update-gradle-wrapper-action@v2
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.CLASSIC_TOKEN }}
           set-distribution-checksum: false

@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Publish release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -17,7 +17,7 @@ jobs:
       - name: Install JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 17
       - name: Find Tag
         id: tagger
