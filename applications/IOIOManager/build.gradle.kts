@@ -1,0 +1,42 @@
+plugins {
+    id("com.android.application")
+}
+
+android {
+    namespace = "ioio.manager"
+    defaultConfig {
+        minSdk = 21
+        compileSdk = 34
+
+        versionCode = getGitCommitCount()
+        versionName = getTag()
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["useTestStorageService"] = "true"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFile("proguard-ioio.txt")
+        }
+    }
+
+}
+
+dependencies {
+    implementation(project(":IOIOLibAndroidBluetooth"))
+    implementation(project(":IOIOLibAndroidAccessory"))
+    implementation(project(":IOIOLibAndroidDevice"))
+
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    androidTestUtil("androidx.test.services:test-services:1.4.2")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+}
