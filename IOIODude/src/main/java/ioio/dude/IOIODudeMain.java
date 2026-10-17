@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -49,7 +50,6 @@ public class IOIODudeMain {
     private static final int CHECKSUM = 0x04;
     private static final byte[] buffer_ = new byte[16];
     private static final int PROGRESS_SIZE = 40;
-    private static SerialPortIOIOConnection connection_;
     private static OutputStream out_;
     private static InputStream in_;
     private static String hardwareVersion_;
@@ -80,9 +80,6 @@ public class IOIODudeMain {
                 .println("--force Bypass fingerprint matching and force writing.");
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         if (args.length == 0) {
             printUsage();
@@ -139,8 +136,7 @@ public class IOIODudeMain {
             NoSuchAlgorithmException {
         checkBootloaderProtocol();
         File file = new File(fileName_);
-        ZipFile zip = new ZipFile(file, ZipFile.OPEN_READ);
-        try {
+        try (ZipFile zip = new ZipFile(file, ZipFile.OPEN_READ)) {
             ZipEntry entry = zip.getEntry(platformVersion_ + ".ioio");
             if (entry == null) {
                 System.err
@@ -173,8 +169,6 @@ public class IOIODudeMain {
             System.err.println("Writing fingerprint...");
             writeFingerprint(fileFp);
             System.err.println("Done.");
-        } finally {
-            zip.close();
         }
     }
 
@@ -182,7 +176,7 @@ public class IOIODudeMain {
             throws IOException {
         out_.write(WRITE_IMAGE);
 
-        out_.write((length >> 0) & 0xff);
+        out_.write((length) & 0xff);
         out_.write((length >> 8) & 0xff);
         out_.write((length >> 16) & 0xff);
         out_.write((length >> 24) & 0xff);
@@ -196,7 +190,7 @@ public class IOIODudeMain {
         byte[] buffer = new byte[1024];
         while (-1 != (i = in.read(buffer))) {
             for (int j = 0; j < i; ++j) {
-                checksum += ((int) buffer[j]) & 0xFF;
+                checksum = (short) (checksum + (((int) buffer[j]) & 0xFF));
             }
             out_.write(buffer, 0, i);
             out_.flush();
@@ -385,9 +379,8 @@ public class IOIODudeMain {
         }
     }
 
-    private static void connect(String port) throws IOException,
-            ProtocolException {
-        connection_ = new SerialPortIOIOConnection(port);
+    private static void connect(String port) throws IOException, ProtocolException {
+        SerialPortIOIOConnection connection_ = new SerialPortIOIOConnection(port);
         connection_.waitForConnect();
         out_ = connection_.getOutputStream();
         in_ = connection_.getInputStream();
@@ -466,6 +459,7 @@ public class IOIODudeMain {
     }
 
     private static class ProtocolException extends Exception {
+        @Serial
         private static final long serialVersionUID = 4332923296318917793L;
 
         public ProtocolException(String message) {
@@ -474,6 +468,7 @@ public class IOIODudeMain {
     }
 
     private static class BadArgumentsException extends Exception {
+        @Serial
         private static final long serialVersionUID = -5730905669013719779L;
 
         public BadArgumentsException(String message) {

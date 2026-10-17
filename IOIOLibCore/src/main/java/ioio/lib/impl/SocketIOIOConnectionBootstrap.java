@@ -43,7 +43,7 @@ public class SocketIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
     @Override
     public void getFactories(Collection<IOIOConnectionFactory> result) {
         result.add(new IOIOConnectionFactory() {
-            private Integer port_ = Integer.valueOf(IOIO_PORT);
+            private Integer port_ = IOIO_PORT;
 
             @Override
             public String getType() {

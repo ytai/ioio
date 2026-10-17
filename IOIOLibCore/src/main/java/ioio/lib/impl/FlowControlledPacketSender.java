@@ -36,7 +36,7 @@ class FlowControlledPacketSender {
     private final Sender sender_;
     // We don't actually need the queue to be blocking, but ArrayDeque is only
     // available since API-9.
-    private final Queue<Packet> queue_ = new ArrayBlockingQueue<Packet>(Constants.PACKET_BUFFER_SIZE);
+    private final Queue<Packet> queue_ = new ArrayBlockingQueue<>(Constants.PACKET_BUFFER_SIZE);
     private final FlushThread thread_ = new FlushThread();
     private int readyToSend_ = 0;
     private boolean closed_ = false;

@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 
 public class IOIOFileReader {
     private final File file_;
@@ -112,13 +113,14 @@ public class IOIOFileReader {
     }
 
     private int readInt(int offset) {
-        return (byteToInt(buf_[offset]) << 0)
+        return (byteToInt(buf_[offset]))
                 | (byteToInt(buf_[offset + 1]) << 8)
                 | (byteToInt(buf_[offset + 2]) << 16)
                 | (byteToInt(buf_[offset + 3]) << 24);
     }
 
-    public class FormatException extends Exception {
+    public static class FormatException extends Exception {
+        @Serial
         private static final long serialVersionUID = 7944061537571462938L;
 
         public FormatException(String msg) {

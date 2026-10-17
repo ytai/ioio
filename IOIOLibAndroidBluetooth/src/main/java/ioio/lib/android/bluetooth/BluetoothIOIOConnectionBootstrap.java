@@ -28,7 +28,6 @@
  */
 package ioio.lib.android.bluetooth;
 
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
@@ -41,7 +40,6 @@ import ioio.lib.spi.IOIOConnectionBootstrap;
 import ioio.lib.spi.IOIOConnectionFactory;
 import ioio.lib.spi.NoRuntimeSupportException;
 
-@TargetApi(5)
 public class BluetoothIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
 
     private static final String TAG = "BluetoothIOIOConnection";

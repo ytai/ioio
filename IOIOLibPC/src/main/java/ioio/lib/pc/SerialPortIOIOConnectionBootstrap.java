@@ -29,29 +29,26 @@
 
 package ioio.lib.pc;
 
-import ioio.lib.api.IOIOConnection;
-import ioio.lib.spi.IOIOConnectionBootstrap;
-import ioio.lib.spi.IOIOConnectionFactory;
-import ioio.lib.spi.Log;
-
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
+import ioio.lib.api.IOIOConnection;
+import ioio.lib.spi.IOIOConnectionBootstrap;
+import ioio.lib.spi.IOIOConnectionFactory;
+import ioio.lib.spi.Log;
 import purejavacomm.CommPort;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 
-public class SerialPortIOIOConnectionBootstrap implements
-        IOIOConnectionBootstrap {
+public class SerialPortIOIOConnectionBootstrap implements IOIOConnectionBootstrap {
     private static final String TAG = "SerialPortIOIOConnectionBootstrap";
 
     static Collection<String> getAllOpenablePorts() {
-        List<String> result = new LinkedList<String>();
-        @SuppressWarnings("unchecked")
-        Enumeration<CommPortIdentifier> identifiers = CommPortIdentifier
-                .getPortIdentifiers();
+        List<String> result = new LinkedList<>();
+        Enumeration<CommPortIdentifier> identifiers = CommPortIdentifier.getPortIdentifiers();
         while (identifiers.hasMoreElements()) {
             final CommPortIdentifier identifier = identifiers.nextElement();
             if (identifier.getPortType() == CommPortIdentifier.PORT_SERIAL) {
@@ -59,8 +56,7 @@ public class SerialPortIOIOConnectionBootstrap implements
                     Log.d(TAG, "Adding serial port " + identifier.getName());
                     result.add(identifier.getName());
                 } else {
-                    Log.w(TAG, "Serial port " + identifier.getName()
-                            + " cannot be opened. Not adding.");
+                    Log.w(TAG, "Serial port " + identifier.getName() + " cannot be opened. Not adding.");
                 }
             }
         }
@@ -72,11 +68,9 @@ public class SerialPortIOIOConnectionBootstrap implements
         if (property == null) {
             return null;
         }
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         String[] portNames = property.split(":");
-        for (String portName : portNames) {
-            result.add(portName);
-        }
+        Collections.addAll(result, portNames);
         return result;
     }
 
@@ -86,8 +80,7 @@ public class SerialPortIOIOConnectionBootstrap implements
         }
         // The only way to find out is apparently to try to open the port...
         try {
-            CommPort port = id.open(
-                    SerialPortIOIOConnectionBootstrap.class.getName(), 1000);
+            CommPort port = id.open(SerialPortIOIOConnectionBootstrap.class.getName(), 1000);
             port.close();
         } catch (PortInUseException e) {
             return false;

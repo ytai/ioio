@@ -41,7 +41,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleListener, Sender {
-    private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<SpiMasterImpl.SpiResult>();
+    private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<>();
     private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
     private final Resource spi_;
     private final Resource[] indexToSsPin_;
@@ -134,7 +134,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
         try {
             ioio_.protocol_.spiClose(spi_.id);
             ioio_.resourceManager_.free(spi_);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         ioio_.closePin(mosiPin_);
         ioio_.closePin(misoPin_);
@@ -156,7 +156,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
         }
     }
 
-    public class SpiResult extends ResourceLifeCycle implements Result {
+    public static class SpiResult extends ResourceLifeCycle implements Result {
         private final byte[] data_;
         private boolean ready_ = false;
 
@@ -182,7 +182,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
         }
     }
 
-    class OutgoingPacket implements Packet {
+    static class OutgoingPacket implements Packet {
         int writeSize_;
         byte[] writeData_;
         int ssPin_;

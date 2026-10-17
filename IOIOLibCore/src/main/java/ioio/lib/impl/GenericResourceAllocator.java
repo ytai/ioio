@@ -28,39 +28,38 @@
  */
 package ioio.lib.impl;
 
-import ioio.lib.api.exception.OutOfResourceException;
-import ioio.lib.impl.ResourceManager.Resource;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import ioio.lib.api.exception.OutOfResourceException;
+import ioio.lib.impl.ResourceManager.Resource;
 
 class GenericResourceAllocator implements ResourceManager.ResourceAllocator {
     private final List<Integer> available_;
     private final Set<Integer> allocated_;
 
     public GenericResourceAllocator(int offset, int count) {
-        available_ = new ArrayList<Integer>(count);
-        allocated_ = new HashSet<Integer>(count);
+        available_ = new ArrayList<>(count);
+        allocated_ = new HashSet<>(count);
         for (int i = 0; i < count; i++) {
             available_.add(i + offset);
         }
     }
 
     public GenericResourceAllocator(int[] ids) {
-        available_ = new ArrayList<Integer>(ids.length);
-        allocated_ = new HashSet<Integer>(ids.length);
-        for (int i = 0; i < ids.length; i++) {
-            available_.add(ids[i]);
+        available_ = new ArrayList<>(ids.length);
+        allocated_ = new HashSet<>(ids.length);
+        for (int id : ids) {
+            available_.add(id);
         }
     }
 
     @Override
     public synchronized void alloc(Resource r) {
         if (available_.isEmpty()) {
-            throw new OutOfResourceException(
-                    "No more resources of the requested type: " + r.type);
+            throw new OutOfResourceException("No more resources of the requested type: " + r.type);
         }
         r.id = available_.remove(available_.size() - 1);
         allocated_.add(r.id);

@@ -96,8 +96,6 @@ public abstract class IOIOConsoleApp implements IOIOLooperProvider {
         helper.start();
         try {
             run(args);
-        } catch (Exception e) {
-            throw e;
         } finally {
             helper.stop();
         }

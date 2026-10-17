@@ -64,7 +64,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     private static final String ACTION_USB_PERMISSION = "ioio.lib.accessory.action.USB_PERMISSION";
 
     private ContextWrapper activity_;
-    private Adapter adapter_;
+    private final Adapter adapter_;
     private Adapter.AbstractUsbManager usbManager_;
     private PendingIntent pendingIntent_;
 
@@ -181,7 +181,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
                 return;
             }
             // The buffered stream keeps returning -1 after the end of
-            // the stream without reading again, and a cancelled
+            // the stream without reading again, and a canceled
             // attempt must not keep polling.
             if (b < 0) {
                 throw new IOException("Accessory closed during the handshake");
@@ -301,7 +301,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         private volatile InstanceState instanceState_ = InstanceState.INIT;
 
         // This attempt's own descriptor and streams, so that a
-        // cancelled attempt cannot touch the ones of a later attempt.
+        // canceled attempt cannot touch the ones of a later attempt.
         private ParcelFileDescriptor fileDescriptor_;
         private InputStream inputStream_;
         private OutputStream outputStream_;
