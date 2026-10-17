@@ -80,8 +80,8 @@ public class ResourceManager {
                     free((Resource) args[j]);
                 } else if (args[j] instanceof Resource[]) {
                     free(Arrays.asList((Resource[]) args[j]));
-                } else if (args[i] instanceof Collection<?>) {
-                    free((Collection<Resource>) args[i]);
+                } else if (args[j] instanceof Collection<?>) {
+                    free((Collection<Resource>) args[j]);
                 }
             }
             throw e;
