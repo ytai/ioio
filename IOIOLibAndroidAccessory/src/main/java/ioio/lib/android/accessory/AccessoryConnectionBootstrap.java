@@ -353,7 +353,12 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
             try {
                 AccessoryConnectionBootstrap.this.waitForConnect();
-                instanceState_ = InstanceState.CONNECTED;
+                synchronized (AccessoryConnectionBootstrap.this) {
+                    if (instanceState_ == InstanceState.DEAD) {
+                        throw new ConnectionLostException();
+                    }
+                    instanceState_ = InstanceState.CONNECTED;
+                }
             } catch (ConnectionLostException e) {
                 instanceState_ = InstanceState.DEAD;
                 throw e;
