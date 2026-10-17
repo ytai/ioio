@@ -143,8 +143,10 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
             updateState();
         } else if (ACTION_USB_PERMISSION.equals(action)) {
-            permission_ = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) ? Permission.GRANTED
-                    : Permission.DENIED;
+            // The PendingIntent is immutable, so the system cannot add
+            // EXTRA_PERMISSION_GRANTED to it; ask the UsbManager.
+            permission_ = device_ != null && usbManager_.hasPermission(device_)
+                    ? Permission.GRANTED : Permission.DENIED;
             updateState();
         }
     }
