@@ -81,7 +81,12 @@ class IncomingState implements IncomingHandler {
         if (connection_ == ConnectionState.DISCONNECTED) {
             throw new ConnectionLostException();
         }
-        return connection_ == ConnectionState.CONNECTED;
+        if (connection_ == ConnectionState.UNSUPPORTED_IID) {
+            // ready for another CHECK_INTERFACE
+            connection_ = ConnectionState.ESTABLISHED;
+            return false;
+        }
+        return true;
     }
 
     synchronized public void waitDisconnect() throws InterruptedException {

@@ -58,8 +58,13 @@ import java.io.IOException;
 
 public class IOIOImpl implements IOIO, DisconnectListener {
     private static final String TAG = "IOIOImpl";
-    private static final byte[] REQUIRED_INTERFACE_ID = new byte[]{'I', 'O',
-            'I', 'O', '0', '0', '0', '5'};
+    // The protocol interfaces this library can work with: IOIO0004
+    // added CapSense, IOIO0005 the sequencer.
+    private static final int NEWEST_INTERFACE = 5;
+    private static final int OLDEST_INTERFACE = 3;
+    private static final int CAPSENSE_INTERFACE = 4;
+    private static final int SEQUENCER_INTERFACE = 5;
+    private int interfaceVersion_;
     IOIOProtocol protocol_;
     ResourceManager resourceManager_;
     IncomingState incomingState_ = new IncomingState();
@@ -166,17 +171,45 @@ public class IOIOImpl implements IOIO, DisconnectListener {
 
     private void checkInterfaceVersion() throws IncompatibilityException,
             ConnectionLostException, InterruptedException {
-        try {
-            protocol_.checkInterface(REQUIRED_INTERFACE_ID);
-        } catch (IOException e) {
-            throw new ConnectionLostException(e);
+        // Firmware without the newest features still serves an
+        // application that does not use them, so fall back to older
+        // interfaces.  The firmware answers each CHECK_INTERFACE
+        // without changing its state.
+        for (int version = NEWEST_INTERFACE; version >= OLDEST_INTERFACE;
+             --version) {
+            try {
+                protocol_.checkInterface(interfaceId(version));
+            } catch (IOException e) {
+                throw new ConnectionLostException(e);
+            }
+            if (incomingState_.waitForInterfaceSupport()) {
+                interfaceVersion_ = version;
+                if (version < NEWEST_INTERFACE) {
+                    Log.i(TAG, "IOIO firmware supports interface "
+                            + new String(interfaceId(version))
+                            + " only");
+                }
+                return;
+            }
         }
-        if (!incomingState_.waitForInterfaceSupport()) {
-            state_ = State.INCOMPATIBLE;
-            Log.e(TAG, "Required interface ID is not supported");
-            throw new IncompatibilityException(
-                    "IOIO firmware does not support required firmware: "
-                            + new String(REQUIRED_INTERFACE_ID));
+        state_ = State.INCOMPATIBLE;
+        Log.e(TAG, "Required interface ID is not supported");
+        throw new IncompatibilityException(
+                "IOIO firmware supports none of the interfaces "
+                        + new String(interfaceId(OLDEST_INTERFACE)) + " to "
+                        + new String(interfaceId(NEWEST_INTERFACE)));
+    }
+
+    private static byte[] interfaceId(int version) {
+        return new byte[]{'I', 'O', 'I', 'O', '0', '0', '0',
+                (byte) ('0' + version)};
+    }
+
+    private void checkInterface(int version, String feature) {
+        if (interfaceVersion_ < version) {
+            throw new IllegalStateException("IOIO firmware does not support "
+                    + feature + ", which needs interface "
+                    + new String(interfaceId(version)));
         }
     }
 
@@ -334,6 +367,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     public synchronized CapSense openCapSense(int pinNum, float filterCoef)
             throws ConnectionLostException {
         checkState();
+        checkInterface(CAPSENSE_INTERFACE, "CapSense");
         hardware_.checkSupportsCapSense(pinNum);
         Resource pin = new Resource(ResourceType.PIN, pinNum);
         resourceManager_.alloc(pin);
@@ -602,6 +636,8 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     @Override
     public Sequencer openSequencer(Sequencer.ChannelConfig[] config)
             throws ConnectionLostException {
+        checkState();
+        checkInterface(SEQUENCER_INTERFACE, "the sequencer");
         return new SequencerImpl(this, config);
     }
 
