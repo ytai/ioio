@@ -9,6 +9,11 @@ android {
         minSdkVersion 14
         compileSdk 34
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

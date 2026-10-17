@@ -48,9 +48,9 @@ class GenerateVersion extends DefaultTask {
 publishing {
     publications {
         release(MavenPublication) {
-            afterEvaluate {
-                from components.findByName("release")
-            }
+            from components.java
+            artifact javadocJar
+            artifact sourcesJar
         }
     }
 }
