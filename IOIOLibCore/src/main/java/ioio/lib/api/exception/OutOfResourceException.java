@@ -36,6 +36,11 @@ package ioio.lib.api.exception;
 public class OutOfResourceException extends RuntimeException {
     private static final long serialVersionUID = -4482605241361881899L;
 
+    /**
+     * Creates an exception describing the exhausted resource.
+     *
+     * @param msg Details about the unavailable resource.
+     */
     public OutOfResourceException(String msg) {
         super(msg);
     }

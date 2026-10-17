@@ -268,6 +268,9 @@ public interface PulseInput extends Closeable {
 
     /**
      * @deprecated Please use {@link #getDurationBuffered()} instead.
+     * @return The duration, in seconds.
+     * @throws InterruptedException    The calling thread has been interrupted.
+     * @throws ConnectionLostException The connection with the IOIO has been lost.
      */
     @Deprecated
     float waitPulseGetDuration() throws InterruptedException, ConnectionLostException;

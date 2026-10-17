@@ -90,6 +90,7 @@ public interface DigitalOutput extends Closeable {
         /**
          * Shorthand for Spec(pin, Mode.NORMAL).
          *
+         * @param pin Pin number, as labeled on the board.
          * @see #Spec(int, Mode)
          */
         public Spec(int pin) {

@@ -91,6 +91,12 @@ import ioio.lib.util.IOIOLooperProvider;
  * </pre>
  */
 public abstract class IOIOConsoleApp implements IOIOLooperProvider {
+    /**
+     * Boilerplate entry point. Call this from your {@code main()} method.
+     *
+     * @param args the command-line arguments, as passed to {@code main()}.
+     * @throws Exception propagated from {@link #run(String[])}.
+     */
     protected final void go(String[] args) throws Exception {
         IOIOPcApplicationHelper helper = new IOIOPcApplicationHelper(this);
         helper.start();
@@ -101,5 +107,11 @@ public abstract class IOIOConsoleApp implements IOIOLooperProvider {
         }
     }
 
+    /**
+     * Override this method with your application's main thread logic.
+     *
+     * @param args the command-line arguments, as passed to {@code main()}.
+     * @throws Exception any exception thrown terminates the application.
+     */
     protected abstract void run(String[] args) throws Exception;
 }

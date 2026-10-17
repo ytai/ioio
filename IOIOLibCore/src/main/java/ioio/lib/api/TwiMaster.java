@@ -111,14 +111,30 @@ public interface TwiMaster extends Closeable {
      * immediately and provides a {@link Result} object on which the client can
      * wait for the result.
      *
+     * @param address The slave address, either 7-bit or 10-bit.
+     * @param tenBitAddr Whether this is a 10-bit addressing mode.
+     * @param writeData The request data.
+     * @param writeSize The number of bytes to write. Valid value are 0-255.
+     * @param readData The array where the response should be stored.
+     * @param readSize The expected number of response bytes. Valid value are 0-255.
+     * @return A result object which can be waited on for transaction completion.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
      * @see #writeRead(int, boolean, byte[], int, byte[], int)
      */
     Result writeReadAsync(int address, boolean tenBitAddr,
                           byte[] writeData, int writeSize, byte[] readData, int readSize)
             throws ConnectionLostException;
 
+    /**
+     * Possible data rates for TWI.
+     */
     enum Rate {
-        RATE_100KHz, RATE_400KHz, RATE_1MHz
+        /** 100KHz. */
+        RATE_100KHz,
+        /** 400KHz. */
+        RATE_400KHz,
+        /** 1MHz. */
+        RATE_1MHz
     }
 
     /**

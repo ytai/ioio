@@ -125,6 +125,13 @@ public interface SpiMaster extends Closeable {
      * Shorthand for {@link #writeRead(int, byte[], int, int, byte[], int)} for
      * the single-slave case.
      *
+     * @param writeData A byte array of data to write. May be null if writeSize is 0.
+     * @param writeSize Number of bytes to write. Valid values are 0 to totalSize.
+     * @param totalSize Total transaction length, in bytes. Valid values are 1 to 64.
+     * @param readData An array where the response is to be stored. May be null if readSize is 0.
+     * @param readSize The number of expected response bytes. Valid values are 0 to totalSize.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
+     * @throws InterruptedException Calling thread has been interrupted.
      * @see #writeRead(int, byte[], int, int, byte[], int)
      */
     void writeRead(byte[] writeData, int writeSize, int totalSize,
@@ -136,6 +143,14 @@ public interface SpiMaster extends Closeable {
      * returns immediately and returns a {@link Result} object that can be
      * waited on. If readSize is 0, the result object is ready immediately.
      *
+     * @param slave The slave index. It is determined by the index of its slave-select pin.
+     * @param writeData A byte array of data to write. May be null if writeSize is 0.
+     * @param writeSize Number of bytes to write. Valid values are 0 to totalSize.
+     * @param totalSize Total transaction length, in bytes. Valid values are 1 to 64.
+     * @param readData An array where the response is to be stored. May be null if readSize is 0.
+     * @param readSize The number of expected response bytes. Valid values are 0 to totalSize.
+     * @return A result object which becomes ready when the transaction completes.
+     * @throws ConnectionLostException Connection to the IOIO has been lost.
      * @see #writeRead(int, byte[], int, int, byte[], int)
      */
     Result writeReadAsync(int slave, byte[] writeData, int writeSize,
@@ -146,7 +161,56 @@ public interface SpiMaster extends Closeable {
      * Possible data rates for SPI, in Hz.
      */
     enum Rate {
-        RATE_31K, RATE_35K, RATE_41K, RATE_50K, RATE_62K, RATE_83K, RATE_125K, RATE_142K, RATE_166K, RATE_200K, RATE_250K, RATE_333K, RATE_500K, RATE_571K, RATE_666K, RATE_800K, RATE_1M, RATE_1_3M, RATE_2M, RATE_2_2M, RATE_2_6M, RATE_3_2M, RATE_4M, RATE_5_3M, RATE_8M
+        /** 31KHz. */
+        RATE_31K,
+        /** 35KHz. */
+        RATE_35K,
+        /** 41KHz. */
+        RATE_41K,
+        /** 50KHz. */
+        RATE_50K,
+        /** 62KHz. */
+        RATE_62K,
+        /** 83KHz. */
+        RATE_83K,
+        /** 125KHz. */
+        RATE_125K,
+        /** 142KHz. */
+        RATE_142K,
+        /** 166KHz. */
+        RATE_166K,
+        /** 200KHz. */
+        RATE_200K,
+        /** 250KHz. */
+        RATE_250K,
+        /** 333KHz. */
+        RATE_333K,
+        /** 500KHz. */
+        RATE_500K,
+        /** 571KHz. */
+        RATE_571K,
+        /** 666KHz. */
+        RATE_666K,
+        /** 800KHz. */
+        RATE_800K,
+        /** 1MHz. */
+        RATE_1M,
+        /** 1.3MHz. */
+        RATE_1_3M,
+        /** 2MHz. */
+        RATE_2M,
+        /** 2.2MHz. */
+        RATE_2_2M,
+        /** 2.6MHz. */
+        RATE_2_6M,
+        /** 3.2MHz. */
+        RATE_3_2M,
+        /** 4MHz. */
+        RATE_4M,
+        /** 5.3MHz. */
+        RATE_5_3M,
+        /** 8MHz. */
+        RATE_8M
     }
 
     /**
@@ -200,6 +264,7 @@ public interface SpiMaster extends Closeable {
          * Constructor with common defaults. Equivalent to Config(rate, false,
          * false)
          *
+         * @param rate Data rate.
          * @see #Config(Rate, boolean, boolean)
          */
         public Config(Rate rate) {

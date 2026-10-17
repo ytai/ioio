@@ -118,6 +118,10 @@ public interface PwmOutput extends Closeable {
     /**
      * The same as {@link #setPulseWidth(int)}, but with sub-microsecond
      * precision.
+     *
+     * @param pulseWidthUs The pulse width, in microsecond units. Must be larger than zero.
+     * @throws ConnectionLostException The connection to the IOIO has been lost.
+     * @throws RuntimeException pulseWidthUs must take values larger than zero.
      */
     void setPulseWidth(float pulseWidthUs)
             throws ConnectionLostException, RuntimeException;
