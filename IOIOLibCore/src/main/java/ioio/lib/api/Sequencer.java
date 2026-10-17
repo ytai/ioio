@@ -66,7 +66,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * then be resumed by calling {@link #start()} again. Calling {@link #stop()} will immediately stop
  * execution and clear the queue.
  *
- * <h4>Pre-fill</h4>
+ * <h2>Pre-fill</h2>
  * In order to avoid stalls immediately after {@link #start()}, it is recommended to pre-fill the
  * cue FIFO priorly. The recommended sequence of operations is:
  *
@@ -84,7 +84,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * s.start();
  * }</pre>
  *
- * <h4>Manual Operation</h4>
+ * <h2>Manual Operation</h2>
  * In some cases it is useful to be able to execute some cues while the {@link Sequencer} is paused
  * or stopped without having to clear the queue. For this purpose, the
  * {@link #manualStart(ChannelCue[])} command can be used. Calling it will immediately begin
@@ -93,10 +93,11 @@ import ioio.lib.api.exception.ConnectionLostException;
  * {@link #manualStop()} is called. After that, normal operation can be resumed by calling
  * {@link #start()} again.
  *
- * <h4>States</h4>
+ * <h2>States</h2>
  * This table summarizes the different states the {@link Sequencer} can be in, and the methods which
  * can be called to change it:
  * <table border="1">
+ * <caption>Sequencer states</caption>
  * <tr>
  * <th>Current State</th>
  * <th>Method</th>
@@ -143,7 +144,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * </tr>
  * </table>
  *
- * <h4>Clocking</h4>
+ * <h2>Clocking</h2>
  * All the timing information provided to a single channel is based on a clock which implies a
  * time-base. For some channel types, the clock is determined upon instantiation; for others it can
  * be set on a per-cue basis. Once a clock rate is set, all timing values used for that channel are
@@ -153,7 +154,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * signals. As a rule of thumb, choosing the highest possible clock rate that can satisfy the
  * duration requirements is the right choice.
  *
- * <h4>Stalls</h4>
+ * <h2>Stalls</h2>
  * It is possible that the client does not push cues fast enough to keep up with execution. In that
  * case, the queue will drain and execution will stall. All channel types have well-defined
  * behaviors in case of a stall, for example, a binary channel allows the user to explicitly
@@ -161,7 +162,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * stalled. Once stalled, as soon as a new cue gets pushed, operation will resume immediately
  * without having to call {@link #start()}.
  *
- * <h4>Keeping track of execution</h4>
+ * <h2>Keeping track of execution</h2>
  * Since execution of queued events is asynchronous, it is sometimes required to track their
  * execution progress, for example, for keeping a user interface synchronized with the actual state
  * of a multi-axis machine.
@@ -726,7 +727,7 @@ public interface Sequencer extends Closeable {
      * A steps channel allows determining the clock rate on a per-cue basis. This often allows
      * avoiding having to split cues, thus resulting in a less total cues and more efficient
      * execution. The rule for choosing the correct clock is to always use the highest rate that
-     * will cause the resulting period to be <= 2^16. In other words, choose the highest available
+     * will cause the resulting period to be &lt;= 2^16. In other words, choose the highest available
      * clock which is less than or equal to (2^16 / Tp) or (2^16 * Fp), where Tp is the desired
      * period in seconds, or Fp is the desired frequency in Hz. For example, if we want to generate
      * pulses at 51Hz, 65536 * Fp = 3.34MHz, so we should use the 2MHz clock, and the period value
