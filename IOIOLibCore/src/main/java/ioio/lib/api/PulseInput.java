@@ -80,6 +80,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * number written in [ms] units in the longest pulse column, roughly corresponds to the same number
  * in minutes when working with double precsion, since 1[min] = 60000[ms].
  * <table border="1">
+ * <caption>Clock / mode combinations</caption>
  * <tr>
  * <th>Clock</th>
  * <th>Scaling</th>
