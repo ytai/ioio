@@ -315,13 +315,12 @@ public class ProgrammerActivity extends IOIOActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.editImageLibrary:
-                startActivity(new Intent(BootImageLibraryActivity.ACTION_EDIT, null,
-                        this, BootImageLibraryActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.editImageLibrary) {
+            startActivity(new Intent(BootImageLibraryActivity.ACTION_EDIT, null,
+                    this, BootImageLibraryActivity.class));
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 

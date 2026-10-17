@@ -132,24 +132,24 @@ public class AppImageLibraryActivity extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.addByScanMenuItem:
-                addByScan();
-                return true;
-            case R.id.addFromStorageMenuItem:
-                addFromExternalStorage();
-                return true;
-            case R.id.clearActiveBundle:
-                clearActiveBundle();
-                return true;
-            case R.id.about:
-                showDialog(ABOUT_DIALOG);
-                return true;
-            case R.id.programmer:
-                startProgrammer();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if (id == R.id.addByScanMenuItem) {
+            addByScan();
+            return true;
+        } else if (id == R.id.addFromStorageMenuItem) {
+            addFromExternalStorage();
+            return true;
+        } else if (id == R.id.clearActiveBundle) {
+            clearActiveBundle();
+            return true;
+        } else if (id == R.id.about) {
+            showDialog(ABOUT_DIALOG);
+            return true;
+        } else if (id == R.id.programmer) {
+            startProgrammer();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -281,27 +281,25 @@ public class AppImageLibraryActivity extends ListActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
                 .getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.remove_item:
-                try {
-                    String name = bundles_[(int) info.id].getName();
-                    firmwareManager_.removeAppBundle(name);
-                    listAdapter_.notifyDataSetChanged();
-                    Toast.makeText(
-                            this,
-                            String.format(getString(R.string.bundle_removed), name),
-                            Toast.LENGTH_SHORT).show();
-                    return true;
-                } catch (IOException e) {
-                    Log.w(TAG, e);
-                    Toast.makeText(
-                            this,
-                            String.format(getString(R.string.failed_remove_bundle),
-                                    e.getMessage()), Toast.LENGTH_SHORT).show();
-                }
-            default:
-                return super.onContextItemSelected(item);
+        if (item.getItemId() == R.id.remove_item) {
+            try {
+                String name = bundles_[(int) info.id].getName();
+                firmwareManager_.removeAppBundle(name);
+                listAdapter_.notifyDataSetChanged();
+                Toast.makeText(
+                        this,
+                        String.format(getString(R.string.bundle_removed), name),
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            } catch (IOException e) {
+                Log.w(TAG, e);
+                Toast.makeText(
+                        this,
+                        String.format(getString(R.string.failed_remove_bundle),
+                                e.getMessage()), Toast.LENGTH_SHORT).show();
+            }
         }
+        return super.onContextItemSelected(item);
     }
 
     private void onClick(View v, int pos) {

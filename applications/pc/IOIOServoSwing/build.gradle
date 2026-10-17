@@ -1,7 +1,17 @@
-apply plugin: "gradle-one-jar"
+apply plugin: "java"
 
-task distJar(type: OneJar) {
-    mainClass = 'ioio.examples.servo_swing.IOIOServoSwing'
+tasks.register("distJar", Jar) {
+    dependsOn configurations.runtimeClasspath
+    archiveClassifier = "standalone"
+    archiveVersion = ""
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes "Main-Class": "ioio.examples.servo_swing.IOIOServoSwing"
+    }
+    from(sourceSets.main.output)
+    from({
+        configurations.runtimeClasspath.findAll { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    })
 }
 
 tasks.build.dependsOn distJar

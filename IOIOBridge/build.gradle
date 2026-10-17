@@ -1,8 +1,17 @@
-apply plugin: "gradle-one-jar"
+apply plugin: "java"
 
-tasks.register("distJar", OneJar) {
-    mainClass = "ioio.bridge.Main"
-    version = null
+tasks.register("distJar", Jar) {
+    dependsOn configurations.runtimeClasspath
+    archiveClassifier = "standalone"
+    archiveVersion = ""
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes "Main-Class": "ioio.bridge.Main"
+    }
+    from(sourceSets.main.output)
+    from({
+        configurations.runtimeClasspath.findAll { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    })
 }
 
 tasks.register("zip", Zip) {
