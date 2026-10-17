@@ -59,3 +59,15 @@ include 'IOIOLibAndroid', 'IOIOLibAndroidBluetooth', 'IOIOLibAndroidAccessory',
 // PC tools.
 include 'IOIODude', 'IOIOBridge'
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "http://www.sparetimelabs.com/maven2"
+            allowInsecureProtocol = true
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
