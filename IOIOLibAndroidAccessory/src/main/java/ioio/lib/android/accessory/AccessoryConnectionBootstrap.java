@@ -208,18 +208,6 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         }
     }
 
-    private void waitForConnect() throws ConnectionLostException {
-        waitForOpen();
-
-        try {
-            waitForHandshake();
-        } catch (IOException e) {
-            Log.v(TAG, "Failed to open streams", e);
-            disconnect();
-            throw new ConnectionLostException();
-        }
-    }
-
     private void forceWait() {
         try {
             wait();
@@ -345,14 +333,31 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
         @Override
         public void waitForConnect() throws ConnectionLostException {
-            // Not synchronized: the handshake blocks, and disconnect()
-            // must be able to end it.
-            if (instanceState_ != InstanceState.INIT) {
-                throw new IllegalStateException("waitForConnect() may only be called once");
-            }
-
             try {
-                AccessoryConnectionBootstrap.this.waitForConnect();
+                // The state check and waitForOpen() hold the lock
+                // together, so that a disconnect() in between is not
+                // lost.
+                synchronized (AccessoryConnectionBootstrap.this) {
+                    if (instanceState_ == InstanceState.DEAD) {
+                        // disconnect() came first.
+                        throw new ConnectionLostException();
+                    }
+                    if (instanceState_ != InstanceState.INIT) {
+                        throw new IllegalStateException("waitForConnect() may only be called once");
+                    }
+                    waitForOpen();
+                }
+
+                // The handshake runs without the lock: it blocks, and
+                // disconnect() must be able to end it.
+                try {
+                    waitForHandshake();
+                } catch (IOException e) {
+                    Log.v(TAG, "Failed to open streams", e);
+                    AccessoryConnectionBootstrap.this.disconnect();
+                    throw new ConnectionLostException();
+                }
+
                 synchronized (AccessoryConnectionBootstrap.this) {
                     if (instanceState_ == InstanceState.DEAD) {
                         throw new ConnectionLostException();
