@@ -153,35 +153,33 @@ public class BootImageLibraryActivity extends ExpandableListActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.remove_item:
-                try {
-                    String name = bundles_[(int) info.id].getName();
-                    firmwareManager_.removeImageBundle(name);
-                    adapter_.notifyDataSetChanged();
-                    Toast.makeText(this, String.format(getString(R.string.bundle_removed), name), Toast.LENGTH_SHORT).show();
-                    return true;
-                } catch (IOException e) {
-                    Log.w(TAG, e);
-                    Toast.makeText(this, String.format(getString(R.string.failed_remove_bundle), e.getMessage()), Toast.LENGTH_SHORT).show();
-                }
-            default:
-                return super.onContextItemSelected(item);
+        if (item.getItemId() == R.id.remove_item) {
+            try {
+                String name = bundles_[(int) info.id].getName();
+                firmwareManager_.removeImageBundle(name);
+                adapter_.notifyDataSetChanged();
+                Toast.makeText(this, String.format(getString(R.string.bundle_removed), name), Toast.LENGTH_SHORT).show();
+                return true;
+            } catch (IOException e) {
+                Log.w(TAG, e);
+                Toast.makeText(this, String.format(getString(R.string.failed_remove_bundle), e.getMessage()), Toast.LENGTH_SHORT).show();
+            }
         }
+        return super.onContextItemSelected(item);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.addByScanMenuItem:
-                addByScan();
-                return true;
-            case R.id.addFromStorageMenuItem:
-                addFromExternalStorage();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if (id == R.id.addByScanMenuItem) {
+            addByScan();
+            return true;
+        } else if (id == R.id.addFromStorageMenuItem) {
+            addFromExternalStorage();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 

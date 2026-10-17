@@ -1,7 +1,17 @@
-apply plugin: "gradle-one-jar"
+apply plugin: "java"
 
-task distJar(type: OneJar) {
-    mainClass = 'mobi.ioio.seeed.testbed.SeeedTestbed'
+tasks.register("distJar", Jar) {
+    dependsOn configurations.runtimeClasspath
+    archiveClassifier = "standalone"
+    archiveVersion = ""
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes "Main-Class": "mobi.ioio.seeed.testbed.SeeedTestbed"
+    }
+    from(sourceSets.main.output)
+    from({
+        configurations.runtimeClasspath.findAll { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    })
 }
 
 tasks.build.dependsOn distJar
