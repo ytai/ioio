@@ -66,11 +66,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     private ContextWrapper activity_;
     private Adapter adapter_;
     private Adapter.AbstractUsbManager usbManager_;
-    private boolean shouldTryOpen_ = false;
     private PendingIntent pendingIntent_;
-    private ParcelFileDescriptor fileDescriptor_;
-    private InputStream inputStream_;
-    private OutputStream outputStream_;
 
     public AccessoryConnectionBootstrap() throws NoRuntimeSupportException {
         adapter_ = new Adapter();
@@ -118,21 +114,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     public synchronized void close() {
     }
 
-    private synchronized void disconnect() {
-        // This should abort any current open attempt.
-        shouldTryOpen_ = false;
-        notifyAll();
-
-        // And this should kill any ongoing connections.
-        if (fileDescriptor_ != null) {
-            try {
-                fileDescriptor_.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to close file descriptor.", e);
-            }
-            fileDescriptor_ = null;
-        }
-
+    private void cancelPermissionRequest() {
         if (pendingIntent_ != null) {
             pendingIntent_.cancel();
             pendingIntent_ = null;
@@ -159,7 +141,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         return null;
     }
 
-    private synchronized void waitForConnect() throws ConnectionLostException {
+    private synchronized void waitForOpen(Connection connection) throws ConnectionLostException {
         // In order to simplify the connection process in face of many different sequences of events
         // that might occur, we collapsed the entire sequence into one non-blocking method,
         // tryOpen(), which tries the entire process from the beginning, undoes everything if
@@ -168,15 +150,47 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         // interested. Between attempts, it waits until "something interesting" has happened, which
         // may be permission granted, the client telling us to try again (via reopen()) or stop
         // trying, etc.
-        shouldTryOpen_ = true;
-        while (shouldTryOpen_) {
-            if (tryOpen()) {
+        while (!connection.isDead()) {
+            if (tryOpen(connection)) {
                 // Success!
                 return;
             }
             forceWait();
         }
         throw new ConnectionLostException();
+    }
+
+    /**
+     * Do the "soft-open" handshake on the streams of this connection.
+     * This method is not synchronized, so that disconnect() can close
+     * the file descriptor and end it.
+     */
+    private void waitForHandshake(Connection connection) throws IOException {
+        // Soft-open the connection
+        connection.outputStream_.write(0x00);
+        connection.outputStream_.flush();
+
+        // We're going to block now. We're counting on the IOIO to
+        // write back a byte, or otherwise we're locked until
+        // physical disconnection or disconnect(). This is a known
+        // OpenAccessory bug:
+        // http://code.google.com/p/android/issues/detail?id=20545
+        while (true) {
+            int b = connection.inputStream_.read();
+            if (b == 1) {
+                return;
+            }
+            // The buffered stream keeps returning -1 after the end of
+            // the stream without reading again, and a cancelled
+            // attempt must not keep polling.
+            if (b < 0) {
+                throw new IOException("Accessory closed during the handshake");
+            }
+            if (connection.isDead()) {
+                throw new IOException("Handshake cancelled");
+            }
+            trySleep();
+        }
     }
 
     private void forceWait() {
@@ -187,7 +201,7 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         }
     }
 
-    private boolean tryOpen() {
+    private boolean tryOpen(Connection connection) {
         // Find the accessory.
         UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
         UsbAccessoryInterface accessory = (accessories == null ? null : accessories[0]);
@@ -217,11 +231,11 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
         boolean success = false;
 
-        // From this point on, if anything goes wrong, we're responsible for canceling the intent.
+        // From this point on, the permission request is no longer needed, whatever happens.
         try {
             // Obtain a file descriptor.
-            fileDescriptor_ = usbManager_.openAccessory(accessory);
-            if (fileDescriptor_ == null) {
+            ParcelFileDescriptor fileDescriptor = usbManager_.openAccessory(accessory);
+            if (fileDescriptor == null) {
                 Log.v(TAG, "Failed to open file descriptor.");
                 return false;
             }
@@ -229,45 +243,26 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
             // From this point on, if anything goes wrong, we're responsible for closing the file
             // descriptor.
             try {
-                FileDescriptor fd = fileDescriptor_.getFileDescriptor();
+                FileDescriptor fd = fileDescriptor.getFileDescriptor();
                 // Apparently, some Android devices (e.g. Nexus 5) only support read operations of
                 // multiples of the endpoint buffer size. So there you have it!
-                inputStream_ = new FixedReadBufferedInputStream(new FileInputStream(fd), 1024);
-                outputStream_ = new BufferedOutputStream(new FileOutputStream(fd), 1024);
-
-                // Soft-open the connection
-                outputStream_.write(0x00);
-                outputStream_.flush();
-
-                // We're going to block now. We're counting on the IOIO to
-                // write back a byte, or otherwise we're locked until
-                // physical disconnection. This is a known OpenAccessory
-                // bug:
-                // http://code.google.com/p/android/issues/detail?id=20545
-                while (inputStream_.read() != 1) {
-                    trySleep();
-                }
+                connection.inputStream_ = new FixedReadBufferedInputStream(new FileInputStream(fd), 1024);
+                connection.outputStream_ = new BufferedOutputStream(new FileOutputStream(fd), 1024);
+                connection.fileDescriptor_ = fileDescriptor;
 
                 success = true;
                 return true;
-            } catch (IOException e) {
-                Log.v(TAG, "Failed to open streams", e);
-                return false;
             } finally {
                 if (!success) {
                     try {
-                        fileDescriptor_.close();
+                        fileDescriptor.close();
                     } catch (IOException e) {
                         Log.e(TAG, "Failed to close file descriptor.", e);
                     }
-                    fileDescriptor_ = null;
                 }
             }
         } finally {
-            if (!success && pendingIntent_ != null) {
-                pendingIntent_.cancel();
-                pendingIntent_ = null;
-            }
+            cancelPermissionRequest();
         }
     }
 
@@ -301,7 +296,19 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     }
 
     private class Connection implements IOIOConnection {
-        private InstanceState instanceState_ = InstanceState.INIT;
+        // Written under the bootstrap lock; volatile, because the
+        // handshake reads it without the lock.
+        private volatile InstanceState instanceState_ = InstanceState.INIT;
+
+        // This attempt's own descriptor and streams, so that a
+        // cancelled attempt cannot touch the ones of a later attempt.
+        private ParcelFileDescriptor fileDescriptor_;
+        private InputStream inputStream_;
+        private OutputStream outputStream_;
+
+        boolean isDead() {
+            return instanceState_ == InstanceState.DEAD;
+        }
 
         @Override
         public InputStream getInputStream() {
@@ -320,27 +327,59 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
 
         @Override
         public void waitForConnect() throws ConnectionLostException {
+            // The state check and waitForOpen() hold the lock
+            // together, so that a disconnect() in between is not lost.
             synchronized (AccessoryConnectionBootstrap.this) {
+                if (instanceState_ == InstanceState.DEAD) {
+                    // disconnect() came first.
+                    throw new ConnectionLostException();
+                }
                 if (instanceState_ != InstanceState.INIT) {
                     throw new IllegalStateException("waitForConnect() may only be called once");
                 }
+                waitForOpen(this);
+            }
 
-                try {
-                    AccessoryConnectionBootstrap.this.waitForConnect();
-                    instanceState_ = InstanceState.CONNECTED;
-                } catch (ConnectionLostException e) {
-                    instanceState_ = InstanceState.DEAD;
-                    throw e;
+            // The handshake runs without the lock: it blocks, and
+            // disconnect() must be able to end it.
+            try {
+                waitForHandshake(this);
+            } catch (IOException e) {
+                Log.v(TAG, "Failed to open streams", e);
+                disconnect();
+                throw new ConnectionLostException();
+            }
+
+            synchronized (AccessoryConnectionBootstrap.this) {
+                if (instanceState_ == InstanceState.DEAD) {
+                    throw new ConnectionLostException();
                 }
+                instanceState_ = InstanceState.CONNECTED;
             }
         }
 
         @Override
         public void disconnect() {
             synchronized (AccessoryConnectionBootstrap.this) {
-                if (instanceState_ != InstanceState.DEAD) {
-                    AccessoryConnectionBootstrap.this.disconnect();
-                    instanceState_ = InstanceState.DEAD;
+                if (instanceState_ == InstanceState.DEAD) {
+                    return;
+                }
+                instanceState_ = InstanceState.DEAD;
+
+                // Ends waitForOpen() and a handshake that polls.
+                AccessoryConnectionBootstrap.this.notifyAll();
+
+                if (fileDescriptor_ != null) {
+                    // Ends a handshake that blocks in read(), and the
+                    // connection.
+                    try {
+                        fileDescriptor_.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to close file descriptor.", e);
+                    }
+                    fileDescriptor_ = null;
+                } else {
+                    cancelPermissionRequest();
                 }
             }
         }
