@@ -143,7 +143,7 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
         } else if (ACTION_USB_PERMISSION.equals(action)) {
             // The PendingIntent is immutable, so the system cannot add
             // EXTRA_PERMISSION_GRANTED to it; ask the UsbManager.
-            permission_ = device_ != null && usbManager_.hasPermission(device_)
+            permission_ = device_ != null && usbManager_ != null && usbManager_.hasPermission(device_)
                     ? Permission.GRANTED : Permission.DENIED;
             updateState();
         }
@@ -471,6 +471,10 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
     private boolean checkAttached() {
         if (device_ != null)
             return true;
+        if (usbManager_ == null) {
+            Log.v(TAG, "USB device service unavailable.");
+            return false;
+        }
         HashMap<String, UsbDevice> devicesMap = usbManager_.getDeviceList();
         for (UsbDevice device : devicesMap.values()) {
             if (device.getProductId() != 0x0008 || device.getVendorId() != 0x1B4F) {
