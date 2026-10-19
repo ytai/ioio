@@ -148,7 +148,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
         try {
             ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_, p.totalSize_, p.readSize_);
         } catch (IOException e) {
-            Log.e("SpiImpl", "Caught exception", e);
+            Log.e("SpiMasterImpl", "Caught exception", e);
         }
     }
 
