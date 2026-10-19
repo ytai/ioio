@@ -215,6 +215,17 @@ public interface AnalogInput extends Closeable {
     float getVoltageBuffered() throws InterruptedException, ConnectionLostException;
 
     /**
+     * Sets the sample rate used for periodic A/D sampling. The rate is shared by all analog and
+     * CapSense inputs on this IOIO and must be between 1 and 1000 Hz. The default is 1000 Hz.
+     *
+     * @param samplesPerSecond The sample rate, in Hz units.
+     * @throws IllegalArgumentException If the sample rate is not between 1 and 1000 Hz.
+     * @throws IllegalStateException    If the connected firmware does not support this feature.
+     * @throws ConnectionLostException  The connection with the IOIO is lost.
+     */
+    void setSampleRate(int samplesPerSecond) throws ConnectionLostException;
+
+    /**
      * Gets the sample rate used for obtaining buffered samples.
      *
      * @return The sample rate, in Hz units.

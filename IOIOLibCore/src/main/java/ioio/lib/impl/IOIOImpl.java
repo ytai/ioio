@@ -60,12 +60,13 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     private static final String TAG = "IOIOImpl";
     // The protocol interfaces this library can work with: IOIO0004
     // added CapSense, IOIO0005 the sequencer, IOIO0006 preserving
-    // digital outputs on disconnect.
-    private static final int NEWEST_INTERFACE = 6;
+    // digital outputs on disconnect, IOIO0007 configurable ADC sampling.
+    private static final int NEWEST_INTERFACE = 7;
     private static final int OLDEST_INTERFACE = 3;
     private static final int CAPSENSE_INTERFACE = 4;
     private static final int SEQUENCER_INTERFACE = 5;
     private static final int PRESERVE_OUTPUTS_INTERFACE = 6;
+    private static final int ANALOG_SAMPLE_RATE_INTERFACE = 7;
     private int interfaceVersion_;
     IOIOProtocol protocol_;
     ResourceManager resourceManager_;
@@ -76,6 +77,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     private volatile boolean resetting_ = false;
     private IOIOConnection connection_;
     private State state_ = State.INIT;
+    private int analogInputSampleRate_ = 1000;
     public IOIOImpl(IOIOConnection con) {
         connection_ = con;
     }
@@ -267,6 +269,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             incomingState_.closeResources();
             synchronized (this) {
                 protocol_.softReset();
+                analogInputSampleRate_ = 1000;
             }
         } catch (IOException e) {
             throw new ConnectionLostException(e);
@@ -391,6 +394,23 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             throw new ConnectionLostException(e);
         }
         return result;
+    }
+
+    synchronized int getAnalogInputSampleRate() throws ConnectionLostException {
+        checkState();
+        return analogInputSampleRate_;
+    }
+
+    synchronized void setAnalogInputSampleRate(int samplesPerSecond)
+            throws ConnectionLostException {
+        checkState();
+        checkInterface(ANALOG_SAMPLE_RATE_INTERFACE, "Analog input sample-rate control");
+        try {
+            protocol_.setAnalogInSampleRate(samplesPerSecond);
+            analogInputSampleRate_ = samplesPerSecond;
+        } catch (IOException e) {
+            throw new ConnectionLostException(e);
+        }
     }
 
     @Override

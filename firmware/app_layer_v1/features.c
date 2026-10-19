@@ -284,7 +284,8 @@ void CheckInterface(BYTE interface_id[8]) {
   OUTGOING_MESSAGE msg;
   msg.type = CHECK_INTERFACE_RESPONSE;
   msg.args.check_interface_response.supported
-      = (memcmp(interface_id, PROTOCOL_IID_IOIO0006, 8) == 0)
+      = (memcmp(interface_id, PROTOCOL_IID_IOIO0007, 8) == 0)
+        || (memcmp(interface_id, PROTOCOL_IID_IOIO0006, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0005, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0004, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0003, 8) == 0)
