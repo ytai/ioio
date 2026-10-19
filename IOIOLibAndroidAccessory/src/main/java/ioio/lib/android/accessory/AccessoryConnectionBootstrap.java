@@ -63,6 +63,10 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     private static final String TAG = AccessoryConnectionBootstrap.class.getSimpleName();
     private static final String ACTION_USB_PERMISSION = "ioio.lib.accessory.action.USB_PERMISSION";
 
+    // The IOIO answers the soft-open within milliseconds. A handshake
+    // that takes this long has lost the answer, see waitForHandshake().
+    private static final long HANDSHAKE_TIMEOUT_MS = 3000;
+
     private ContextWrapper activity_;
     private final Adapter adapter_;
     private Adapter.AbstractUsbManager usbManager_;
@@ -175,6 +179,12 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
         // physical disconnection or disconnect(). This is a known
         // OpenAccessory bug:
         // http://code.google.com/p/android/issues/detail?id=20545
+        // It hits after a restart of the app without unplugging,
+        // apparently because a read left pending by the previous
+        // process takes the IOIO's answer. A new descriptor gets the
+        // answer, so the watchdog gives up after a timeout and the
+        // client tries again.
+        startHandshakeWatchdog(connection);
         while (true) {
             int b = connection.inputStream_.read();
             if (b == 1) {
@@ -191,6 +201,33 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
             }
             trySleep();
         }
+    }
+
+    /**
+     * Disconnect the connection if its handshake has not finished
+     * after HANDSHAKE_TIMEOUT_MS. The handshake then fails, and the
+     * client opens a new connection.
+     */
+    private void startHandshakeWatchdog(final Connection connection) {
+        Thread watchdog = new Thread("IOIO accessory handshake watchdog") {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(HANDSHAKE_TIMEOUT_MS);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                // waitForConnect() sets CONNECTED under this lock.
+                synchronized (AccessoryConnectionBootstrap.this) {
+                    if (connection.instanceState_ == InstanceState.INIT) {
+                        Log.w(TAG, "No handshake from the IOIO, closing the connection");
+                        connection.disconnect();
+                    }
+                }
+            }
+        };
+        watchdog.setDaemon(true);
+        watchdog.start();
     }
 
     private void forceWait() {
