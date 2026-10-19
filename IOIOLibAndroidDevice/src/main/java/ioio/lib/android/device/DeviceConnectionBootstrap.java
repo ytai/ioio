@@ -330,7 +330,24 @@ public class DeviceConnectionBootstrap extends BroadcastReceiver implements
     private boolean openDevice() {
         assert device_ != null;
 
-        if (!processDescriptor())
+        // Right after the Android device boots, the USB descriptors may be reported
+        // incompletely. Give it a few chances, refreshing the device each time.
+        boolean valid = processDescriptor();
+        for (int i = 0; !valid && i < 5; ++i) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            UsbDevice fresh = usbManager_.getDeviceList().get(device_.getDeviceName());
+            if (fresh == null) {
+                return false;
+            }
+            device_ = fresh;
+            valid = processDescriptor();
+        }
+        if (!valid)
             return false;
 
         connection_ = usbManager_.openDevice(device_);
