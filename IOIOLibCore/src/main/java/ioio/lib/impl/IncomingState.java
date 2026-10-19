@@ -442,31 +442,38 @@ class IncomingState implements IncomingHandler {
     @Override
     public void handleSequencerEvent(SequencerEvent event, int arg) {
         // logMethod("handleSequencerEvent", event, arg);
-        switch (event) {
-            case OPENED:
-                sequencerListeners_.openNextListener();
-                sequencerListeners_.peek().opened(arg);
-                break;
+        if (event == SequencerEvent.OPENED) {
+            sequencerListeners_.openNextListener();
+        }
+        final SequencerEventListener seq = sequencerListeners_.peek();
+        if (seq != null) {
+            switch (event) {
+                case OPENED:
+                    seq.opened(arg);
+                    break;
 
-            case NEXT_CUE:
-                sequencerListeners_.peek().nextCue();
-                break;
+                case NEXT_CUE:
+                    seq.nextCue();
+                    break;
 
-            case PAUSED:
-                sequencerListeners_.peek().paused();
-                break;
+                case PAUSED:
+                    seq.paused();
+                    break;
 
-            case STOPPED:
-                sequencerListeners_.peek().stopped(arg);
-                break;
+                case STOPPED:
+                    seq.stopped(arg);
+                    break;
 
-            case CLOSED:
-                sequencerListeners_.peek().closed();
-                sequencerListeners_.closeCurrentListener();
-                break;
+                case CLOSED:
+                    seq.closed();
+                    break;
 
-            case STALLED:
-                sequencerListeners_.peek().stalled();
+                case STALLED:
+                    seq.stalled();
+            }
+        }
+        if (event == SequencerEvent.CLOSED) {
+            sequencerListeners_.closeCurrentListener();
         }
     }
 
@@ -535,38 +542,54 @@ class IncomingState implements IncomingHandler {
         }
 
         void openNextListener() {
-            assert (!listeners_.isEmpty());
-            if (!currentOpen_) {
-                currentOpen_ = true;
+            if (listeners_.isEmpty()) {
+                Log.w(TAG, "Open message received with no listener; ignoring");
+                return;
             }
+            currentOpen_ = true;
         }
 
         T peek() {
-            assert (currentOpen_);
+            if (!currentOpen_) {
+                Log.w(TAG, "Message received for a resource that is not open; ignoring");
+                return null;
+            }
             return listeners_.peek();
         }
     }
 
     class InputPinState extends ListenerQueue<InputPinListener> {
         void setValue(int v) {
-            peek().setValue(v);
+            InputPinListener l = peek();
+            if (l != null) {
+                l.setValue(v);
+            }
         }
     }
 
     class DataModuleState extends ListenerQueue<DataModuleListener> {
         void dataReceived(byte[] data, int size) {
-            peek().dataReceived(data, size);
+            DataModuleListener l = peek();
+            if (l != null) {
+                l.dataReceived(data, size);
+            }
         }
 
         public void reportAdditionalBuffer(int bytesRemaining) {
-            peek().reportAdditionalBuffer(bytesRemaining);
+            DataModuleListener l = peek();
+            if (l != null) {
+                l.reportAdditionalBuffer(bytesRemaining);
+            }
         }
     }
 
     class SyncListeners extends ListenerQueue<SyncListener> {
         void syncRecieved() {
             openNextListener();
-            peek().sync();
+            SyncListener l = peek();
+            if (l != null) {
+                l.sync();
+            }
             closeCurrentListener();
         }
     }
