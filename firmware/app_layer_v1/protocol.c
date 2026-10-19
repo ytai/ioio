@@ -86,7 +86,8 @@ const BYTE incoming_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(SEQUENCER_CONFIGURE_ARGS),
   sizeof(SEQUENCER_PUSH_ARGS),
   sizeof(SEQUENCER_CONTROL_ARGS),
-  sizeof(RESERVED_ARGS)
+  sizeof(RESERVED_ARGS),
+  sizeof(SET_PRESERVE_OUTPUTS_ARGS)
 
   // BOOKMARK(add_feature): Add sizeof (argument for incoming message).
   // Array is indexed by message type enum.
@@ -126,6 +127,7 @@ const BYTE outgoing_arg_size[MESSAGE_TYPE_LIMIT] = {
   sizeof(CAPSENSE_REPORT_ARGS),
   sizeof(SET_CAPSENSE_SAMPLING_ARGS),
   sizeof(SEQUENCER_EVENT_ARGS),
+  sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS),
   sizeof(RESERVED_ARGS)
@@ -550,6 +552,10 @@ static BOOL MessageDone() {
 
     case SYNC:
       Echo();
+      break;
+
+    case SET_PRESERVE_OUTPUTS:
+      SetPreserveOutputs(rx_msg.args.set_preserve_outputs.preserve);
       break;
 
     // BOOKMARK(add_feature): Add incoming message handling to switch clause.

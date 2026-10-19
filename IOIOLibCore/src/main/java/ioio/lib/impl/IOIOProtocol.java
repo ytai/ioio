@@ -100,6 +100,7 @@ class IOIOProtocol {
     static final int SEQUENCER_PUSH = 0x21;
     static final int SEQUENCER_CONTROL = 0x22;
     static final int SYNC = 0x23;
+    static final int SET_PRESERVE_OUTPUTS = 0x24;
 
     static final int[] SCALE_DIV = new int[]{
             0x1F,  // 31.25
@@ -197,6 +198,13 @@ class IOIOProtocol {
     synchronized public void softReset() throws IOException {
         beginBatch();
         writeByte(SOFT_RESET);
+        endBatch();
+    }
+
+    synchronized public void setPreserveOutputs(boolean preserve) throws IOException {
+        beginBatch();
+        writeByte(SET_PRESERVE_OUTPUTS);
+        writeByte(preserve ? 1 : 0);
         endBatch();
     }
 
