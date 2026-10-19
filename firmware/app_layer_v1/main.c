@@ -96,7 +96,7 @@ void AppCallback(const void* data, UINT32 data_len, int_or_ptr_t arg) {
     // connection closed, soft reset and re-establish
     if (state == STATE_CONNECTED) {
       log_printf("Channel closed");
-      SoftReset();
+      SoftResetOnDisconnect();
     } else {
       log_printf("Channel failed to open");
     }
@@ -139,7 +139,7 @@ int main() {
 
       case STATE_ERROR:
         ConnectionCloseChannel(handle);
-        SoftReset();
+        SoftResetOnDisconnect();
         state = STATE_INIT;
         break;
     }

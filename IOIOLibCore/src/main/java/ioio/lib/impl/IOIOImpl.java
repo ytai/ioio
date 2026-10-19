@@ -59,11 +59,13 @@ import java.io.IOException;
 public class IOIOImpl implements IOIO, DisconnectListener {
     private static final String TAG = "IOIOImpl";
     // The protocol interfaces this library can work with: IOIO0004
-    // added CapSense, IOIO0005 the sequencer.
-    private static final int NEWEST_INTERFACE = 5;
+    // added CapSense, IOIO0005 the sequencer, IOIO0006 preserving
+    // digital outputs on disconnect.
+    private static final int NEWEST_INTERFACE = 6;
     private static final int OLDEST_INTERFACE = 3;
     private static final int CAPSENSE_INTERFACE = 4;
     private static final int SEQUENCER_INTERFACE = 5;
+    private static final int PRESERVE_OUTPUTS_INTERFACE = 6;
     private int interfaceVersion_;
     IOIOProtocol protocol_;
     ResourceManager resourceManager_;
@@ -678,6 +680,18 @@ public class IOIOImpl implements IOIO, DisconnectListener {
         checkState();
         try {
             protocol_.endBatch();
+        } catch (IOException e) {
+            throw new ConnectionLostException(e);
+        }
+    }
+
+    @Override
+    public synchronized void setPreserveOutputsOnDisconnect(boolean preserve)
+            throws ConnectionLostException {
+        checkState();
+        checkInterface(PRESERVE_OUTPUTS_INTERFACE, "preserving outputs on disconnect");
+        try {
+            protocol_.setPreserveOutputs(preserve);
         } catch (IOException e) {
             throw new ConnectionLostException(e);
         }

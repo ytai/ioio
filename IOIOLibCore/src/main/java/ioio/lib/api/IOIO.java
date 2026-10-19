@@ -629,6 +629,22 @@ public interface IOIO {
     void endBatch() throws ConnectionLostException;
 
     /**
+     * Choose whether digital outputs keep their state when the connection to the IOIO is lost.
+     * <p>
+     * By default, when the connection is lost (e.g. the Android device is disconnected), all pins
+     * are reset to inputs. When enabled, pins that are configured as plain digital outputs at that
+     * moment keep their configuration and level, until the next connection is established and
+     * the IOIO is reset. All other pins (inputs, PWM, UART, SPI, etc.) are reset as usual.
+     * This setting only affects the current connection and defaults to disabled on each new one.
+     * Requires firmware supporting interface IOIO0006.
+     *
+     * @param preserve Whether to preserve digital outputs on disconnect.
+     * @throws ConnectionLostException Connection was lost before or during the execution of this method.
+     * @throws IllegalStateException   The firmware does not support this feature.
+     */
+    void setPreserveOutputsOnDisconnect(boolean preserve) throws ConnectionLostException;
+
+    /**
      * Sends a message to the IOIO and waits for an echo.
      * <p>
      * This is useful for synchronizing asynchronous calls across the entire API, for example: When
