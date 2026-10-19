@@ -61,6 +61,7 @@ static uint8_t    rfcomm_send_credit = 0;
 static ChannelCallback client_callback;
 static int_or_ptr_t client_callback_arg;
 static char       local_name[] = "IOIO (00:00)";  // the digits will be replaced by the MSB of the BD-ADDR
+static uint8_t pin_code[16] = "4545";
 static STATE state;
 static void *bt_buf;
 static int bt_buf_size;
@@ -104,7 +105,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
           // inform about pin code request
           log_printf("Pin code request - using '4545'");
           bt_flip_addr(event_addr, &packet[2]);
-          hci_send_cmd(&hci_pin_code_request_reply, &event_addr, 4, "4545");
+          hci_send_cmd(&hci_pin_code_request_reply, &event_addr, 4, pin_code);
           break;
 
         case RFCOMM_EVENT_INCOMING_CONNECTION:
