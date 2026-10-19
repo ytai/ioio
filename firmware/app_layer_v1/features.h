@@ -42,6 +42,8 @@ void SetPinSpi(int pin, int spi_num, int mode, int enable);
 void SetPinInCap(int pin, int incap_num, int enable);
 void HardReset();
 void SoftReset();
+void SoftResetOnDisconnect();
+void SetPreserveOutputs(BOOL preserve);
 void CheckInterface(BYTE interface_id[8]);
 
 

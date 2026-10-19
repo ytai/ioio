@@ -50,13 +50,22 @@
 // Pin modes
 ////////////////////////////////////////////////////////////////////////////////
 
-static void PinsInit() {
+// Tracks pins that are currently configured as plain digital outputs, so their
+// state can optionally survive a disconnection.
+static BOOL pin_is_digital_out[NUM_PINS];
+static BOOL preserve_outputs = FALSE;
+
+static void PinsInit(BOOL preserve) {
   int i;
   _CNIE = 0;
   // reset pin states
-  SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
+  if (!preserve || !pin_is_digital_out[0]) {
+    SetPinDigitalOut(0, 1, 1);  // LED pin: output, open-drain, high (off)
+  }
   for (i = 1; i < NUM_PINS; ++i) {
-    SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+    if (!preserve || !pin_is_digital_out[i]) {
+      SetPinDigitalIn(i, 0);    // all other pins: input, no-pull
+    }
   }
   // clear and enable global CN interrupts
   _CNIF = 0;
@@ -67,6 +76,7 @@ static void PinsInit() {
 void SetPinDigitalOut(int pin, int value, int open_drain) {
   log_printf("SetPinDigitalOut(%d, %d, %d)", pin, value, open_drain);
   SAVE_PIN_FOR_LOG(pin);
+  pin_is_digital_out[pin] = TRUE;
   // Protect from the user trying to use push-pull, later pulling low using the
   // bootloader pin.
   if (pin == 0) open_drain = 1;
@@ -81,6 +91,7 @@ void SetPinDigitalOut(int pin, int value, int open_drain) {
 }
 
 void SetPinDigitalIn(int pin, int pull) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinDigitalIn(%d, %d)", pin, pull);
   SAVE_PIN_FOR_LOG(pin);
   PinSetAnsel(pin, 0);
@@ -105,12 +116,14 @@ void SetPinDigitalIn(int pin, int pull) {
 }
 
 void SetPinPwm(int pin, int pwm_num, int enable) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinPwm(%d, %d)", pin, pwm_num);
   SAVE_PIN_FOR_LOG(pin);
   PinSetRpor(pin, enable ? (pwm_num == 8 ? 35 : 18 + pwm_num) : 0);
 }
 
 void SetPinUart(int pin, int uart_num, int dir, int enable) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinUart(%d, %d, %d, %d)", pin, uart_num, dir, enable);
   SAVE_PIN_FOR_LOG(pin);
   SAVE_UART_FOR_LOG(uart_num);
@@ -142,6 +155,7 @@ void SetPinUart(int pin, int uart_num, int dir, int enable) {
 }
 
 void SetPinInCap(int pin, int incap_num, int enable) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinInCap(%d, %d, %d)", pin, incap_num, enable);
     int rpin = enable ? PinToRpin(pin) : 0x3F;
 
@@ -155,6 +169,7 @@ void SetPinInCap(int pin, int incap_num, int enable) {
 }
 
 void SetPinAnalogIn(int pin) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinAnalogIn(%d)", pin);
   SAVE_PIN_FOR_LOG(pin);
   PinSetRpor(pin, 0);
@@ -166,6 +181,7 @@ void SetPinAnalogIn(int pin) {
 }
 
 void SetPinCapSense(int pin) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinCapSense(%d)", pin);
   SAVE_PIN_FOR_LOG(pin);
 
@@ -181,6 +197,7 @@ void SetPinCapSense(int pin) {
 }
 
 void SetPinSpi(int pin, int spi_num, int mode, int enable) {
+  pin_is_digital_out[pin] = FALSE;
   log_printf("SetPinSpi(%d, %d, %d, %d)", pin, spi_num, mode, enable);
   SAVE_PIN_FOR_LOG(pin);
   switch (mode) {
@@ -229,11 +246,11 @@ void HardReset() {
   Reset();
 }
 
-void SoftReset() {
+static void ResetAll(BOOL preserve) {
   PRIORITY(7) {
     log_printf("SoftReset()");
     TimersInit();
-    PinsInit();
+    PinsInit(preserve);
     PWMInit();
     ADCInit();
     UARTInit();
@@ -246,11 +263,29 @@ void SoftReset() {
   }
 }
 
+void SoftReset() {
+  preserve_outputs = FALSE;
+  ResetAll(FALSE);
+}
+
+void SoftResetOnDisconnect() {
+  const BOOL preserve = preserve_outputs;
+  // The next session must start clean, regardless of this one.
+  preserve_outputs = FALSE;
+  ResetAll(preserve);
+}
+
+void SetPreserveOutputs(BOOL preserve) {
+  log_printf("SetPreserveOutputs(%d)", preserve);
+  preserve_outputs = preserve;
+}
+
 void CheckInterface(BYTE interface_id[8]) {
   OUTGOING_MESSAGE msg;
   msg.type = CHECK_INTERFACE_RESPONSE;
   msg.args.check_interface_response.supported
-      = (memcmp(interface_id, PROTOCOL_IID_IOIO0006, 8) == 0)
+      = (memcmp(interface_id, PROTOCOL_IID_IOIO0007, 8) == 0)
+        || (memcmp(interface_id, PROTOCOL_IID_IOIO0006, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0005, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0004, 8) == 0)
         || (memcmp(interface_id, PROTOCOL_IID_IOIO0003, 8) == 0)

@@ -42,6 +42,7 @@
 #define PROTOCOL_IID_IOIO0004 "IOIO0004"
 #define PROTOCOL_IID_IOIO0005 "IOIO0005"
 #define PROTOCOL_IID_IOIO0006 "IOIO0006"
+#define PROTOCOL_IID_IOIO0007 "IOIO0007"
 
 // hard reset
 typedef struct PACKED {
@@ -380,6 +381,12 @@ typedef struct PACKED {
 typedef struct PACKED {
 } SOFT_CLOSE_ARGS;
 
+// preserve digital outputs on disconnect
+typedef struct PACKED {
+  BYTE preserve : 1;
+  BYTE : 7;
+} SET_PRESERVE_OUTPUTS_ARGS;
+
 // set pin capsense
 typedef struct PACKED {
   BYTE pin : 6;
@@ -464,6 +471,7 @@ typedef struct PACKED {
     SEQUENCER_CONFIGURE_ARGS                 sequencer_configure;
     SEQUENCER_PUSH_ARGS                      sequencer_push;
     SEQUENCER_CONTROL_ARGS                   sequencer_control;
+    SET_PRESERVE_OUTPUTS_ARGS                set_preserve_outputs;
     // BOOKMARK(add_feature): Add argument struct to the union.
   } args;
   BYTE __vabuf[72];  // buffer for var args. never access directly!
@@ -568,7 +576,8 @@ typedef enum {
   SEQUENCER_CONTROL                   = 0x22,
 
   SYNC                                = 0x23,
-  SET_ANALOG_IN_SAMPLE_RATE             = 0x24,
+  SET_PRESERVE_OUTPUTS                = 0x24,
+  SET_ANALOG_IN_SAMPLE_RATE           = 0x25,
 
 
   // BOOKMARK(add_feature): Add new message type to enum.

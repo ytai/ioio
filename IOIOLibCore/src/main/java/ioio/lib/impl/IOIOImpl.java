@@ -59,17 +59,20 @@ import java.io.IOException;
 public class IOIOImpl implements IOIO, DisconnectListener {
     private static final String TAG = "IOIOImpl";
     // The protocol interfaces this library can work with: IOIO0004
-    // added CapSense, IOIO0005 the sequencer, IOIO0006 configurable ADC sampling.
-    private static final int NEWEST_INTERFACE = 6;
+    // added CapSense, IOIO0005 the sequencer, IOIO0006 preserving
+    // digital outputs on disconnect, IOIO0007 configurable ADC sampling.
+    private static final int NEWEST_INTERFACE = 7;
     private static final int OLDEST_INTERFACE = 3;
     private static final int CAPSENSE_INTERFACE = 4;
     private static final int SEQUENCER_INTERFACE = 5;
-    private static final int ANALOG_SAMPLE_RATE_INTERFACE = 6;
+    private static final int PRESERVE_OUTPUTS_INTERFACE = 6;
+    private static final int ANALOG_SAMPLE_RATE_INTERFACE = 7;
     private int interfaceVersion_;
     IOIOProtocol protocol_;
     ResourceManager resourceManager_;
     IncomingState incomingState_ = new IncomingState();
     Board.Hardware hardware_;
+    private static final long DISCONNECT_TIMEOUT_MS = 3000;
     private boolean disconnect_ = false;
     private volatile boolean resetting_ = false;
     private IOIOConnection connection_;
@@ -139,6 +142,29 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             Log.e(TAG, "Soft close failed", e);
         }
         connection_.disconnect();
+        if (protocol_ != null) {
+            startDisconnectWatchdog();
+        }
+    }
+
+    // Some connections cannot interrupt a blocked read, so the incoming
+    // thread may never notice the disconnection. Rather than blocking
+    // waitForDisconnect() forever, consider the connection lost.
+    private void startDisconnectWatchdog() {
+        Thread watchdog = new Thread("IOIO disconnect watchdog") {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(DISCONNECT_TIMEOUT_MS);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                Log.w(TAG, "Disconnect timed out, forcing connection lost");
+                incomingState_.handleConnectionLost();
+            }
+        };
+        watchdog.setDaemon(true);
+        watchdog.start();
     }
 
     @Override
@@ -698,6 +724,18 @@ public class IOIOImpl implements IOIO, DisconnectListener {
         checkState();
         try {
             protocol_.endBatch();
+        } catch (IOException e) {
+            throw new ConnectionLostException(e);
+        }
+    }
+
+    @Override
+    public synchronized void setPreserveOutputsOnDisconnect(boolean preserve)
+            throws ConnectionLostException {
+        checkState();
+        checkInterface(PRESERVE_OUTPUTS_INTERFACE, "preserving outputs on disconnect");
+        try {
+            protocol_.setPreserveOutputs(preserve);
         } catch (IOException e) {
             throw new ConnectionLostException(e);
         }
