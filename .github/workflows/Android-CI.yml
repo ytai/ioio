@@ -33,13 +33,13 @@ jobs:
           java-version: 17
       - uses: gradle/actions/wrapper-validation@v6
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.1.16.9
+        uses: hannesa2/action-android/install-sdk@0.18.1
       - name: Run tests
         run: ./gradlew test
         env:
           VERSION: ${{ github.ref }}
       - name: Run instrumentation tests
-        uses: hannesa2/action-android/emulator-run-cmd@0.1.16.9
+        uses: hannesa2/action-android/emulator-run-cmd@0.18.1
         env:
           VERSION: ${{ github.ref }}
         with:
@@ -81,7 +81,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.1.16.9
+        uses: hannesa2/action-android/install-sdk@0.18.1
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
