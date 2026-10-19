@@ -70,6 +70,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     IncomingState incomingState_ = new IncomingState();
     Board.Hardware hardware_;
     private boolean disconnect_ = false;
+    private volatile boolean resetting_ = false;
     private IOIOConnection connection_;
     private State state_ = State.INIT;
     public IOIOImpl(IOIOConnection con) {
@@ -231,12 +232,20 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     }
 
     @Override
-    synchronized public void softReset() throws ConnectionLostException {
-        checkState();
+    public void softReset() throws ConnectionLostException {
+        synchronized (this) {
+            checkState();
+            resetting_ = true;
+        }
         try {
-            protocol_.softReset();
+            incomingState_.closeResources();
+            synchronized (this) {
+                protocol_.softReset();
+            }
         } catch (IOException e) {
             throw new ConnectionLostException(e);
+        } finally {
+            resetting_ = false;
         }
     }
 
@@ -600,7 +609,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     }
 
     @Override
-    public PulseInput openPulseInput(Spec spec, ClockRate rate, PulseMode mode,
+    synchronized public PulseInput openPulseInput(Spec spec, ClockRate rate, PulseMode mode,
                                      boolean doublePrecision) throws ConnectionLostException {
         checkState();
         hardware_.checkSupportsPeripheralInput(spec.pin);
@@ -634,7 +643,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     }
 
     @Override
-    public Sequencer openSequencer(Sequencer.ChannelConfig[] config)
+    synchronized public Sequencer openSequencer(Sequencer.ChannelConfig[] config)
             throws ConnectionLostException {
         checkState();
         checkInterface(SEQUENCER_INTERFACE, "the sequencer");
@@ -642,6 +651,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     }
 
     private void checkState() throws ConnectionLostException {
+        if (resetting_) {
+            throw new IllegalStateException("Soft reset is in progress");
+        }
         if (state_ == State.DEAD) {
             throw new ConnectionLostException();
         }
