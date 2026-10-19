@@ -90,7 +90,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster, DataModuleLis
             try {
                 outgoing_.write(outgoingPacket);
             } catch (IOException e) {
-                Log.e("SpiMasterImpl", "Exception caught", e);
+                Log.e("TwiMasterImpl", "Exception caught", e);
             }
         }
         return result;
@@ -134,7 +134,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster, DataModuleLis
         try {
             ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_, p.writeSize_, p.readSize_, p.writeData_);
         } catch (IOException e) {
-            Log.e("TwiImpl", "Caught exception", e);
+            Log.e("TwiMasterImpl", "Caught exception", e);
         }
     }
 
