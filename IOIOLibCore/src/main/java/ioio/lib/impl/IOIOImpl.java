@@ -69,6 +69,7 @@ public class IOIOImpl implements IOIO, DisconnectListener {
     ResourceManager resourceManager_;
     IncomingState incomingState_ = new IncomingState();
     Board.Hardware hardware_;
+    private static final long DISCONNECT_TIMEOUT_MS = 3000;
     private boolean disconnect_ = false;
     private volatile boolean resetting_ = false;
     private IOIOConnection connection_;
@@ -137,6 +138,29 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             Log.e(TAG, "Soft close failed", e);
         }
         connection_.disconnect();
+        if (protocol_ != null) {
+            startDisconnectWatchdog();
+        }
+    }
+
+    // Some connections cannot interrupt a blocked read, so the incoming
+    // thread may never notice the disconnection. Rather than blocking
+    // waitForDisconnect() forever, consider the connection lost.
+    private void startDisconnectWatchdog() {
+        Thread watchdog = new Thread("IOIO disconnect watchdog") {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(DISCONNECT_TIMEOUT_MS);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                Log.w(TAG, "Disconnect timed out, forcing connection lost");
+                incomingState_.handleConnectionLost();
+            }
+        };
+        watchdog.setDaemon(true);
+        watchdog.start();
     }
 
     @Override
