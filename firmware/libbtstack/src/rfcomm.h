@@ -299,7 +299,7 @@ void rfcomm_grant_credits(uint16_t rfcomm_cid, uint8_t credits);
 // Sends RFCOMM data packet to the RFCOMM channel with given identifier.
 int  rfcomm_send_internal(uint16_t rfcomm_cid, uint8_t *data, uint16_t len);
 
-int  rfcomm_can_send(uint8_t rfcomm_cid);
+int  rfcomm_can_send(uint16_t rfcomm_cid);
 
 #if defined __cplusplus
 }

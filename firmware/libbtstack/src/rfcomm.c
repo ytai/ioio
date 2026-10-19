@@ -1697,7 +1697,7 @@ void rfcomm_register_packet_handler(void (*handler)(void * connection, uint8_t p
 	app_packet_handler = handler;
 }
 
-int rfcomm_can_send(uint8_t rfcomm_cid) {
+int rfcomm_can_send(uint16_t rfcomm_cid) {
     rfcomm_channel_t * channel = rfcomm_channel_for_rfcomm_cid(rfcomm_cid);
     if (!channel){
         log_error("rfcomm_send_internal cid %u doesn't exist!\n", rfcomm_cid);
