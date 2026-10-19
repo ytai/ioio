@@ -28,6 +28,7 @@
  */
 package ioio.lib.impl;
 
+import ioio.lib.api.Closeable;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.Board.Hardware;
 import ioio.lib.impl.IOIOProtocol.IncomingHandler;
@@ -137,6 +138,23 @@ class IncomingState implements IncomingHandler {
             DisconnectListener listener) {
         if (connection_ != ConnectionState.DISCONNECTED) {
             disconnectListeners_.remove(listener);
+        }
+    }
+
+    public void closeResources() {
+        final DisconnectListener[] listeners;
+        synchronized (this) {
+            listeners = disconnectListeners_.toArray(
+                    new DisconnectListener[0]);
+        }
+        for (DisconnectListener listener : listeners) {
+            if (listener instanceof Closeable) {
+                try {
+                    ((Closeable) listener).close();
+                } catch (IllegalStateException ignored) {
+                    // The resource may have been closed concurrently.
+                }
+            }
         }
     }
 
