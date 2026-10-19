@@ -95,8 +95,8 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
             pendingIntent_ = null;
             // The PendingIntent is immutable, so the system cannot add
             // EXTRA_PERMISSION_GRANTED to it; ask the UsbManager.
-            UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
-            if (accessories != null && usbManager_.hasPermission(accessories[0])) {
+            UsbAccessoryInterface[] accessories = usbManager_ == null ? null : usbManager_.getAccessoryList();
+            if (accessories != null && accessories.length > 0 && usbManager_.hasPermission(accessories[0])) {
                 notifyAll();
             } else {
                 Log.e(TAG, "Permission denied");
@@ -239,9 +239,14 @@ public class AccessoryConnectionBootstrap extends BroadcastReceiver implements
     }
 
     private boolean tryOpen(Connection connection) {
+        if (usbManager_ == null) {
+            Log.v(TAG, "USB accessory service unavailable.");
+            return false;
+        }
+
         // Find the accessory.
         UsbAccessoryInterface[] accessories = usbManager_.getAccessoryList();
-        UsbAccessoryInterface accessory = (accessories == null ? null : accessories[0]);
+        UsbAccessoryInterface accessory = (accessories == null || accessories.length == 0 ? null : accessories[0]);
 
         if (accessory == null) {
             Log.v(TAG, "No accessory found.");
