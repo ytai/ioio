@@ -57,7 +57,7 @@ static void DummyCallback(const void *data, UINT32 size, int_or_ptr_t arg) {
 static uint8_t    rfcomm_channel_nr = 1;
 static uint16_t   rfcomm_channel_id;
 static uint8_t    spp_service_buffer[128] __attribute__((aligned(__alignof(service_record_item_t))));
-static uint8_t    rfcomm_send_credit = 0;
+static uint8_t    rfcomm_send_credits = 0;
 static ChannelCallback client_callback;
 static int_or_ptr_t client_callback_arg;
 static char       local_name[] = "IOIO (00:00)";  // the digits will be replaced by the MSB of the BD-ADDR
@@ -123,7 +123,6 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
             log_printf("RFCOMM channel open failed, status %u", packet[2]);
           } else {
             rfcomm_channel_id = READ_BT_16(packet, 12);
-            rfcomm_send_credit = 1;
             mtu = READ_BT_16(packet, 14);
             log_printf("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u", rfcomm_channel_id, mtu);
           }
@@ -134,6 +133,7 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
           client_callback(NULL, 0, client_callback_arg);
           client_callback = DummyCallback;
           rfcomm_channel_id = 0;
+          rfcomm_send_credits = 0;
           break;
 
         default:
@@ -143,7 +143,9 @@ static void PacketHandler(void * connection, uint8_t packet_type, uint16_t chann
 
     case RFCOMM_DATA_PACKET:
       client_callback(packet, size, client_callback_arg);
-      rfcomm_send_credit = 1;
+      if (rfcomm_send_credits < 0xFF) {
+        ++rfcomm_send_credits;
+      }
 
     default:
       break;
@@ -157,6 +159,7 @@ static void BTInit(void *buf, int size) {
 }
 
 static void BTAttached() {
+  rfcomm_send_credits = 0;
   btstack_memory_init();
 
   // init HCI
@@ -174,7 +177,7 @@ static void BTAttached() {
   // init RFCOMM
   rfcomm_init();
   rfcomm_register_packet_handler(PacketHandler);
-  rfcomm_register_service_internal(NULL, rfcomm_channel_nr, 100); // reserved channel, mtu=100
+  rfcomm_register_service_with_initial_credits_internal(NULL, rfcomm_channel_nr, 100, 0x30); // reserved channel, mtu=100
 
   // init SDP, create record for SPP and register with SDP
   sdp_init();
@@ -202,9 +205,9 @@ static void BTTasks() {
       if (USBHostBluetoothIsDeviceAttached()) {
         hci_transport_mchpusb_tasks();
 
-        if (rfcomm_channel_id && rfcomm_send_credit) {
-          rfcomm_grant_credits(rfcomm_channel_id, 1);
-          rfcomm_send_credit = 0;
+        if (rfcomm_channel_id && rfcomm_send_credits) {
+          rfcomm_grant_credits(rfcomm_channel_id, rfcomm_send_credits);
+          rfcomm_send_credits = 0;
         }
       } else {
         // Detached. We don't care about the state of btstack, since we're not
@@ -214,6 +217,7 @@ static void BTTasks() {
         client_callback(NULL, 1, client_callback_arg);
         client_callback = DummyCallback;
         rfcomm_channel_id = 0;
+        rfcomm_send_credits = 0;
         state = STATE_DETACHED;
        }
   }
