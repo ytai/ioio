@@ -41,6 +41,7 @@
 #define PROTOCOL_IID_IOIO0003 "IOIO0003"
 #define PROTOCOL_IID_IOIO0004 "IOIO0004"
 #define PROTOCOL_IID_IOIO0005 "IOIO0005"
+#define PROTOCOL_IID_IOIO0006 "IOIO0006"
 
 // hard reset
 typedef struct PACKED {
@@ -294,6 +295,10 @@ typedef struct PACKED {
   BYTE enable : 1;
 } SET_ANALOG_IN_SAMPLING_ARGS;
 
+typedef struct PACKED {
+  WORD samples_per_second;
+} SET_ANALOG_IN_SAMPLE_RATE_ARGS;
+
 // check interface
 typedef struct PACKED {
   BYTE interface_id[8];
@@ -455,6 +460,7 @@ typedef struct PACKED {
     SOFT_CLOSE_ARGS                          soft_close;
     SET_PIN_CAPSENSE_ARGS                    set_pin_capsense;
     SET_CAPSENSE_SAMPLING_ARGS               set_capsense_sampling;
+    SET_ANALOG_IN_SAMPLE_RATE_ARGS            set_analog_in_sample_rate;
     SEQUENCER_CONFIGURE_ARGS                 sequencer_configure;
     SEQUENCER_PUSH_ARGS                      sequencer_push;
     SEQUENCER_CONTROL_ARGS                   sequencer_control;
@@ -562,6 +568,7 @@ typedef enum {
   SEQUENCER_CONTROL                   = 0x22,
 
   SYNC                                = 0x23,
+  SET_ANALOG_IN_SAMPLE_RATE             = 0x24,
 
 
   // BOOKMARK(add_feature): Add new message type to enum.

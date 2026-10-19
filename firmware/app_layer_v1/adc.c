@@ -46,6 +46,8 @@
 
 static volatile uint16_t analog_scan_bitmask;
 static volatile int analog_scan_num_channels;
+static volatile unsigned int analog_sample_rate = 1000;
+static volatile unsigned int analog_sample_rate_accumulator;
 // Bit k is set iff channel k is marked for capsense reporting.
 static volatile uint16_t capsense_bitmask;
 // Bit k is set iff the status of channel k has changed wrt capsense sampling
@@ -159,6 +161,8 @@ void ADCInit() {
 
   analog_scan_bitmask = 0x0000;
   analog_scan_num_channels = 0;
+  analog_sample_rate = 1000;
+  analog_sample_rate_accumulator = 0;
   capsense_bitmask = 0x0000;
   capsense_dirty_bitmask = 0x0000;
 }
@@ -326,6 +330,14 @@ void ADCSetScan(int pin, int enable) {
   }
 }
 
+void ADCSetSampleRate(unsigned int samples_per_second) {
+  if (samples_per_second < 1 || samples_per_second > 1000) return;
+  PRIORITY(1) {
+    analog_sample_rate = samples_per_second;
+    analog_sample_rate_accumulator = 0;
+  }
+}
+
 void ADCSetCapSense(int pin, int enable) {
   log_printf("ADCSetCapSense(%d, %d)", pin, enable);
   int channel = PinToAnalogChannel(pin);
@@ -377,6 +389,13 @@ void __attribute__((__interrupt__, auto_psv)) _T3Interrupt() {
     ReportModifiedCapSenseStatus();
   }
   assert(!capsense_dirty_bitmask);
+
+  analog_sample_rate_accumulator += analog_sample_rate;
+  if (analog_sample_rate_accumulator < 1000) {
+    _T3IF = 0;
+    return;
+  }
+  analog_sample_rate_accumulator -= 1000;
 
   T3IntBlock();  // disable interrupts. will be re-enabled when sampling is done.
   // Sample!

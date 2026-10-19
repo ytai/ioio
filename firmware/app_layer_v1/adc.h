@@ -50,6 +50,10 @@ void ADCInit();
 // for sampling.
 void ADCSetScan(int pin, int enable);
 
+// Set the periodic sampling rate for all analog and capacitance-sensing inputs.
+// The rate must be between 1 and 1000 samples per second.
+void ADCSetSampleRate(unsigned int samples_per_second);
+
 // Set / un-set a pin for a periodic capacitance sensing.
 // Call will be ignored if pin does not support analog input, or is already set
 // for sampling.

@@ -171,7 +171,17 @@ class AnalogInputImpl extends AbstractPin implements AnalogInput, InputPinListen
 
     @Override
     public float getSampleRate() throws ConnectionLostException {
-        return 1000.0f;
+        checkState();
+        return ioio_.getAnalogInputSampleRate();
+    }
+
+    @Override
+    public void setSampleRate(int samplesPerSecond) throws ConnectionLostException {
+        checkState();
+        if (samplesPerSecond < 1 || samplesPerSecond > 1000) {
+            throw new IllegalArgumentException("Sample rate must be between 1 and 1000 Hz");
+        }
+        ioio_.setAnalogInputSampleRate(samplesPerSecond);
     }
 
     @Override

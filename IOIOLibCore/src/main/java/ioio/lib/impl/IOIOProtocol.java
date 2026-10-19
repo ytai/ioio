@@ -100,6 +100,7 @@ class IOIOProtocol {
     static final int SEQUENCER_PUSH = 0x21;
     static final int SEQUENCER_CONTROL = 0x22;
     static final int SYNC = 0x23;
+    static final int SET_ANALOG_IN_SAMPLE_RATE = 0x24;
 
     static final int[] SCALE_DIV = new int[]{
             0x1F,  // 31.25
@@ -336,6 +337,13 @@ class IOIOProtocol {
         beginBatch();
         writeByte(SET_ANALOG_IN_SAMPLING);
         writeByte((enable ? 0x80 : 0x00) | (pin & 0x3F));
+        endBatch();
+    }
+
+    synchronized public void setAnalogInSampleRate(int samplesPerSecond) throws IOException {
+        beginBatch();
+        writeByte(SET_ANALOG_IN_SAMPLE_RATE);
+        writeTwoBytes(samplesPerSecond);
         endBatch();
     }
 
