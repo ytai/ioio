@@ -28,6 +28,10 @@
  */
 package ioio.lib.impl;
 
+import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import ioio.lib.api.SpiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.impl.FlowControlledPacketSender.Packet;
@@ -35,10 +39,6 @@ import ioio.lib.impl.FlowControlledPacketSender.Sender;
 import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
-
-import java.io.IOException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleListener, Sender {
     private final Queue<SpiResult> pendingRequests_ = new ConcurrentLinkedQueue<>();
@@ -48,8 +48,8 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
     private final Resource mosiPin_;
     private final Resource misoPin_;
     private final Resource clkPin_;
-    SpiMasterImpl(IOIOImpl ioio, Resource spi, Resource mosiPin, Resource misoPin, Resource clkPin,
-                  Resource[] ssPins) throws ConnectionLostException {
+
+    SpiMasterImpl(IOIOImpl ioio, Resource spi, Resource mosiPin, Resource misoPin, Resource clkPin, Resource[] ssPins) throws ConnectionLostException {
         super(ioio);
         spi_ = spi;
         mosiPin_ = mosiPin;
@@ -68,15 +68,13 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
     }
 
     @Override
-    public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize,
-                          byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
+    public void writeRead(int slave, byte[] writeData, int writeSize, int totalSize, byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
         Result result = writeReadAsync(slave, writeData, writeSize, totalSize, readData, readSize);
         result.waitReady();
     }
 
     @Override
-    public SpiResult writeReadAsync(int slave, byte[] writeData, int writeSize, int totalSize,
-                                    byte[] readData, int readSize) throws ConnectionLostException {
+    public SpiResult writeReadAsync(int slave, byte[] writeData, int writeSize, int totalSize, byte[] readData, int readSize) throws ConnectionLostException {
         checkState();
         SpiResult result = new SpiResult(readData);
 
@@ -103,8 +101,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
     }
 
     @Override
-    public void writeRead(byte[] writeData, int writeSize, int totalSize, byte[] readData,
-                          int readSize) throws ConnectionLostException, InterruptedException {
+    public void writeRead(byte[] writeData, int writeSize, int totalSize, byte[] readData, int readSize) throws ConnectionLostException, InterruptedException {
         writeRead(0, writeData, writeSize, totalSize, readData, readSize);
     }
 
@@ -149,8 +146,7 @@ class SpiMasterImpl extends AbstractResource implements SpiMaster, DataModuleLis
     public void send(Packet packet) {
         OutgoingPacket p = (OutgoingPacket) packet;
         try {
-            ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_,
-                    p.totalSize_, p.readSize_);
+            ioio_.protocol_.spiMasterRequest(spi_.id, p.ssPin_, p.writeData_, p.writeSize_, p.totalSize_, p.readSize_);
         } catch (IOException e) {
             Log.e("SpiImpl", "Caught exception", e);
         }

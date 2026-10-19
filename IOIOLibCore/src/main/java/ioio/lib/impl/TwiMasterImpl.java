@@ -40,11 +40,9 @@ import ioio.lib.impl.IncomingState.DataModuleListener;
 import ioio.lib.impl.ResourceManager.Resource;
 import ioio.lib.spi.Log;
 
-class TwiMasterImpl extends AbstractResource implements TwiMaster,
-        DataModuleListener, Sender {
+class TwiMasterImpl extends AbstractResource implements TwiMaster, DataModuleListener, Sender {
     private final Queue<TwiResult> pendingRequests_ = new ConcurrentLinkedQueue<>();
-    private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(
-            this);
+    private final FlowControlledPacketSender outgoing_ = new FlowControlledPacketSender(this);
     private final Resource twi_;
     private final Resource[] pins_;
 
@@ -64,11 +62,9 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
     }
 
     @Override
-    public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData,
-                             int writeSize, byte[] readData, int readSize)
+    public boolean writeRead(int address, boolean tenBitAddr, byte[] writeData, int writeSize, byte[] readData, int readSize)
             throws ConnectionLostException, InterruptedException {
-        Result result = writeReadAsync(address, tenBitAddr, writeData,
-                writeSize, readData, readSize);
+        Result result = writeReadAsync(address, tenBitAddr, writeData, writeSize, readData, readSize);
         return result.waitReady();
     }
 
@@ -78,12 +74,12 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         checkState();
         TwiResult result = new TwiResult(readData);
 
-        OutgoingPacket p = new OutgoingPacket();
-        p.writeSize_ = writeSize;
-        p.writeData_ = writeData;
-        p.tenBitAddr_ = tenBitAddr;
-        p.readSize_ = readSize;
-        p.addr_ = address;
+        OutgoingPacket outgoingPacket = new OutgoingPacket();
+        outgoingPacket.writeSize_ = writeSize;
+        outgoingPacket.writeData_ = writeData;
+        outgoingPacket.tenBitAddr_ = tenBitAddr;
+        outgoingPacket.readSize_ = readSize;
+        outgoingPacket.addr_ = address;
 
         synchronized (this) {
             // Check again under the lock: disconnected() may have run
@@ -92,7 +88,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
             checkState();
             pendingRequests_.add(result);
             try {
-                outgoing_.write(p);
+                outgoing_.write(outgoingPacket);
             } catch (IOException e) {
                 Log.e("SpiMasterImpl", "Exception caught", e);
             }
@@ -136,8 +132,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
     public void send(Packet packet) {
         OutgoingPacket p = (OutgoingPacket) packet;
         try {
-            ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_,
-                    p.writeSize_, p.readSize_, p.writeData_);
+            ioio_.protocol_.i2cWriteRead(twi_.id, p.tenBitAddr_, p.addr_, p.writeSize_, p.readSize_, p.writeData_);
         } catch (IOException e) {
             Log.e("TwiImpl", "Caught exception", e);
         }
@@ -163,8 +158,7 @@ class TwiMasterImpl extends AbstractResource implements TwiMaster,
         }
 
         @Override
-        public synchronized boolean waitReady() throws ConnectionLostException,
-                InterruptedException {
+        public synchronized boolean waitReady() throws ConnectionLostException, InterruptedException {
             checkState();
             while (!ready_) {
                 safeWait();
