@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    val versionLib = "6.4"
+    val versionLib = "6.5"
     implementation("com.github.ytai.ioio:IOIOLibAndroidBluetooth:${versionLib}")
     implementation("com.github.ytai.ioio:IOIOLibAndroidAccessory:${versionLib}")
     implementation("com.github.ytai.ioio:IOIOLibAndroidDevice:${versionLib}")
