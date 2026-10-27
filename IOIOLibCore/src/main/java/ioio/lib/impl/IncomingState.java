@@ -96,6 +96,22 @@ class IncomingState implements IncomingHandler {
         }
     }
 
+    /**
+     * Waits until the connection is lost, at most timeoutMs.
+     *
+     * @return Whether the connection was lost.
+     */
+    synchronized public boolean waitDisconnect(long timeoutMs)
+            throws InterruptedException {
+        final long deadline = System.nanoTime() + timeoutMs * 1000000;
+        long remaining = timeoutMs;
+        while (!disconnectDone_ && remaining > 0) {
+            wait(remaining);
+            remaining = (deadline - System.nanoTime()) / 1000000;
+        }
+        return disconnectDone_;
+    }
+
     public void addInputPinListener(int pin, InputPinListener listener) {
         intputPinStates_[pin].pushListener(listener);
     }

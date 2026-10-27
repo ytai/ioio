@@ -155,7 +155,9 @@ public class IOIOImpl implements IOIO, DisconnectListener {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(DISCONNECT_TIMEOUT_MS);
+                    if (incomingState_.waitDisconnect(DISCONNECT_TIMEOUT_MS)) {
+                        return;
+                    }
                 } catch (InterruptedException e) {
                     return;
                 }
